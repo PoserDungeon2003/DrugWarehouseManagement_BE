@@ -14,7 +14,6 @@
     <Folder Include="DTO\Response\" />
     <Folder Include="DTO\Request\" />
     <Folder Include="Interface\" />
-    <Folder Include="Enums\" />
     <Folder Include="Services\" />
   </ItemGroup>
 

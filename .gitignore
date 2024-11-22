@@ -401,3 +401,4 @@ FodyWeavers.xsd
 
 appsettings.Production.json
 Migrations/
+.env

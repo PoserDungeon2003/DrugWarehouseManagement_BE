@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DrugWarehouseManagement.Ser
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DrugWarehouseManagement.API", "DrugWarehouseManagement.API\DrugWarehouseManagement.API.csproj", "{10F1D3D1-0792-4D12-8205-A68482DBD9B9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DrugWarehouseManagement.Common", "DrugWarehouseManagement.Common\DrugWarehouseManagement.Common.csproj", "{DF982728-F9BC-4134-B5B9-354AB8E024FC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{10F1D3D1-0792-4D12-8205-A68482DBD9B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{10F1D3D1-0792-4D12-8205-A68482DBD9B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{10F1D3D1-0792-4D12-8205-A68482DBD9B9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DF982728-F9BC-4134-B5B9-354AB8E024FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DF982728-F9BC-4134-B5B9-354AB8E024FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DF982728-F9BC-4134-B5B9-354AB8E024FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DF982728-F9BC-4134-B5B9-354AB8E024FC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
