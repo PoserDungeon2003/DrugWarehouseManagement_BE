@@ -1,7 +1,3 @@
-Here is a **README.md** file template for your project to guide users through the database migration process:
-
-```markdown
-
 ## Prerequisites
 
 1. Install [.NET SDK](https://dotnet.microsoft.com/download) (version matching the project requirements).
@@ -16,7 +12,6 @@ Here is a **README.md** file template for your project to guide users through th
 ```bash
 cd DrugWarehouseManagement.Repository
 ```
-
 ### 2. Add a Migration
 To create a new migration, run the following command:
 ```bash
