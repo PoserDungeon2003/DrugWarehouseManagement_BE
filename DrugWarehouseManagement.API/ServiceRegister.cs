@@ -1,8 +1,11 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using DrugWarehouseManagement.Repository.Models;
+using Mapster;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using System.Text.Json.Serialization;
 
 namespace DrugWarehouseManagement.API
 {
@@ -10,12 +13,16 @@ namespace DrugWarehouseManagement.API
     {
         public static void RegisterServices(IServiceCollection services, IConfiguration configuration)
         {
-            //services.AddDbContext<>(options =>
-            //{
-            //    options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
-            //});
+            services.AddDbContext<DrugWarehouseContext>(options =>
+            {
+                options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
+            });
 
             services.AddAuthorizeService(configuration);
+
+            AddMapper();
+            AddEnum(services);
+            AddCors(services);
 
         }
 
@@ -68,6 +75,17 @@ namespace DrugWarehouseManagement.API
             });
 
             return services;
+        }
+
+        private static void AddMapper()
+        {
+
+        }
+
+        private static void AddEnum(IServiceCollection services)
+        {
+            services.AddControllers().AddJsonOptions(options =>
+                                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
         }
 
         public static void AddCors(IServiceCollection services)
