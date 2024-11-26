@@ -20,6 +20,7 @@ namespace DrugWarehouseManagement.Repository.Models
         public string PhoneNumber { get; set; } = null!;
         public string Password { get; set; } = null!;
         public DateTime? LastLogin { get; set; }
+        public int? RoleId { get; set; }
         public virtual Role Role { get; set; } = null!;
     }
 }

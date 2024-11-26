@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using DrugWarehouseManagement.Common.Enums;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,9 +12,12 @@ namespace DrugWarehouseManagement.Repository.Models
     public class SeedData
     {
         private readonly ModelBuilder modelBuilder;
+        private readonly PasswordHasher<string> _passwordHasher;
+
         public SeedData(ModelBuilder modelBuilder)
         {
             this.modelBuilder = modelBuilder;
+            _passwordHasher = new PasswordHasher<string>();
         }
 
         public void Seed()
@@ -33,6 +38,137 @@ namespace DrugWarehouseManagement.Repository.Models
                     RoleId = 3,
                     RoleName = "Inventory Staff"
                 });
+
+            modelBuilder.Entity<Account>().HasData(
+                // Admin Accounts
+                new Account
+                {
+                    AccountId = Guid.NewGuid(),
+                    Username = "admin1",
+                    Email = "admin1@example.com",
+                    FullName = "Admin One",
+                    PhoneNumber = "1234567890",
+                    Password = HashPassword("SecurePassword1!"),
+                    CreatedAt = DateTime.Now,
+                    Status = Status.Active,
+                    RoleId = 1 // Admin
+                },
+                new Account
+                {
+                    AccountId = Guid.NewGuid(),
+                    Username = "admin2",
+                    Email = "admin2@example.com",
+                    FullName = "Admin Two",
+                    PhoneNumber = "0987654321",
+                    Password = HashPassword("SecurePassword2!"),
+                    CreatedAt = DateTime.Now,
+                    Status = Status.Active,
+                    RoleId = 1 // Admin
+                },
+                // Inventory Manager Accounts
+                new Account
+                {
+                    AccountId = Guid.NewGuid(),
+                    Username = "manager1",
+                    Email = "manager1@example.com",
+                    FullName = "Manager One",
+                    PhoneNumber = "1122334455",
+                    Password = HashPassword("SecurePassword3!"),
+                    CreatedAt = DateTime.Now,
+                    Status = Status.Active,
+                    RoleId = 2 // Inventory Manager
+                },
+                new Account
+                {
+                    AccountId = Guid.NewGuid(),
+                    Username = "manager2",
+                    Email = "manager2@example.com",
+                    FullName = "Manager Two",
+                    PhoneNumber = "5566778899",
+                    Password = HashPassword("SecurePassword4!"),
+                    CreatedAt = DateTime.Now,
+                    Status = Status.Active,
+                    RoleId = 2 // Inventory Manager
+                },
+                new Account
+                {
+                    AccountId = Guid.NewGuid(),
+                    Username = "manager3",
+                    Email = "manager3@example.com",
+                    FullName = "Manager Three",
+                    PhoneNumber = "6677889900",
+                    Password = HashPassword("SecurePassword5!"),
+                    CreatedAt = DateTime.Now,
+                    Status = Status.Active,
+                    RoleId = 2 // Inventory Manager
+                },
+                new Account
+                {
+                    AccountId = Guid.NewGuid(),
+                    Username = "manager4",
+                    Email = "manager4@example.com",
+                    FullName = "Manager Four",
+                    PhoneNumber = "3344556677",
+                    Password = HashPassword("SecurePassword6!"),
+                    CreatedAt = DateTime.Now,
+                    Status = Status.Active,
+                    RoleId = 2 // Inventory Manager
+                },
+                // Inventory Staff Accounts
+                new Account
+                {
+                    AccountId = Guid.NewGuid(),
+                    Username = "staff1",
+                    Email = "staff1@example.com",
+                    FullName = "Staff One",
+                    PhoneNumber = "7788990011",
+                    Password = HashPassword("SecurePassword7!"),
+                    CreatedAt = DateTime.Now,
+                    Status = Status.Active,
+                    RoleId = 3 // Inventory Staff
+                },
+                new Account
+                {
+                    AccountId = Guid.NewGuid(),
+                    Username = "staff2",
+                    Email = "staff2@example.com",
+                    FullName = "Staff Two",
+                    PhoneNumber = "9900112233",
+                    Password = HashPassword("SecurePassword8!"),
+                    CreatedAt = DateTime.Now,
+                    Status = Status.Active,
+                    RoleId = 3 // Inventory Staff
+                },
+                new Account
+                {
+                    AccountId = Guid.NewGuid(),
+                    Username = "staff3",
+                    Email = "staff3@example.com",
+                    FullName = "Staff Three",
+                    PhoneNumber = "2233445566",
+                    Password = HashPassword("SecurePassword9!"),
+                    CreatedAt = DateTime.Now,
+                    Status = Status.Active,
+                    RoleId = 3 // Inventory Staff
+                },
+                new Account
+                {
+                    AccountId = Guid.NewGuid(),
+                    Username = "staff4",
+                    Email = "staff4@example.com",
+                    FullName = "Staff Four",
+                    PhoneNumber = "4455667788",
+                    Password = HashPassword("SecurePassword10!"),
+                    CreatedAt = DateTime.Now,
+                    Status = Status.Active,
+                    RoleId = 3 // Inventory Staff
+                }
+            );
+        }
+
+        private string HashPassword(string password)
+        {
+            return _passwordHasher.HashPassword(null, password);
         }
     }
 }
