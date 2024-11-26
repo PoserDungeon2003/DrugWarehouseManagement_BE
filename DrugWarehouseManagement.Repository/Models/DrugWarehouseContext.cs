@@ -28,6 +28,14 @@ namespace DrugWarehouseManagement.Repository.Models
             modelBuilder.Entity<Account>()
                 .Property(e => e.PhoneNumber)
                 .HasMaxLength(15);
+            
+            modelBuilder.Entity<Account>()
+                .HasIndex(e => e.Username, "IX_Accounts_Username")
+                .IsUnique();
+
+            modelBuilder.Entity<Account>()
+                .HasIndex(e => e.Email, "IX_Accounts_Email")
+                .IsUnique();
         }
 
         public DbSet<Account> Accounts { get; set; }
