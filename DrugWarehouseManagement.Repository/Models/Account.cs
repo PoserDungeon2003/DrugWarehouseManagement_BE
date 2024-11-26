@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -13,7 +14,13 @@ namespace DrugWarehouseManagement.Repository.Models
         [Key]
         public Guid AccountId { get; set; } = Guid.NewGuid();
         public string Username { get; set; } = null!;
+        public string Email { get; set; } = null!;
+        [Unicode(true)]
+        public string FullName { get; set; } = null!;
+        public string PhoneNumber { get; set; } = null!;
         public string Password { get; set; } = null!;
+        public DateTime? LastLogin { get; set; }
+        public int? RoleId { get; set; }
         public virtual Role Role { get; set; } = null!;
     }
 }

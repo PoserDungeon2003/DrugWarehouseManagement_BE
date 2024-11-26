@@ -19,9 +19,15 @@ namespace DrugWarehouseManagement.Repository.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            var seedData = new SeedData(modelBuilder);
+            seedData.Seed();
             modelBuilder.Entity<Account>()
                 .Property(e => e.AccountId)
                 .HasDefaultValueSql("NEWID()");
+
+            modelBuilder.Entity<Account>()
+                .Property(e => e.PhoneNumber)
+                .HasMaxLength(15);
         }
 
         public DbSet<Account> Accounts { get; set; }
