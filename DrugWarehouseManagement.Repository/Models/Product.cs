@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,7 +12,8 @@ namespace DrugWarehouseManagement.Repository.Models
     public class Product : BaseModel
     {
         [Key]
-        public Guid ProductId { get; set; } = Guid.NewGuid();
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int ProductId { get; set; }
         public string Code { get; set; } = null!;
         [Unicode(true)]
         public string Name { get; set; } = null!;
