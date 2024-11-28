@@ -7,13 +7,17 @@ This document provides an overview of the project structure and describes the pu
 ## **Table of Contents**
 1. [Project Overview](#project-overview)
 2. [Folder Structure](#folder-structure)
-   - [Repository Layer](#repository-layer)
-   - [Service Layer](#service-layer)
-   - [Common Layer](#common-layer)
-   - [API Layer](#api-layer)
+   - [Repository Layer](#1-repository-layer-drugwarehousemanagementrepositorycsproj)
+   - [Service Layer](#2-service-layer-drugwarehousemanagementservicecsproj)
+   - [Common Layer](#2-service-layer-drugwarehousemanagementservicecsproj)
+   - [API Layer](#4-api-layer-drugwarehousemanagementapicsproj)
 3. [Key Components](#key-components)
-   - [Unit of Work](#unit-of-work)
-   - [Dependency Injection](#dependency-injection)
+   - [Unit of Work](#1-unit-of-work)
+   - [Dependency Injection](#2-dependency-injection)
+4. [Naming Conventions](#naming-conventions)
+5. [Coding Principles](#coding-principles)
+6. [Dependency Injection](#step-4-dependency-injection)
+7. [Controller Creation](#step-5-controller-creation)
 
 ---
 
