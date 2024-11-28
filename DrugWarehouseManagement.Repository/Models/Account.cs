@@ -24,8 +24,8 @@ namespace DrugWarehouseManagement.Repository.Models
         public string Password { get; set; } = null!;
         public DateTime? LastLogin { get; set; }
         public int? RoleId { get; set; }
-        public Status Status { get; set; } = Status.Active;
-
+        public AccountStatus Status { get; set; } = AccountStatus.Active;
+        public byte[]? tOTPSecretKey { get; set; }
         public virtual Role Role { get; set; } = null!;
     }
 }

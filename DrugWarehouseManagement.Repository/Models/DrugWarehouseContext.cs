@@ -42,6 +42,11 @@ namespace DrugWarehouseManagement.Repository.Models
 
             modelBuilder.Entity<Inbound>().HasIndex(e => e.InboundCode, "IX_Inbounds_InboundCode").IsUnique();
 
+            modelBuilder.Entity<Account>()
+                .HasIndex(e => e.tOTPSecretKey, "IX_Accounts_TOTPSecretKey")
+                .IsDescending()
+                .IsUnique();
+
         }
 
         

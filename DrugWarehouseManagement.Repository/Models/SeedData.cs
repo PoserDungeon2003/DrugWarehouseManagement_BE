@@ -50,7 +50,7 @@ namespace DrugWarehouseManagement.Repository.Models
                     PhoneNumber = "1234567890",
                     Password = HashPassword("SecurePassword1!"),
                     CreatedAt = DateTime.Now,
-                    Status = Status.Active,
+                    Status = AccountStatus.Active,
                     RoleId = 1 // Admin
                 },
                 new Account
@@ -62,7 +62,7 @@ namespace DrugWarehouseManagement.Repository.Models
                     PhoneNumber = "0987654321",
                     Password = HashPassword("SecurePassword2!"),
                     CreatedAt = DateTime.Now,
-                    Status = Status.Active,
+                    Status = AccountStatus.Active,
                     RoleId = 1 // Admin
                 },
                 // Inventory Manager Accounts
@@ -75,7 +75,7 @@ namespace DrugWarehouseManagement.Repository.Models
                     PhoneNumber = "1122334455",
                     Password = HashPassword("SecurePassword3!"),
                     CreatedAt = DateTime.Now,
-                    Status = Status.Active,
+                    Status = AccountStatus.Active,
                     RoleId = 2 // Inventory Manager
                 },
                 new Account
@@ -87,7 +87,7 @@ namespace DrugWarehouseManagement.Repository.Models
                     PhoneNumber = "5566778899",
                     Password = HashPassword("SecurePassword4!"),
                     CreatedAt = DateTime.Now,
-                    Status = Status.Active,
+                    Status = AccountStatus.Active,
                     RoleId = 2 // Inventory Manager
                 },
                 new Account
@@ -99,7 +99,7 @@ namespace DrugWarehouseManagement.Repository.Models
                     PhoneNumber = "6677889900",
                     Password = HashPassword("SecurePassword5!"),
                     CreatedAt = DateTime.Now,
-                    Status = Status.Active,
+                    Status = AccountStatus.Active,
                     RoleId = 2 // Inventory Manager
                 },
                 new Account
@@ -111,7 +111,7 @@ namespace DrugWarehouseManagement.Repository.Models
                     PhoneNumber = "3344556677",
                     Password = HashPassword("SecurePassword6!"),
                     CreatedAt = DateTime.Now,
-                    Status = Status.Active,
+                    Status = AccountStatus.Active,
                     RoleId = 2 // Inventory Manager
                 },
                 // Inventory Staff Accounts
@@ -124,7 +124,7 @@ namespace DrugWarehouseManagement.Repository.Models
                     PhoneNumber = "7788990011",
                     Password = HashPassword("SecurePassword7!"),
                     CreatedAt = DateTime.Now,
-                    Status = Status.Active,
+                    Status = AccountStatus.Active,
                     RoleId = 3 // Inventory Staff
                 },
                 new Account
@@ -136,7 +136,7 @@ namespace DrugWarehouseManagement.Repository.Models
                     PhoneNumber = "9900112233",
                     Password = HashPassword("SecurePassword8!"),
                     CreatedAt = DateTime.Now,
-                    Status = Status.Active,
+                    Status = AccountStatus.Active,
                     RoleId = 3 // Inventory Staff
                 },
                 new Account
@@ -148,7 +148,7 @@ namespace DrugWarehouseManagement.Repository.Models
                     PhoneNumber = "2233445566",
                     Password = HashPassword("SecurePassword9!"),
                     CreatedAt = DateTime.Now,
-                    Status = Status.Active,
+                    Status = AccountStatus.Active,
                     RoleId = 3 // Inventory Staff
                 },
                 new Account
@@ -160,7 +160,7 @@ namespace DrugWarehouseManagement.Repository.Models
                     PhoneNumber = "4455667788",
                     Password = HashPassword("SecurePassword10!"),
                     CreatedAt = DateTime.Now,
-                    Status = Status.Active,
+                    Status = AccountStatus.Active,
                     RoleId = 3 // Inventory Staff
                 }
             );

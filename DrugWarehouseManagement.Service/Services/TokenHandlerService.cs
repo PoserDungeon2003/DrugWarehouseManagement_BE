@@ -27,6 +27,7 @@ namespace DrugWarehouseManagement.Service.Services
                 new Claim(ClaimTypes.NameIdentifier, account.AccountId.ToString()),
                 new Claim(ClaimTypes.Role, account.Role.RoleName),
                 new Claim(ClaimTypes.Name, account.Username),
+                new Claim(ClaimTypes.Email, account.Email)
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));

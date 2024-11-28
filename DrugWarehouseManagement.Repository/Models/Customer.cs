@@ -22,7 +22,7 @@ namespace DrugWarehouseManagement.Repository.Models
         public string WardCode { get; set; }
         public string DistrictCode { get; set; }
         public string ProvinceCode { get; set; }
-        public Status Status { get; set; } = Status.Active;
+        public AccountStatus Status { get; set; } = AccountStatus.Active;
         public DateTime? LastOrder { get; set; }
 
 

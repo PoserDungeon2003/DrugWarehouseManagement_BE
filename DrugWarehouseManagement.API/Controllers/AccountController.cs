@@ -1,7 +1,9 @@
 ﻿using DrugWarehouseManagement.Service.Interface;
 using DrugWarehouseManagement.Service.Request;
+using DrugWarehouseManagement.Service.Response;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -28,7 +30,26 @@ namespace DrugWarehouseManagement.API.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new
+                return BadRequest(new BaseErrorResponse
+                {
+                    Message = ex.Message,
+                });
+            }
+        }
+
+        [HttpGet("setupTwoFactorAuthenticator")]
+        [Authorize]
+        public async Task<IActionResult> SetupTwoFactorAuthenticator()
+        {
+            var email = User.FindFirstValue(ClaimTypes.Email);
+            try
+            {
+                var response = await _accountService.SetupTwoFactorAuthenticator(email);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new BaseErrorResponse
                 {
                     Message = ex.Message,
                 });
