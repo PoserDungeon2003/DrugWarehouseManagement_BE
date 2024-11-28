@@ -1,4 +1,9 @@
-﻿using DrugWarehouseManagement.Repository.Models;
+﻿using DrugWarehouseManagement.Repository;
+using DrugWarehouseManagement.Repository.Interface;
+using DrugWarehouseManagement.Repository.Models;
+using DrugWarehouseManagement.Repository.Repositories;
+using DrugWarehouseManagement.Service.Interface;
+using DrugWarehouseManagement.Service.Services;
 using Mapster;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -23,6 +28,12 @@ namespace DrugWarehouseManagement.API
             AddMapper();
             AddEnum(services);
             AddCors(services);
+
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<TokenHandlerService>();
+
+            services.AddScoped<IAccountRepository, AccountRepository>();
+            services.AddScoped<IAccountService, AccountService>();
 
         }
 

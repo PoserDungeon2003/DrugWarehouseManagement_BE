@@ -11,11 +11,4 @@
     <ProjectReference Include="..\DrugWarehouseManagement.Repository\DrugWarehouseManagement.Repository.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="DTO\Response\" />
-    <Folder Include="DTO\Request\" />
-    <Folder Include="Interface\" />
-    <Folder Include="Services\" />
-  </ItemGroup>
-
 </Project>
