@@ -20,7 +20,7 @@ namespace DrugWarehouseManagement.API
         {
             services.AddDbContext<DrugWarehouseContext>(options =>
             {
-                options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
+                options.UseSqlServer(configuration.GetConnectionString("local"));
             });
 
             services.AddAuthorizeService(configuration);
