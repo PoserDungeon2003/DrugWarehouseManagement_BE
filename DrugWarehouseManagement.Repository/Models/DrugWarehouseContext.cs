@@ -24,13 +24,7 @@ namespace DrugWarehouseManagement.Repository.Models
             modelBuilder.Entity<Account>()
                 .Property(e => e.AccountId)
                 .HasDefaultValueSql("NEWID()");
-            modelBuilder.Entity<Product>()
-                .Property(e => e.ProductId)
-                .HasDefaultValueSql("NEWID()");
-            modelBuilder.Entity<Drug>()
-                .Property(e => e.DrugId)
-                .HasDefaultValueSql("NEWID()");
-
+          
             modelBuilder.Entity<Account>()
                 .Property(e => e.PhoneNumber)
                 .HasMaxLength(15);
@@ -42,11 +36,26 @@ namespace DrugWarehouseManagement.Repository.Models
             modelBuilder.Entity<Account>()
                 .HasIndex(e => e.Email, "IX_Accounts_Email")
                 .IsUnique();
+
+            
+            modelBuilder.Entity<Outbound>().HasIndex(e=> e.OutboundCode, "IX_Outbounds_OutboundCode").IsUnique();
+
+            modelBuilder.Entity<Inbound>().HasIndex(e => e.InboundCode, "IX_Inbounds_InboundCode").IsUnique();
+
         }
 
+        
+        public DbSet<Inbound> Inbounds { get; set; }
+        public DbSet<Outbound> Outbounds { get; set; }
+        public DbSet<InboundDetail> InboundDetails { get; set; }
+        public DbSet<OutboundDetail> OutboundDetails { get; set; }  
+        public DbSet<Supplier> Suppliers { get; set; }
         public DbSet<Account> Accounts { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<Drug> Drugs { get; set; }
+        public DbSet<Customer> Customers { get; set; }
+   
+
     }
 }

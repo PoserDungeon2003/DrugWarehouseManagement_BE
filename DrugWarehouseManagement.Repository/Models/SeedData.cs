@@ -165,13 +165,12 @@ namespace DrugWarehouseManagement.Repository.Models
                 }
             );
 
-            Guid productId1 = Guid.NewGuid();
-            Guid productId2 = Guid.NewGuid();
+    
 
             modelBuilder.Entity<Product>().HasData(
                 new Product
                 {
-                    ProductId = productId1,
+                    ProductId = 1,
                     Name = "Paracetamol",
                     Code = "PRC001",
                     SKU = "PARA-500-TAB",
@@ -188,11 +187,11 @@ namespace DrugWarehouseManagement.Repository.Models
                     ReorderPoint = DateTime.Now.AddMonths(-1), // Example for testing
                     ReorderQuantity = 100,
                     CreatedAt = DateTime.Now,
-                    Status = Status.Active
+                    Status = ProductStatus.Active
                 },
                 new Product
                 {
-                    ProductId = productId2,
+                    ProductId = 2,
                     Name = "Ibuprofen",
                     Code = "PRC002",
                     Description = "Nonsteroidal anti-inflammatory drug",
@@ -209,30 +208,28 @@ namespace DrugWarehouseManagement.Repository.Models
                     ReorderPoint = DateTime.Now.AddMonths(-2), // Example for testing
                     ReorderQuantity = 50,
                     CreatedAt = DateTime.Now,
-                    Status = Status.Active
+                    Status = ProductStatus.Active
                 }
             );
 
             modelBuilder.Entity<Drug>().HasData(
                 new Drug
                 {
-                    DrugId = Guid.NewGuid(),
-                    ProductId = productId1,
+                    DrugId = 1,
+                    ProductId = 1,
                     TemperatureRange = "15°C - 30°C",
                     HumidityRange = "30% - 50%",
                     IsLightSensitive = false,
                     CreatedAt = DateTime.Now,
-                    Status = Status.Active
                 },
                 new Drug
                 {
-                    DrugId = Guid.NewGuid(),
-                    ProductId = productId2,
+                    DrugId = 2,
+                    ProductId = 2,
                     TemperatureRange = "15°C - 25°C",
                     HumidityRange = "40% - 60%",
                     IsLightSensitive = true, // As Ibuprofen is light-sensitive in some forms
                     CreatedAt = DateTime.Now,
-                    Status = Status.Active
                 }
             );
 

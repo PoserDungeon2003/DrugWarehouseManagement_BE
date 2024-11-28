@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using DrugWarehouseManagement.Common.Enums;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -23,6 +24,8 @@ namespace DrugWarehouseManagement.Repository.Models
         public string Password { get; set; } = null!;
         public DateTime? LastLogin { get; set; }
         public int? RoleId { get; set; }
+        public Status Status { get; set; } = Status.Active;
+
         public virtual Role Role { get; set; } = null!;
     }
 }

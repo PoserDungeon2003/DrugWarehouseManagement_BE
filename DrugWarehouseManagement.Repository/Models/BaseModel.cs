@@ -15,8 +15,5 @@ namespace DrugWarehouseManagement.Repository.Models
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 
         public DateTime? UpdatedAt { get; set; }
-
-        [Required]
-        public Status Status { get; set; } = Status.Active;
     }
 }

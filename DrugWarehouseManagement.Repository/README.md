@@ -16,6 +16,7 @@ cd DrugWarehouseManagement.Repository
 To create a new migration, run the following command:
 ```bash
 dotnet ef migrations add <MigrationName> --startup-project ../DrugWarehouseManagement.API
+dotnet ef migrations add v2 --startup-project ../DrugWarehouseManagement.API
 ```
 Replace `<MigrationName>` with a descriptive name for the migration (e.g., `InitialCreate`, `AddNewTable`, etc.).
 
