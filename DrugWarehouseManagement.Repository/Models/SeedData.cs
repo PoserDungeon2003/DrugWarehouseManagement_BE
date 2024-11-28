@@ -164,6 +164,78 @@ namespace DrugWarehouseManagement.Repository.Models
                     RoleId = 3 // Inventory Staff
                 }
             );
+
+            Guid productId1 = Guid.NewGuid();
+            Guid productId2 = Guid.NewGuid();
+
+            modelBuilder.Entity<Product>().HasData(
+                new Product
+                {
+                    ProductId = productId1,
+                    Name = "Paracetamol",
+                    Code = "PRC001",
+                    SKU = "PARA-500-TAB",
+                    Description = "Pain reliever and fever reducer",
+                    Categories = "Medicine",
+                    UnitOfMeasure = "Box",
+                    Supplier = "PharmaCorp",
+                    ApprovalStatus = "Approved",
+                    ImageUrl = "https://example.com/paracetamol.jpg",
+                    Instructions = "Take one tablet every 6 hours after meals",
+                    StorageCondition = "Store in a cool, dry place",
+                    SideEffects = "Drowsiness, nausea",
+                    ExpiryDate = DateTime.Now.AddYears(2),
+                    ReorderPoint = DateTime.Now.AddMonths(-1), // Example for testing
+                    ReorderQuantity = 100,
+                    CreatedAt = DateTime.Now,
+                    Status = Status.Active
+                },
+                new Product
+                {
+                    ProductId = productId2,
+                    Name = "Ibuprofen",
+                    Code = "PRC002",
+                    Description = "Nonsteroidal anti-inflammatory drug",
+                    SKU = "IBU-400-CAP-20",
+                    Categories = "Medicine",
+                    UnitOfMeasure = "Bottle",
+                    Supplier = "HealthPlus",
+                    ApprovalStatus = "Approved",
+                    ImageUrl = "https://example.com/ibuprofen.jpg",
+                    Instructions = "Take one capsule every 8 hours with water",
+                    StorageCondition = "Keep at room temperature",
+                    SideEffects = "Stomach upset, dizziness",
+                    ExpiryDate = DateTime.Now.AddYears(1),
+                    ReorderPoint = DateTime.Now.AddMonths(-2), // Example for testing
+                    ReorderQuantity = 50,
+                    CreatedAt = DateTime.Now,
+                    Status = Status.Active
+                }
+            );
+
+            modelBuilder.Entity<Drug>().HasData(
+                new Drug
+                {
+                    DrugId = Guid.NewGuid(),
+                    ProductId = productId1,
+                    TemperatureRange = "15°C - 30°C",
+                    HumidityRange = "30% - 50%",
+                    IsLightSensitive = false,
+                    CreatedAt = DateTime.Now,
+                    Status = Status.Active
+                },
+                new Drug
+                {
+                    DrugId = Guid.NewGuid(),
+                    ProductId = productId2,
+                    TemperatureRange = "15°C - 25°C",
+                    HumidityRange = "40% - 60%",
+                    IsLightSensitive = true, // As Ibuprofen is light-sensitive in some forms
+                    CreatedAt = DateTime.Now,
+                    Status = Status.Active
+                }
+            );
+
         }
 
         private string HashPassword(string password)
