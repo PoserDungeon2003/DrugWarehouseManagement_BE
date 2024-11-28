@@ -14,9 +14,11 @@ namespace DrugWarehouseManagement.Repository.Models
         [Key]
         public Guid AccountId { get; set; } = Guid.NewGuid();
         public string Username { get; set; } = null!;
+        [EmailAddress]
         public string Email { get; set; } = null!;
         [Unicode(true)]
         public string FullName { get; set; } = null!;
+        [MaxLength(15, ErrorMessage = "Max length is 15")]
         public string PhoneNumber { get; set; } = null!;
         public string Password { get; set; } = null!;
         public DateTime? LastLogin { get; set; }
