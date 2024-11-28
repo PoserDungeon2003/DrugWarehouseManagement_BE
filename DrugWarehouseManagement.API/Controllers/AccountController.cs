@@ -17,7 +17,7 @@ namespace DrugWarehouseManagement.API.Controllers
             _accountService = accountService;
         }
 
-        [HttpPost]
+        [HttpPost("login")]
         public async Task<IActionResult> LoginWithEmail([FromBody] AccountLoginRequest request)
         {
             try
