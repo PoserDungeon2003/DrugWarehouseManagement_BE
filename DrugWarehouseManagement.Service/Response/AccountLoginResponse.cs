@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DrugWarehouseManagement.Service.DTO.Response
+namespace DrugWarehouseManagement.Service.Response
 {
     public class AccountLoginResponse
     {

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DrugWarehouseManagement.Service.DTO.Request
+namespace DrugWarehouseManagement.Service.Request
 {
     public class AccountLoginRequest
     {

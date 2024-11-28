@@ -1,7 +1,10 @@
 ﻿using DrugWarehouseManagement.Repository;
-using DrugWarehouseManagement.Service.DTO.Request;
-using DrugWarehouseManagement.Service.DTO.Response;
+using DrugWarehouseManagement.Repository.Models;
+using DrugWarehouseManagement.Service.DTO;
 using DrugWarehouseManagement.Service.Interface;
+using DrugWarehouseManagement.Service.Request;
+using DrugWarehouseManagement.Service.Response;
+using Mapster;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -49,11 +52,33 @@ namespace DrugWarehouseManagement.Service.Services
                 throw new Exception("Password is incorrect");
             }
 
+            await UpdateLastLogin(new UpdateLastLoginDTO
+            {
+                AccountId = account.AccountId,
+                LastLogin = DateTime.Now
+            });
+
             return new AccountLoginResponse
             {
                 Role = account.Role.RoleName,
                 Token = _tokenHandler.GenerateJwtToken(account)
             };
+        }
+
+        public async Task UpdateLastLogin(UpdateLastLoginDTO updateLastLoginDTO)
+        {
+            var account = await _unitOfWork.AccountRepository.GetByIdAsync(updateLastLoginDTO.AccountId);
+
+            if (account == null)
+            {
+               throw new Exception("Account not found");
+            }
+
+            var updatedAccount = updateLastLoginDTO.Adapt(account);
+
+            await _unitOfWork.AccountRepository.UpdateAsync(updatedAccount);
+
+            await _unitOfWork.SaveChangesAsync();
         }
     }
 }
