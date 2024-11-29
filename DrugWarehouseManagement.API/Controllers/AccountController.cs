@@ -1,6 +1,6 @@
 ﻿using DrugWarehouseManagement.Service.Interface;
 using DrugWarehouseManagement.Service.Request;
-using DrugWarehouseManagement.Service.Response;
+using DrugWarehouseManagement.Service.DTO.Response;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;

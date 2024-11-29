@@ -1,9 +1,9 @@
 ﻿using DrugWarehouseManagement.Repository;
 using DrugWarehouseManagement.Repository.Models;
 using DrugWarehouseManagement.Service.DTO;
+using DrugWarehouseManagement.Service.DTO.Response;
 using DrugWarehouseManagement.Service.Interface;
 using DrugWarehouseManagement.Service.Request;
-using DrugWarehouseManagement.Service.Response;
 using Google.Authenticator;
 using Mapster;
 using Microsoft.AspNetCore.Identity;
