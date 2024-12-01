@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DrugWarehouseManagement.Common.Enums
 {
-    public enum Status
+    public enum AccountStatus
     {
         Active = 1,
         Inactive = 2,
