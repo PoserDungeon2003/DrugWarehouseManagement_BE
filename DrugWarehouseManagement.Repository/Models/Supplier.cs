@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace DrugWarehouseManagement.Repository.Models
 {
-    public class Supplier : BaseModel
+    public class Supplier : TimeStamp
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

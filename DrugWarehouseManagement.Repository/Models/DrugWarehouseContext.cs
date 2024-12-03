@@ -57,8 +57,7 @@ namespace DrugWarehouseManagement.Repository.Models
         public DbSet<Supplier> Suppliers { get; set; }
         public DbSet<Account> Accounts { get; set; }
         public DbSet<Role> Roles { get; set; }
-        public DbSet<Product> Products { get; set; }
-        public DbSet<Drug> Drugs { get; set; }
+        public DbSet<Drug> Drug { get; set; }
         public DbSet<Customer> Customers { get; set; }
    
 

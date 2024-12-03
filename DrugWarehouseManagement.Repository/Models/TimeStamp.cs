@@ -9,7 +9,7 @@ using DrugWarehouseManagement.Common.Enums;
 
 namespace DrugWarehouseManagement.Repository.Models
 {
-    public abstract class BaseModel
+    public abstract class TimeStamp
     {
         [Required]
         public DateTime CreatedAt { get; set; } = DateTime.Now;

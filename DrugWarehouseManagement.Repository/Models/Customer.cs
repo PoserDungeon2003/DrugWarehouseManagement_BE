@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace DrugWarehouseManagement.Repository.Models
 {
-    public class Customer : BaseModel
+    public class Customer : TimeStamp
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -24,7 +24,6 @@ namespace DrugWarehouseManagement.Repository.Models
         public string ProvinceCode { get; set; }
         public AccountStatus Status { get; set; } = AccountStatus.Active;
         public DateTime? LastOrder { get; set; }
-
 
         public virtual List<Outbound> OutboundEntities { get; set; } = null!;
 
