@@ -21,10 +21,10 @@ namespace DrugWarehouseManagement.Repository.Models
         {
             var seedData = new SeedData(modelBuilder);
             seedData.Seed();
-            modelBuilder.Entity<Account>()
-                .Property(e => e.AccountId)
-                .HasDefaultValueSql("NEWID()");
-          
+            //modelBuilder.Entity<Account>()
+            //    .Property(e => e.AccountId)
+            //    .HasDefaultValueSql("NEWID()");
+
             modelBuilder.Entity<Account>()
                 .Property(e => e.PhoneNumber)
                 .HasMaxLength(15);
@@ -47,6 +47,14 @@ namespace DrugWarehouseManagement.Repository.Models
                 .IsDescending()
                 .IsUnique();
 
+            modelBuilder.Entity<Drug>()
+                .HasIndex(e => e.Code, "IX_Drugs_Code")
+                .IsUnique();
+
+            modelBuilder.Entity<Drug>()
+                .HasIndex(e => e.SKU, "IX_Drugs_SKU")
+                .IsUnique();
+
         }
 
         
@@ -59,7 +67,7 @@ namespace DrugWarehouseManagement.Repository.Models
         public DbSet<Role> Roles { get; set; }
         public DbSet<Drug> Drug { get; set; }
         public DbSet<Customer> Customers { get; set; }
-   
+        public DbSet<Categories> Categories { get; set; }
 
     }
 }

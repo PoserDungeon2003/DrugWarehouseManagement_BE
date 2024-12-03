@@ -6,14 +6,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DrugWarehouseManagement.Common.Enums;
+using NodaTime;
 
 namespace DrugWarehouseManagement.Repository.Models
 {
     public abstract class TimeStamp
     {
         [Required]
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public Instant CreatedAt { get; set; } = SystemClock.Instance.GetCurrentInstant();
 
-        public DateTime? UpdatedAt { get; set; }
+        public Instant? UpdatedAt { get; set; }
     }
 }

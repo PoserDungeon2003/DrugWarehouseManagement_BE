@@ -8,6 +8,7 @@ using Google.Authenticator;
 using Mapster;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using NodaTime;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -60,7 +61,7 @@ namespace DrugWarehouseManagement.Service.Services
             await UpdateLastLogin(new UpdateLastLoginDTO
             {
                 AccountId = account.AccountId,
-                LastLogin = DateTime.Now
+                LastLogin = SystemClock.Instance.GetCurrentInstant()
             });
 
             return new AccountLoginResponse

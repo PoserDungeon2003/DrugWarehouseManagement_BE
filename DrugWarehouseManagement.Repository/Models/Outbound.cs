@@ -1,4 +1,5 @@
 ﻿using DrugWarehouseManagement.Common.Enums;
+using NodaTime;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -18,7 +19,7 @@ namespace DrugWarehouseManagement.Repository.Models
         public string OutboundCode { get; set; }
         
         public Guid AccountId { get; set; } 
-        public DateTime? OutboundDate { get; set; } = DateTime.Now;
+        public Instant? OutboundDate { get; set; } = SystemClock.Instance.GetCurrentInstant();
         public OutboundStatus Status { get; set; } = OutboundStatus.Pending;
         public int CustomerId { get; set; }
 
