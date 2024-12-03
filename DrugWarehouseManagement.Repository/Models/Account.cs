@@ -1,5 +1,6 @@
 ﻿using DrugWarehouseManagement.Common.Enums;
 using Microsoft.EntityFrameworkCore;
+using NodaTime;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -22,7 +23,7 @@ namespace DrugWarehouseManagement.Repository.Models
         [MaxLength(15, ErrorMessage = "Max length is 15")]
         public string PhoneNumber { get; set; } = null!;
         public string Password { get; set; } = null!;
-        public DateTime? LastLogin { get; set; }
+        public Instant? LastLogin { get; set; }
         public int? RoleId { get; set; }
         public AccountStatus Status { get; set; } = AccountStatus.Active;
         public byte[]? tOTPSecretKey { get; set; }

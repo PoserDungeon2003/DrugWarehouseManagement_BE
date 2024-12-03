@@ -1,5 +1,6 @@
 ﻿using DrugWarehouseManagement.Common.Enums;
 using Microsoft.EntityFrameworkCore;
+using NodaTime;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -31,13 +32,13 @@ namespace DrugWarehouseManagement.Repository.Models
         public string Instructions { get; set; } = null!;
         public string StorageCondition { get; set; } = null!;
         public string SideEffects { get; set; } = null!;
-        public DateTime? ExpiryDate { get; set; }
+        public Instant? ExpiryDate { get; set; }
         public ProductStatus Status { get; set; } = ProductStatus.Active;
         public string TemperatureRange { get; set; } = null!;
         public string HumidityRange { get; set; } = null!;
         public bool IsLightSensitive { get; set; } = false;
         // Inventory Information
-        public DateTime? ReorderPoint { get; set; }
+        public Instant? ReorderPoint { get; set; }
         public int ReorderQuantity { get; set; }
     }
 }

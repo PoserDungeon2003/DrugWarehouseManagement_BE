@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NodaTime;
 
 namespace DrugWarehouseManagement.Repository.Models
 {
@@ -49,7 +50,7 @@ namespace DrugWarehouseManagement.Repository.Models
                     FullName = "Admin One",
                     PhoneNumber = "1234567890",
                     Password = HashPassword("SecurePassword1!"),
-                    CreatedAt = DateTime.Now,
+                    CreatedAt = SystemClock.Instance.GetCurrentInstant(),
                     Status = AccountStatus.Active,
                     RoleId = 1 // Admin
                 },
@@ -61,7 +62,7 @@ namespace DrugWarehouseManagement.Repository.Models
                     FullName = "Admin Two",
                     PhoneNumber = "0987654321",
                     Password = HashPassword("SecurePassword2!"),
-                    CreatedAt = DateTime.Now,
+                    CreatedAt = SystemClock.Instance.GetCurrentInstant(),
                     Status = AccountStatus.Active,
                     RoleId = 1 // Admin
                 },
@@ -74,7 +75,7 @@ namespace DrugWarehouseManagement.Repository.Models
                     FullName = "Manager One",
                     PhoneNumber = "1122334455",
                     Password = HashPassword("SecurePassword3!"),
-                    CreatedAt = DateTime.Now,
+                    CreatedAt = SystemClock.Instance.GetCurrentInstant(),
                     Status = AccountStatus.Active,
                     RoleId = 2 // Inventory Manager
                 },
@@ -86,7 +87,7 @@ namespace DrugWarehouseManagement.Repository.Models
                     FullName = "Manager Two",
                     PhoneNumber = "5566778899",
                     Password = HashPassword("SecurePassword4!"),
-                    CreatedAt = DateTime.Now,
+                    CreatedAt = SystemClock.Instance.GetCurrentInstant(),
                     Status = AccountStatus.Active,
                     RoleId = 2 // Inventory Manager
                 },
@@ -98,7 +99,7 @@ namespace DrugWarehouseManagement.Repository.Models
                     FullName = "Manager Three",
                     PhoneNumber = "6677889900",
                     Password = HashPassword("SecurePassword5!"),
-                    CreatedAt = DateTime.Now,
+                    CreatedAt = SystemClock.Instance.GetCurrentInstant(),
                     Status = AccountStatus.Active,
                     RoleId = 2 // Inventory Manager
                 },
@@ -110,7 +111,7 @@ namespace DrugWarehouseManagement.Repository.Models
                     FullName = "Manager Four",
                     PhoneNumber = "3344556677",
                     Password = HashPassword("SecurePassword6!"),
-                    CreatedAt = DateTime.Now,
+                    CreatedAt = SystemClock.Instance.GetCurrentInstant(),
                     Status = AccountStatus.Active,
                     RoleId = 2 // Inventory Manager
                 },
@@ -123,7 +124,7 @@ namespace DrugWarehouseManagement.Repository.Models
                     FullName = "Staff One",
                     PhoneNumber = "7788990011",
                     Password = HashPassword("SecurePassword7!"),
-                    CreatedAt = DateTime.Now,
+                    CreatedAt = SystemClock.Instance.GetCurrentInstant(),
                     Status = AccountStatus.Active,
                     RoleId = 3 // Inventory Staff
                 },
@@ -135,7 +136,7 @@ namespace DrugWarehouseManagement.Repository.Models
                     FullName = "Staff Two",
                     PhoneNumber = "9900112233",
                     Password = HashPassword("SecurePassword8!"),
-                    CreatedAt = DateTime.Now,
+                    CreatedAt = SystemClock.Instance.GetCurrentInstant(),
                     Status = AccountStatus.Active,
                     RoleId = 3 // Inventory Staff
                 },
@@ -147,7 +148,7 @@ namespace DrugWarehouseManagement.Repository.Models
                     FullName = "Staff Three",
                     PhoneNumber = "2233445566",
                     Password = HashPassword("SecurePassword9!"),
-                    CreatedAt = DateTime.Now,
+                    CreatedAt = SystemClock.Instance.GetCurrentInstant(),
                     Status = AccountStatus.Active,
                     RoleId = 3 // Inventory Staff
                 },
@@ -159,13 +160,11 @@ namespace DrugWarehouseManagement.Repository.Models
                     FullName = "Staff Four",
                     PhoneNumber = "4455667788",
                     Password = HashPassword("SecurePassword10!"),
-                    CreatedAt = DateTime.Now,
+                    CreatedAt = SystemClock.Instance.GetCurrentInstant(),
                     Status = AccountStatus.Active,
                     RoleId = 3 // Inventory Staff
                 }
             );
-
-    
 
             modelBuilder.Entity<Drug>().HasData(
                 new Drug
@@ -183,10 +182,10 @@ namespace DrugWarehouseManagement.Repository.Models
                     Instructions = "Take one tablet every 6 hours after meals",
                     StorageCondition = "Store in a cool, dry place",
                     SideEffects = "Drowsiness, nausea",
-                    ExpiryDate = DateTime.Now.AddYears(2),
-                    ReorderPoint = DateTime.Now.AddMonths(-1), // Example for testing
+                    ExpiryDate = LocalDate.FromDateTime(DateTime.UtcNow).PlusYears(2).AtStartOfDayInZone(DateTimeZone.Utc).ToInstant(),
+                    ReorderPoint = LocalDate.FromDateTime(DateTime.UtcNow).PlusMonths(-1).AtStartOfDayInZone(DateTimeZone.Utc).ToInstant(),
                     ReorderQuantity = 100,
-                    CreatedAt = DateTime.Now,
+                    CreatedAt = SystemClock.Instance.GetCurrentInstant(),
                     Status = ProductStatus.Active,
                     TemperatureRange = "15°C - 30°C",
                     HumidityRange = "30% - 50%",
@@ -207,17 +206,16 @@ namespace DrugWarehouseManagement.Repository.Models
                     Instructions = "Take one capsule every 8 hours with water",
                     StorageCondition = "Keep at room temperature",
                     SideEffects = "Stomach upset, dizziness",
-                    ExpiryDate = DateTime.Now.AddYears(1),
-                    ReorderPoint = DateTime.Now.AddMonths(-2), // Example for testing
+                    ExpiryDate = LocalDate.FromDateTime(DateTime.UtcNow).PlusYears(1).AtStartOfDayInZone(DateTimeZone.Utc).ToInstant(),
+                    ReorderPoint = LocalDate.FromDateTime(DateTime.UtcNow).PlusMonths(-2).AtStartOfDayInZone(DateTimeZone.Utc).ToInstant(),
                     ReorderQuantity = 50,
-                    CreatedAt = DateTime.Now,
+                    CreatedAt = SystemClock.Instance.GetCurrentInstant(),
                     Status = ProductStatus.Active,
                     TemperatureRange = "15°C - 30°C",
                     HumidityRange = "30% - 50%",
                     IsLightSensitive = false,
                 }
             );
-
         }
 
         private string HashPassword(string password)

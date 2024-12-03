@@ -1,4 +1,25 @@
 services:
+  postgres:
+      container_name: postgres
+      image: postgres:17.2-alpine
+      environment:
+        - POSTGRES_DB=nakama
+        - POSTGRES_PASSWORD=localdb
+      volumes:
+        - data:/var/lib/postgresql/data
+      expose:
+        - "8080"
+        - "5432"
+      ports:
+        - "5432:5432"
+        - "8080:8080"
+      healthcheck:
+        test: ["CMD", "pg_isready", "-U", "postgres", "-d", "nakama"]
+        interval: 3s
+        timeout: 3s
+        retries: 5
+      networks:
+      - drugmanagement-network
   mssql:
     image: mcr.microsoft.com/mssql/server:2019-latest
     container_name: drugmanagement-sql-server
@@ -28,6 +49,7 @@ services:
     networks:
       - drugmanagement-network
 volumes:
+  data:
   sql_data:
 networks:
   drugmanagement-network:

@@ -1,4 +1,5 @@
 ﻿using DrugWarehouseManagement.Common.Enums;
+using NodaTime;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -16,7 +17,7 @@ namespace DrugWarehouseManagement.Repository.Models
         public int InboundId { get; set; }
         public string InboundCode { get; set; } = null!;   
         public Guid AccountId { get; set; }
-        public DateTime? InboundDate { get; set; } = DateTime.Now;
+        public Instant? InboundDate { get; set; } = SystemClock.Instance.GetCurrentInstant();
         public DateTime? ExpectedDeliveryDay { get; set; }
         public InboundStatus Status { get; set; }  = InboundStatus.Pending;
         public int SupplierId { get; set; }
