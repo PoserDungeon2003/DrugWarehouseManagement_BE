@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace DrugWarehouseManagement.Repository.Models
 {
-    public class Account : BaseModel
+    public class Account : TimeStamp
     {
         [Key]
         public Guid AccountId { get; set; } = Guid.NewGuid();

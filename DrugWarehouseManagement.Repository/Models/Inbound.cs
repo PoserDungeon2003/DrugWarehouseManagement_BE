@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace DrugWarehouseManagement.Repository.Models
 {
-    public class Inbound : BaseModel
+    public class Inbound : TimeStamp
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -17,21 +17,14 @@ namespace DrugWarehouseManagement.Repository.Models
         public string InboundCode { get; set; } = null!;   
         public Guid AccountId { get; set; }
         public DateTime? InboundDate { get; set; } = DateTime.Now;
-        
-        public int SupplierId { get; set; } 
-        public decimal GrossAmount { get; set; }
-
         public DateTime? ExpectedDeliveryDay { get; set; }
-        public decimal? ShippingCost { get; set; }
-        public decimal VAT { get; set; }
-        public decimal NetAmount { get; set; }  
-
-        public InboundStatus Status { get; set; }  = InboundStatus.Pending; 
+        public InboundStatus Status { get; set; }  = InboundStatus.Pending;
+        public int SupplierId { get; set; }
 
         public virtual List<InboundDetail> InboundDetails { get; set; } = null!;
         public virtual Account Account { get; set; } = null!;
         public virtual Supplier Supplier { get; set; } = null!;
-        public virtual List<Product> Product { get; set; } = null!;
+        public virtual List<Drug> Product { get; set; } = null!;
 
     }
 }
