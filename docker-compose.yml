@@ -18,22 +18,23 @@ services:
         interval: 3s
         timeout: 3s
         retries: 5
+      restart: unless-stopped
       networks:
-      - drugmanagement-network
-  mssql:
-    image: mcr.microsoft.com/mssql/server:2019-latest
-    container_name: drugmanagement-sql-server
-    environment:
-      - ACCEPT_EULA=Y # Accept the license agreement
-      - MSSQL_SA_PASSWORD=DrugM@nagement2024! # Define a strong password for the SA account
-      - MSSQL_PID=Express # Edition of SQL Server (e.g., Express, Developer)
-    ports:
-      - "1436:1433" # Expose SQL Server on port 1433
-    volumes:
-      - sql_data:/var/opt/mssql # Persist data between restarts
-    networks:
-      - drugmanagement-network
-    restart: unless-stopped
+        - drugmanagement-network
+  # mssql:
+  #   image: mcr.microsoft.com/mssql/server:2019-latest
+  #   container_name: drugmanagement-sql-server
+  #   environment:
+  #     - ACCEPT_EULA=Y # Accept the license agreement
+  #     - MSSQL_SA_PASSWORD=DrugM@nagement2024! # Define a strong password for the SA account
+  #     - MSSQL_PID=Express # Edition of SQL Server (e.g., Express, Developer)
+  #   ports:
+  #     - "1436:1433" # Expose SQL Server on port 1433
+  #   volumes:
+  #     - sql_data:/var/opt/mssql # Persist data between restarts
+  #   networks:
+  #     - drugmanagement-network
+  #   restart: unless-stopped
   api:
     build:
       context: .
@@ -44,8 +45,8 @@ services:
       - TZ=Asia/Ho_Chi_Minh
       - ASPNETCORE_ENVIRONMENT=Docker
     depends_on:
-      - mssql
-    restart: always
+      - postgres
+    restart: unless-stopped
     networks:
       - drugmanagement-network
 volumes:
