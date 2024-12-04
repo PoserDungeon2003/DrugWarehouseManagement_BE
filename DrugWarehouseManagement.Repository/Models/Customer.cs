@@ -1,4 +1,5 @@
 ﻿using DrugWarehouseManagement.Common.Enums;
+using NodaTime;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -23,7 +24,7 @@ namespace DrugWarehouseManagement.Repository.Models
         public string DistrictCode { get; set; }
         public string ProvinceCode { get; set; }
         public AccountStatus Status { get; set; } = AccountStatus.Active;
-        public DateTime? LastOrder { get; set; }
+        public Instant? LastOrder { get; set; }
 
         public virtual List<Outbound> OutboundEntities { get; set; } = null!;
 

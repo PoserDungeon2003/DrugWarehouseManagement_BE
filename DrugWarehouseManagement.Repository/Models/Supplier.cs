@@ -1,4 +1,5 @@
 ﻿using DrugWarehouseManagement.Common.Enums;
+using NodaTime;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -26,7 +27,7 @@ namespace DrugWarehouseManagement.Repository.Models
         public string? RegistrationNumber { get; set; } = string.Empty; // Business registration number
         public SupplierStatus Status { get; set; } = SupplierStatus.Active; // Status of the supplier   
         public string? Notes { get; set; } = string.Empty; // Additional notes
-        public DateTime? LastOrderDate { get; set; } // Date of the last order
+        public Instant? LastOrderDate { get; set; } // Date of the last order
 
     }
 }
