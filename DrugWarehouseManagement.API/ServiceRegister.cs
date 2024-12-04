@@ -20,7 +20,7 @@ namespace DrugWarehouseManagement.API
         {
             services.AddDbContext<DrugWarehouseContext>(options =>
             {
-                options.UseNpgsql(configuration.GetConnectionString("local"), o =>
+                options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"), o =>
                 {
                     o.UseNodaTime();
                 });
