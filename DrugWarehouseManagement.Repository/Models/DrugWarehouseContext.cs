@@ -25,49 +25,73 @@ namespace DrugWarehouseManagement.Repository.Models
             //    .Property(e => e.AccountId)
             //    .HasDefaultValueSql("NEWID()");
 
-            modelBuilder.Entity<Account>()
+            modelBuilder.Entity<Account>(entity =>
+            {
+                entity
                 .Property(e => e.PhoneNumber)
+                .IsRequired()
                 .HasMaxLength(15);
-            
-            modelBuilder.Entity<Account>()
-                .HasIndex(e => e.Username, "IX_Accounts_Username")
+                
+                entity.Property(e => e.AccountSettings)
+                .HasColumnType("jsonb");
+
+                entity.HasIndex(e => e.PhoneNumber, "IX_Accounts_PhoneNumber")
                 .IsUnique();
 
-            modelBuilder.Entity<Account>()
-                .HasIndex(e => e.Email, "IX_Accounts_Email")
+                entity.HasIndex(e => e.Username, "IX_Accounts_Username")
                 .IsUnique();
 
-            
-            modelBuilder.Entity<Outbound>().HasIndex(e=> e.OutboundCode, "IX_Outbounds_OutboundCode").IsUnique();
+                entity.HasIndex(e => e.Email, "IX_Accounts_Email")
+                .IsUnique();
 
-            modelBuilder.Entity<Inbound>().HasIndex(e => e.InboundCode, "IX_Inbounds_InboundCode").IsUnique();
-
-            modelBuilder.Entity<Account>()
-                .HasIndex(e => e.tOTPSecretKey, "IX_Accounts_TOTPSecretKey")
+                entity.HasIndex(e => e.tOTPSecretKey, "IX_Accounts_TOTPSecretKey")
                 .IsDescending()
                 .IsUnique();
-
-            modelBuilder.Entity<Drug>()
-                .HasIndex(e => e.Code, "IX_Drugs_Code")
+            });
+            
+            modelBuilder.Entity<Outbound>(entity =>
+            {
+                entity.HasIndex(e => e.OutboundCode, "IX_Outbounds_OutboundCode")
                 .IsUnique();
+            });
 
-            modelBuilder.Entity<Drug>()
-                .HasIndex(e => e.SKU, "IX_Drugs_SKU")
-                .IsUnique();
+            modelBuilder.Entity<Inbound>(entity =>
+            {
+                entity.HasIndex(e => e.InboundCode, "IX_Inbounds_InboundCode").IsUnique();
+                entity.HasIndex(e => e.ProviderOrderCode, "IX_Inbounds_ProviderOrderCode").IsUnique();
+            });
+
+            modelBuilder.Entity<AuditLogs>(entity =>
+            {
+                entity.Property(e => e.Payload)
+                    .HasColumnType("jsonb");
+            });
+
+            modelBuilder.Entity<Lot>(entity =>
+            {
+                entity.HasIndex(e => e.LotNumber, "IX_Lots_LotNumber")
+                    .IsUnique();
+            });
+
+            modelBuilder.Entity<Product>(entity =>
+            {
+                entity.HasIndex(e => e.ProductCode, "IX_Products_ProductCode")
+                    .IsUnique();
+            });
 
         }
 
         
         public DbSet<Inbound> Inbounds { get; set; }
         public DbSet<Outbound> Outbounds { get; set; }
-        public DbSet<InboundDetail> InboundDetails { get; set; }
-        public DbSet<OutboundDetail> OutboundDetails { get; set; }  
-        public DbSet<Supplier> Suppliers { get; set; }
+        public DbSet<InboundDetails> InboundDetails { get; set; }
+        public DbSet<OutboundDetails> OutboundDetails { get; set; }  
+        public DbSet<Provider> Providers { get; set; }
         public DbSet<Account> Accounts { get; set; }
         public DbSet<Role> Roles { get; set; }
-        public DbSet<Drug> Drug { get; set; }
-        public DbSet<Customer> Customers { get; set; }
-        public DbSet<Categories> Categories { get; set; }
-
+        public DbSet<Product> Products { get; set; }
+        public DbSet<Warehouse> Warehouses { get; set; }
+        public DbSet<AuditLogs> AuditLogs { get; set; }
+        public DbSet<Lot> Lots { get; set; }
     }
 }

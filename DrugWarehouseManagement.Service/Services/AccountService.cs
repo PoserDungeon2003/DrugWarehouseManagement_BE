@@ -73,6 +73,8 @@ namespace DrugWarehouseManagement.Service.Services
 
         public async Task<SetupTwoFactorAuthenticatorResponse> SetupTwoFactorAuthenticator(string email)
         {
+            SetupCode setupCode;
+
             var account = await _unitOfWork.AccountRepository.GetByWhere(x => x.Email == email).FirstOrDefaultAsync();
 
             if (account == null)
@@ -80,10 +82,20 @@ namespace DrugWarehouseManagement.Service.Services
                 throw new Exception("Email not found");
             }
 
+            if (account.tOTPSecretKey != null)
+            {
+                setupCode = _twoFactorAuthenticator.GenerateSetupCode("DrugWarehouse", email, account.tOTPSecretKey);
+                return new SetupTwoFactorAuthenticatorResponse
+                {
+                    ImageUrlQrCode = setupCode.QrCodeSetupImageUrl,
+                    ManualEntryKey = setupCode.ManualEntryKey
+                };
+            }
+
             byte[] secretKey = new byte[16];
             RandomNumberGenerator.Fill(secretKey);
 
-            var setupCode = _twoFactorAuthenticator.GenerateSetupCode("DrugWarehouse", email, secretKey);
+            setupCode = _twoFactorAuthenticator.GenerateSetupCode("DrugWarehouse", email, secretKey);
 
             account.tOTPSecretKey = secretKey;
 

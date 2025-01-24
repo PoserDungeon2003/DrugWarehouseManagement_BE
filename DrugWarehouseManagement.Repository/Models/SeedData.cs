@@ -38,6 +38,11 @@ namespace DrugWarehouseManagement.Repository.Models
                 {
                     RoleId = 3,
                     RoleName = "Inventory Staff"
+                },
+                new Role
+                {
+                    RoleId = 4,
+                    RoleName = "Sale Admin"
                 });
 
             modelBuilder.Entity<Account>().HasData(
@@ -163,57 +168,6 @@ namespace DrugWarehouseManagement.Repository.Models
                     CreatedAt = SystemClock.Instance.GetCurrentInstant(),
                     Status = AccountStatus.Active,
                     RoleId = 3 // Inventory Staff
-                }
-            );
-
-            modelBuilder.Entity<Drug>().HasData(
-                new Drug
-                {
-                    DrugId = 1,
-                    Name = "Paracetamol",
-                    Code = "PRC001",
-                    SKU = "PARA-500-TAB",
-                    Description = "Pain reliever and fever reducer",
-                    Categories = "Medicine",
-                    UnitOfMeasure = "Box",
-                    Supplier = "PharmaCorp",
-                    ApprovalStatus = "Approved",
-                    ImageUrl = "https://example.com/paracetamol.jpg",
-                    Instructions = "Take one tablet every 6 hours after meals",
-                    StorageCondition = "Store in a cool, dry place",
-                    SideEffects = "Drowsiness, nausea",
-                    ExpiryDate = LocalDate.FromDateTime(DateTime.UtcNow).PlusYears(2).AtStartOfDayInZone(DateTimeZone.Utc).ToInstant(),
-                    ReorderPoint = LocalDate.FromDateTime(DateTime.UtcNow).PlusMonths(-1).AtStartOfDayInZone(DateTimeZone.Utc).ToInstant(),
-                    ReorderQuantity = 100,
-                    CreatedAt = SystemClock.Instance.GetCurrentInstant(),
-                    Status = ProductStatus.Active,
-                    TemperatureRange = "15°C - 30°C",
-                    HumidityRange = "30% - 50%",
-                    IsLightSensitive = false,
-                },
-                new Drug
-                {
-                    DrugId = 2,
-                    Name = "Ibuprofen",
-                    Code = "PRC002",
-                    Description = "Nonsteroidal anti-inflammatory drug",
-                    SKU = "IBU-400-CAP-20",
-                    Categories = "Medicine",
-                    UnitOfMeasure = "Bottle",
-                    Supplier = "HealthPlus",
-                    ApprovalStatus = "Approved",
-                    ImageUrl = "https://example.com/ibuprofen.jpg",
-                    Instructions = "Take one capsule every 8 hours with water",
-                    StorageCondition = "Keep at room temperature",
-                    SideEffects = "Stomach upset, dizziness",
-                    ExpiryDate = LocalDate.FromDateTime(DateTime.UtcNow).PlusYears(1).AtStartOfDayInZone(DateTimeZone.Utc).ToInstant(),
-                    ReorderPoint = LocalDate.FromDateTime(DateTime.UtcNow).PlusMonths(-2).AtStartOfDayInZone(DateTimeZone.Utc).ToInstant(),
-                    ReorderQuantity = 50,
-                    CreatedAt = SystemClock.Instance.GetCurrentInstant(),
-                    Status = ProductStatus.Active,
-                    TemperatureRange = "15°C - 30°C",
-                    HumidityRange = "30% - 50%",
-                    IsLightSensitive = false,
                 }
             );
         }
