@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Npgsql;
 using System.Text;
 using System.Text.Json.Serialization;
 
@@ -18,9 +19,19 @@ namespace DrugWarehouseManagement.API
     {
         public static void RegisterServices(IServiceCollection services, IConfiguration configuration)
         {
-            services.AddDbContext<DrugWarehouseContext>(options =>
+            services.AddSingleton<NpgsqlDataSource>(sp =>
             {
-                options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"), o =>
+                var dataSourceBuilder = new NpgsqlDataSourceBuilder(configuration.GetConnectionString("DefaultConnection"));
+                dataSourceBuilder.UseNodaTime(); // Retain NodaTime configuration
+                dataSourceBuilder.EnableDynamicJson(); // Enable dynamic JSON serialization
+                dataSourceBuilder.UseJsonNet(); // Use Newtonsoft.Json if preferred
+                return dataSourceBuilder.Build();
+            });
+
+            services.AddDbContext<DrugWarehouseContext>((sp, options) =>
+            {
+                var dataSource = sp.GetRequiredService<NpgsqlDataSource>();
+                options.UseNpgsql(dataSource, o =>
                 {
                     o.UseNodaTime();
                 });

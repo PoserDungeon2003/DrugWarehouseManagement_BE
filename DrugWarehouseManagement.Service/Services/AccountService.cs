@@ -1,4 +1,5 @@
-﻿using DrugWarehouseManagement.Repository;
+﻿using DrugWarehouseManagement.Common;
+using DrugWarehouseManagement.Repository;
 using DrugWarehouseManagement.Repository.Models;
 using DrugWarehouseManagement.Service.DTO;
 using DrugWarehouseManagement.Service.DTO.Response;
@@ -11,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using NodaTime;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Security.Cryptography;
@@ -37,18 +39,40 @@ namespace DrugWarehouseManagement.Service.Services
         public async Task<AccountLoginResponse> LoginWithEmail(AccountLoginRequest request)
         {
             var account = await _unitOfWork.AccountRepository
-                        .GetByWhere(x => x.Email == request.Email.Trim())
+                        .GetByWhere(x => x.Username == request.Username.Trim())
                         .Include(x => x.Role)
                         .FirstOrDefaultAsync();
 
             if (account == null)
             {
-                throw new Exception("Email not found");
+                throw new Exception("Account not found");
             }
 
             if (account.Status == Common.Enums.AccountStatus.Inactive)
             {
                 throw new Exception("Account is inactive, please re-active your account");
+            }
+
+            if (account.AccountSettings != null && account.AccountSettings.IsTwoFactorEnabled)
+            {
+                if (request.tOtpCode == null)
+                {
+                    throw new Exception("Two factor code is required");
+                }
+
+                var verify = _twoFactorAuthenticator.ValidateTwoFactorPIN(account.tOTPSecretKey, request.tOtpCode.Trim(), 0);
+
+                if (!verify)
+                {
+                    throw new Exception("Two factor code is incorrect");
+                }
+
+                if (!String.IsNullOrEmpty(account.OTPCode) && request.tOtpCode == Utils.Base64Decode(account.OTPCode))
+                {
+                    throw new Exception("This code has been used");
+                }
+
+                account.OTPCode = Utils.Base64Encode(request.tOtpCode.Trim());
             }
 
             var verifyPassword = _passwordHasher.VerifyHashedPassword(null, account.Password, request.Password);
@@ -57,6 +81,9 @@ namespace DrugWarehouseManagement.Service.Services
             {
                 throw new Exception("Password is incorrect");
             }
+
+            await _unitOfWork.AccountRepository.UpdateAsync(account);
+            await _unitOfWork.SaveChangesAsync();
 
             await UpdateLastLogin(new UpdateLastLoginDTO
             {
@@ -79,17 +106,18 @@ namespace DrugWarehouseManagement.Service.Services
 
             if (account == null)
             {
-                throw new Exception("Email not found");
+                throw new Exception("Account not found");
             }
 
-            if (account.tOTPSecretKey != null)
+            if (account.AccountSettings != null && account.AccountSettings.IsTwoFactorEnabled)
             {
-                setupCode = _twoFactorAuthenticator.GenerateSetupCode("DrugWarehouse", email, account.tOTPSecretKey);
-                return new SetupTwoFactorAuthenticatorResponse
-                {
-                    ImageUrlQrCode = setupCode.QrCodeSetupImageUrl,
-                    ManualEntryKey = setupCode.ManualEntryKey
-                };
+                throw new Exception("Two factor authenticator is already setup");
+                //setupCode = _twoFactorAuthenticator.GenerateSetupCode("DrugWarehouse", email, account.tOTPSecretKey);
+                //return new SetupTwoFactorAuthenticatorResponse
+                //{
+                //    ImageUrlQrCode = setupCode.QrCodeSetupImageUrl,
+                //    ManualEntryKey = setupCode.ManualEntryKey
+                //};
             }
 
             byte[] secretKey = new byte[16];
@@ -98,6 +126,13 @@ namespace DrugWarehouseManagement.Service.Services
             setupCode = _twoFactorAuthenticator.GenerateSetupCode("DrugWarehouse", email, secretKey);
 
             account.tOTPSecretKey = secretKey;
+
+            if (account.AccountSettings == null)
+            {
+                account.AccountSettings = new AccountSettings();
+            }
+
+            account.AccountSettings.IsTwoFactorEnabled = true;
 
             await _unitOfWork.AccountRepository.UpdateAsync(account);
 

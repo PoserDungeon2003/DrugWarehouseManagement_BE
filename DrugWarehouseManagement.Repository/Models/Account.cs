@@ -13,7 +13,8 @@ namespace DrugWarehouseManagement.Repository.Models
 {
     public class AccountSettings
     {
-        public string Language { get; set; } = "vi";
+        public string PreferredLanguage { get; set; } = "vi";
+        public bool IsTwoFactorEnabled { get; set; } = false;
     }
 
     public class Account : TimeStamp
@@ -32,6 +33,7 @@ namespace DrugWarehouseManagement.Repository.Models
         public AccountStatus Status { get; set; } = AccountStatus.Active;
         public byte[]? tOTPSecretKey { get; set; }
         public int? RoleId { get; set; }
+        public string? OTPCode { get; set; }
         public AccountSettings? AccountSettings { get; set; }
 
         public virtual Role Role { get; set; } = null!;
