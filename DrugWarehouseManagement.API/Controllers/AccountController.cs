@@ -4,6 +4,8 @@ using DrugWarehouseManagement.Service.DTO.Response;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using DrugWarehouseManagement.Service.DTO.Request;
+using System.Net;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -25,13 +27,14 @@ namespace DrugWarehouseManagement.API.Controllers
         {
             try
             {
-                var response = await _accountService.LoginWithEmail(request);
+                var response = await _accountService.LoginWithUsername(request);
                 return Ok(response);
             }
             catch (Exception ex)
             {
-                return BadRequest(new BaseErrorResponse
+                return BadRequest(new BaseResponse
                 {
+                    Code = 400,
                     Message = ex.Message,
                 });
             }
@@ -49,8 +52,28 @@ namespace DrugWarehouseManagement.API.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new BaseErrorResponse
+                return BadRequest(new BaseResponse
                 {
+                    Code = 400,
+                    Message = ex.Message,
+                });
+            }
+        }
+
+        [HttpPost("createAccount")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> CreateAccount([FromBody] CreateAccountRequest request)
+        {
+            try
+            {
+                var response = await _accountService.CreateAccount(request);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    Code = 400,
                     Message = ex.Message,
                 });
             }

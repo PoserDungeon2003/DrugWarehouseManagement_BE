@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DrugWarehouseManagement.Common
 {
-    public class Utils
+    public static class Utils
     {
         public static string Base64Encode(string plainText)
         {
@@ -18,6 +18,43 @@ namespace DrugWarehouseManagement.Common
         {
             var base64EncodedBytes = System.Convert.FromBase64String(base64EncodedData);
             return System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
+        }
+
+        public static string GenerateRandomPassword(int length = 8)
+        {
+            const string upperCaseLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            const string lowerCaseLetters = "abcdefghijklmnopqrstuvwxyz";
+            const string digits = "0123456789";
+            //const string specialCharacters = "!@#$%^&*()-_+=<>?";
+
+            // Combine all character groups
+            string allCharacters = upperCaseLetters + lowerCaseLetters + digits;
+                //+ specialCharacters;
+
+            var random = new Random();
+            var passwordBuilder = new StringBuilder();
+
+            // Ensure the password includes at least one character from each group
+            passwordBuilder.Append(upperCaseLetters[random.Next(upperCaseLetters.Length)]);
+            passwordBuilder.Append(lowerCaseLetters[random.Next(lowerCaseLetters.Length)]);
+            passwordBuilder.Append(digits[random.Next(digits.Length)]);
+            //passwordBuilder.Append(specialCharacters[random.Next(specialCharacters.Length)]);
+
+            // Fill the remaining length with random characters from all groups
+            for (int i = 4; i < length; i++)
+            {
+                passwordBuilder.Append(allCharacters[random.Next(allCharacters.Length)]);
+            }
+
+            // Shuffle the characters to ensure randomness
+            var passwordArray = passwordBuilder.ToString().ToCharArray();
+            for (int i = passwordArray.Length - 1; i > 0; i--)
+            {
+                int j = random.Next(i + 1);
+                (passwordArray[i], passwordArray[j]) = (passwordArray[j], passwordArray[i]);
+            }
+
+            return new string(passwordArray);
         }
     }
 }
