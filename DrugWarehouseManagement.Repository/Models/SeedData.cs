@@ -37,7 +37,7 @@ namespace DrugWarehouseManagement.Repository.Models
                 new Role
                 {
                     RoleId = 3,
-                    RoleName = "Inventory Staff"
+                    RoleName = "Accountant"
                 },
                 new Role
                 {

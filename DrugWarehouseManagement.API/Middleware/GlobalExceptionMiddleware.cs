@@ -1,4 +1,6 @@
-﻿namespace DrugWarehouseManagement.API.Middlewares
+﻿using DrugWarehouseManagement.Service.DTO.Response;
+
+namespace DrugWarehouseManagement.API.Middlewares
 {
     public class GlobalExceptionMiddleware
     {
@@ -24,11 +26,11 @@
                 context.Response.ContentType = "application/json";
                 context.Response.StatusCode = 500;
 
-                var response = new
+                var response = new BaseResponse
                 {
                     Code = 500,
                     Message = ex.Message,
-                    Detailed = ex.StackTrace
+                    Details = ex.StackTrace
                 };
 
                 var responseText = System.Text.Json.JsonSerializer.Serialize(response);
@@ -45,7 +47,7 @@
 
                 context.Response.ContentType = "application/json";
 
-                var response = new
+                var response = new BaseResponse
                 {
                     Code = statusCode,
                     Message = message,

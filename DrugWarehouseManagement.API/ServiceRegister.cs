@@ -47,7 +47,9 @@ namespace DrugWarehouseManagement.API
             services.AddScoped<TokenHandlerService>();
 
             services.AddScoped<IAccountRepository, AccountRepository>();
+
             services.AddScoped<IAccountService, AccountService>();
+            services.AddScoped<IEmailService, EmailService>();
 
         }
 
