@@ -8,12 +8,14 @@ using System.Threading.Tasks;
 
 namespace DrugWarehouseManagement.Repository.Models
 {
-    public class Categories
+    public class Warehouse
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int CategoryId { get; set; }
-        public string CategoryName { get; set; } = null!;
-        public string Description { get; set; } = null!;
+        public int WarehouseId { get; set; }
+        public string WarehouseName { get; set; } = null!;
+        public string Address { get; set; } = null!;
+
+        public virtual List<Lot> Lots { get; set; } = null!;
     }
 }

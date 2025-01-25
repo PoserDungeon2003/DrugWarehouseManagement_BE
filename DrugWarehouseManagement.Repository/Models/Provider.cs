@@ -1,0 +1,32 @@
+﻿using DrugWarehouseManagement.Common.Enums;
+using NodaTime;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace DrugWarehouseManagement.Repository.Models
+{
+    public class Provider : TimeStamp
+    {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int ProviderId { get; set; }
+        public string ProviderName { get; set; } = null!;
+        public string Address { get; set; } = null!;
+        public string PhoneNumber { get; set; } = null!;
+        public string TaxCode { get; set; } = null!;
+        public string? Fax { get; set; }
+        public string Email { get; set; } = null!;
+        public int NumberOfOrders { get; set; } = 0;
+        public ProviderStatus Status { get; set; } = ProviderStatus.Active;
+
+        public virtual List<Outbound> Outbounds { get; set; } = null!;
+        public virtual List<Inbound> Inbounds { get; set; } = null!;
+        public virtual List<Product> Products { get; set; } = null!;
+
+    }
+}

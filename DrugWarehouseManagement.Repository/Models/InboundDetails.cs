@@ -1,4 +1,5 @@
 ﻿using DrugWarehouseManagement.Common.Enums;
+using NodaTime;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -9,17 +10,24 @@ using System.Threading.Tasks;
 
 namespace DrugWarehouseManagement.Repository.Models
 {
-    public class InboundDetail
+    public class InboundDetails
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int InboundDetailId { get; set; }
+        public int InboundDetailsId { get; set; }
+        public string LotNumber { get; set; } = null!;
+        public Instant ExpiryDate { get; set; }
+        public int Quantity { get; set; }
+        public int ActualQuantity { get; set; }
+        public string UnitType { get; set; } = null!;
+        public decimal UnitPrice { get; set; }
+        public decimal TotalPrice { get; set; }
         public int InboundId { get; set; }
         public int ProductId { get; set; }
-        public int Quantity { get; set; }
-        public decimal UnitPrice { get; set; }
         public InboundDetailStatus Status { get; set; } = InboundDetailStatus.Pending;
-        public virtual Inbound Inbound { get; set; } = null!; 
+
+        public virtual Inbound Inbounds { get; set; } = null!;
+        public virtual Product Products { get; set; } = null!;
 
     }
 }

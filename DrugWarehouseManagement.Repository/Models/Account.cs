@@ -11,6 +11,12 @@ using System.Threading.Tasks;
 
 namespace DrugWarehouseManagement.Repository.Models
 {
+    public class AccountSettings
+    {
+        public string PreferredLanguage { get; set; } = "vi";
+        public bool IsTwoFactorEnabled { get; set; } = false;
+    }
+
     public class Account : TimeStamp
     {
         [Key]
@@ -24,9 +30,13 @@ namespace DrugWarehouseManagement.Repository.Models
         public string PhoneNumber { get; set; } = null!;
         public string Password { get; set; } = null!;
         public Instant? LastLogin { get; set; }
-        public int? RoleId { get; set; }
         public AccountStatus Status { get; set; } = AccountStatus.Active;
         public byte[]? tOTPSecretKey { get; set; }
+        public int? RoleId { get; set; }
+        public string? OTPCode { get; set; }
+        public AccountSettings? AccountSettings { get; set; }
+
         public virtual Role Role { get; set; } = null!;
+        public virtual List<AuditLogs> AuditLogs { get; set; } = null!;
     }
 }

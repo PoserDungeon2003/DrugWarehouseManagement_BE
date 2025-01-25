@@ -11,8 +11,12 @@ namespace DrugWarehouseManagement.Common.Enums
         Active = 1,
         Inactive = 2,
         Deleted = 3,
-
-
+    }
+    public enum ProviderStatus
+    {
+        Active = 1,
+        Inactive = 2,
+        Deleted = 3,
     }
     public enum RejectReason
     {

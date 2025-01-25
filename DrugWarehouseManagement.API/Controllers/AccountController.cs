@@ -37,7 +37,7 @@ namespace DrugWarehouseManagement.API.Controllers
             }
         }
 
-        [HttpGet("setupTwoFactorAuthenticator")]
+        [HttpPost("setupTwoFactorAuthenticator")]
         [Authorize]
         public async Task<IActionResult> SetupTwoFactorAuthenticator()
         {
