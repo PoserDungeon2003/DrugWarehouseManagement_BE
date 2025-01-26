@@ -7,6 +7,7 @@ using DrugWarehouseManagement.Service.DTO.Response;
 using DrugWarehouseManagement.Service.Interface;
 using DrugWarehouseManagement.Service.Request;
 using DrugWarehouseManagement.Service.Services;
+using DrugWarehouseManagement.Service.Wrapper.Interface;
 using Google.Authenticator;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
@@ -27,7 +28,7 @@ namespace DrugWarehouseManagement.UnitTest
         private readonly Mock<IUnitOfWork> _unitOfWorkMock;
         private readonly Mock<IPasswordHasher<string>> _passwordHasherMock;
         private readonly Mock<ITokenHandlerService> _tokenHandlerMock;
-        private readonly Mock<TwoFactorAuthenticator> _twoFactorAuthenticatorMock;
+        private readonly Mock<ITwoFactorAuthenticatorWrapper> _twoFactorAuthenticatorMock;
         private readonly Mock<ILogger<IAccountService>> _loggerMock;
         private readonly Mock<IEmailService> _emailServiceMock;
         private readonly AccountService _accountService;
@@ -38,7 +39,7 @@ namespace DrugWarehouseManagement.UnitTest
             _unitOfWorkMock = new Mock<IUnitOfWork>();
             _passwordHasherMock = new Mock<IPasswordHasher<string>>();
             _tokenHandlerMock = new Mock<ITokenHandlerService>();
-            _twoFactorAuthenticatorMock = new Mock<TwoFactorAuthenticator>();
+            _twoFactorAuthenticatorMock = new Mock<ITwoFactorAuthenticatorWrapper>();
             _loggerMock = new Mock<ILogger<IAccountService>>();
             _emailServiceMock = new Mock<IEmailService>();
             _passwordHasher = new PasswordHasher<string>();
@@ -47,7 +48,8 @@ namespace DrugWarehouseManagement.UnitTest
                 _unitOfWorkMock.Object,
                 _tokenHandlerMock.Object,
                 _loggerMock.Object,
-                _emailServiceMock.Object
+                _emailServiceMock.Object,
+                _twoFactorAuthenticatorMock.Object
             );
         }
 
@@ -114,11 +116,12 @@ namespace DrugWarehouseManagement.UnitTest
             var mockAccounts = new List<Account> { account }.AsQueryable().BuildMock();
             _unitOfWorkMock.Setup(u => u.AccountRepository.GetByWhere(It.IsAny<Expression<Func<Account, bool>>>()))
                 .Returns(mockAccounts);
-            _twoFactorAuthenticatorMock.Setup(t => t.ValidateTwoFactorPIN(It.IsAny<byte[]>(), It.IsAny<string>(), It.IsAny<int>()))
-                .Returns(false);
+            //_twoFactorAuthenticatorMock.Setup(t => t.ValidateTwoFactorPIN(It.IsAny<byte[]>(), It.IsAny<string>(), It.IsAny<int>()))
+            //    .Returns(false);
 
             // Act & Assert
-            await Assert.ThrowsAsync<Exception>(() => _accountService.LoginWithUsername(request));
+            var exception = await Assert.ThrowsAsync<Exception>(() => _accountService.LoginWithUsername(request));
+            Assert.Equal("Two factor code is incorrect", exception.Message);
         }
 
         [Fact]
@@ -140,7 +143,8 @@ namespace DrugWarehouseManagement.UnitTest
                 .Returns(true);
 
             // Act & Assert
-            await Assert.ThrowsAsync<Exception>(() => _accountService.LoginWithUsername(request));
+            var exception = await Assert.ThrowsAsync<Exception>(() => _accountService.LoginWithUsername(request));
+            Assert.Equal("Two factor code is already used", exception.Message);
         }
 
         [Fact]
@@ -226,6 +230,118 @@ namespace DrugWarehouseManagement.UnitTest
 
             // Assert
             _unitOfWorkMock.Verify(u => u.AccountRepository.UpdateAsync(It.Is<Account>(a => a.AccountId == account.AccountId)), Times.Once);
+            _unitOfWorkMock.Verify(u => u.SaveChangesAsync(), Times.Once);
+        }
+
+        [Fact]
+        public async Task CreateAccount_AccountAlreadyExists_ThrowsException()
+        {
+            // Arrange
+            var request = new CreateAccountRequest
+            {
+                Username = "testuser",
+                Email = "testuser@example.com",
+                PhoneNumber = "1234567890"
+            };
+            var existingAccount = new Account { Username = "testuser" };
+            var mockAccounts = new List<Account> { existingAccount }.AsQueryable().BuildMock();
+            _unitOfWorkMock.Setup(u => u.AccountRepository.GetByWhere(It.IsAny<Expression<Func<Account, bool>>>()))
+                .Returns(mockAccounts);
+
+            // Act & Assert
+            var exception = await Assert.ThrowsAsync<Exception>(() => _accountService.CreateAccount(request));
+            Assert.Equal("Account already existed", exception.Message);
+        }
+
+        [Fact]
+        public async Task CreateAccount_SuccessfulCreation_ReturnsBaseResponse()
+        {
+            // Arrange
+            var request = new CreateAccountRequest
+            {
+                Username = "newuser",
+                Email = "newuser@example.com",
+                PhoneNumber = "0987654321"
+            };
+            var mockAccounts = new List<Account>().AsQueryable().BuildMock();
+            _unitOfWorkMock.Setup(u => u.AccountRepository.GetByWhere(It.IsAny<Expression<Func<Account, bool>>>()))
+                .Returns(mockAccounts);
+            _unitOfWorkMock.Setup(u => u.AccountRepository.CreateAsync(It.IsAny<Account>())).Returns(Task.CompletedTask);
+            _unitOfWorkMock.Setup(u => u.SaveChangesAsync()).Returns(Task.CompletedTask);
+            _emailServiceMock.Setup(e => e.SendEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(Task.CompletedTask);
+
+            // Act
+            var response = await _accountService.CreateAccount(request);
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.Equal(200, response.Code);
+            Assert.Equal("Account created successfully, please check your (spam) inbox for login credentials", response.Message);
+            _unitOfWorkMock.Verify(u => u.AccountRepository.CreateAsync(It.IsAny<Account>()), Times.Once);
+            _unitOfWorkMock.Verify(u => u.SaveChangesAsync(), Times.Once);
+            _emailServiceMock.Verify(e => e.SendEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task SetupTwoFactorAuthenticator_AccountNotFound_ThrowsException()
+        {
+            // Arrange
+            var email = "testuser@example.com";
+            var mockAccounts = new List<Account>().AsQueryable().BuildMock();
+            _unitOfWorkMock.Setup(u => u.AccountRepository.GetByWhere(It.IsAny<Expression<Func<Account, bool>>>()))
+                .Returns(mockAccounts);
+
+            // Act & Assert
+            var exception = await Assert.ThrowsAsync<Exception>(() => _accountService.SetupTwoFactorAuthenticator(email));
+            Assert.Equal("Account not found", exception.Message);
+        }
+
+        [Fact]
+        public async Task SetupTwoFactorAuthenticator_AlreadySetup_ThrowsException()
+        {
+            // Arrange
+            var email = "testuser@example.com";
+            var account = new Account
+            {
+                Email = email,
+                AccountSettings = new AccountSettings { IsTwoFactorEnabled = true }
+            };
+            var mockAccounts = new List<Account> { account }.AsQueryable().BuildMock();
+            _unitOfWorkMock.Setup(u => u.AccountRepository.GetByWhere(It.IsAny<Expression<Func<Account, bool>>>()))
+                .Returns(mockAccounts);
+
+            // Act & Assert
+            var exception = await Assert.ThrowsAsync<Exception>(() => _accountService.SetupTwoFactorAuthenticator(email));
+            Assert.Equal("Two factor authenticator is already setup", exception.Message);
+        }
+
+        [Fact]
+        public async Task SetupTwoFactorAuthenticator_SuccessfulSetup_ReturnsResponse()
+        {
+            // Arrange
+            var email = "testuser@example.com";
+            var account = new Account
+            {
+                Email = email,
+                AccountSettings = new AccountSettings { IsTwoFactorEnabled = false }
+            };
+            var mockAccounts = new List<Account> { account }.AsQueryable().BuildMock();
+            _unitOfWorkMock.Setup(u => u.AccountRepository.GetByWhere(It.IsAny<Expression<Func<Account, bool>>>()))
+                .Returns(mockAccounts);
+            _unitOfWorkMock.Setup(u => u.AccountRepository.UpdateAsync(It.IsAny<Account>())).Returns(Task.CompletedTask);
+            _unitOfWorkMock.Setup(u => u.SaveChangesAsync()).Returns(Task.CompletedTask);
+            _twoFactorAuthenticatorMock.Setup(t => t.GenerateSetupCode(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<byte[]>()))
+                .Returns(new SetupCode("ManualEntryKey", "ImageUrlQrCode", "QrCodeSetupImageUrl"));
+
+            // Act
+            var response = await _accountService.SetupTwoFactorAuthenticator(email);
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.NotNull(response.ImageUrlQrCode);
+            Assert.NotNull(response.ManualEntryKey);
+            _unitOfWorkMock.Verify(u => u.AccountRepository.UpdateAsync(It.IsAny<Account>()), Times.Once);
             _unitOfWorkMock.Verify(u => u.SaveChangesAsync(), Times.Once);
         }
 

@@ -8,6 +8,8 @@ using DrugWarehouseManagement.Service.DTO.Response;
 using DrugWarehouseManagement.Service.Extenstions;
 using DrugWarehouseManagement.Service.Interface;
 using DrugWarehouseManagement.Service.Request;
+using DrugWarehouseManagement.Service.Wrapper;
+using DrugWarehouseManagement.Service.Wrapper.Interface;
 using Google.Authenticator;
 using Mapster;
 using Microsoft.AspNetCore.Identity;
@@ -31,16 +33,16 @@ namespace DrugWarehouseManagement.Service.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IPasswordHasher<string> _passwordHasher;
         private readonly ITokenHandlerService _tokenHandler;
-        private readonly TwoFactorAuthenticator _twoFactorAuthenticator;
+        private readonly ITwoFactorAuthenticatorWrapper _twoFactorAuthenticator;
         private readonly ILogger<IAccountService> _logger;
         private readonly IEmailService _emailService;
 
-        public AccountService(IUnitOfWork unitOfWork, ITokenHandlerService tokenHandler, ILogger<IAccountService> logger, IEmailService emailService)
+        public AccountService(IUnitOfWork unitOfWork, ITokenHandlerService tokenHandler, ILogger<IAccountService> logger, IEmailService emailService, ITwoFactorAuthenticatorWrapper twoFactorAuthenticatorWrapper)
         {
             _unitOfWork = unitOfWork;
             _passwordHasher ??= new PasswordHasher<string>();
             _tokenHandler = tokenHandler;
-            _twoFactorAuthenticator ??= new TwoFactorAuthenticator();
+            _twoFactorAuthenticator ??= twoFactorAuthenticatorWrapper;
             _logger = logger;
             _emailService = emailService;
         }
@@ -142,7 +144,7 @@ namespace DrugWarehouseManagement.Service.Services
 
                 if (!String.IsNullOrEmpty(account.OTPCode) && request.tOtpCode == Utils.Base64Decode(account.OTPCode))
                 {
-                    throw new Exception("This code has been used");
+                    throw new Exception("Two factor code is already used");
                 }
 
                 account.OTPCode = Utils.Base64Encode(request.tOtpCode.Trim());
@@ -173,8 +175,6 @@ namespace DrugWarehouseManagement.Service.Services
 
         public async Task<SetupTwoFactorAuthenticatorResponse> SetupTwoFactorAuthenticator(string email)
         {
-            SetupCode setupCode;
-
             var account = await _unitOfWork.AccountRepository.GetByWhere(x => x.Email == email.Trim()).FirstOrDefaultAsync();
 
             if (account == null)
@@ -196,7 +196,7 @@ namespace DrugWarehouseManagement.Service.Services
             byte[] secretKey = new byte[16];
             RandomNumberGenerator.Fill(secretKey);
 
-            setupCode = _twoFactorAuthenticator.GenerateSetupCode("DrugWarehouse", email, secretKey);
+            var setupCode = _twoFactorAuthenticator.GenerateSetupCode("DrugWarehouse", email, secretKey);
 
             account.tOTPSecretKey = secretKey;
 
