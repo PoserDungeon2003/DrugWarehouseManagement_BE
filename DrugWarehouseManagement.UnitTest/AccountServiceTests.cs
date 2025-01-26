@@ -9,7 +9,9 @@ using DrugWarehouseManagement.Service.Request;
 using DrugWarehouseManagement.Service.Services;
 using DrugWarehouseManagement.Service.Wrapper.Interface;
 using Google.Authenticator;
+using Mapster;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MockQueryable;
 using Moq;
@@ -343,6 +345,49 @@ namespace DrugWarehouseManagement.UnitTest
             Assert.NotNull(response.ManualEntryKey);
             _unitOfWorkMock.Verify(u => u.AccountRepository.UpdateAsync(It.IsAny<Account>()), Times.Once);
             _unitOfWorkMock.Verify(u => u.SaveChangesAsync(), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetAccountById_AccountNotFound_ThrowsException()
+        {
+            // Arrange
+            var accountId = Guid.NewGuid();
+            _unitOfWorkMock.Setup(u => u.AccountRepository.GetByWhere(It.IsAny<Expression<Func<Account, bool>>>()))
+                .Returns(new List<Account>().AsQueryable().BuildMock());
+
+            // Act & Assert
+            var exception = await Assert.ThrowsAsync<Exception>(() => _accountService.GetAccountById(accountId));
+            Assert.Equal("Account not found", exception.Message);
+        }
+
+        [Fact]
+        public async Task GetAccountById_AccountFound_ReturnsViewAccount()
+        {
+            // Arrange
+            var accountId = Guid.NewGuid();
+            var role = new Role { RoleId = 1, RoleName = "Admin" };
+            var account = new Account
+            {
+                AccountId = accountId,
+                Username = "testuser",
+                RoleId = role.RoleId,
+                Role = role
+            };
+            var mockAccounts = new List<Account> { account }.AsQueryable().BuildMock();
+            _unitOfWorkMock.Setup(u => u.AccountRepository.GetByWhere(It.IsAny<Expression<Func<Account, bool>>>()))
+                .Returns(mockAccounts);
+
+            // Configure Mapster mapping
+            TypeAdapterConfig<Account, ViewAccount>.NewConfig()
+                    .Map(dest => dest.RoleName, src => src.Role.RoleName);
+            // Act
+            var result = await _accountService.GetAccountById(accountId);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(accountId, result.AccountId);
+            Assert.Equal("testuser", result.Username);
+            Assert.Equal("Admin", result.RoleName);
         }
 
         private string HashPassword(string password)
