@@ -44,7 +44,7 @@ namespace DrugWarehouseManagement.API
             AddCors(services);
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
-            services.AddScoped<TokenHandlerService>();
+            services.AddScoped<ITokenHandlerService, TokenHandlerService>();
 
             services.AddScoped<IAccountRepository, AccountRepository>();
 

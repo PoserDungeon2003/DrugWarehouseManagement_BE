@@ -23,7 +23,7 @@ namespace DrugWarehouseManagement.API.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> LoginWithEmail([FromBody] AccountLoginRequest request)
+        public async Task<IActionResult> LoginWithUsername([FromBody] AccountLoginRequest request)
         {
             try
             {
