@@ -2,6 +2,7 @@
 using DrugWarehouseManagement.Repository.Interface;
 using DrugWarehouseManagement.Repository.Models;
 using DrugWarehouseManagement.Repository.Repositories;
+using DrugWarehouseManagement.Service.DTO.Response;
 using DrugWarehouseManagement.Service.Interface;
 using DrugWarehouseManagement.Service.Services;
 using Mapster;
@@ -106,7 +107,10 @@ namespace DrugWarehouseManagement.API
 
         private static void AddMapper()
         {
-
+            TypeAdapterConfig<Account, ViewAccount>
+                .NewConfig()
+                .Map(dest => dest.Status, src => src.Status.ToString())
+                .Map(dest => dest.RoleName, src => src.Role.RoleName);
         }
 
         private static void AddEnum(IServiceCollection services)

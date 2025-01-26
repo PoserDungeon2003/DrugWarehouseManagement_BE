@@ -5,6 +5,7 @@ using DrugWarehouseManagement.Repository.Models;
 using DrugWarehouseManagement.Service.DTO;
 using DrugWarehouseManagement.Service.DTO.Request;
 using DrugWarehouseManagement.Service.DTO.Response;
+using DrugWarehouseManagement.Service.Extenstions;
 using DrugWarehouseManagement.Service.Interface;
 using DrugWarehouseManagement.Service.Request;
 using Google.Authenticator;
@@ -76,13 +77,36 @@ namespace DrugWarehouseManagement.Service.Services
 
             await _emailService.SendEmailAsync(account.Email, "Account Created", htmlTemplate);
 
-            _logger.LogWarning($"Account created with username: {account.Username} and password: {randomPassword}"); // For development purpose, should using email to send password to user
+            //_logger.LogWarning($"Account created with username: {account.Username} and password: {randomPassword}"); // For development purpose, should using email to send password to user
 
             return new BaseResponse
             { 
                 Code = 200,
                 Message = "Account created successfully, please check your (spam) inbox for login credentials",
             };
+        }
+
+        public async Task<ViewAccount> GetAccountById(Guid accountId)
+        {
+            var account = await _unitOfWork.AccountRepository.GetByWhere(x => x.AccountId == accountId)
+                        .Include(x => x.Role)
+                        .FirstOrDefaultAsync();
+
+            if (account == null)
+            {
+                throw new Exception("Account not found");
+            }
+
+            return account.Adapt<ViewAccount>();
+        }
+
+        public async Task<PaginatedResult<ViewAccount>> GetAccountsPaginatedAsync(int page = 1, int pageSize = 10)
+        {
+            var query = await _unitOfWork.AccountRepository.GetAll()
+                        .Include(x => x.Role)   
+                        .OrderByDescending(x => x.CreatedAt)
+                        .ToPaginatedResultAsync(page, pageSize);
+            return query.Adapt<PaginatedResult<ViewAccount>>();
         }
 
         public async Task<AccountLoginResponse> LoginWithUsername(AccountLoginRequest request)

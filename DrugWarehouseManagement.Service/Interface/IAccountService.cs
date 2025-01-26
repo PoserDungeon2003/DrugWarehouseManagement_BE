@@ -2,6 +2,7 @@
 using DrugWarehouseManagement.Service.DTO;
 using DrugWarehouseManagement.Service.DTO.Request;
 using DrugWarehouseManagement.Service.DTO.Response;
+using DrugWarehouseManagement.Service.Extenstions;
 using DrugWarehouseManagement.Service.Request;
 using System;
 using System.Collections.Generic;
@@ -18,5 +19,7 @@ namespace DrugWarehouseManagement.Service.Interface
         public Task<SetupTwoFactorAuthenticatorResponse> SetupTwoFactorAuthenticator(string email);
         public Task<BaseResponse> CreateAccount(CreateAccountRequest request);
         public Task<BaseResponse> UpdateAccountSettings(Guid accountId, UpdateAccountSettingsRequest request);
+        public Task<PaginatedResult<ViewAccount>> GetAccountsPaginatedAsync(int page, int pageSize);
+        public Task<ViewAccount> GetAccountById(Guid accountId);
     }
 }
