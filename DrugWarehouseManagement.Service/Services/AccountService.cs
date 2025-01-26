@@ -5,8 +5,11 @@ using DrugWarehouseManagement.Repository.Models;
 using DrugWarehouseManagement.Service.DTO;
 using DrugWarehouseManagement.Service.DTO.Request;
 using DrugWarehouseManagement.Service.DTO.Response;
+using DrugWarehouseManagement.Service.Extenstions;
 using DrugWarehouseManagement.Service.Interface;
 using DrugWarehouseManagement.Service.Request;
+using DrugWarehouseManagement.Service.Wrapper;
+using DrugWarehouseManagement.Service.Wrapper.Interface;
 using Google.Authenticator;
 using Mapster;
 using Microsoft.AspNetCore.Identity;
@@ -20,6 +23,7 @@ using System.Drawing;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace DrugWarehouseManagement.Service.Services
@@ -29,16 +33,16 @@ namespace DrugWarehouseManagement.Service.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IPasswordHasher<string> _passwordHasher;
         private readonly ITokenHandlerService _tokenHandler;
-        private readonly TwoFactorAuthenticator _twoFactorAuthenticator;
+        private readonly ITwoFactorAuthenticatorWrapper _twoFactorAuthenticator;
         private readonly ILogger<IAccountService> _logger;
         private readonly IEmailService _emailService;
 
-        public AccountService(IUnitOfWork unitOfWork, ITokenHandlerService tokenHandler, ILogger<IAccountService> logger, IEmailService emailService)
+        public AccountService(IUnitOfWork unitOfWork, ITokenHandlerService tokenHandler, ILogger<IAccountService> logger, IEmailService emailService, ITwoFactorAuthenticatorWrapper twoFactorAuthenticatorWrapper)
         {
             _unitOfWork = unitOfWork;
             _passwordHasher ??= new PasswordHasher<string>();
             _tokenHandler = tokenHandler;
-            _twoFactorAuthenticator ??= new TwoFactorAuthenticator();
+            _twoFactorAuthenticator ??= twoFactorAuthenticatorWrapper;
             _logger = logger;
             _emailService = emailService;
         }
@@ -75,13 +79,36 @@ namespace DrugWarehouseManagement.Service.Services
 
             await _emailService.SendEmailAsync(account.Email, "Account Created", htmlTemplate);
 
-            _logger.LogWarning($"Account created with username: {account.Username} and password: {randomPassword}"); // For development purpose, should using email to send password to user
+            //_logger.LogWarning($"Account created with username: {account.Username} and password: {randomPassword}"); // For development purpose, should using email to send password to user
 
             return new BaseResponse
             { 
                 Code = 200,
                 Message = "Account created successfully, please check your (spam) inbox for login credentials",
             };
+        }
+
+        public async Task<ViewAccount> GetAccountById(Guid accountId)
+        {
+            var account = await _unitOfWork.AccountRepository.GetByWhere(x => x.AccountId == accountId)
+                        .Include(x => x.Role)
+                        .FirstOrDefaultAsync();
+
+            if (account == null)
+            {
+                throw new Exception("Account not found");
+            }
+
+            return account.Adapt<ViewAccount>();
+        }
+
+        public async Task<PaginatedResult<ViewAccount>> GetAccountsPaginatedAsync(int page = 1, int pageSize = 10)
+        {
+            var query = await _unitOfWork.AccountRepository.GetAll()
+                        .Include(x => x.Role)   
+                        .OrderByDescending(x => x.CreatedAt)
+                        .ToPaginatedResultAsync(page, pageSize);
+            return query.Adapt<PaginatedResult<ViewAccount>>();
         }
 
         public async Task<AccountLoginResponse> LoginWithUsername(AccountLoginRequest request)
@@ -117,7 +144,7 @@ namespace DrugWarehouseManagement.Service.Services
 
                 if (!String.IsNullOrEmpty(account.OTPCode) && request.tOtpCode == Utils.Base64Decode(account.OTPCode))
                 {
-                    throw new Exception("This code has been used");
+                    throw new Exception("Two factor code is already used");
                 }
 
                 account.OTPCode = Utils.Base64Encode(request.tOtpCode.Trim());
@@ -148,8 +175,6 @@ namespace DrugWarehouseManagement.Service.Services
 
         public async Task<SetupTwoFactorAuthenticatorResponse> SetupTwoFactorAuthenticator(string email)
         {
-            SetupCode setupCode;
-
             var account = await _unitOfWork.AccountRepository.GetByWhere(x => x.Email == email.Trim()).FirstOrDefaultAsync();
 
             if (account == null)
@@ -171,7 +196,7 @@ namespace DrugWarehouseManagement.Service.Services
             byte[] secretKey = new byte[16];
             RandomNumberGenerator.Fill(secretKey);
 
-            setupCode = _twoFactorAuthenticator.GenerateSetupCode("DrugWarehouse", email, secretKey);
+            var setupCode = _twoFactorAuthenticator.GenerateSetupCode("DrugWarehouse", email, secretKey);
 
             account.tOTPSecretKey = secretKey;
 
@@ -179,8 +204,6 @@ namespace DrugWarehouseManagement.Service.Services
             {
                 account.AccountSettings = new AccountSettings();
             }
-
-            account.AccountSettings.IsTwoFactorEnabled = true; // For debug purpose, should have API to enable/disable 2FA
 
             await _unitOfWork.AccountRepository.UpdateAsync(account);
 
@@ -193,9 +216,33 @@ namespace DrugWarehouseManagement.Service.Services
             };
         }
 
-        public Task<AccountSettings> UpdateAccountSettings(Guid accountId, UpdateAccountSettingsRequest request)
+        public async Task<BaseResponse> UpdateAccountSettings(Guid accountId, UpdateAccountSettingsRequest request)
         {
-            throw new NotImplementedException();
+            var account = await _unitOfWork.AccountRepository.GetByIdAsync(accountId);
+
+            if (account == null)
+            {
+                throw new Exception("Account not found");
+            }
+
+            if (account.AccountSettings == null)
+            {
+                account.AccountSettings = new AccountSettings();
+            }
+
+            if (request.PreferredLanguage != null && !Regex.Match(request.PreferredLanguage, @"^[a-zA-Z]{2}$").Success) {
+                throw new Exception("Preferred language must be exactly 2 alphabetic characters");
+            }
+
+            request.Adapt(account.AccountSettings);
+            await _unitOfWork.AccountRepository.UpdateAsync(account);
+
+            await _unitOfWork.SaveChangesAsync();
+
+            return new BaseResponse {
+                Code = 200,
+                Message = "Account settings updated successfully"
+            };
         }
 
         public async Task UpdateLastLogin(UpdateLastLoginDTO updateLastLoginDTO)

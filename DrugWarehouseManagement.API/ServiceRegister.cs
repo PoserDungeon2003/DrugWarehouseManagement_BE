@@ -2,8 +2,11 @@
 using DrugWarehouseManagement.Repository.Interface;
 using DrugWarehouseManagement.Repository.Models;
 using DrugWarehouseManagement.Repository.Repositories;
+using DrugWarehouseManagement.Service.DTO.Response;
 using DrugWarehouseManagement.Service.Interface;
 using DrugWarehouseManagement.Service.Services;
+using DrugWarehouseManagement.Service.Wrapper;
+using DrugWarehouseManagement.Service.Wrapper.Interface;
 using Mapster;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -45,10 +48,11 @@ namespace DrugWarehouseManagement.API
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<ITokenHandlerService, TokenHandlerService>();
+            services.AddScoped<ITwoFactorAuthenticatorWrapper, TwoFactorAuthenticatorWrapper>();
 
             services.AddScoped<IAccountRepository, AccountRepository>();
-
             services.AddScoped<IAccountService, AccountService>();
+
             services.AddScoped<IEmailService, EmailService>();
 
         }
@@ -106,7 +110,10 @@ namespace DrugWarehouseManagement.API
 
         private static void AddMapper()
         {
-
+            TypeAdapterConfig<Account, ViewAccount>
+                .NewConfig()
+                .Map(dest => dest.Status, src => src.Status.ToString())
+                .Map(dest => dest.RoleName, src => src.Role.RoleName);
         }
 
         private static void AddEnum(IServiceCollection services)

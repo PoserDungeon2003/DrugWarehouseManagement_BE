@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using DrugWarehouseManagement.Service.DTO.Request;
 using System.Net;
+using Azure.Core;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -60,13 +61,34 @@ namespace DrugWarehouseManagement.API.Controllers
             }
         }
 
-        [HttpPost("createAccount")]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> CreateAccount([FromBody] CreateAccountRequest request)
+        [HttpPatch("updateAccountSettings")]
+        [Authorize]
+        public async Task<IActionResult> UpdateAccountSettings([FromBody] UpdateAccountSettingsRequest request)
         {
+            var accountId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             try
             {
-                var response = await _accountService.CreateAccount(request);
+                var response = await _accountService.UpdateAccountSettings(Guid.Parse(accountId), request);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    Code = 400,
+                    Message = ex.Message,
+                });
+            }
+        }
+
+        [HttpGet("/whoami")]
+        [Authorize]
+        public async Task<IActionResult> WhoAmI()
+        {
+            var accountId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            try
+            {
+                var response = await _accountService.GetAccountById(Guid.Parse(accountId));
                 return Ok(response);
             }
             catch (Exception ex)
