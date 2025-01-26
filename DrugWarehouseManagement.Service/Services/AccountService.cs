@@ -28,12 +28,12 @@ namespace DrugWarehouseManagement.Service.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IPasswordHasher<string> _passwordHasher;
-        private readonly TokenHandlerService _tokenHandler;
+        private readonly ITokenHandlerService _tokenHandler;
         private readonly TwoFactorAuthenticator _twoFactorAuthenticator;
         private readonly ILogger<IAccountService> _logger;
         private readonly IEmailService _emailService;
 
-        public AccountService(IUnitOfWork unitOfWork, TokenHandlerService tokenHandler, ILogger<IAccountService> logger, IEmailService emailService)
+        public AccountService(IUnitOfWork unitOfWork, ITokenHandlerService tokenHandler, ILogger<IAccountService> logger, IEmailService emailService)
         {
             _unitOfWork = unitOfWork;
             _passwordHasher ??= new PasswordHasher<string>();

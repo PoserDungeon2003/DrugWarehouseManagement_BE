@@ -1,4 +1,5 @@
 ﻿using DrugWarehouseManagement.Repository.Models;
+using DrugWarehouseManagement.Service.Interface;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -11,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace DrugWarehouseManagement.Service.Services
 {
-    public class TokenHandlerService
+    public class TokenHandlerService : ITokenHandlerService
     {
         private readonly IConfiguration _configuration;
 
