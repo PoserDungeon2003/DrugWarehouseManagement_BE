@@ -17,6 +17,6 @@ namespace DrugWarehouseManagement.Service.Interface
         public Task UpdateLastLogin(UpdateLastLoginDTO updateLastLoginDTO);
         public Task<SetupTwoFactorAuthenticatorResponse> SetupTwoFactorAuthenticator(string email);
         public Task<BaseResponse> CreateAccount(CreateAccountRequest request);
-        public Task<AccountSettings> UpdateAccountSettings(Guid accountId, UpdateAccountSettingsRequest request);
+        public Task<BaseResponse> UpdateAccountSettings(Guid accountId, UpdateAccountSettingsRequest request);
     }
 }

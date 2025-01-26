@@ -20,6 +20,7 @@ using System.Drawing;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace DrugWarehouseManagement.Service.Services
@@ -180,8 +181,6 @@ namespace DrugWarehouseManagement.Service.Services
                 account.AccountSettings = new AccountSettings();
             }
 
-            account.AccountSettings.IsTwoFactorEnabled = true; // For debug purpose, should have API to enable/disable 2FA
-
             await _unitOfWork.AccountRepository.UpdateAsync(account);
 
             await _unitOfWork.SaveChangesAsync();
@@ -193,9 +192,33 @@ namespace DrugWarehouseManagement.Service.Services
             };
         }
 
-        public Task<AccountSettings> UpdateAccountSettings(Guid accountId, UpdateAccountSettingsRequest request)
+        public async Task<BaseResponse> UpdateAccountSettings(Guid accountId, UpdateAccountSettingsRequest request)
         {
-            throw new NotImplementedException();
+            var account = await _unitOfWork.AccountRepository.GetByIdAsync(accountId);
+
+            if (account == null)
+            {
+                throw new Exception("Account not found");
+            }
+
+            if (account.AccountSettings == null)
+            {
+                account.AccountSettings = new AccountSettings();
+            }
+
+            if (request.PreferredLanguage != null && !Regex.Match(request.PreferredLanguage, @"^[a-zA-Z]{2}$").Success) {
+                throw new Exception("Preferred language must be exactly 2 alphabetic characters");
+            }
+
+            request.Adapt(account.AccountSettings);
+            await _unitOfWork.AccountRepository.UpdateAsync(account);
+
+            await _unitOfWork.SaveChangesAsync();
+
+            return new BaseResponse {
+                Code = 200,
+                Message = "Account settings updated successfully"
+            };
         }
 
         public async Task UpdateLastLogin(UpdateLastLoginDTO updateLastLoginDTO)

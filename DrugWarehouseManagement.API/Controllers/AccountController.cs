@@ -78,5 +78,25 @@ namespace DrugWarehouseManagement.API.Controllers
                 });
             }
         }
+
+        [HttpPatch("updateAccountSettings")]
+        [Authorize]
+        public async Task<IActionResult> UpdateAccountSettings([FromBody] UpdateAccountSettingsRequest request)
+        {
+            var accountId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            try
+            {
+                var response = await _accountService.UpdateAccountSettings(Guid.Parse(accountId), request);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    Code = 400,
+                    Message = ex.Message,
+                });
+            }
+        }
     }
 }
