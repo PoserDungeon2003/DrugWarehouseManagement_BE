@@ -2,6 +2,7 @@
 using DrugWarehouseManagement.Repository.Interface;
 using DrugWarehouseManagement.Repository.Models;
 using DrugWarehouseManagement.Repository.Repositories;
+using DrugWarehouseManagement.Service.DTO.Request;
 using DrugWarehouseManagement.Service.DTO.Response;
 using DrugWarehouseManagement.Service.Interface;
 using DrugWarehouseManagement.Service.Services;
@@ -114,6 +115,10 @@ namespace DrugWarehouseManagement.API
                 .NewConfig()
                 .Map(dest => dest.Status, src => src.Status.ToString())
                 .Map(dest => dest.RoleName, src => src.Role.RoleName);
+
+            TypeAdapterConfig<UpdateAccountRequest, Account>
+                .NewConfig()
+                .IgnoreNullValues(true);
         }
 
         private static void AddEnum(IServiceCollection services)

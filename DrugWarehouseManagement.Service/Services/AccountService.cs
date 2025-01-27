@@ -47,6 +47,16 @@ namespace DrugWarehouseManagement.Service.Services
             _emailService = emailService;
         }
 
+        public Task<BaseResponse> ActiveAccount(Guid accountId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<BaseResponse> ChangePassword(Guid accountId, ChangePasswordRequest request)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<BaseResponse> CreateAccount(CreateAccountRequest request)
         {
             var existedAccount = await _unitOfWork.AccountRepository
@@ -86,6 +96,16 @@ namespace DrugWarehouseManagement.Service.Services
                 Code = 200,
                 Message = "Account created successfully, please check your (spam) inbox for login credentials",
             };
+        }
+
+        public Task<BaseResponse> DeactiveAccount(Guid accountId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<BaseResponse> DeleteAccount(Guid accountId)
+        {
+            throw new NotImplementedException();
         }
 
         public async Task<ViewAccount> GetAccountById(Guid accountId)
@@ -173,6 +193,11 @@ namespace DrugWarehouseManagement.Service.Services
             };
         }
 
+        public Task<BaseResponse> ResetPassword(Guid accountId)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<SetupTwoFactorAuthenticatorResponse> SetupTwoFactorAuthenticator(string email)
         {
             var account = await _unitOfWork.AccountRepository.GetByWhere(x => x.Email == email.Trim()).FirstOrDefaultAsync();
@@ -213,6 +238,25 @@ namespace DrugWarehouseManagement.Service.Services
             {
                 ImageUrlQrCode = setupCode.QrCodeSetupImageUrl,
                 ManualEntryKey = setupCode.ManualEntryKey
+            };
+        }
+
+        public async Task<BaseResponse> UpdateAccount(Guid accountId, UpdateAccountRequest request)
+        {
+            var account = await _unitOfWork.AccountRepository.GetByIdAsync(accountId);
+
+            if (account == null)
+            {
+                throw new Exception("Account not found");
+            }
+
+            request.Adapt(account);
+            await _unitOfWork.SaveChangesAsync();
+
+            return new BaseResponse
+            {
+                Code = 200,
+                Message = "Account updated successfully"
             };
         }
 

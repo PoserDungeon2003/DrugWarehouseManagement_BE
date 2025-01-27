@@ -8,22 +8,16 @@ using System.Threading.Tasks;
 
 namespace DrugWarehouseManagement.Service.DTO.Request
 {
-    public class CreateAccountRequest
+    public class UpdateAccountRequest
     {
-        [Unicode(true)]
-        [Required]
-        public string FullName { get; set; } = null!;
-        [Required]
-        public string Username { get; set; } = null!;
-        [Required]
+        public string? Username { get; set; }
         [EmailAddress]
-        public string Email { get; set; } = null!;
-        [Required]
+        public string? Email { get; set; }
+        [Unicode(true)]
+        public string? FullName { get; set; }
         [MaxLength(15, ErrorMessage = "Max length is 15")]
         [MinLength(10, ErrorMessage = "Min length is 10")]
         [RegularExpression(@"^[\d+]*$", ErrorMessage = "Invalid phone number")]
-        public string PhoneNumber { get; set; } = null!;
-        [Required]
-        public int RoleId { get; set; }
+        public string? PhoneNumber { get; set; }
     }
 }
