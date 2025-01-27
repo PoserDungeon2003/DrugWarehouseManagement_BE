@@ -47,15 +47,24 @@ jobs:
           fi
 
       # Step 7: Check passed test cases
-      - name: Check passed test cases
-        if: success() # Run only if tests succeeded
+      - name: Analyze test results
         run: |
+          # Check if the test results file exists
           if [ -f "./test-results/test_results.trx" ]; then
-            passed=$(grep -oP '(?<=Passed: )\d+' ./test-results/test_results.trx | paste -sd+ | bc)
-            echo "Total Passed Test Cases: $passed"
-            echo "::set-output name=passed::$passed"
+            echo "Test results file found. Processing..."
+            
+            # Extract passed test cases count
+            passed=$(grep -oP '(?<=Passed: )\d+' ./test-results/test_results.trx | paste -sd+ | bc || echo 0)
+      
+            if [ -n "$passed" ] && [ "$passed" -ge 0 ]; then
+              echo "Total Passed Test Cases: $passed"
+              echo "::set-output name=passed::$passed"
+            else
+              echo "No 'Passed' results found in the file. Exiting with failure."
+              exit 1
+            fi
           else
-            echo "No test results file found."
+            echo "Test results file not found in ./test-results/. Ensure the file is generated."
             exit 1
           fi
         shell: bash
