@@ -49,16 +49,6 @@ jobs:
             echo "Test Results File Not Found"
           fi
 
-      - name: Parse Passed Tests Count
-        id: parse_tests
-        run: |
-          passed_tests=$(xmllint --xpath "string(//TestRun/Result[@outcome='Passed']/@outcome)" ./test-results/test_results.trx | wc -l)
-          echo "Passed tests count: $passed_tests"
-          echo "passed_tests=$passed_tests" >> $GITHUB_ENV
-
-      - name: Show Passed Tests in Workflow Output
-        run: echo "Number of passed tests: ${{ env.passed_tests }}"
-
       # Step 8: Publish test results
       - name: Publish test results
         if: always()
