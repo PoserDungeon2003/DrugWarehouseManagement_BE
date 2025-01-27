@@ -31,8 +31,11 @@ jobs:
       - name: Build solution
         run: dotnet build --configuration Release --no-restore
 
+      - name: Install xmllint
+        run: sudo apt-get install -y libxml2-utils
+
       # Step 5: Run tests
-      - name: Run unit tests
+      - name: Run Tests
         run: dotnet test --configuration Release --no-build --logger "trx;LogFileName=test_results.trx" --results-directory ./test-results
 
       # Step 6: Debug Test Results File
@@ -49,7 +52,7 @@ jobs:
       - name: Parse Passed Tests Count
         id: parse_tests
         run: |
-          passed_tests=$(grep -oP '(?<=Passed: )\d+' ./test-results/test_results.trx)
+          passed_tests=$(xmllint --xpath "string(//TestRun/Result[@outcome='Passed']/@outcome)" ./test-results/test_results.trx | wc -l)
           echo "Passed tests count: $passed_tests"
           echo "passed_tests=$passed_tests" >> $GITHUB_ENV
 
