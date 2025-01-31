@@ -393,6 +393,325 @@ namespace DrugWarehouseManagement.UnitTest
             Assert.Equal("Admin", result.RoleName);
         }
 
+        [Fact]
+        public async Task UpdateAccount_AccountNotFound_ThrowsException()
+        {
+            // Arrange
+            var accountId = Guid.NewGuid();
+            var request = new UpdateAccountRequest();
+            _unitOfWorkMock.Setup(uow => uow.AccountRepository.GetByIdAsync(accountId))
+                           .ReturnsAsync((Account)null);
+
+            // Act & Assert
+            var exception = await Assert.ThrowsAsync<Exception>(() => _accountService.UpdateAccount(accountId, request));
+            Assert.Equal("Account not found", exception.Message);
+        }
+
+        [Fact]
+        public async Task UpdateAccount_SuccessfulUpdate_ReturnsBaseResponse()
+        {
+            // Arrange
+            var accountId = Guid.NewGuid();
+            var request = new UpdateAccountRequest
+            {
+                UserName = "newUsername",
+                Email = "newEmail@example.com",
+                FullName = "New FullName",
+                PhoneNumber = "0987654321"
+            };
+            var account = new Account
+            {
+                Id = accountId,
+                UserName = "existingUsername",
+                Email = "existingEmail@example.com",
+                FullName = "Existing FullName",
+                PhoneNumber = "1234567890"
+            };
+            _unitOfWorkMock.Setup(uow => uow.AccountRepository.GetByIdAsync(accountId))
+                           .ReturnsAsync(account);
+            _unitOfWorkMock.Setup(uow => uow.SaveChangesAsync())
+                           .Returns(Task.CompletedTask);
+
+            // Act
+            var response = await _accountService.UpdateAccount(accountId, request);
+
+            // Assert
+            Assert.Equal(200, response.Code);
+            Assert.Equal("Account updated successfully", response.Message);
+            Assert.Equal(request.UserName, account.UserName);
+            Assert.Equal(request.Email, account.Email);
+            Assert.Equal(request.FullName, account.FullName);
+            Assert.Equal(request.PhoneNumber, account.PhoneNumber);
+            _unitOfWorkMock.Verify(uow => uow.SaveChangesAsync(), Times.Once);
+        }
+
+        [Fact]
+        public async Task UpdateAccountSettings_AccountNotFound_ThrowsException()
+        {
+            // Arrange
+            var accountId = Guid.NewGuid();
+            var request = new UpdateAccountSettingsRequest();
+            _unitOfWorkMock.Setup(uow => uow.AccountRepository.GetByIdAsync(accountId))
+                           .ReturnsAsync((Account)null);
+
+            // Act & Assert
+            var exception = await Assert.ThrowsAsync<Exception>(() => _accountService.UpdateAccountSettings(accountId, request));
+            Assert.Equal("Account not found", exception.Message);
+        }
+
+        [Fact]
+        public async Task UpdateAccountSettings_InvalidPreferredLanguage_ThrowsException()
+        {
+            // Arrange
+            var accountId = Guid.NewGuid();
+            var request = new UpdateAccountSettingsRequest
+            {
+                PreferredLanguage = "eng" // Invalid language code
+            };
+            var account = new Account
+            {
+                Id = accountId,
+                AccountSettings = new AccountSettings()
+            };
+            _unitOfWorkMock.Setup(uow => uow.AccountRepository.GetByIdAsync(accountId))
+                           .ReturnsAsync(account);
+
+            // Act & Assert
+            var exception = await Assert.ThrowsAsync<Exception>(() => _accountService.UpdateAccountSettings(accountId, request));
+            Assert.Equal("Preferred language must be exactly 2 alphabetic characters", exception.Message);
+        }
+
+        [Fact]
+        public async Task UpdateAccountSettings_SuccessfulUpdate_ReturnsBaseResponse()
+        {
+            // Arrange
+            var accountId = Guid.NewGuid();
+            var request = new UpdateAccountSettingsRequest
+            {
+                PreferredLanguage = "en"
+            };
+            var account = new Account
+            {
+                Id = accountId,
+                AccountSettings = new AccountSettings()
+            };
+            _unitOfWorkMock.Setup(uow => uow.AccountRepository.GetByIdAsync(accountId))
+                           .ReturnsAsync(account);
+            _unitOfWorkMock.Setup(uow => uow.SaveChangesAsync())
+                           .Returns(Task.CompletedTask);
+
+            // Act
+            var response = await _accountService.UpdateAccountSettings(accountId, request);
+
+            // Assert
+            Assert.Equal(200, response.Code);
+            Assert.Equal("Account settings updated successfully", response.Message);
+            Assert.Equal(request.PreferredLanguage, account.AccountSettings.PreferredLanguage);
+            _unitOfWorkMock.Verify(uow => uow.SaveChangesAsync(), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetAccountsPaginatedAsync_ReturnsPaginatedResult()
+        {
+            // Arrange
+            var request = new QueryPaging
+            {
+                Page = 1,
+                PageSize = 10,
+                Search = "test"
+            };
+
+            var accounts = new List<Account>
+            {
+                new Account { UserName = "testuser1", Email = "test1@example.com", PhoneNumber = "1234567890", Status = Common.Enums.AccountStatus.Active, Role = new Role { RoleName = "User" } },
+                new Account { UserName = "testuser2", Email = "test2@example.com", PhoneNumber = "0987654321", Status = Common.Enums.AccountStatus.Active, Role = new Role { RoleName = "Admin" } }
+            }.AsQueryable().BuildMock();
+
+            _unitOfWorkMock.Setup(uow => uow.AccountRepository.GetAll())
+                           .Returns(accounts);
+
+            // Act
+            var result = await _accountService.GetAccountsPaginatedAsync(request);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(2, result.Items.Count);
+            Assert.Equal("testuser1", result.Items[0].UserName);
+            Assert.Equal("testuser2", result.Items[1].UserName);
+        }
+
+        [Fact]
+        public async Task GetAccountsPaginatedAsync_EmptySearch_ReturnsAllActiveAccounts()
+        {
+            // Arrange
+            var request = new QueryPaging
+            {
+                Page = 1,
+                PageSize = 10,
+                Search = ""
+            };
+
+            var accounts = new List<Account>
+            {
+                new Account { UserName = "testuser1", Email = "test1@example.com", PhoneNumber = "1234567890", Status = Common.Enums.AccountStatus.Active, Role = new Role { RoleName = "User" } },
+                new Account { UserName = "testuser2", Email = "test2@example.com", PhoneNumber = "0987654321", Status = Common.Enums.AccountStatus.Active, Role = new Role { RoleName = "Admin" } }
+            }.AsQueryable().BuildMock();
+
+            _unitOfWorkMock.Setup(uow => uow.AccountRepository.GetAll())
+                           .Returns(accounts);
+
+            // Act
+            var result = await _accountService.GetAccountsPaginatedAsync(request);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(2, result.Items.Count);
+            Assert.Equal("testuser1", result.Items[0].UserName);
+            Assert.Equal("testuser2", result.Items[1].UserName);
+        }
+
+        [Fact]
+        public async Task GetAccountsPaginatedAsync_NoMatchingAccounts_ReturnsEmptyResult()
+        {
+            // Arrange
+            var request = new QueryPaging
+            {
+                Page = 1,
+                PageSize = 10,
+                Search = "nonexistent"
+            };
+
+            var accounts = new List<Account>
+            {
+                new Account { UserName = "testuser1", Email = "test1@example.com", PhoneNumber = "1234567890", Status = Common.Enums.AccountStatus.Active, Role = new Role { RoleName = "User" } },
+                new Account { UserName = "testuser2", Email = "test2@example.com", PhoneNumber = "0987654321", Status = Common.Enums.AccountStatus.Active, Role = new Role { RoleName = "Admin" } }
+            }.AsQueryable().BuildMock();
+
+            _unitOfWorkMock.Setup(uow => uow.AccountRepository.GetAll())
+                           .Returns(accounts);
+
+            // Act
+            var result = await _accountService.GetAccountsPaginatedAsync(request);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Empty(result.Items);
+        }
+
+        [Fact]
+        public async Task DeactiveAccount_AccountNotFound_ThrowsException()
+        {
+            // Arrange
+            var accountId = Guid.NewGuid();
+            _unitOfWorkMock.Setup(uow => uow.AccountRepository.GetByIdAsync(accountId))
+                           .ReturnsAsync((Account)null);
+
+            // Act & Assert
+            var exception = await Assert.ThrowsAsync<Exception>(() => _accountService.DeactiveAccount(accountId));
+            Assert.Equal("Account not found", exception.Message);
+        }
+
+        [Fact]
+        public async Task DeactiveAccount_SuccessfulDeactivation_ReturnsBaseResponse()
+        {
+            // Arrange
+            var accountId = Guid.NewGuid();
+            var account = new Account
+            {
+                Id = accountId,
+                Status = Common.Enums.AccountStatus.Active
+            };
+            _unitOfWorkMock.Setup(uow => uow.AccountRepository.GetByIdAsync(accountId))
+                           .ReturnsAsync(account);
+            _unitOfWorkMock.Setup(uow => uow.SaveChangesAsync())
+                           .Returns(Task.CompletedTask);
+
+            // Act
+            var response = await _accountService.DeactiveAccount(accountId);
+
+            // Assert
+            Assert.Equal(200, response.Code);
+            Assert.Equal("Account deactivated successfully", response.Message);
+            Assert.Equal(Common.Enums.AccountStatus.Inactive, account.Status);
+            _unitOfWorkMock.Verify(uow => uow.SaveChangesAsync(), Times.Once);
+        }
+
+        [Fact]
+        public async Task DeleteAccount_AccountNotFound_ThrowsException()
+        {
+            // Arrange
+            var accountId = Guid.NewGuid();
+            _unitOfWorkMock.Setup(uow => uow.AccountRepository.GetByIdAsync(accountId))
+                           .ReturnsAsync((Account)null);
+
+            // Act & Assert
+            var exception = await Assert.ThrowsAsync<Exception>(() => _accountService.DeleteAccount(accountId));
+            Assert.Equal("Account not found", exception.Message);
+        }
+
+        [Fact]
+        public async Task DeleteAccount_SuccessfulDeletion_ReturnsBaseResponse()
+        {
+            // Arrange
+            var accountId = Guid.NewGuid();
+            var account = new Account
+            {
+                Id = accountId,
+                Status = Common.Enums.AccountStatus.Active
+            };
+            _unitOfWorkMock.Setup(uow => uow.AccountRepository.GetByIdAsync(accountId))
+                           .ReturnsAsync(account);
+            _unitOfWorkMock.Setup(uow => uow.SaveChangesAsync())
+                           .Returns(Task.CompletedTask);
+
+            // Act
+            var response = await _accountService.DeleteAccount(accountId);
+
+            // Assert
+            Assert.Equal(200, response.Code);
+            Assert.Equal("Account deleted successfully", response.Message);
+            Assert.Equal(Common.Enums.AccountStatus.Deleted, account.Status);
+            _unitOfWorkMock.Verify(uow => uow.SaveChangesAsync(), Times.Once);
+        }
+
+        [Fact]
+        public async Task ActiveAccount_AccountNotFound_ThrowsException()
+        {
+            // Arrange
+            var accountId = Guid.NewGuid();
+            _unitOfWorkMock.Setup(uow => uow.AccountRepository.GetByIdAsync(accountId))
+                           .ReturnsAsync((Account)null);
+
+            // Act & Assert
+            var exception = await Assert.ThrowsAsync<Exception>(() => _accountService.ActiveAccount(accountId));
+            Assert.Equal("Account not found", exception.Message);
+        }
+
+        [Fact]
+        public async Task ActiveAccount_SuccessfulActivation_ReturnsBaseResponse()
+        {
+            // Arrange
+            var accountId = Guid.NewGuid();
+            var account = new Account
+            {
+                Id = accountId,
+                Status = Common.Enums.AccountStatus.Inactive
+            };
+            _unitOfWorkMock.Setup(uow => uow.AccountRepository.GetByIdAsync(accountId))
+                           .ReturnsAsync(account);
+            _unitOfWorkMock.Setup(uow => uow.SaveChangesAsync())
+                           .Returns(Task.CompletedTask);
+
+            // Act
+            var response = await _accountService.ActiveAccount(accountId);
+
+            // Assert
+            Assert.Equal(200, response.Code);
+            Assert.Equal("Account activated successfully", response.Message);
+            Assert.Equal(Common.Enums.AccountStatus.Active, account.Status);
+            _unitOfWorkMock.Verify(uow => uow.SaveChangesAsync(), Times.Once);
+        }
+
         private string HashPassword(Account account, string password)
         {
             return _passwordHasher.HashPassword(account, password);
