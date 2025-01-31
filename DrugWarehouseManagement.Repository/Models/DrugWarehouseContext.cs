@@ -38,7 +38,7 @@ namespace DrugWarehouseManagement.Repository.Models
                 entity.HasIndex(e => e.PhoneNumber, "IX_Accounts_PhoneNumber")
                 .IsUnique();
 
-                entity.HasIndex(e => e.Username, "IX_Accounts_Username")
+                entity.HasIndex(e => e.UserName, "IX_Accounts_UserName")
                 .IsUnique();
 
                 entity.HasIndex(e => e.Email, "IX_Accounts_Email")

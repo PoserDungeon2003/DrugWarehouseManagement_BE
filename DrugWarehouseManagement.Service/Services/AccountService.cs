@@ -6,6 +6,7 @@ using DrugWarehouseManagement.Service.DTO;
 using DrugWarehouseManagement.Service.DTO.Request;
 using DrugWarehouseManagement.Service.DTO.Response;
 using DrugWarehouseManagement.Service.Extenstions;
+using DrugWarehouseManagement.Service.Helper.Interface;
 using DrugWarehouseManagement.Service.Interface;
 using DrugWarehouseManagement.Service.Request;
 using DrugWarehouseManagement.Service.Wrapper;
@@ -31,16 +32,16 @@ namespace DrugWarehouseManagement.Service.Services
     public class AccountService : IAccountService
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IPasswordHasher<string> _passwordHasher;
         private readonly ITokenHandlerService _tokenHandler;
         private readonly ITwoFactorAuthenticatorWrapper _twoFactorAuthenticator;
         private readonly ILogger<IAccountService> _logger;
         private readonly IEmailService _emailService;
+        private readonly IPasswordHelper _passwordHelper;
 
-        public AccountService(IUnitOfWork unitOfWork, ITokenHandlerService tokenHandler, ILogger<IAccountService> logger, IEmailService emailService, ITwoFactorAuthenticatorWrapper twoFactorAuthenticatorWrapper)
+        public AccountService(IUnitOfWork unitOfWork, ITokenHandlerService tokenHandler, ILogger<IAccountService> logger, IEmailService emailService, ITwoFactorAuthenticatorWrapper twoFactorAuthenticatorWrapper, IPasswordHelper passwordHelper)
         {
             _unitOfWork = unitOfWork;
-            _passwordHasher ??= new PasswordHasher<string>();
+            _passwordHelper = passwordHelper;
             _tokenHandler = tokenHandler;
             _twoFactorAuthenticator ??= twoFactorAuthenticatorWrapper;
             _logger = logger;
@@ -60,7 +61,7 @@ namespace DrugWarehouseManagement.Service.Services
         public async Task<BaseResponse> CreateAccount(CreateAccountRequest request)
         {
             var existedAccount = await _unitOfWork.AccountRepository
-                        .GetByWhere(x => x.Username == request.Username.ToLower().Trim() || 
+                        .GetByWhere(x => x.UserName == request.UserName.ToLower().Trim() || 
                                     x.Email == request.Email.ToLower().Trim() || 
                                     x.PhoneNumber == request.PhoneNumber.Trim())
                         .Include(x => x.Role)
@@ -74,9 +75,9 @@ namespace DrugWarehouseManagement.Service.Services
             var account = request.Adapt<Account>();
 
             var randomPassword = Utils.GenerateRandomPassword();
-            var hashedPassword = HashPassword(randomPassword);
+            var hashedPassword = _passwordHelper.HashPassword(account, randomPassword);
 
-            account.Password = hashedPassword;
+            account.PasswordHash = hashedPassword;
             account.AccountSettings = new AccountSettings();
 
             await _unitOfWork.AccountRepository.CreateAsync(account);
@@ -84,7 +85,7 @@ namespace DrugWarehouseManagement.Service.Services
 
             var htmlTemplate = Consts.htmlCreateAccountTemplate;
 
-            htmlTemplate = htmlTemplate.Replace("{{Username}}", account.Username)
+            htmlTemplate = htmlTemplate.Replace("{{Username}}", account.UserName)
                                        .Replace("{{Password}}", randomPassword);
 
             await _emailService.SendEmailAsync(account.Email, "Account Created", htmlTemplate);
@@ -110,7 +111,7 @@ namespace DrugWarehouseManagement.Service.Services
 
         public async Task<ViewAccount> GetAccountById(Guid accountId)
         {
-            var account = await _unitOfWork.AccountRepository.GetByWhere(x => x.AccountId == accountId)
+            var account = await _unitOfWork.AccountRepository.GetByWhere(x => x.Id == accountId)
                         .Include(x => x.Role)
                         .FirstOrDefaultAsync();
 
@@ -126,7 +127,6 @@ namespace DrugWarehouseManagement.Service.Services
         {
             var query = await _unitOfWork.AccountRepository.GetAll()
                         .Include(x => x.Role)   
-                        .OrderByDescending(x => x.CreatedAt)
                         .ToPaginatedResultAsync(page, pageSize);
             return query.Adapt<PaginatedResult<ViewAccount>>();
         }
@@ -134,7 +134,7 @@ namespace DrugWarehouseManagement.Service.Services
         public async Task<AccountLoginResponse> LoginWithUsername(AccountLoginRequest request)
         {
             var account = await _unitOfWork.AccountRepository
-                        .GetByWhere(x => x.Username == request.Username.Trim())
+                        .GetByWhere(x => x.UserName == request.Username.Trim())
                         .Include(x => x.Role)
                         .FirstOrDefaultAsync();
 
@@ -148,7 +148,7 @@ namespace DrugWarehouseManagement.Service.Services
                 throw new Exception("Account is inactive, please contact your administrator to re-active your account");
             }
 
-            if (account.AccountSettings != null && account.AccountSettings.IsTwoFactorEnabled)
+            if (account.TwoFactorEnabled)
             {
                 if (request.tOtpCode == null)
                 {
@@ -170,7 +170,7 @@ namespace DrugWarehouseManagement.Service.Services
                 account.OTPCode = Utils.Base64Encode(request.tOtpCode.Trim());
             }
 
-            var verifyPassword = _passwordHasher.VerifyHashedPassword(null, account.Password, request.Password);
+            var verifyPassword = _passwordHelper.VerifyHashedPassword(account, account.PasswordHash, request.Password);
 
             if (verifyPassword == PasswordVerificationResult.Failed)
             {
@@ -182,7 +182,7 @@ namespace DrugWarehouseManagement.Service.Services
 
             await UpdateLastLogin(new UpdateLastLoginDTO
             {
-                AccountId = account.AccountId,
+                AccountId = account.Id,
                 LastLogin = SystemClock.Instance.GetCurrentInstant()
             });
 
@@ -207,7 +207,7 @@ namespace DrugWarehouseManagement.Service.Services
                 throw new Exception("Account not found");
             }
 
-            if (account.AccountSettings != null && account.AccountSettings.IsTwoFactorEnabled)
+            if (account.TwoFactorEnabled)
             {
                 throw new Exception("Two factor authenticator is already setup");
                 //setupCode = _twoFactorAuthenticator.GenerateSetupCode("DrugWarehouse", email, account.tOTPSecretKey);
@@ -224,11 +224,6 @@ namespace DrugWarehouseManagement.Service.Services
             var setupCode = _twoFactorAuthenticator.GenerateSetupCode("DrugWarehouse", email, secretKey);
 
             account.tOTPSecretKey = secretKey;
-
-            if (account.AccountSettings == null)
-            {
-                account.AccountSettings = new AccountSettings();
-            }
 
             await _unitOfWork.AccountRepository.UpdateAsync(account);
 
@@ -303,11 +298,6 @@ namespace DrugWarehouseManagement.Service.Services
             await _unitOfWork.AccountRepository.UpdateAsync(updatedAccount);
 
             await _unitOfWork.SaveChangesAsync();
-        }
-
-        private string HashPassword(string password)
-        {
-            return _passwordHasher.HashPassword(null, password);
         }
     }
 }

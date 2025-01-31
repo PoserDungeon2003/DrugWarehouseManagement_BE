@@ -14,7 +14,7 @@ namespace DrugWarehouseManagement.Service.DTO.Request
         [Required]
         public string FullName { get; set; } = null!;
         [Required]
-        public string Username { get; set; } = null!;
+        public string UserName { get; set; } = null!;
         [Required]
         [EmailAddress]
         public string Email { get; set; } = null!;

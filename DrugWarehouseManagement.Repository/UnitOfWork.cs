@@ -13,11 +13,13 @@ namespace DrugWarehouseManagement.Repository
     {
         protected readonly DrugWarehouseContext _context;
         public IAccountRepository AccountRepository { get; private set; }
+        public IAuditLogsRepository AuditLogsRepository { get; private set; }
 
         public UnitOfWork(DrugWarehouseContext context)
         {
             _context = context;
             AccountRepository ??= new AccountRepository(_context);
+            AuditLogsRepository ??= new AuditLogsRepository(_context);
         }
 
         public async Task BeginTransaction()

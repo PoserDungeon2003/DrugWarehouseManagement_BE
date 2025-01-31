@@ -1,4 +1,5 @@
 ﻿using DrugWarehouseManagement.Common.Enums;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using NodaTime;
 using System;
@@ -14,25 +15,17 @@ namespace DrugWarehouseManagement.Repository.Models
     public class AccountSettings
     {
         public string PreferredLanguage { get; set; } = "vi";
-        public bool IsTwoFactorEnabled { get; set; } = false;
     }
 
-    public class Account : TimeStamp
+    public class Account : IdentityUser<Guid>
     {
-        [Key]
-        public Guid AccountId { get; set; } = Guid.NewGuid();
-        public string Username { get; set; } = null!;
-        [EmailAddress]
-        public string Email { get; set; } = null!;
         [Unicode(true)]
         public string FullName { get; set; } = null!;
-        [MaxLength(15, ErrorMessage = "Max length is 15")]
-        public string PhoneNumber { get; set; } = null!;
-        public string Password { get; set; } = null!;
-        public Instant? LastLogin { get; set; }
         public AccountStatus Status { get; set; } = AccountStatus.Active;
+        [ProtectedPersonalData]
         public byte[]? tOTPSecretKey { get; set; }
         public int? RoleId { get; set; }
+        [ProtectedPersonalData]
         public string? OTPCode { get; set; }
         public AccountSettings? AccountSettings { get; set; }
 

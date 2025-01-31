@@ -4,6 +4,7 @@ using DrugWarehouseManagement.Repository.Models;
 using DrugWarehouseManagement.Service.DTO;
 using DrugWarehouseManagement.Service.DTO.Request;
 using DrugWarehouseManagement.Service.DTO.Response;
+using DrugWarehouseManagement.Service.Helper.Interface;
 using DrugWarehouseManagement.Service.Interface;
 using DrugWarehouseManagement.Service.Request;
 using DrugWarehouseManagement.Service.Services;
@@ -28,30 +29,31 @@ namespace DrugWarehouseManagement.UnitTest
     public class AccountServiceTests
     {
         private readonly Mock<IUnitOfWork> _unitOfWorkMock;
-        private readonly Mock<IPasswordHasher<string>> _passwordHasherMock;
         private readonly Mock<ITokenHandlerService> _tokenHandlerMock;
         private readonly Mock<ITwoFactorAuthenticatorWrapper> _twoFactorAuthenticatorMock;
         private readonly Mock<ILogger<IAccountService>> _loggerMock;
         private readonly Mock<IEmailService> _emailServiceMock;
+        private readonly Mock<IPasswordHelper> _passwordHelperMock;
+        private readonly IPasswordHasher<Account> _passwordHasher;
         private readonly AccountService _accountService;
-        private readonly IPasswordHasher<string> _passwordHasher;
 
         public AccountServiceTests()
         {
             _unitOfWorkMock = new Mock<IUnitOfWork>();
-            _passwordHasherMock = new Mock<IPasswordHasher<string>>();
+            _passwordHelperMock = new Mock<IPasswordHelper>();
             _tokenHandlerMock = new Mock<ITokenHandlerService>();
             _twoFactorAuthenticatorMock = new Mock<ITwoFactorAuthenticatorWrapper>();
             _loggerMock = new Mock<ILogger<IAccountService>>();
             _emailServiceMock = new Mock<IEmailService>();
-            _passwordHasher = new PasswordHasher<string>();
+            _passwordHasher ??= new PasswordHasher<Account>();
 
             _accountService = new AccountService(
                 _unitOfWorkMock.Object,
                 _tokenHandlerMock.Object,
                 _loggerMock.Object,
                 _emailServiceMock.Object,
-                _twoFactorAuthenticatorMock.Object
+                _twoFactorAuthenticatorMock.Object,
+                _passwordHelperMock.Object
             );
         }
 
@@ -91,9 +93,9 @@ namespace DrugWarehouseManagement.UnitTest
             var request = new AccountLoginRequest { Username = "testuser", Password = "password" };
             var account = new Account
             {
-                Username = "testuser",
+                UserName = "testuser",
                 Status = Common.Enums.AccountStatus.Active,
-                AccountSettings = new AccountSettings { IsTwoFactorEnabled = true }
+                TwoFactorEnabled = true,
             };
             var mockAccounts = new List<Account> { account }.AsQueryable().BuildMock();
             _unitOfWorkMock.Setup(u => u.AccountRepository.GetByWhere(It.IsAny<Expression<Func<Account, bool>>>()))
@@ -112,14 +114,15 @@ namespace DrugWarehouseManagement.UnitTest
             var account = new Account
             {
                 Status = Common.Enums.AccountStatus.Active,
-                AccountSettings = new AccountSettings { IsTwoFactorEnabled = true },
-                tOTPSecretKey = new byte[16]
+                TwoFactorEnabled = true,
+                tOTPSecretKey = new byte[16],
             };
+            account.PasswordHash = HashPassword(account, "password");
             var mockAccounts = new List<Account> { account }.AsQueryable().BuildMock();
             _unitOfWorkMock.Setup(u => u.AccountRepository.GetByWhere(It.IsAny<Expression<Func<Account, bool>>>()))
                 .Returns(mockAccounts);
-            //_twoFactorAuthenticatorMock.Setup(t => t.ValidateTwoFactorPIN(It.IsAny<byte[]>(), It.IsAny<string>(), It.IsAny<int>()))
-            //    .Returns(false);
+            _twoFactorAuthenticatorMock.Setup(t => t.ValidateTwoFactorPIN(It.IsAny<byte[]>(), It.IsAny<string>(), It.IsAny<int>()))
+                .Returns(false);
 
             // Act & Assert
             var exception = await Assert.ThrowsAsync<Exception>(() => _accountService.LoginWithUsername(request));
@@ -134,7 +137,7 @@ namespace DrugWarehouseManagement.UnitTest
             var account = new Account
             {
                 Status = Common.Enums.AccountStatus.Active,
-                AccountSettings = new AccountSettings { IsTwoFactorEnabled = true },
+                TwoFactorEnabled = true,
                 tOTPSecretKey = new byte[16],
                 OTPCode = Utils.Base64Encode("123456")
             };
@@ -157,12 +160,12 @@ namespace DrugWarehouseManagement.UnitTest
             var account = new Account
             {
                 Status = Common.Enums.AccountStatus.Active,
-                Password = HashPassword("hashedpassword"),
             };
+            account.PasswordHash = HashPassword(account, "hashedpassword");
             var mockAccounts = new List<Account> { account }.AsQueryable().BuildMock();
             _unitOfWorkMock.Setup(u => u.AccountRepository.GetByWhere(It.IsAny<Expression<Func<Account, bool>>>()))
                 .Returns(mockAccounts);
-            _passwordHasherMock.Setup(p => p.VerifyHashedPassword(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+            _passwordHelperMock.Setup(p => p.VerifyHashedPassword(It.IsAny<Account>(), It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(PasswordVerificationResult.Failed);
 
             // Act & Assert
@@ -177,19 +180,19 @@ namespace DrugWarehouseManagement.UnitTest
             var request = new AccountLoginRequest { Username = "testuser", Password = "hashedpassword" };
             var account = new Account
             {
-                AccountId = Guid.NewGuid(),
-                Username = "testuser",
+                Id = Guid.NewGuid(),
+                UserName = "testuser",
                 Status = Common.Enums.AccountStatus.Active,
-                Password = HashPassword("hashedpassword"),
                 Role = new Role { RoleId = 1, RoleName = "Role" },
                 RoleId = 1,
             };
+            account.PasswordHash = HashPassword(account, "hashedpassword");
             var mockAccounts = new List<Account> { account }.AsQueryable().BuildMock();
             _unitOfWorkMock.Setup(u => u.AccountRepository.GetByWhere(It.IsAny<Expression<Func<Account, bool>>>()))
                 .Returns(mockAccounts);
             _unitOfWorkMock.Setup(u => u.AccountRepository.GetByIdAsync(It.IsAny<Guid>()))
                 .ReturnsAsync(new Account());
-            _passwordHasherMock.Setup(p => p.VerifyHashedPassword(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+            _passwordHelperMock.Setup(p => p.VerifyHashedPassword(It.IsAny<Account>(), It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(PasswordVerificationResult.Success);
             _tokenHandlerMock.Setup(t => t.GenerateJwtToken(It.IsAny<Account>()))
                 .Returns("Token");
@@ -220,8 +223,8 @@ namespace DrugWarehouseManagement.UnitTest
         public async Task UpdateLastLogin_SuccessfulUpdate()
         {
             // Arrange
-            var account = new Account { AccountId = Guid.NewGuid() };
-            var updateLastLoginDTO = new UpdateLastLoginDTO { AccountId = account.AccountId, LastLogin = SystemClock.Instance.GetCurrentInstant() };
+            var account = new Account { Id = Guid.NewGuid() };
+            var updateLastLoginDTO = new UpdateLastLoginDTO { AccountId = account.Id, LastLogin = SystemClock.Instance.GetCurrentInstant() };
             _unitOfWorkMock.Setup(u => u.AccountRepository.GetByIdAsync(It.IsAny<Guid>()))
                 .ReturnsAsync(account);
             _unitOfWorkMock.Setup(u => u.AccountRepository.UpdateAsync(It.IsAny<Account>())).Returns(Task.CompletedTask);
@@ -231,7 +234,7 @@ namespace DrugWarehouseManagement.UnitTest
             await _accountService.UpdateLastLogin(updateLastLoginDTO);
 
             // Assert
-            _unitOfWorkMock.Verify(u => u.AccountRepository.UpdateAsync(It.Is<Account>(a => a.AccountId == account.AccountId)), Times.Once);
+            _unitOfWorkMock.Verify(u => u.AccountRepository.UpdateAsync(It.Is<Account>(a => a.Id == account.Id)), Times.Once);
             _unitOfWorkMock.Verify(u => u.SaveChangesAsync(), Times.Once);
         }
 
@@ -241,11 +244,11 @@ namespace DrugWarehouseManagement.UnitTest
             // Arrange
             var request = new CreateAccountRequest
             {
-                Username = "testuser",
+                UserName = "testuser",
                 Email = "testuser@example.com",
                 PhoneNumber = "1234567890"
             };
-            var existingAccount = new Account { Username = "testuser" };
+            var existingAccount = new Account { UserName = "testuser" };
             var mockAccounts = new List<Account> { existingAccount }.AsQueryable().BuildMock();
             _unitOfWorkMock.Setup(u => u.AccountRepository.GetByWhere(It.IsAny<Expression<Func<Account, bool>>>()))
                 .Returns(mockAccounts);
@@ -261,7 +264,7 @@ namespace DrugWarehouseManagement.UnitTest
             // Arrange
             var request = new CreateAccountRequest
             {
-                Username = "newuser",
+                UserName = "newuser",
                 Email = "newuser@example.com",
                 PhoneNumber = "0987654321"
             };
@@ -307,7 +310,7 @@ namespace DrugWarehouseManagement.UnitTest
             var account = new Account
             {
                 Email = email,
-                AccountSettings = new AccountSettings { IsTwoFactorEnabled = true }
+                TwoFactorEnabled = true,
             };
             var mockAccounts = new List<Account> { account }.AsQueryable().BuildMock();
             _unitOfWorkMock.Setup(u => u.AccountRepository.GetByWhere(It.IsAny<Expression<Func<Account, bool>>>()))
@@ -326,7 +329,7 @@ namespace DrugWarehouseManagement.UnitTest
             var account = new Account
             {
                 Email = email,
-                AccountSettings = new AccountSettings { IsTwoFactorEnabled = false }
+                TwoFactorEnabled = false,
             };
             var mockAccounts = new List<Account> { account }.AsQueryable().BuildMock();
             _unitOfWorkMock.Setup(u => u.AccountRepository.GetByWhere(It.IsAny<Expression<Func<Account, bool>>>()))
@@ -368,8 +371,8 @@ namespace DrugWarehouseManagement.UnitTest
             var role = new Role { RoleId = 1, RoleName = "Admin" };
             var account = new Account
             {
-                AccountId = accountId,
-                Username = "testuser",
+                Id = accountId,
+                UserName = "testuser",
                 RoleId = role.RoleId,
                 Role = role
             };
@@ -385,14 +388,14 @@ namespace DrugWarehouseManagement.UnitTest
 
             // Assert
             Assert.NotNull(result);
-            Assert.Equal(accountId, result.AccountId);
-            Assert.Equal("testuser", result.Username);
+            Assert.Equal(accountId, result.Id);
+            Assert.Equal("testuser", result.UserName);
             Assert.Equal("Admin", result.RoleName);
         }
 
-        private string HashPassword(string password)
+        private string HashPassword(Account account, string password)
         {
-            return _passwordHasher.HashPassword(null, password);
+            return _passwordHasher.HashPassword(account, password);
         }
     }
 }
