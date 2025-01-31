@@ -48,14 +48,22 @@ namespace DrugWarehouseManagement.Service.Services
             _emailService = emailService;
         }
 
-        public Task<BaseResponse> ActiveAccount(Guid accountId)
+        public async Task<BaseResponse> ActiveAccount(Guid accountId)
         {
-            throw new NotImplementedException();
-        }
+            var account = await _unitOfWork.AccountRepository.GetByIdAsync(accountId);
 
-        public Task<BaseResponse> ChangePassword(Guid accountId, ChangePasswordRequest request)
-        {
-            throw new NotImplementedException();
+            if (account == null)
+            {
+                throw new Exception("Account not found");
+            }
+
+            account.Status = Common.Enums.AccountStatus.Active;
+            await _unitOfWork.SaveChangesAsync();
+            return new BaseResponse
+            {
+                Code = 200,
+                Message = "Account activated successfully"
+            };
         }
 
         public async Task<BaseResponse> CreateAccount(CreateAccountRequest request)
@@ -99,14 +107,40 @@ namespace DrugWarehouseManagement.Service.Services
             };
         }
 
-        public Task<BaseResponse> DeactiveAccount(Guid accountId)
+        public async Task<BaseResponse> DeactiveAccount(Guid accountId)
         {
-            throw new NotImplementedException();
+            var account = await _unitOfWork.AccountRepository.GetByIdAsync(accountId);
+
+            if (account == null)
+            {
+                throw new Exception("Account not found");
+            }
+
+            account.Status = Common.Enums.AccountStatus.Inactive;
+            await _unitOfWork.SaveChangesAsync();
+            return new BaseResponse
+            {
+                Code = 200,
+                Message = "Account deactivated successfully"
+            };
         }
 
-        public Task<BaseResponse> DeleteAccount(Guid accountId)
+        public async Task<BaseResponse> DeleteAccount(Guid accountId)
         {
-            throw new NotImplementedException();
+            var account = await _unitOfWork.AccountRepository.GetByIdAsync(accountId);
+
+            if (account == null)
+            {
+                throw new Exception("Account not found");
+            }
+
+            account.Status = Common.Enums.AccountStatus.Deleted;
+            await _unitOfWork.SaveChangesAsync();
+            return new BaseResponse
+            {
+                Code = 200,
+                Message = "Account deleted successfully"
+            };
         }
 
         public async Task<ViewAccount> GetAccountById(Guid accountId)
@@ -123,11 +157,14 @@ namespace DrugWarehouseManagement.Service.Services
             return account.Adapt<ViewAccount>();
         }
 
-        public async Task<PaginatedResult<ViewAccount>> GetAccountsPaginatedAsync(int page = 1, int pageSize = 10)
+        public async Task<PaginatedResult<ViewAccount>> GetAccountsPaginatedAsync(QueryPaging request)
         {
+            request.Search = request.Search?.ToLower().Trim() ?? "";
             var query = await _unitOfWork.AccountRepository.GetAll()
-                        .Include(x => x.Role)   
-                        .ToPaginatedResultAsync(page, pageSize);
+                        .Include(x => x.Role)
+                        .Where(x => x.Status == Common.Enums.AccountStatus.Active)
+                        .Where(x => x.UserName.Contains(request.Search) || x.Email.Contains(request.Search) || x.PhoneNumber.Contains(request.Search))
+                        .ToPaginatedResultAsync(request.Page, request.PageSize);
             return query.Adapt<PaginatedResult<ViewAccount>>();
         }
 
