@@ -1,11 +1,12 @@
 ﻿using DrugWarehouseManagement.Common;
-using DrugWarehouseManagement.Common.Consts;
+using DrugWarehouseManagement.Common.Enums;
 using DrugWarehouseManagement.Repository;
 using DrugWarehouseManagement.Repository.Models;
 using DrugWarehouseManagement.Service.DTO;
 using DrugWarehouseManagement.Service.DTO.Request;
 using DrugWarehouseManagement.Service.DTO.Response;
 using DrugWarehouseManagement.Service.Extenstions;
+using DrugWarehouseManagement.Service.Helper.Interface;
 using DrugWarehouseManagement.Service.Interface;
 using DrugWarehouseManagement.Service.Request;
 using DrugWarehouseManagement.Service.Wrapper;
@@ -31,26 +32,44 @@ namespace DrugWarehouseManagement.Service.Services
     public class AccountService : IAccountService
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IPasswordHasher<string> _passwordHasher;
         private readonly ITokenHandlerService _tokenHandler;
         private readonly ITwoFactorAuthenticatorWrapper _twoFactorAuthenticator;
         private readonly ILogger<IAccountService> _logger;
         private readonly IEmailService _emailService;
+        private readonly IPasswordHelper _passwordHelper;
 
-        public AccountService(IUnitOfWork unitOfWork, ITokenHandlerService tokenHandler, ILogger<IAccountService> logger, IEmailService emailService, ITwoFactorAuthenticatorWrapper twoFactorAuthenticatorWrapper)
+        public AccountService(IUnitOfWork unitOfWork, ITokenHandlerService tokenHandler, ILogger<IAccountService> logger, IEmailService emailService, ITwoFactorAuthenticatorWrapper twoFactorAuthenticatorWrapper, IPasswordHelper passwordHelper)
         {
             _unitOfWork = unitOfWork;
-            _passwordHasher ??= new PasswordHasher<string>();
+            _passwordHelper = passwordHelper;
             _tokenHandler = tokenHandler;
             _twoFactorAuthenticator ??= twoFactorAuthenticatorWrapper;
             _logger = logger;
             _emailService = emailService;
         }
 
+        public async Task<BaseResponse> ActiveAccount(Guid accountId)
+        {
+            var account = await _unitOfWork.AccountRepository.GetByIdAsync(accountId);
+
+            if (account == null)
+            {
+                throw new Exception("Account not found");
+            }
+
+            account.Status = AccountStatus.Active;
+            await _unitOfWork.SaveChangesAsync();
+            return new BaseResponse
+            {
+                Code = 200,
+                Message = "Account activated successfully"
+            };
+        }
+
         public async Task<BaseResponse> CreateAccount(CreateAccountRequest request)
         {
             var existedAccount = await _unitOfWork.AccountRepository
-                        .GetByWhere(x => x.Username == request.Username.ToLower().Trim() || 
+                        .GetByWhere(x => x.UserName == request.UserName.ToLower().Trim() || 
                                     x.Email == request.Email.ToLower().Trim() || 
                                     x.PhoneNumber == request.PhoneNumber.Trim())
                         .Include(x => x.Role)
@@ -64,9 +83,9 @@ namespace DrugWarehouseManagement.Service.Services
             var account = request.Adapt<Account>();
 
             var randomPassword = Utils.GenerateRandomPassword();
-            var hashedPassword = HashPassword(randomPassword);
+            var hashedPassword = _passwordHelper.HashPassword(account, randomPassword);
 
-            account.Password = hashedPassword;
+            account.PasswordHash = hashedPassword;
             account.AccountSettings = new AccountSettings();
 
             await _unitOfWork.AccountRepository.CreateAsync(account);
@@ -74,7 +93,7 @@ namespace DrugWarehouseManagement.Service.Services
 
             var htmlTemplate = Consts.htmlCreateAccountTemplate;
 
-            htmlTemplate = htmlTemplate.Replace("{{Username}}", account.Username)
+            htmlTemplate = htmlTemplate.Replace("{{Username}}", account.UserName)
                                        .Replace("{{Password}}", randomPassword);
 
             await _emailService.SendEmailAsync(account.Email, "Account Created", htmlTemplate);
@@ -88,9 +107,45 @@ namespace DrugWarehouseManagement.Service.Services
             };
         }
 
+        public async Task<BaseResponse> DeactiveAccount(Guid accountId)
+        {
+            var account = await _unitOfWork.AccountRepository.GetByIdAsync(accountId);
+
+            if (account == null)
+            {
+                throw new Exception("Account not found");
+            }
+
+            account.Status = AccountStatus.Inactive;
+            await _unitOfWork.SaveChangesAsync();
+            return new BaseResponse
+            {
+                Code = 200,
+                Message = "Account deactivated successfully"
+            };
+        }
+
+        public async Task<BaseResponse> DeleteAccount(Guid accountId)
+        {
+            var account = await _unitOfWork.AccountRepository.GetByIdAsync(accountId);
+
+            if (account == null)
+            {
+                throw new Exception("Account not found");
+            }
+
+            account.Status = AccountStatus.Deleted;
+            await _unitOfWork.SaveChangesAsync();
+            return new BaseResponse
+            {
+                Code = 200,
+                Message = "Account deleted successfully"
+            };
+        }
+
         public async Task<ViewAccount> GetAccountById(Guid accountId)
         {
-            var account = await _unitOfWork.AccountRepository.GetByWhere(x => x.AccountId == accountId)
+            var account = await _unitOfWork.AccountRepository.GetByWhere(x => x.Id == accountId)
                         .Include(x => x.Role)
                         .FirstOrDefaultAsync();
 
@@ -102,19 +157,21 @@ namespace DrugWarehouseManagement.Service.Services
             return account.Adapt<ViewAccount>();
         }
 
-        public async Task<PaginatedResult<ViewAccount>> GetAccountsPaginatedAsync(int page = 1, int pageSize = 10)
+        public async Task<PaginatedResult<ViewAccount>> GetAccountsPaginatedAsync(QueryPaging request)
         {
+            request.Search = request.Search?.ToLower().Trim() ?? "";
             var query = await _unitOfWork.AccountRepository.GetAll()
-                        .Include(x => x.Role)   
-                        .OrderByDescending(x => x.CreatedAt)
-                        .ToPaginatedResultAsync(page, pageSize);
+                        .Include(x => x.Role)
+                        .Where(x => x.Status == AccountStatus.Active)
+                        .Where(x => x.UserName.Contains(request.Search) || x.Email.Contains(request.Search) || x.PhoneNumber.Contains(request.Search))
+                        .ToPaginatedResultAsync(request.Page, request.PageSize);
             return query.Adapt<PaginatedResult<ViewAccount>>();
         }
 
         public async Task<AccountLoginResponse> LoginWithUsername(AccountLoginRequest request)
         {
             var account = await _unitOfWork.AccountRepository
-                        .GetByWhere(x => x.Username == request.Username.Trim())
+                        .GetByWhere(x => x.UserName == request.Username.Trim())
                         .Include(x => x.Role)
                         .FirstOrDefaultAsync();
 
@@ -123,12 +180,12 @@ namespace DrugWarehouseManagement.Service.Services
                 throw new Exception("Account not found");
             }
 
-            if (account.Status == Common.Enums.AccountStatus.Inactive)
+            if (account.Status == AccountStatus.Inactive)
             {
                 throw new Exception("Account is inactive, please contact your administrator to re-active your account");
             }
 
-            if (account.AccountSettings != null && account.AccountSettings.IsTwoFactorEnabled)
+            if (account.TwoFactorEnabled)
             {
                 if (request.tOtpCode == null)
                 {
@@ -150,7 +207,7 @@ namespace DrugWarehouseManagement.Service.Services
                 account.OTPCode = Utils.Base64Encode(request.tOtpCode.Trim());
             }
 
-            var verifyPassword = _passwordHasher.VerifyHashedPassword(null, account.Password, request.Password);
+            var verifyPassword = _passwordHelper.VerifyHashedPassword(account, account.PasswordHash, request.Password);
 
             if (verifyPassword == PasswordVerificationResult.Failed)
             {
@@ -160,16 +217,39 @@ namespace DrugWarehouseManagement.Service.Services
             await _unitOfWork.AccountRepository.UpdateAsync(account);
             await _unitOfWork.SaveChangesAsync();
 
-            await UpdateLastLogin(new UpdateLastLoginDTO
-            {
-                AccountId = account.AccountId,
-                LastLogin = SystemClock.Instance.GetCurrentInstant()
-            });
-
             return new AccountLoginResponse
             {
                 Role = account.Role.RoleName,
                 Token = _tokenHandler.GenerateJwtToken(account)
+            };
+        }
+
+        public async Task<BaseResponse> ResetPassword(Guid accountId)
+        {
+            var account = await _unitOfWork.AccountRepository.GetByIdAsync(accountId);
+
+            if (account == null)
+            {
+                throw new Exception("Account not found");
+            }
+
+            var randomPassword = Utils.GenerateRandomPassword();
+            var hashedPassword = _passwordHelper.HashPassword(account, randomPassword);
+
+            account.PasswordHash = hashedPassword;
+
+            await _unitOfWork.SaveChangesAsync();
+
+            var htmlTemplate = Consts.htmlResetPasswordTemplate;
+
+            htmlTemplate = htmlTemplate.Replace("{{Username}}", account.UserName)
+                                       .Replace("{{Password}}", randomPassword);
+
+            await _emailService.SendEmailAsync(account.Email, "Reset Password", htmlTemplate);
+            return new BaseResponse
+            {
+                Code = 200,
+                Message = "Password reset successfully, please check your (spam) inbox for new login credentials",
             };
         }
 
@@ -182,7 +262,7 @@ namespace DrugWarehouseManagement.Service.Services
                 throw new Exception("Account not found");
             }
 
-            if (account.AccountSettings != null && account.AccountSettings.IsTwoFactorEnabled)
+            if (account.TwoFactorEnabled)
             {
                 throw new Exception("Two factor authenticator is already setup");
                 //setupCode = _twoFactorAuthenticator.GenerateSetupCode("DrugWarehouse", email, account.tOTPSecretKey);
@@ -200,11 +280,6 @@ namespace DrugWarehouseManagement.Service.Services
 
             account.tOTPSecretKey = secretKey;
 
-            if (account.AccountSettings == null)
-            {
-                account.AccountSettings = new AccountSettings();
-            }
-
             await _unitOfWork.AccountRepository.UpdateAsync(account);
 
             await _unitOfWork.SaveChangesAsync();
@@ -213,6 +288,25 @@ namespace DrugWarehouseManagement.Service.Services
             {
                 ImageUrlQrCode = setupCode.QrCodeSetupImageUrl,
                 ManualEntryKey = setupCode.ManualEntryKey
+            };
+        }
+
+        public async Task<BaseResponse> UpdateAccount(Guid accountId, UpdateAccountRequest request)
+        {
+            var account = await _unitOfWork.AccountRepository.GetByIdAsync(accountId);
+
+            if (account == null)
+            {
+                throw new Exception("Account not found");
+            }
+
+            request.Adapt(account);
+            await _unitOfWork.SaveChangesAsync();
+
+            return new BaseResponse
+            {
+                Code = 200,
+                Message = "Account updated successfully"
             };
         }
 
@@ -245,25 +339,5 @@ namespace DrugWarehouseManagement.Service.Services
             };
         }
 
-        public async Task UpdateLastLogin(UpdateLastLoginDTO updateLastLoginDTO)
-        {
-            var account = await _unitOfWork.AccountRepository.GetByIdAsync(updateLastLoginDTO.AccountId);
-
-            if (account == null)
-            {
-               throw new Exception("Account not found");
-            }
-
-            var updatedAccount = updateLastLoginDTO.Adapt(account);
-
-            await _unitOfWork.AccountRepository.UpdateAsync(updatedAccount);
-
-            await _unitOfWork.SaveChangesAsync();
-        }
-
-        private string HashPassword(string password)
-        {
-            return _passwordHasher.HashPassword(null, password);
-        }
     }
 }

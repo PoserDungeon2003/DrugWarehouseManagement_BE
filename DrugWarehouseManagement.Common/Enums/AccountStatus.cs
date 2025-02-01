@@ -24,7 +24,7 @@ namespace DrugWarehouseManagement.Common.Enums
         Expired = 2,
         Missing = 3,
         Other = 4,
-    }   
+    }
 
     public enum SupplierStatus
     {
@@ -47,7 +47,7 @@ namespace DrugWarehouseManagement.Common.Enums
         Pending = 1,
         Picked = 2,
         Rejected = 3,           // Item was rejected after inspection
-     
+
     }
     public enum OutboundStatus
     {
@@ -69,8 +69,8 @@ namespace DrugWarehouseManagement.Common.Enums
         Completed = 3,         // Stock-in/stock-out has been completed
         Cancelled = 4,         // Stozck-in/stock-out request was cancelled
         PartiallyAccepted = 5, // Stock-in request was partially accepted
-        AcceptedFromSupllier = 6,          
-        AcceptedFromWarehouse = 7,         
+        AcceptedFromSupllier = 6,
+        AcceptedFromWarehouse = 7,
         RejectedFromSupllier = 8,
         RejectedFromWarehouse = 9,
 

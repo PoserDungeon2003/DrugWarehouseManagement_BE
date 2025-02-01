@@ -25,9 +25,9 @@ namespace DrugWarehouseManagement.Service.Services
         {
             var claims = new[]
             {
-                new Claim(ClaimTypes.NameIdentifier, account.AccountId.ToString()),
+                new Claim(ClaimTypes.NameIdentifier, account.Id.ToString()),
                 new Claim(ClaimTypes.Role, account.Role.RoleName),
-                new Claim(ClaimTypes.Name, account.Username),
+                new Claim(ClaimTypes.Name, account.UserName),
                 new Claim(ClaimTypes.Email, account.Email)
             };
 

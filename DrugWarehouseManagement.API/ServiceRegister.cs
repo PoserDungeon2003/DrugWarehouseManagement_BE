@@ -2,13 +2,17 @@
 using DrugWarehouseManagement.Repository.Interface;
 using DrugWarehouseManagement.Repository.Models;
 using DrugWarehouseManagement.Repository.Repositories;
+using DrugWarehouseManagement.Service.DTO.Request;
 using DrugWarehouseManagement.Service.DTO.Response;
+using DrugWarehouseManagement.Service.Helper;
+using DrugWarehouseManagement.Service.Helper.Interface;
 using DrugWarehouseManagement.Service.Interface;
 using DrugWarehouseManagement.Service.Services;
 using DrugWarehouseManagement.Service.Wrapper;
 using DrugWarehouseManagement.Service.Wrapper.Interface;
 using Mapster;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -49,6 +53,8 @@ namespace DrugWarehouseManagement.API
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<ITokenHandlerService, TokenHandlerService>();
             services.AddScoped<ITwoFactorAuthenticatorWrapper, TwoFactorAuthenticatorWrapper>();
+            services.AddScoped<IPasswordHasher<Account>, PasswordHasher<Account>>();
+            services.AddScoped<IPasswordHelper, PasswordHelper>();
 
             services.AddScoped<IAccountRepository, AccountRepository>();
             services.AddScoped<IAccountService, AccountService>();
@@ -114,6 +120,10 @@ namespace DrugWarehouseManagement.API
                 .NewConfig()
                 .Map(dest => dest.Status, src => src.Status.ToString())
                 .Map(dest => dest.RoleName, src => src.Role.RoleName);
+
+            TypeAdapterConfig<UpdateAccountRequest, Account>
+                .NewConfig()
+                .IgnoreNullValues(true);
         }
 
         private static void AddEnum(IServiceCollection services)
