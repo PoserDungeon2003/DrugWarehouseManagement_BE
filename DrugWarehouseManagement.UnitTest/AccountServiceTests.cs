@@ -1,4 +1,5 @@
 ﻿using DrugWarehouseManagement.Common;
+using DrugWarehouseManagement.Common.Enums;
 using DrugWarehouseManagement.Repository;
 using DrugWarehouseManagement.Repository.Models;
 using DrugWarehouseManagement.Service.DTO;
@@ -76,7 +77,7 @@ namespace DrugWarehouseManagement.UnitTest
         {
             // Arrange
             var request = new AccountLoginRequest { Username = "testuser", Password = "password" };
-            var account = new Account { Status = Common.Enums.AccountStatus.Inactive };
+            var account = new Account { Status = AccountStatus.Inactive };
             var mockAccounts = new List<Account> { account }.AsQueryable().BuildMock();
             _unitOfWorkMock.Setup(u => u.AccountRepository.GetByWhere(It.IsAny<Expression<Func<Account, bool>>>()))
                 .Returns(mockAccounts);
@@ -94,7 +95,7 @@ namespace DrugWarehouseManagement.UnitTest
             var account = new Account
             {
                 UserName = "testuser",
-                Status = Common.Enums.AccountStatus.Active,
+                Status = AccountStatus.Active,
                 TwoFactorEnabled = true,
             };
             var mockAccounts = new List<Account> { account }.AsQueryable().BuildMock();
@@ -113,7 +114,7 @@ namespace DrugWarehouseManagement.UnitTest
             var request = new AccountLoginRequest { Username = "testuser", Password = "password", tOtpCode = "123456" };
             var account = new Account
             {
-                Status = Common.Enums.AccountStatus.Active,
+                Status = AccountStatus.Active,
                 TwoFactorEnabled = true,
                 tOTPSecretKey = new byte[16],
             };
@@ -136,7 +137,7 @@ namespace DrugWarehouseManagement.UnitTest
             var request = new AccountLoginRequest { Username = "testuser", Password = "password", tOtpCode = "123456" };
             var account = new Account
             {
-                Status = Common.Enums.AccountStatus.Active,
+                Status = AccountStatus.Active,
                 TwoFactorEnabled = true,
                 tOTPSecretKey = new byte[16],
                 OTPCode = Utils.Base64Encode("123456")
@@ -159,7 +160,7 @@ namespace DrugWarehouseManagement.UnitTest
             var request = new AccountLoginRequest { Username = "testuser", Password = "password" };
             var account = new Account
             {
-                Status = Common.Enums.AccountStatus.Active,
+                Status = AccountStatus.Active,
             };
             account.PasswordHash = HashPassword(account, "hashedpassword");
             var mockAccounts = new List<Account> { account }.AsQueryable().BuildMock();
@@ -182,7 +183,7 @@ namespace DrugWarehouseManagement.UnitTest
             {
                 Id = Guid.NewGuid(),
                 UserName = "testuser",
-                Status = Common.Enums.AccountStatus.Active,
+                Status = AccountStatus.Active,
                 Role = new Role { RoleId = 1, RoleName = "Role" },
                 RoleId = 1,
             };
@@ -204,38 +205,6 @@ namespace DrugWarehouseManagement.UnitTest
             Assert.NotNull(result);
             Assert.Equal("Role", result.Role);
             Assert.Equal("Token", result.Token);
-        }
-
-        [Fact]
-        public async Task UpdateLastLogin_AccountNotFound_ThrowsException()
-        {
-            // Arrange
-            var updateLastLoginDTO = new UpdateLastLoginDTO { AccountId = Guid.NewGuid(), LastLogin = SystemClock.Instance.GetCurrentInstant() };
-            _unitOfWorkMock.Setup(u => u.AccountRepository.GetByIdAsync(It.IsAny<Guid>()))
-                .ReturnsAsync((Account)null);
-
-            // Act & Assert
-            var exception = await Assert.ThrowsAsync<Exception>(() => _accountService.UpdateLastLogin(updateLastLoginDTO));
-            Assert.Equal("Account not found", exception.Message);
-        }
-
-        [Fact]
-        public async Task UpdateLastLogin_SuccessfulUpdate()
-        {
-            // Arrange
-            var account = new Account { Id = Guid.NewGuid() };
-            var updateLastLoginDTO = new UpdateLastLoginDTO { AccountId = account.Id, LastLogin = SystemClock.Instance.GetCurrentInstant() };
-            _unitOfWorkMock.Setup(u => u.AccountRepository.GetByIdAsync(It.IsAny<Guid>()))
-                .ReturnsAsync(account);
-            _unitOfWorkMock.Setup(u => u.AccountRepository.UpdateAsync(It.IsAny<Account>())).Returns(Task.CompletedTask);
-            _unitOfWorkMock.Setup(u => u.SaveChangesAsync()).Returns(Task.CompletedTask);
-
-            // Act
-            await _accountService.UpdateLastLogin(updateLastLoginDTO);
-
-            // Assert
-            _unitOfWorkMock.Verify(u => u.AccountRepository.UpdateAsync(It.Is<Account>(a => a.Id == account.Id)), Times.Once);
-            _unitOfWorkMock.Verify(u => u.SaveChangesAsync(), Times.Once);
         }
 
         [Fact]
@@ -523,8 +492,8 @@ namespace DrugWarehouseManagement.UnitTest
 
             var accounts = new List<Account>
             {
-                new Account { UserName = "testuser1", Email = "test1@example.com", PhoneNumber = "1234567890", Status = Common.Enums.AccountStatus.Active, Role = new Role { RoleName = "User" } },
-                new Account { UserName = "testuser2", Email = "test2@example.com", PhoneNumber = "0987654321", Status = Common.Enums.AccountStatus.Active, Role = new Role { RoleName = "Admin" } }
+                new Account { UserName = "testuser1", Email = "test1@example.com", PhoneNumber = "1234567890", Status = AccountStatus.Active, Role = new Role { RoleName = "User" } },
+                new Account { UserName = "testuser2", Email = "test2@example.com", PhoneNumber = "0987654321", Status = AccountStatus.Active, Role = new Role { RoleName = "Admin" } }
             }.AsQueryable().BuildMock();
 
             _unitOfWorkMock.Setup(uow => uow.AccountRepository.GetAll())
@@ -553,8 +522,8 @@ namespace DrugWarehouseManagement.UnitTest
 
             var accounts = new List<Account>
             {
-                new Account { UserName = "testuser1", Email = "test1@example.com", PhoneNumber = "1234567890", Status = Common.Enums.AccountStatus.Active, Role = new Role { RoleName = "User" } },
-                new Account { UserName = "testuser2", Email = "test2@example.com", PhoneNumber = "0987654321", Status = Common.Enums.AccountStatus.Active, Role = new Role { RoleName = "Admin" } }
+                new Account { UserName = "testuser1", Email = "test1@example.com", PhoneNumber = "1234567890", Status = AccountStatus.Active, Role = new Role { RoleName = "User" } },
+                new Account { UserName = "testuser2", Email = "test2@example.com", PhoneNumber = "0987654321", Status = AccountStatus.Active, Role = new Role { RoleName = "Admin" } }
             }.AsQueryable().BuildMock();
 
             _unitOfWorkMock.Setup(uow => uow.AccountRepository.GetAll())
@@ -583,8 +552,8 @@ namespace DrugWarehouseManagement.UnitTest
 
             var accounts = new List<Account>
             {
-                new Account { UserName = "testuser1", Email = "test1@example.com", PhoneNumber = "1234567890", Status = Common.Enums.AccountStatus.Active, Role = new Role { RoleName = "User" } },
-                new Account { UserName = "testuser2", Email = "test2@example.com", PhoneNumber = "0987654321", Status = Common.Enums.AccountStatus.Active, Role = new Role { RoleName = "Admin" } }
+                new Account { UserName = "testuser1", Email = "test1@example.com", PhoneNumber = "1234567890", Status = AccountStatus.Active, Role = new Role { RoleName = "User" } },
+                new Account { UserName = "testuser2", Email = "test2@example.com", PhoneNumber = "0987654321", Status = AccountStatus.Active, Role = new Role { RoleName = "Admin" } }
             }.AsQueryable().BuildMock();
 
             _unitOfWorkMock.Setup(uow => uow.AccountRepository.GetAll())
@@ -619,7 +588,7 @@ namespace DrugWarehouseManagement.UnitTest
             var account = new Account
             {
                 Id = accountId,
-                Status = Common.Enums.AccountStatus.Active
+                Status = AccountStatus.Active
             };
             _unitOfWorkMock.Setup(uow => uow.AccountRepository.GetByIdAsync(accountId))
                            .ReturnsAsync(account);
@@ -632,7 +601,7 @@ namespace DrugWarehouseManagement.UnitTest
             // Assert
             Assert.Equal(200, response.Code);
             Assert.Equal("Account deactivated successfully", response.Message);
-            Assert.Equal(Common.Enums.AccountStatus.Inactive, account.Status);
+            Assert.Equal(AccountStatus.Inactive, account.Status);
             _unitOfWorkMock.Verify(uow => uow.SaveChangesAsync(), Times.Once);
         }
 
@@ -657,7 +626,7 @@ namespace DrugWarehouseManagement.UnitTest
             var account = new Account
             {
                 Id = accountId,
-                Status = Common.Enums.AccountStatus.Active
+                Status = AccountStatus.Active
             };
             _unitOfWorkMock.Setup(uow => uow.AccountRepository.GetByIdAsync(accountId))
                            .ReturnsAsync(account);
@@ -670,7 +639,7 @@ namespace DrugWarehouseManagement.UnitTest
             // Assert
             Assert.Equal(200, response.Code);
             Assert.Equal("Account deleted successfully", response.Message);
-            Assert.Equal(Common.Enums.AccountStatus.Deleted, account.Status);
+            Assert.Equal(AccountStatus.Deleted, account.Status);
             _unitOfWorkMock.Verify(uow => uow.SaveChangesAsync(), Times.Once);
         }
 
@@ -695,7 +664,7 @@ namespace DrugWarehouseManagement.UnitTest
             var account = new Account
             {
                 Id = accountId,
-                Status = Common.Enums.AccountStatus.Inactive
+                Status = AccountStatus.Inactive
             };
             _unitOfWorkMock.Setup(uow => uow.AccountRepository.GetByIdAsync(accountId))
                            .ReturnsAsync(account);
@@ -708,8 +677,50 @@ namespace DrugWarehouseManagement.UnitTest
             // Assert
             Assert.Equal(200, response.Code);
             Assert.Equal("Account activated successfully", response.Message);
-            Assert.Equal(Common.Enums.AccountStatus.Active, account.Status);
+            Assert.Equal(AccountStatus.Active, account.Status);
             _unitOfWorkMock.Verify(uow => uow.SaveChangesAsync(), Times.Once);
+        }
+
+        [Fact]
+        public async Task ResetPassword_AccountNotFound_ThrowsException()
+        {
+            // Arrange
+            var accountId = Guid.NewGuid();
+            _unitOfWorkMock.Setup(uow => uow.AccountRepository.GetByIdAsync(accountId))
+                           .ReturnsAsync((Account)null);
+
+            // Act & Assert
+            var exception = await Assert.ThrowsAsync<Exception>(() => _accountService.ResetPassword(accountId));
+            Assert.Equal("Account not found", exception.Message);
+        }
+
+        [Fact]
+        public async Task ResetPassword_SuccessfulReset_ReturnsBaseResponse()
+        {
+            // Arrange
+            var accountId = Guid.NewGuid();
+            var account = new Account
+            {
+                Id = accountId,
+                UserName = "testuser",
+                Email = "test@example.com"
+            };
+
+            _unitOfWorkMock.Setup(uow => uow.AccountRepository.GetByIdAsync(accountId))
+                           .ReturnsAsync(account);
+            _unitOfWorkMock.Setup(uow => uow.SaveChangesAsync())
+                           .Returns(Task.CompletedTask);
+            _emailServiceMock.Setup(es => es.SendEmailAsync(account.Email, "Reset Password", It.IsAny<string>()))
+                             .Returns(Task.CompletedTask);
+
+            // Act
+            var response = await _accountService.ResetPassword(accountId);
+
+            // Assert
+            Assert.Equal(200, response.Code);
+            Assert.Equal("Password reset successfully, please check your (spam) inbox for new login credentials", response.Message);
+            _unitOfWorkMock.Verify(uow => uow.SaveChangesAsync(), Times.Once);
+            _emailServiceMock.Verify(es => es.SendEmailAsync(account.Email, "Reset Password", It.IsAny<string>()), Times.Once);
         }
 
         private string HashPassword(Account account, string password)
