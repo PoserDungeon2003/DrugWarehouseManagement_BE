@@ -1,5 +1,5 @@
 ﻿using DrugWarehouseManagement.Common;
-using DrugWarehouseManagement.Common.Consts;
+using DrugWarehouseManagement.Common.Enums;
 using DrugWarehouseManagement.Repository;
 using DrugWarehouseManagement.Repository.Models;
 using DrugWarehouseManagement.Service.DTO;
@@ -57,7 +57,7 @@ namespace DrugWarehouseManagement.Service.Services
                 throw new Exception("Account not found");
             }
 
-            account.Status = Common.Enums.AccountStatus.Active;
+            account.Status = AccountStatus.Active;
             await _unitOfWork.SaveChangesAsync();
             return new BaseResponse
             {
@@ -116,7 +116,7 @@ namespace DrugWarehouseManagement.Service.Services
                 throw new Exception("Account not found");
             }
 
-            account.Status = Common.Enums.AccountStatus.Inactive;
+            account.Status = AccountStatus.Inactive;
             await _unitOfWork.SaveChangesAsync();
             return new BaseResponse
             {
@@ -134,7 +134,7 @@ namespace DrugWarehouseManagement.Service.Services
                 throw new Exception("Account not found");
             }
 
-            account.Status = Common.Enums.AccountStatus.Deleted;
+            account.Status = AccountStatus.Deleted;
             await _unitOfWork.SaveChangesAsync();
             return new BaseResponse
             {
@@ -162,7 +162,7 @@ namespace DrugWarehouseManagement.Service.Services
             request.Search = request.Search?.ToLower().Trim() ?? "";
             var query = await _unitOfWork.AccountRepository.GetAll()
                         .Include(x => x.Role)
-                        .Where(x => x.Status == Common.Enums.AccountStatus.Active)
+                        .Where(x => x.Status == AccountStatus.Active)
                         .Where(x => x.UserName.Contains(request.Search) || x.Email.Contains(request.Search) || x.PhoneNumber.Contains(request.Search))
                         .ToPaginatedResultAsync(request.Page, request.PageSize);
             return query.Adapt<PaginatedResult<ViewAccount>>();
@@ -180,7 +180,7 @@ namespace DrugWarehouseManagement.Service.Services
                 throw new Exception("Account not found");
             }
 
-            if (account.Status == Common.Enums.AccountStatus.Inactive)
+            if (account.Status == AccountStatus.Inactive)
             {
                 throw new Exception("Account is inactive, please contact your administrator to re-active your account");
             }
@@ -217,12 +217,6 @@ namespace DrugWarehouseManagement.Service.Services
             await _unitOfWork.AccountRepository.UpdateAsync(account);
             await _unitOfWork.SaveChangesAsync();
 
-            await UpdateLastLogin(new UpdateLastLoginDTO
-            {
-                AccountId = account.Id,
-                LastLogin = SystemClock.Instance.GetCurrentInstant()
-            });
-
             return new AccountLoginResponse
             {
                 Role = account.Role.RoleName,
@@ -230,9 +224,33 @@ namespace DrugWarehouseManagement.Service.Services
             };
         }
 
-        public Task<BaseResponse> ResetPassword(Guid accountId)
+        public async Task<BaseResponse> ResetPassword(Guid accountId)
         {
-            throw new NotImplementedException();
+            var account = await _unitOfWork.AccountRepository.GetByIdAsync(accountId);
+
+            if (account == null)
+            {
+                throw new Exception("Account not found");
+            }
+
+            var randomPassword = Utils.GenerateRandomPassword();
+            var hashedPassword = _passwordHelper.HashPassword(account, randomPassword);
+
+            account.PasswordHash = hashedPassword;
+
+            await _unitOfWork.SaveChangesAsync();
+
+            var htmlTemplate = Consts.htmlResetPasswordTemplate;
+
+            htmlTemplate = htmlTemplate.Replace("{{Username}}", account.UserName)
+                                       .Replace("{{Password}}", randomPassword);
+
+            await _emailService.SendEmailAsync(account.Email, "Reset Password", htmlTemplate);
+            return new BaseResponse
+            {
+                Code = 200,
+                Message = "Password reset successfully, please check your (spam) inbox for new login credentials",
+            };
         }
 
         public async Task<SetupTwoFactorAuthenticatorResponse> SetupTwoFactorAuthenticator(string email)
@@ -321,20 +339,5 @@ namespace DrugWarehouseManagement.Service.Services
             };
         }
 
-        public async Task UpdateLastLogin(UpdateLastLoginDTO updateLastLoginDTO)
-        {
-            var account = await _unitOfWork.AccountRepository.GetByIdAsync(updateLastLoginDTO.AccountId);
-
-            if (account == null)
-            {
-               throw new Exception("Account not found");
-            }
-
-            var updatedAccount = updateLastLoginDTO.Adapt(account);
-
-            await _unitOfWork.AccountRepository.UpdateAsync(updatedAccount);
-
-            await _unitOfWork.SaveChangesAsync();
-        }
     }
 }

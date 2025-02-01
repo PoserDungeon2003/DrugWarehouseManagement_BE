@@ -116,5 +116,24 @@ namespace DrugWarehouseManagement.API.Controllers
                 });
             }
         }
+
+        [HttpPost("resetPassword")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> ResetPassword([FromQuery] [Required] Guid accountId)
+        {
+            try
+            {
+                var response = await _accountService.ResetPassword(accountId);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    Code = 400,
+                    Message = ex.Message,
+                });
+            }
+        }
     }
 }
