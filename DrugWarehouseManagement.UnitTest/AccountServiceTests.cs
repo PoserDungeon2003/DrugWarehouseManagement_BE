@@ -723,6 +723,59 @@ namespace DrugWarehouseManagement.UnitTest
             _emailServiceMock.Verify(es => es.SendEmailAsync(account.Email, "Reset Password", It.IsAny<string>()), Times.Once);
         }
 
+        [Fact]
+        public async Task ChangePassword_AccountNotFound_ThrowsException()
+        {
+            // Arrange
+            var accountId = Guid.NewGuid();
+            var request = new ChangePasswordRequest { OldPassword = "oldPassword", NewPassword = "newPassword" };
+            _unitOfWorkMock.Setup(u => u.AccountRepository.GetByIdAsync(accountId)).ReturnsAsync((Account)null);
+
+            // Act & Assert
+            var exception = await Assert.ThrowsAsync<Exception>(() => _accountService.ChangePassword(accountId, request));
+            Assert.Equal("Account not found", exception.Message);
+        }
+
+        [Fact]
+        public async Task ChangePassword_OldPasswordIncorrect_ThrowsException()
+        {
+            // Arrange
+            var accountId = Guid.NewGuid();
+            var account = new Account { Id = accountId };
+            account.PasswordHash = HashPassword(account, "hashedPassword");
+            var request = new ChangePasswordRequest { OldPassword = "oldPassword", NewPassword = "newPassword" };
+            _unitOfWorkMock.Setup(u => u.AccountRepository.GetByIdAsync(accountId)).ReturnsAsync(account);
+            _passwordHelperMock.Setup(p => p.VerifyHashedPassword(account, account.PasswordHash, request.OldPassword))
+                               .Returns(PasswordVerificationResult.Failed);
+
+            // Act & Assert
+            var exception = await Assert.ThrowsAsync<Exception>(() => _accountService.ChangePassword(accountId, request));
+            Assert.Equal("Old password is incorrect", exception.Message);
+        }
+
+        [Fact]
+        public async Task ChangePassword_SuccessfulChange_ReturnsBaseResponse()
+        {
+            // Arrange
+            var accountId = Guid.NewGuid();
+            var account = new Account { Id = accountId };
+            account.PasswordHash = HashPassword(account, "hashedPassword");
+            var request = new ChangePasswordRequest { OldPassword = "oldPassword", NewPassword = "newPassword" };
+            _unitOfWorkMock.Setup(u => u.AccountRepository.GetByIdAsync(accountId)).ReturnsAsync(account);
+            _passwordHelperMock.Setup(p => p.VerifyHashedPassword(account, account.PasswordHash, request.OldPassword))
+                               .Returns(PasswordVerificationResult.Success);
+            _passwordHelperMock.Setup(p => p.HashPassword(account, request.NewPassword)).Returns("newHashedPassword");
+
+            // Act
+            var response = await _accountService.ChangePassword(accountId, request);
+
+            // Assert
+            Assert.Equal(200, response.Code);
+            Assert.Equal("Password changed successfully", response.Message);
+            _unitOfWorkMock.Verify(u => u.SaveChangesAsync(), Times.Once);
+            Assert.Equal("newHashedPassword", account.PasswordHash);
+        }
+
         private string HashPassword(Account account, string password)
         {
             return _passwordHasher.HashPassword(account, password);
