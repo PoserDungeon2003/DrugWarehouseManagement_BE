@@ -39,8 +39,8 @@ namespace DrugWarehouseManagement.API
                 app.UseSwaggerUI();
             }
 
-            app.UseMiddleware<GlobalExceptionMiddleware>();
             app.UseMiddleware<AuditLoggingMiddleware>();
+            app.UseMiddleware<GlobalExceptionMiddleware>();
             app.UseCors("AllowAll");
 
             app.UseAuthentication();
