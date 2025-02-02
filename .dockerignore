@@ -12,13 +12,13 @@
 **/*.dbmdl
 **/*.jfm
 **/azds.yaml
-**/bin
+**/[b|B]in/
 **/charts
 **/docker-compose*
 **/Dockerfile*
 **/node_modules
 **/npm-debug.log
-**/obj
+**/[O|o]bj/
 **/secrets.dev.yaml
 **/values.dev.yaml
 LICENSE

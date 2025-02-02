@@ -1,3 +1,4 @@
+using DrugWarehouseManagement.API.Middleware;
 using DrugWarehouseManagement.API.Middlewares;
 using Microsoft.EntityFrameworkCore;
 
@@ -39,6 +40,7 @@ namespace DrugWarehouseManagement.API
             }
 
             app.UseMiddleware<GlobalExceptionMiddleware>();
+            app.UseMiddleware<AuditLoggingMiddleware>();
             app.UseCors("AllowAll");
 
             app.UseAuthentication();

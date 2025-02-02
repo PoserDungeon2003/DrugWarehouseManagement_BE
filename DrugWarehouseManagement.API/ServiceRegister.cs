@@ -61,6 +61,9 @@ namespace DrugWarehouseManagement.API
 
             services.AddScoped<IEmailService, EmailService>();
 
+            services.AddScoped<IAuditLogsRepository, AuditLogsRepository>();
+            services.AddScoped<IAuditLogsService, AuditLogsService>();
+
         }
 
         public static IServiceCollection AddAuthorizeService(this IServiceCollection services, IConfiguration configuration)
@@ -124,6 +127,12 @@ namespace DrugWarehouseManagement.API
             TypeAdapterConfig<UpdateAccountRequest, Account>
                 .NewConfig()
                 .IgnoreNullValues(true);
+
+            TypeAdapterConfig<AuditLogs, ViewAuditLogs>
+                .NewConfig()
+                .Map(dest => dest.UserName, src => src.Account.UserName)
+                .Map(dest => dest.FullName, src => src.Account.FullName);
+                //.Map(dest => dest.Date, src => src.Date.ToDateTimeUtc());
         }
 
         private static void AddEnum(IServiceCollection services)

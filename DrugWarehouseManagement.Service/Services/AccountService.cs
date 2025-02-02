@@ -66,6 +66,33 @@ namespace DrugWarehouseManagement.Service.Services
             };
         }
 
+        public async Task<BaseResponse> ChangePassword(Guid accountId, ChangePasswordRequest request)
+        {
+            var account = await _unitOfWork.AccountRepository.GetByIdAsync(accountId);
+
+            if (account == null)
+            {
+                throw new Exception("Account not found");
+            }
+
+            var verifyPassword = _passwordHelper.VerifyHashedPassword(account, account.PasswordHash, request.OldPassword);
+
+            if (verifyPassword == PasswordVerificationResult.Failed)
+            {
+                throw new Exception("Old password is incorrect");
+            }
+
+            var hashedPassword = _passwordHelper.HashPassword(account, request.NewPassword);
+            account.PasswordHash = hashedPassword;
+            await _unitOfWork.SaveChangesAsync();
+
+            return new BaseResponse
+            {
+                Code = 200,
+                Message = "Password changed successfully"
+            };
+        }
+
         public async Task<BaseResponse> CreateAccount(CreateAccountRequest request)
         {
             var existedAccount = await _unitOfWork.AccountRepository
