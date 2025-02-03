@@ -33,7 +33,6 @@ namespace DrugWarehouseManagement.Service.Services
 {
     public class AccountService : IAccountService
     {
-        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ITokenHandlerService _tokenHandler;
         private readonly ITwoFactorAuthenticatorWrapper _twoFactorAuthenticator;
@@ -41,7 +40,7 @@ namespace DrugWarehouseManagement.Service.Services
         private readonly IEmailService _emailService;
         private readonly IPasswordHelper _passwordHelper;
 
-        public AccountService(IHttpContextAccessor httpContextAccessor, IUnitOfWork unitOfWork, ITokenHandlerService tokenHandler, ILogger<IAccountService> logger, IEmailService emailService, ITwoFactorAuthenticatorWrapper twoFactorAuthenticatorWrapper, IPasswordHelper passwordHelper)
+        public AccountService(IUnitOfWork unitOfWork, ITokenHandlerService tokenHandler, ILogger<IAccountService> logger, IEmailService emailService, ITwoFactorAuthenticatorWrapper twoFactorAuthenticatorWrapper, IPasswordHelper passwordHelper)
         {
             _unitOfWork = unitOfWork;
             _passwordHelper = passwordHelper;
@@ -49,29 +48,8 @@ namespace DrugWarehouseManagement.Service.Services
             _twoFactorAuthenticator ??= twoFactorAuthenticatorWrapper;
             _logger = logger;
             _emailService = emailService;
-            _httpContextAccessor = httpContextAccessor;
         }
-        public async Task<Guid?> GetCurrentAccountIdAsync()
-        {
-            var user = _httpContextAccessor.HttpContext?.User;
-            if (user == null)
-            {
-                return null;
-            }
-
-            var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier);
-            if (userIdClaim == null)
-            {
-                return null;
-            }
-
-            if (!Guid.TryParse(userIdClaim.Value, out var accountId))
-            {
-                return null;
-            }
-
-            return accountId;
-        }
+       
         public async Task<BaseResponse> ActiveAccount(Guid accountId)
         {
             var account = await _unitOfWork.AccountRepository.GetByIdAsync(accountId);

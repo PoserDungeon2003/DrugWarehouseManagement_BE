@@ -14,7 +14,6 @@ namespace DrugWarehouseManagement.Service.Interface
 {
     public interface IAccountService
     {
-        public Task<Guid?> GetCurrentAccountIdAsync();
         public Task<AccountLoginResponse> LoginWithUsername(AccountLoginRequest request);
         public Task<SetupTwoFactorAuthenticatorResponse> SetupTwoFactorAuthenticator(string email);
         public Task<BaseResponse> CreateAccount(CreateAccountRequest request);

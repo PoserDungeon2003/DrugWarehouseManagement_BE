@@ -19,11 +19,9 @@ namespace DrugWarehouseManagement.Service.Services
     public class OutboundService : IOutboundService
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IAccountService _accountService;
-        public OutboundService(IUnitOfWork unitOfWork, IAccountService accountService)
+        public OutboundService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
-            _accountService = accountService;
         }
 
         private async Task<string> GenerateOutboundCodeAsync()
@@ -31,7 +29,6 @@ namespace DrugWarehouseManagement.Service.Services
             // Define a prefix for the code, such as "OUTB" (Outbound)
             var prefix = "OUTB";
             var random = new Random();
-
             string newOutboundCode = string.Empty;
             bool isUnique = false;
 
@@ -54,35 +51,23 @@ namespace DrugWarehouseManagement.Service.Services
                     isUnique = true;
                 }
             }
-
             return newOutboundCode;
         }
-        public async Task<BaseResponse> CreateOutbound(CreateOutboundRequest request)
+        public async Task<BaseResponse> CreateOutbound(Guid accountId, CreateOutboundRequest request)
         {
             var response = new BaseResponse();
             try
             {
                 var generatedOutboundCode = await GenerateOutboundCodeAsync();
-                var accountId = await _accountService.GetCurrentAccountIdAsync();
-
-                if (accountId == null)
-                {
-                    return new BaseResponse
-                    {
-                        Code = (int)HttpStatusCode.Unauthorized,
-                        Message = "User is not logged in"
-                    };
-                }
                 var outbound = request.Adapt<Outbound>();
                 outbound.OutboundCode = generatedOutboundCode;
                 outbound.OutboundDate = SystemClock.Instance.GetCurrentInstant();
                 outbound.Status = OutboundStatus.Pending;
-                outbound.AccountId = accountId.Value;
+                outbound.AccountId = accountId;
 
                 await _unitOfWork.OutboundRepository.CreateAsync(outbound);
                 await _unitOfWork.SaveChangesAsync();
 
-                // Fetch Lot details and map OutboundDetails using Mapster
                 var lotIds = request.OutboundDetails.Select(d => d.LotId).ToList();
                 var lots = await _unitOfWork.LotRepository.GetByWhere(l => lotIds.Contains(l.LotId)).ToListAsync();
                 if (lots.Count != lotIds.Count)

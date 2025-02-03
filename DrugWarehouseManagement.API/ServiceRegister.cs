@@ -55,12 +55,10 @@ namespace DrugWarehouseManagement.API
             services.AddScoped<ITwoFactorAuthenticatorWrapper, TwoFactorAuthenticatorWrapper>();
             services.AddScoped<IPasswordHasher<Account>, PasswordHasher<Account>>();
             services.AddScoped<IPasswordHelper, PasswordHelper>();
-
             services.AddScoped<IAccountRepository, AccountRepository>();
             services.AddScoped<IAccountService, AccountService>();
-
             services.AddScoped<IEmailService, EmailService>();
-
+            services.AddScoped<IOutboundService, OutboundService>();    
             services.AddScoped<IAuditLogsRepository, AuditLogsRepository>();
             services.AddScoped<IAuditLogsService, AuditLogsService>();
 
