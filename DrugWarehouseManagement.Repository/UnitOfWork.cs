@@ -12,6 +12,7 @@ namespace DrugWarehouseManagement.Repository
     public class UnitOfWork : IUnitOfWork
     {
         protected readonly DrugWarehouseContext _context;
+        public ILotRepository LotRepository { get; private set; }
         public IAccountRepository AccountRepository { get; private set; }
         public IAuditLogsRepository AuditLogsRepository { get; private set; }
         public IOutboundDetailsRepository OutboundDetailsRepository { get; private set; }
