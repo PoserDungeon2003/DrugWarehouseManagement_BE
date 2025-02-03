@@ -24,8 +24,9 @@ namespace DrugWarehouseManagement.Repository.Models
         public decimal TotalPrice { get; set; }
         public int ProductId { get; set; }
         public int OutboundId { get; set; }
-
-        public virtual Outbound Outbound { get; set; } = null!;
+        public int LotId { get; set; }  
+		public virtual Lot Lot { get; set; } = null!;   
+		public virtual Outbound Outbound { get; set; } = null!;
         public virtual Product Product { get; set; } = null!;
     }
 }

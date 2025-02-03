@@ -14,13 +14,19 @@ namespace DrugWarehouseManagement.Repository
         protected readonly DrugWarehouseContext _context;
         public IAccountRepository AccountRepository { get; private set; }
         public IAuditLogsRepository AuditLogsRepository { get; private set; }
+        public IOutboundDetailsRepository OutboundDetailsRepository { get; private set; }
+        public IOutboundRepository OutboundRepository { get; private set; } 
 
-        public UnitOfWork(DrugWarehouseContext context)
+
+		public UnitOfWork(DrugWarehouseContext context)
         {
             _context = context;
             AccountRepository ??= new AccountRepository(_context);
             AuditLogsRepository ??= new AuditLogsRepository(_context);
-        }
+			OutboundRepository ??= new OutboundRepository(_context);
+			OutboundDetailsRepository ??= new OutboundDetailRepostitory(_context);
+			LotRepository ??= new LotRepository(_context);
+		}
 
         public async Task BeginTransaction()
         {
