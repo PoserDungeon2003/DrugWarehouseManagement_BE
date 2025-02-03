@@ -77,6 +77,7 @@ namespace DrugWarehouseManagement.Service.Services
                 outbound.OutboundCode = generatedOutboundCode;
                 outbound.OutboundDate = SystemClock.Instance.GetCurrentInstant();
                 outbound.Status = OutboundStatus.Pending;
+                outbound.AccountId = accountId.Value;
 
                 await _unitOfWork.OutboundRepository.CreateAsync(outbound);
                 await _unitOfWork.SaveChangesAsync();
