@@ -11,5 +11,6 @@ namespace DrugWarehouseManagement.Service.Interface
     public interface  IOutboundService
     {
 		public Task<BaseResponse> CreateOutbound(Guid accountId,CreateOutboundRequest request);
+
 	}
 }

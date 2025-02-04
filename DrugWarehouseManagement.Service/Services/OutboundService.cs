@@ -58,18 +58,23 @@ namespace DrugWarehouseManagement.Service.Services
             var response = new BaseResponse();
             try
             {
+                // Sinh outbound code
                 var generatedOutboundCode = await GenerateOutboundCodeAsync();
+
+                // Map request sang Outbound entity
                 var outbound = request.Adapt<Outbound>();
                 outbound.OutboundCode = generatedOutboundCode;
                 outbound.OutboundDate = SystemClock.Instance.GetCurrentInstant();
                 outbound.Status = OutboundStatus.Pending;
                 outbound.AccountId = accountId;
 
-                await _unitOfWork.OutboundRepository.CreateAsync(outbound);
-                await _unitOfWork.SaveChangesAsync();
-
+                // Lấy danh sách Lot dựa trên các LotId được gửi từ request
                 var lotIds = request.OutboundDetails.Select(d => d.LotId).ToList();
-                var lots = await _unitOfWork.LotRepository.GetByWhere(l => lotIds.Contains(l.LotId)).ToListAsync();
+                var lots = await _unitOfWork.LotRepository
+                                .GetByWhere(l => lotIds.Contains(l.LotId))
+                                .ToListAsync();
+
+               
                 if (lots.Count != lotIds.Count)
                 {
                     return new BaseResponse
@@ -79,18 +84,67 @@ namespace DrugWarehouseManagement.Service.Services
                     };
                 }
 
-                var outboundDetailsList = request.OutboundDetails.Adapt<List<OutboundDetails>>();
-                foreach (var detail in outboundDetailsList)
-                {
-                    var lot = lots.First(l => l.LotId == detail.LotId);
-                    detail.OutboundId = outbound.OutboundId;
-                    detail.LotNumber = lot.LotNumber;
-                    detail.ExpiryDate = lot.ExpiryDate;
-                    detail.TotalPrice = detail.Quantity * detail.UnitPrice;
-                    detail.Status = OutboundDetailStatus.Pending;
-                }
+                // Danh sách chứa các chi tiết đơn xuất
+                var detailsList = new List<OutboundDetails>();
 
-                await _unitOfWork.OutboundDetailsRepository.AddRangeAsync(outboundDetailsList);
+                // Kiểm tra số lượng trong lô và tạo chi tiết đơn xuất
+                foreach (var detailRequest in request.OutboundDetails)
+                {
+                    // Tìm Lot tương ứng với LotId trong request
+                    var lot = lots.FirstOrDefault(l => l.LotId == detailRequest.LotId);
+                    if (lot == null)
+                    {
+                        return new BaseResponse
+                        {
+                            Code = (int)HttpStatusCode.NotFound,
+                            Message = $"LotId {detailRequest.LotId} not found."
+                        };
+                    }
+                    if (string.IsNullOrEmpty(lot.LotNumber))
+                    {
+                        return new BaseResponse
+                        {
+                            Code = (int)HttpStatusCode.BadRequest,
+                            Message = $"LotNumber is missing for LotId {lot.LotId}."
+                        };
+                    }
+                    // Kiểm tra số lượng trong lô có đủ không
+                    if (lot.Quantity < detailRequest.Quantity)
+                    {
+                        return new BaseResponse
+                        {
+                            Code = (int)HttpStatusCode.BadRequest,
+                            Message = $"Số lượng trong lô {lot.LotNumber} không đủ. Hiện có: {lot.Quantity}, yêu cầu: {detailRequest.Quantity}"
+                        };
+                    }
+
+                    // Nếu hợp lệ, trừ số lượng trong Lot
+                    lot.Quantity -= detailRequest.Quantity;
+                  await  _unitOfWork.LotRepository.UpdateAsync(lot);
+
+                    // Tạo đối tượng OutboundDetails
+                    var detail = new OutboundDetails
+                    {
+                        LotId = detailRequest.LotId,
+                        Quantity = detailRequest.Quantity,
+                        UnitPrice = detailRequest.UnitPrice,
+                        UnitType = detailRequest.UnitType,
+                        LotNumber = lot.LotNumber,       // Lấy từ Lot entity
+                        ExpiryDate = lot.ExpiryDate,
+                        TotalPrice = detailRequest.Quantity * detailRequest.UnitPrice,
+                        Status = OutboundDetailStatus.Pending,
+                        ProductId = lot.ProductId        // Lấy ProductId từ Lot                                          
+                    };
+
+                    detailsList.Add(detail);
+                }
+                // Liên kết danh sách chi tiết vào navigation property của Outbound
+                outbound.OutboundDetails = detailsList;
+
+                // Thêm Outbound vào context
+                await _unitOfWork.OutboundRepository.CreateAsync(outbound);
+
+                // Lưu các thay đổi cho cả Outbound, OutboundDetails và cập nhật Lot
                 await _unitOfWork.SaveChangesAsync();
 
                 return new BaseResponse

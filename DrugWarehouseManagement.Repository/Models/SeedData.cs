@@ -164,7 +164,7 @@ namespace DrugWarehouseManagement.Repository.Models
 
         private string HashPassword(string password)
         {
-            return _passwordHasher.HashPassword(null, password);
+            return _passwordHasher.HashPassword("dummy", password);
         }
     }
 }
