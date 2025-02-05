@@ -13,7 +13,6 @@ namespace DrugWarehouseManagement.Service.DTO.Response
         public decimal TotalPrice { get; set; }
         public string UnitType { get; set; } = null!;
         public Instant ExpiryDate { get; set; }
-        public OutboundDetailStatus Status { get; set; }
         public int ProductId { get; set; }
     }
     public class OutboundResponse

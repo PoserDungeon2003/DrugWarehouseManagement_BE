@@ -1,5 +1,4 @@
-﻿using DrugWarehouseManagement.Common.Enums;
-using NodaTime;
+﻿using NodaTime;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -14,7 +13,6 @@ namespace DrugWarehouseManagement.Repository.Models
         public Instant ExpiryDate { get; set; }
         public int Quantity { get; set; }
         public string UnitType { get; set; } = null!;
-        public OutboundDetailStatus Status { get; set; } = OutboundDetailStatus.Pending;
         public decimal UnitPrice { get; set; }
         public decimal TotalPrice { get; set; }
         public int ProductId { get; set; }

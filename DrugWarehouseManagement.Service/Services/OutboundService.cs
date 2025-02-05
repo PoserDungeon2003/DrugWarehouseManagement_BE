@@ -112,7 +112,6 @@ namespace DrugWarehouseManagement.Service.Services
                     LotNumber = lot.LotNumber,       // Lấy từ Lot entity
                     ExpiryDate = lot.ExpiryDate,
                     TotalPrice = detailRequest.Quantity * detailRequest.UnitPrice,
-                    Status = OutboundDetailStatus.Pending,
                     ProductId = lot.ProductId        // Lấy ProductId từ Lot                                          
                 };
 
@@ -177,5 +176,78 @@ namespace DrugWarehouseManagement.Service.Services
                 CurrentPage = paginatedOutbounds.CurrentPage
             };
         }
+
+
+        public async Task<BaseResponse> UpdateOutbound(int outboundId, UpdateOutboundRequest request)
+        {
+            var outbound = await _unitOfWork.OutboundRepository
+                .GetAll()
+                .Include(o => o.OutboundDetails)
+                .FirstOrDefaultAsync(o => o.OutboundId == outboundId);
+
+            if (outbound == null)
+            {
+                throw new Exception("Outbound not found.");
+            }
+            if (request.Status == OutboundStatus.Cancelled)
+            {
+                if (outbound.Status != OutboundStatus.Pending)
+                {
+                    throw new Exception("Chỉ được phép hủy đơn xuất đang ở trạng thái Pending.");
+                }
+
+                // Với mỗi chi tiết đơn xuất đã trừ số lượng từ lô, cộng lại số lượng đó vào lô.
+                foreach (var detail in outbound.OutboundDetails)
+                {
+                    var lot = await _unitOfWork.LotRepository
+                        .GetByWhere(l => l.LotId == detail.LotId)
+                        .FirstOrDefaultAsync();
+
+                    if (lot != null)
+                    {
+                        lot.Quantity += detail.Quantity;
+                        await _unitOfWork.LotRepository.UpdateAsync(lot);
+                    }
+                }
+                // Cập nhật trạng thái thành Cancelled.
+                outbound.Status = OutboundStatus.Cancelled;
+            }
+            else
+            {
+                // Nếu trạng thái update không phải Cancelled, chỉ cho phép chuyển từ Pending sang InProgress.
+                if (outbound.Status == OutboundStatus.Pending)
+                {
+                    if (request.Status != OutboundStatus.InProgress)
+                    {
+                        throw new Exception("Từ trạng thái Pending chỉ được phép chuyển sang InProgress hoặc hủy (Cancelled).");
+                    }
+                    outbound.Status = request.Status;
+                }
+                else
+                {
+                    // Nếu đơn không ở trạng thái Pending (và không phải hủy), bạn có thể cho phép hoặc không cho phép cập nhật trạng thái.
+                    // Ở đây, nếu trạng thái hiện tại không phải Pending và không phải Cancelled, ta không cho phép thay đổi.
+                    if (request.Status != outbound.Status)
+                    {
+                        throw new Exception("Cập nhật trạng thái không được phép trong trạng thái hiện tại.");
+                    }
+                }
+
+            }
+            outbound.CustomerName = request.CustomerName;
+            outbound.Address = request.Address;
+            outbound.PhoneNumber = request.PhoneNumber;
+            outbound.OutboundOrderCode = request.OutboundOrderCode;
+            outbound.TrackingNumber = request.TrackingNumber;
+            outbound.Note = request.Note;
+            await _unitOfWork.OutboundRepository.UpdateAsync(outbound);
+            await _unitOfWork.SaveChangesAsync();
+            return new BaseResponse
+            {
+                Code = (int)HttpStatusCode.OK,
+                Message = "Outbound updated successfully"
+            };
+        }
     }
 }
+

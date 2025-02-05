@@ -36,13 +36,7 @@
         Rejected = 3,           // Item was rejected after inspection
         Accepted = 4,           // Item was returned after being received
     }
-    public enum OutboundDetailStatus
-    {
-        Pending = 1,
-        Picked = 2,
-        Rejected = 3,           // Item was rejected after inspection
 
-    }
     public enum OutboundStatus
     {
         Pending = 1,           // Stock-in/stock-out request is pending

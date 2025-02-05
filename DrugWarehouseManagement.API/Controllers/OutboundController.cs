@@ -37,6 +37,23 @@ namespace DrugWarehouseManagement.API.Controllers
                 });
             }
         }
+        [HttpPut]
+        public async Task<IActionResult> UpdateOutbound(int id, [FromBody] UpdateOutboundRequest request)
+        {
+            try
+            {
+                var response = await _outboundService.UpdateOutbound(id, request);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    Code = 400,
+                    Message = ex.Message,
+                });
+            }
+        }
 
         /// <summary>
         /// Searches outbounds by OutboundId or OutboundCode using pagination.
