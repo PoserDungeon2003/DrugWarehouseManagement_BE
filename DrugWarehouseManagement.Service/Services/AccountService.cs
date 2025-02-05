@@ -2,32 +2,19 @@
 using DrugWarehouseManagement.Common.Enums;
 using DrugWarehouseManagement.Repository;
 using DrugWarehouseManagement.Repository.Models;
-using DrugWarehouseManagement.Service.DTO;
 using DrugWarehouseManagement.Service.DTO.Request;
 using DrugWarehouseManagement.Service.DTO.Response;
 using DrugWarehouseManagement.Service.Extenstions;
 using DrugWarehouseManagement.Service.Helper.Interface;
 using DrugWarehouseManagement.Service.Interface;
 using DrugWarehouseManagement.Service.Request;
-using DrugWarehouseManagement.Service.Wrapper;
 using DrugWarehouseManagement.Service.Wrapper.Interface;
-using Google.Authenticator;
 using Mapster;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using NodaTime;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Drawing;
-using System.Linq;
-using System.Security.Claims;
 using System.Security.Cryptography;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace DrugWarehouseManagement.Service.Services
 {
@@ -49,7 +36,7 @@ namespace DrugWarehouseManagement.Service.Services
             _logger = logger;
             _emailService = emailService;
         }
-       
+
         public async Task<BaseResponse> ActiveAccount(Guid accountId)
         {
             var account = await _unitOfWork.AccountRepository.GetByIdAsync(accountId);
@@ -98,8 +85,8 @@ namespace DrugWarehouseManagement.Service.Services
         public async Task<BaseResponse> CreateAccount(CreateAccountRequest request)
         {
             var existedAccount = await _unitOfWork.AccountRepository
-                        .GetByWhere(x => x.UserName == request.UserName.ToLower().Trim() || 
-                                    x.Email == request.Email.ToLower().Trim() || 
+                        .GetByWhere(x => x.UserName == request.UserName.ToLower().Trim() ||
+                                    x.Email == request.Email.ToLower().Trim() ||
                                     x.PhoneNumber == request.PhoneNumber.Trim())
                         .Include(x => x.Role)
                         .FirstOrDefaultAsync();
@@ -130,12 +117,12 @@ namespace DrugWarehouseManagement.Service.Services
             //_logger.LogWarning($"Account created with username: {account.Username} and password: {randomPassword}"); // For development purpose, should using email to send password to user
 
             return new BaseResponse
-            { 
+            {
                 Code = 200,
                 Message = "Account created successfully, please check your (spam) inbox for login credentials",
             };
         }
-        
+
         public async Task<BaseResponse> DeactiveAccount(Guid accountId)
         {
             var account = await _unitOfWork.AccountRepository.GetByIdAsync(accountId);
@@ -353,7 +340,8 @@ namespace DrugWarehouseManagement.Service.Services
                 account.AccountSettings = new AccountSettings();
             }
 
-            if (request.PreferredLanguage != null && !Regex.Match(request.PreferredLanguage, @"^[a-zA-Z]{2}$").Success) {
+            if (request.PreferredLanguage != null && !Regex.Match(request.PreferredLanguage, @"^[a-zA-Z]{2}$").Success)
+            {
                 throw new Exception("Preferred language must be exactly 2 alphabetic characters");
             }
 
@@ -362,7 +350,8 @@ namespace DrugWarehouseManagement.Service.Services
 
             await _unitOfWork.SaveChangesAsync();
 
-            return new BaseResponse {
+            return new BaseResponse
+            {
                 Code = 200,
                 Message = "Account settings updated successfully"
             };

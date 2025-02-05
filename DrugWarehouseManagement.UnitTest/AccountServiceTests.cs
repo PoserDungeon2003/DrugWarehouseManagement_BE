@@ -2,7 +2,6 @@
 using DrugWarehouseManagement.Common.Enums;
 using DrugWarehouseManagement.Repository;
 using DrugWarehouseManagement.Repository.Models;
-using DrugWarehouseManagement.Service.DTO;
 using DrugWarehouseManagement.Service.DTO.Request;
 using DrugWarehouseManagement.Service.DTO.Response;
 using DrugWarehouseManagement.Service.Helper.Interface;
@@ -13,17 +12,10 @@ using DrugWarehouseManagement.Service.Wrapper.Interface;
 using Google.Authenticator;
 using Mapster;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MockQueryable;
 using Moq;
-using NodaTime;
-using System;
-using System.Data;
 using System.Linq.Expressions;
-using System.Security.Principal;
-using System.Threading.Tasks;
-using Xunit;
 
 namespace DrugWarehouseManagement.UnitTest
 {

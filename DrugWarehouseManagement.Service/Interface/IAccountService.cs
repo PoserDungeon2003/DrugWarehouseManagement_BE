@@ -1,14 +1,7 @@
-﻿using DrugWarehouseManagement.Repository.Models;
-using DrugWarehouseManagement.Service.DTO;
-using DrugWarehouseManagement.Service.DTO.Request;
+﻿using DrugWarehouseManagement.Service.DTO.Request;
 using DrugWarehouseManagement.Service.DTO.Response;
 using DrugWarehouseManagement.Service.Extenstions;
 using DrugWarehouseManagement.Service.Request;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DrugWarehouseManagement.Service.Interface
 {

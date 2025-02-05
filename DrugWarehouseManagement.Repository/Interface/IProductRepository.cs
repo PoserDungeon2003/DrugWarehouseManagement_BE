@@ -2,7 +2,7 @@
 
 namespace DrugWarehouseManagement.Repository.Interface
 {
-    public interface IOutboundDetailsRepository : IGenericRepository<OutboundDetails>
+    public interface IProductRepository : IGenericRepository<Product>
     {
     }
 }

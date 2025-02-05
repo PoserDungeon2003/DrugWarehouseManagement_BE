@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 
 namespace DrugWarehouseManagement.Common
 {
@@ -29,7 +25,7 @@ namespace DrugWarehouseManagement.Common
 
             // Combine all character groups
             string allCharacters = upperCaseLetters + lowerCaseLetters + digits;
-                //+ specialCharacters;
+            //+ specialCharacters;
 
             var random = new Random();
             var passwordBuilder = new StringBuilder();

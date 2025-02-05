@@ -58,7 +58,7 @@ namespace DrugWarehouseManagement.API
             services.AddScoped<IAccountRepository, AccountRepository>();
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<IEmailService, EmailService>();
-            services.AddScoped<IOutboundService, OutboundService>();    
+            services.AddScoped<IOutboundService, OutboundService>();
             services.AddScoped<IAuditLogsRepository, AuditLogsRepository>();
             services.AddScoped<IAuditLogsService, AuditLogsService>();
 
@@ -130,7 +130,7 @@ namespace DrugWarehouseManagement.API
                 .NewConfig()
                 .Map(dest => dest.UserName, src => src.Account.UserName)
                 .Map(dest => dest.FullName, src => src.Account.FullName);
-                //.Map(dest => dest.Date, src => src.Date.ToDateTimeUtc());
+            //.Map(dest => dest.Date, src => src.Date.ToDateTimeUtc());
         }
 
         private static void AddEnum(IServiceCollection services)

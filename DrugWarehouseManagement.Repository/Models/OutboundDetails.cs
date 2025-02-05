@@ -1,12 +1,7 @@
 ﻿using DrugWarehouseManagement.Common.Enums;
 using NodaTime;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DrugWarehouseManagement.Repository.Models
 {
@@ -24,9 +19,9 @@ namespace DrugWarehouseManagement.Repository.Models
         public decimal TotalPrice { get; set; }
         public int ProductId { get; set; }
         public int OutboundId { get; set; }
-        public int LotId { get; set; }  
-		public virtual Lot Lot { get; set; } = null!;   
-		public virtual Outbound Outbound { get; set; } = null!;
+        public int LotId { get; set; }
+        public virtual Lot Lot { get; set; } = null!;
+        public virtual Outbound Outbound { get; set; } = null!;
         public virtual Product Product { get; set; } = null!;
     }
 }

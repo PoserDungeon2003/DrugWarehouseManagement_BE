@@ -1,17 +1,10 @@
-﻿using Azure.Core;
-using DrugWarehouseManagement.Repository;
-using DrugWarehouseManagement.Repository.Interface;
+﻿using DrugWarehouseManagement.Repository;
 using DrugWarehouseManagement.Service.DTO.Request;
 using DrugWarehouseManagement.Service.DTO.Response;
 using DrugWarehouseManagement.Service.Extenstions;
 using DrugWarehouseManagement.Service.Interface;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DrugWarehouseManagement.Service.Services
 {

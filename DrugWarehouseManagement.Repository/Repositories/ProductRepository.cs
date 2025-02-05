@@ -3,11 +3,10 @@ using DrugWarehouseManagement.Repository.Models;
 
 namespace DrugWarehouseManagement.Repository.Repositories
 {
-    public class OutboundRepository : GenericRepository<Outbound>, IOutboundRepository
+    public class ProductRepository : GenericRepository<Product>, IProductRepository
     {
-        public OutboundRepository(DrugWarehouseContext context) : base(context)
+        public ProductRepository(DrugWarehouseContext context) : base(context)
         {
         }
-
     }
 }

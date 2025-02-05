@@ -1,12 +1,10 @@
-﻿using DrugWarehouseManagement.Service.Interface;
-using DrugWarehouseManagement.Service.Request;
+﻿using DrugWarehouseManagement.Service.DTO.Request;
 using DrugWarehouseManagement.Service.DTO.Response;
+using DrugWarehouseManagement.Service.Interface;
+using DrugWarehouseManagement.Service.Request;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using DrugWarehouseManagement.Service.DTO.Request;
-using System.Net;
-using Azure.Core;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
