@@ -125,7 +125,9 @@ namespace DrugWarehouseManagement.API
             TypeAdapterConfig<UpdateAccountRequest, Account>
                 .NewConfig()
                 .IgnoreNullValues(true);
-
+            TypeAdapterConfig<UpdateOutboundRequest, Outbound>
+                .NewConfig()
+                .IgnoreNullValues(true);
             TypeAdapterConfig<AuditLogs, ViewAuditLogs>
                 .NewConfig()
                 .Map(dest => dest.UserName, src => src.Account.UserName)
