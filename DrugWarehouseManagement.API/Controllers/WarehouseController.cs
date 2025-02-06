@@ -7,25 +7,25 @@ namespace DrugWarehouseManagement.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ProductController : ControllerBase
+    public class WarehouseController : ControllerBase
     {
-        private readonly IProductService _productService;
-        public ProductController(IProductService productService)
+        private readonly IWarehouseService _warehouseService;
+        public WarehouseController(IWarehouseService warehouseService)
         {
-            _productService = productService;
+            _warehouseService = warehouseService;
         }
 
-        // POST: api/Product
+        // POST: api/Warehouse
         [HttpPost]
-        public async Task<IActionResult> CreateProduct([FromBody] CreateProductRequest request)
+        public async Task<IActionResult> CreateWarehouse([FromBody] CreateWarehouseRequest request)
         {
             try
             {
-                await _productService.CreateProductAsync(request);
+                await _warehouseService.CreateWarehouseAsync(request);
                 return Ok(new BaseResponse
                 {
                     Code = 200,
-                    Message = "Product created successfully."
+                    Message = "Warehouse created successfully."
                 });
             }
             catch (Exception ex)
@@ -38,13 +38,13 @@ namespace DrugWarehouseManagement.API.Controllers
             }
         }
 
-        // GET: api/Product/search?page=1&pageSize=10&search=...
+        // GET: api/Warehouse/search?page=1&pageSize=10&search=...
         [HttpGet("search")]
-        public async Task<IActionResult> SearchProducts([FromQuery] QueryPaging queryPaging)
+        public async Task<IActionResult> SearchWarehouse([FromQuery] QueryPaging queryPaging)
         {
             try
             {
-                var result = await _productService.SearchProductsAsync(queryPaging);
+                var result = await _warehouseService.SearchWarehousesAsync(queryPaging);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -57,17 +57,17 @@ namespace DrugWarehouseManagement.API.Controllers
             }
         }
 
-        // PUT: api/Product/{id}
+        // PUT: api/Warehouse/{id}
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateProduct(int id, [FromBody] UpdateProductRequest request)
+        public async Task<IActionResult> UpdateWarehouse(int id, [FromBody] UpdateWarehouseRequest request)
         {
             try
             {
-                await _productService.UpdateProductAsync(id, request);
+                await _warehouseService.UpdateWarehouseAsync(id, request);
                 return Ok(new BaseResponse
                 {
                     Code = 200,
-                    Message = "Product updated successfully."
+                    Message = "Warehouse updated successfully."
                 });
             }
             catch (Exception ex)
@@ -79,19 +79,14 @@ namespace DrugWarehouseManagement.API.Controllers
                 });
             }
         }
-
-        // DELETE: api/Product/{id}
+        // DELETE: api/Warehouse/{id}
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteProduct(int id)
+        public async Task<IActionResult> DeleteWarehouse(int id)
         {
             try
             {
-                await _productService.DeleteProductAsync(id);
-                return Ok(new BaseResponse
-                {
-                    Code = 200,
-                    Message = "Product deleted successfully."
-                });
+                var response = await _warehouseService.DeleteWarehouseAsync(id);
+                return Ok(response);
             }
             catch (Exception ex)
             {

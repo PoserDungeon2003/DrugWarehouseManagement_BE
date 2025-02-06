@@ -62,8 +62,7 @@ namespace DrugWarehouseManagement.API
             services.AddScoped<IAuditLogsRepository, AuditLogsRepository>();
             services.AddScoped<IAuditLogsService, AuditLogsService>();
             services.AddScoped<IProductService, ProductService>();
-
-
+            services.AddScoped<IWarehouseService, WarehouseService>();
         }
 
         public static IServiceCollection AddAuthorizeService(this IServiceCollection services, IConfiguration configuration)
@@ -123,7 +122,9 @@ namespace DrugWarehouseManagement.API
                 .NewConfig()
                 .Map(dest => dest.Status, src => src.Status.ToString())
                 .Map(dest => dest.RoleName, src => src.Role.RoleName);
-
+            TypeAdapterConfig<UpdateWarehouseRequest, Warehouse>
+               .NewConfig()
+               .IgnoreNullValues(true);
             TypeAdapterConfig<UpdateAccountRequest, Account>
                 .NewConfig()
                 .IgnoreNullValues(true);

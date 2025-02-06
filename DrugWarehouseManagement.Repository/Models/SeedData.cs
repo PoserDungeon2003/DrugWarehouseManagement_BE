@@ -145,11 +145,11 @@ namespace DrugWarehouseManagement.Repository.Models
 
             // Seed Warehouses
             modelBuilder.Entity<Warehouse>().HasData(
-                new Warehouse { WarehouseId = 1, WarehouseName = "Central Warehouse", Address = "123 Main St" },
-                new Warehouse { WarehouseId = 2, WarehouseName = "East Warehouse", Address = "456 East St" },
-                new Warehouse { WarehouseId = 3, WarehouseName = "West Warehouse", Address = "789 West St" },
-                new Warehouse { WarehouseId = 4, WarehouseName = "North Warehouse", Address = "321 North St" },
-                new Warehouse { WarehouseId = 5, WarehouseName = "South Warehouse", Address = "654 South St" }
+                new Warehouse { WarehouseId = 1, WarehouseName = "Central Warehouse", Address = "123 Main St", Status = WarehouseStatus.Active },
+                new Warehouse { WarehouseId = 2, WarehouseName = "East Warehouse", Address = "456 East St", Status = WarehouseStatus.Inactive },
+                new Warehouse { WarehouseId = 3, WarehouseName = "West Warehouse", Address = "789 West St", Status = WarehouseStatus.Inactive },
+                new Warehouse { WarehouseId = 4, WarehouseName = "North Warehouse", Address = "321 North St", Status = WarehouseStatus.Active },
+                new Warehouse { WarehouseId = 5, WarehouseName = "South Warehouse", Address = "654 South St", Status = WarehouseStatus.Active }
             );
 
             // Seed Products

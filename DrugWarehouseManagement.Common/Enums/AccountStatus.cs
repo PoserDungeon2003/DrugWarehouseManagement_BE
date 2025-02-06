@@ -36,6 +36,12 @@
         Rejected = 3,           // Item was rejected after inspection
         Accepted = 4,           // Item was returned after being received
     }
+    public enum WarehouseStatus
+    {
+        Active = 1,
+        Inactive = 2,
+    }
+
     public enum OutboundStatus
     {
         Pending = 1,           // Stock-in/stock-out request is pending
@@ -47,7 +53,6 @@
         RejectedFromCustomer = 7,          // Stock-out request was returned
         PartiallyAccepted = 8,
         Packed = 9,
-
     }
     public enum InboundStatus
     {
