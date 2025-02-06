@@ -10,7 +10,7 @@ namespace DrugWarehouseManagement.Service.DTO.Request
         public string? OutboundOrderCode { get; set; }
         public string? TrackingNumber { get; set; }
         public string? Note { get; set; }
-        public OutboundStatus Status { get; set; }
+        public OutboundStatus? Status { get; set; }
 
     }
 }

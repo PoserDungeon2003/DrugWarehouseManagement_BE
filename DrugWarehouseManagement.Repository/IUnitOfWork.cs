@@ -11,9 +11,9 @@ namespace DrugWarehouseManagement.Repository
         IAccountRepository AccountRepository { get; }
         IOutboundRepository OutboundRepository { get; }
         IOutboundDetailsRepository OutboundDetailsRepository { get; }
-
+        IProductRepository ProductRepository { get; }
         ILotRepository LotRepository { get; }
         IAuditLogsRepository AuditLogsRepository { get; }
-
+        IProviderRepository ProviderRepository { get; }
     }
 }

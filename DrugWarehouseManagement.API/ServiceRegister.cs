@@ -61,6 +61,8 @@ namespace DrugWarehouseManagement.API
             services.AddScoped<IOutboundService, OutboundService>();
             services.AddScoped<IAuditLogsRepository, AuditLogsRepository>();
             services.AddScoped<IAuditLogsService, AuditLogsService>();
+            services.AddScoped<IProductService, ProductService>();
+
 
         }
 
@@ -126,6 +128,9 @@ namespace DrugWarehouseManagement.API
                 .NewConfig()
                 .IgnoreNullValues(true);
             TypeAdapterConfig<UpdateOutboundRequest, Outbound>
+                .NewConfig()
+                .IgnoreNullValues(true);
+            TypeAdapterConfig<UpdateProductRequest, Product>
                 .NewConfig()
                 .IgnoreNullValues(true);
             TypeAdapterConfig<AuditLogs, ViewAuditLogs>

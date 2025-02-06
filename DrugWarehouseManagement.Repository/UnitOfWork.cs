@@ -12,8 +12,8 @@ namespace DrugWarehouseManagement.Repository
         public IAuditLogsRepository AuditLogsRepository { get; private set; }
         public IOutboundDetailsRepository OutboundDetailsRepository { get; private set; }
         public IOutboundRepository OutboundRepository { get; private set; }
-
-
+        public IProductRepository ProductRepository { get; private set; }
+        public IProviderRepository ProviderRepository { get; private set; }
         public UnitOfWork(DrugWarehouseContext context)
         {
             _context = context;
@@ -22,6 +22,8 @@ namespace DrugWarehouseManagement.Repository
             OutboundRepository ??= new OutboundRepository(_context);
             OutboundDetailsRepository ??= new OutboundDetailRepostitory(_context);
             LotRepository ??= new LotRepository(_context);
+            ProductRepository ??= new ProductRepository(_context);
+            ProviderRepository ??= new ProviderRepository(_context);
         }
 
         public async Task BeginTransaction()

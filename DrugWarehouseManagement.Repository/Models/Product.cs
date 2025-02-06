@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using DrugWarehouseManagement.Common.Enums;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DrugWarehouseManagement.Repository.Models
@@ -13,7 +14,7 @@ namespace DrugWarehouseManagement.Repository.Models
         public string Type { get; set; } = null!;
         public string MadeFrom { get; set; } = null!;
         public int ProviderId { get; set; }
-
+        public ProductStatus Status { get; set; } = ProductStatus.Active;
         public virtual Provider Provider { get; set; } = null!;
         public virtual List<InboundDetails> InboundDetails { get; set; } = null!;
         public virtual List<OutboundDetails> OutboundDetails { get; set; } = null!;
