@@ -20,42 +20,43 @@ namespace DrugWarehouseManagement.Service.Services
             _unitOfWork = unitOfWork;
         }
 
-        private async Task<string> GenerateOutboundCodeAsync()
-        {
-            // Define a prefix for the code, such as "OUTB" (Outbound)
-            var prefix = "OUTB";
-            var random = new Random();
-            string newOutboundCode = string.Empty;
-            bool isUnique = false;
+        //private async Task<string> GenerateOutboundCodeAsync()
+        //{
+        //    // Define a prefix for the code, such as "OUTB" (Outbound)
+        //    var prefix = "OUTB";
+        //    var random = new Random();
+        //    string newOutboundCode = string.Empty;
+        //    bool isUnique = false;
 
-            while (!isUnique)
-            {
-                // Generate a random 4-digit number
-                var randomNumber = random.Next(1000, 10000);
+        //    while (!isUnique)
+        //    {
+        //        // Generate a random 4-digit number
+        //        var randomNumber = random.Next(1000, 10000);
 
-                // Combine the prefix and the random number to create the OutboundCode
-                newOutboundCode = $"{prefix}-{randomNumber}";
+        //        // Combine the prefix and the random number to create the OutboundCode
+        //        newOutboundCode = $"{prefix}-{randomNumber}";
 
-                // Check if the generated code already exists in the database
-                var existingOutbound = await _unitOfWork.OutboundRepository
-                    .GetAll()
-                    .FirstOrDefaultAsync(o => o.OutboundCode == newOutboundCode);
+        //        // Check if the generated code already exists in the database
+        //        var existingOutbound = await _unitOfWork.OutboundRepository
+        //            .GetAll()
+        //            .FirstOrDefaultAsync(o => o.OutboundCode == newOutboundCode);
 
-                if (existingOutbound == null)
-                {
-                    // Code is unique
-                    isUnique = true;
-                }
-            }
-            return newOutboundCode;
-        }
+        //        if (existingOutbound == null)
+        //        {
+        //            // Code is unique
+        //            isUnique = true;
+        //        }
+        //    }
+        //    return newOutboundCode;
+        //}
+
         public async Task<BaseResponse> CreateOutbound(Guid accountId, CreateOutboundRequest request)
         {
             var response = new BaseResponse();
 
 
             // Sinh outbound code
-            var generatedOutboundCode = await GenerateOutboundCodeAsync();
+            var generatedOutboundCode = $"OUTB-{DateTimeOffset.Now.ToUnixTimeMilliseconds()}";
 
             // Map request sang Outbound entity
             var outbound = request.Adapt<Outbound>();
