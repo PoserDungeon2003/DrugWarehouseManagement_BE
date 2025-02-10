@@ -17,7 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DrugWarehouseManagement.Common\DrugWarehouseManagement.Common.csproj" />
     <ProjectReference Include="..\DrugWarehouseManagement.Service\DrugWarehouseManagement.Service.csproj" />
   </ItemGroup>
 
