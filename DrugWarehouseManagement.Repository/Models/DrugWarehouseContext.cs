@@ -1,9 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DrugWarehouseManagement.Repository.Models
 {
@@ -31,7 +26,7 @@ namespace DrugWarehouseManagement.Repository.Models
                 .Property(e => e.PhoneNumber)
                 .IsRequired()
                 .HasMaxLength(15);
-                
+
                 entity.Property(e => e.AccountSettings)
                 .HasColumnType("jsonb");
 
@@ -48,7 +43,7 @@ namespace DrugWarehouseManagement.Repository.Models
                 .IsDescending()
                 .IsUnique();
             });
-            
+
             modelBuilder.Entity<Outbound>(entity =>
             {
                 entity.HasIndex(e => e.OutboundCode, "IX_Outbounds_OutboundCode")
@@ -81,11 +76,11 @@ namespace DrugWarehouseManagement.Repository.Models
 
         }
 
-        
+
         public DbSet<Inbound> Inbounds { get; set; }
         public DbSet<Outbound> Outbounds { get; set; }
         public DbSet<InboundDetails> InboundDetails { get; set; }
-        public DbSet<OutboundDetails> OutboundDetails { get; set; }  
+        public DbSet<OutboundDetails> OutboundDetails { get; set; }
         public DbSet<Provider> Providers { get; set; }
         public DbSet<Account> Accounts { get; set; }
         public DbSet<Role> Roles { get; set; }

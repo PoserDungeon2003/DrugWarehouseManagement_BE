@@ -1,6 +1,5 @@
 using DrugWarehouseManagement.API.Middleware;
 using DrugWarehouseManagement.API.Middlewares;
-using Microsoft.EntityFrameworkCore;
 
 namespace DrugWarehouseManagement.API
 {

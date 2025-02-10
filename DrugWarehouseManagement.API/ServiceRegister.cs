@@ -55,15 +55,14 @@ namespace DrugWarehouseManagement.API
             services.AddScoped<ITwoFactorAuthenticatorWrapper, TwoFactorAuthenticatorWrapper>();
             services.AddScoped<IPasswordHasher<Account>, PasswordHasher<Account>>();
             services.AddScoped<IPasswordHelper, PasswordHelper>();
-
             services.AddScoped<IAccountRepository, AccountRepository>();
             services.AddScoped<IAccountService, AccountService>();
-
             services.AddScoped<IEmailService, EmailService>();
-
+            services.AddScoped<IOutboundService, OutboundService>();
             services.AddScoped<IAuditLogsRepository, AuditLogsRepository>();
             services.AddScoped<IAuditLogsService, AuditLogsService>();
-
+            services.AddScoped<IProductService, ProductService>();
+            services.AddScoped<IWarehouseService, WarehouseService>();
         }
 
         public static IServiceCollection AddAuthorizeService(this IServiceCollection services, IConfiguration configuration)
@@ -123,16 +122,23 @@ namespace DrugWarehouseManagement.API
                 .NewConfig()
                 .Map(dest => dest.Status, src => src.Status.ToString())
                 .Map(dest => dest.RoleName, src => src.Role.RoleName);
-
+            TypeAdapterConfig<UpdateWarehouseRequest, Warehouse>
+               .NewConfig()
+               .IgnoreNullValues(true);
             TypeAdapterConfig<UpdateAccountRequest, Account>
                 .NewConfig()
                 .IgnoreNullValues(true);
-
+            TypeAdapterConfig<UpdateOutboundRequest, Outbound>
+                .NewConfig()
+                .IgnoreNullValues(true);
+            TypeAdapterConfig<UpdateProductRequest, Product>
+                .NewConfig()
+                .IgnoreNullValues(true);
             TypeAdapterConfig<AuditLogs, ViewAuditLogs>
                 .NewConfig()
                 .Map(dest => dest.UserName, src => src.Account.UserName)
                 .Map(dest => dest.FullName, src => src.Account.FullName);
-                //.Map(dest => dest.Date, src => src.Date.ToDateTimeUtc());
+            //.Map(dest => dest.Date, src => src.Date.ToDateTimeUtc());
         }
 
         private static void AddEnum(IServiceCollection services)

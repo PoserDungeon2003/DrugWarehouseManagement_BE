@@ -1,9 +1,4 @@
 ﻿using DrugWarehouseManagement.Repository.Interface;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DrugWarehouseManagement.Repository
 {
@@ -14,6 +9,12 @@ namespace DrugWarehouseManagement.Repository
         Task CommitTransaction();
         Task RollbackTransaction();
         IAccountRepository AccountRepository { get; }
+        IWarehouseRepository WarehouseRepository { get; }
+        IOutboundRepository OutboundRepository { get; }
+        IOutboundDetailsRepository OutboundDetailsRepository { get; }
+        IProductRepository ProductRepository { get; }
+        ILotRepository LotRepository { get; }
         IAuditLogsRepository AuditLogsRepository { get; }
+        IProviderRepository ProviderRepository { get; }
     }
 }

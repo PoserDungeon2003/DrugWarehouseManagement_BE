@@ -1,10 +1,8 @@
-﻿using DrugWarehouseManagement.Repository.Models;
-using DrugWarehouseManagement.Service.DTO.Request;
+﻿using DrugWarehouseManagement.Service.DTO.Request;
 using DrugWarehouseManagement.Service.DTO.Response;
 using DrugWarehouseManagement.Service.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Identity.Client;
 using System.ComponentModel.DataAnnotations;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -62,7 +60,7 @@ namespace DrugWarehouseManagement.API.Controllers
 
         [HttpGet("activeAccount")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> ActiveAccount([FromQuery] [Required] Guid accountId)
+        public async Task<IActionResult> ActiveAccount([FromQuery][Required] Guid accountId)
         {
             try
             {
@@ -81,7 +79,7 @@ namespace DrugWarehouseManagement.API.Controllers
 
         [HttpGet("deactiveAccount")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> DeactiveAccount([FromQuery] [Required] Guid accountId)
+        public async Task<IActionResult> DeactiveAccount([FromQuery][Required] Guid accountId)
         {
             try
             {
@@ -100,7 +98,7 @@ namespace DrugWarehouseManagement.API.Controllers
 
         [HttpDelete("deleteAccount")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> DeleteAccount([FromQuery] [Required] Guid accountId)
+        public async Task<IActionResult> DeleteAccount([FromQuery][Required] Guid accountId)
         {
             try
             {
@@ -119,7 +117,7 @@ namespace DrugWarehouseManagement.API.Controllers
 
         [HttpPost("resetPassword")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> ResetPassword([FromQuery] [Required] Guid accountId)
+        public async Task<IActionResult> ResetPassword([FromQuery][Required] Guid accountId)
         {
             try
             {

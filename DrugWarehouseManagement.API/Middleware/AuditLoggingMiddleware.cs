@@ -1,7 +1,5 @@
-﻿using DrugWarehouseManagement.Repository.Models;
-using DrugWarehouseManagement.Repository;
-using DrugWarehouseManagement.Service.Interface;
-using Microsoft.Extensions.DependencyInjection;
+﻿using DrugWarehouseManagement.Repository;
+using DrugWarehouseManagement.Repository.Models;
 using NodaTime;
 using System.Security.Claims;
 

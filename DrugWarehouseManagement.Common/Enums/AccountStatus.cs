@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace DrugWarehouseManagement.Common.Enums
+﻿namespace DrugWarehouseManagement.Common.Enums
 {
     public enum AccountStatus
     {
@@ -42,13 +36,12 @@ namespace DrugWarehouseManagement.Common.Enums
         Rejected = 3,           // Item was rejected after inspection
         Accepted = 4,           // Item was returned after being received
     }
-    public enum OutboundDetailStatus
+    public enum WarehouseStatus
     {
-        Pending = 1,
-        Picked = 2,
-        Rejected = 3,           // Item was rejected after inspection
-
+        Active = 1,
+        Inactive = 2,
     }
+
     public enum OutboundStatus
     {
         Pending = 1,           // Stock-in/stock-out request is pending
@@ -60,7 +53,6 @@ namespace DrugWarehouseManagement.Common.Enums
         RejectedFromCustomer = 7,          // Stock-out request was returned
         PartiallyAccepted = 8,
         Packed = 9,
-
     }
     public enum InboundStatus
     {
