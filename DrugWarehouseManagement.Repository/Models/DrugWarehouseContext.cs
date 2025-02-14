@@ -74,6 +74,11 @@ namespace DrugWarehouseManagement.Repository.Models
                     .IsUnique();
             });
 
+            modelBuilder.Entity<InboundDetails>(entity => 
+            {
+                entity.HasIndex(e => e.LotNumber, "IX_InboundDetails_LotNumber");
+            });
+
         }
 
 

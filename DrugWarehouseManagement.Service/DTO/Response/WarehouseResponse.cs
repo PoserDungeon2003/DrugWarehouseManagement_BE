@@ -1,4 +1,4 @@
-﻿namespace DrugWarehouseManagement.Service.DTO.Request
+﻿namespace DrugWarehouseManagement.Service.DTO.Response
 {
     public class WarehouseResponse
     {

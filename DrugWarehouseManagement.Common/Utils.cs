@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Security.Cryptography;
+using System.Text;
 
 namespace DrugWarehouseManagement.Common
 {
@@ -51,6 +52,22 @@ namespace DrugWarehouseManagement.Common
             }
 
             return new string(passwordArray);
+        }
+
+        public static string Generate2FABackupCode(int length)
+        {
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            StringBuilder result = new StringBuilder();
+            byte[] byteBuffer = new byte[length];
+
+            RandomNumberGenerator.Fill(byteBuffer);
+
+            for (int i = 0; i < length; i++)
+            {
+                result.Append(chars[byteBuffer[i] % chars.Length]);
+            }
+
+            return result.ToString();
         }
     }
 }

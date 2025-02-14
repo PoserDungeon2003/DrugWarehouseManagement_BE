@@ -8,6 +8,7 @@ namespace DrugWarehouseManagement.Service.Request
         public string Username { get; set; } = null!;
         [Required]
         public string Password { get; set; } = null!;
-        public string? tOtpCode { get; set; }
+        public string? OTPCode { get; set; }
+        public string? BackupCode { get; set; }
     }
 }

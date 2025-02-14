@@ -103,7 +103,7 @@ namespace DrugWarehouseManagement.UnitTest
         public async Task LoginWithUsername_TwoFactorCodeIncorrect_ThrowsException()
         {
             // Arrange
-            var request = new AccountLoginRequest { Username = "testuser", Password = "password", tOtpCode = "123456" };
+            var request = new AccountLoginRequest { Username = "testuser", Password = "password", OTPCode = "123456" };
             var account = new Account
             {
                 Status = AccountStatus.Active,
@@ -126,7 +126,7 @@ namespace DrugWarehouseManagement.UnitTest
         public async Task LoginWithUsername_TwoFactorCodeUsed_ThrowsException()
         {
             // Arrange
-            var request = new AccountLoginRequest { Username = "testuser", Password = "password", tOtpCode = "123456" };
+            var request = new AccountLoginRequest { Username = "testuser", Password = "password", OTPCode = "123456" };
             var account = new Account
             {
                 Status = AccountStatus.Active,
@@ -766,6 +766,65 @@ namespace DrugWarehouseManagement.UnitTest
             Assert.Equal("Password changed successfully", response.Message);
             _unitOfWorkMock.Verify(u => u.SaveChangesAsync(), Times.Once);
             Assert.Equal("newHashedPassword", account.PasswordHash);
+        }
+
+        [Fact]
+        public async Task ConfirmSetupTwoFactorAuthenticator_AccountNotFound_ThrowsException()
+        {
+            // Arrange
+            var accountId = Guid.NewGuid();
+            var request = new ConfirmSetupTwoFactorAuthenticatorRequest { OTPCode = "123456" };
+            _unitOfWorkMock.Setup(u => u.AccountRepository.GetByIdAsync(accountId)).ReturnsAsync((Account)null);
+
+            // Act & Assert
+            await Assert.ThrowsAsync<Exception>(() => _accountService.ConfirmSetupTwoFactorAuthenticator(accountId, request));
+        }
+
+        [Fact]
+        public async Task ConfirmSetupTwoFactorAuthenticator_TwoFactorCodeIncorrect_ThrowsException()
+        {
+            // Arrange
+            var accountId = Guid.NewGuid();
+            var request = new ConfirmSetupTwoFactorAuthenticatorRequest { OTPCode = "123456" };
+            var account = new Account { tOTPSecretKey = new byte[16] };
+            _unitOfWorkMock.Setup(u => u.AccountRepository.GetByIdAsync(accountId)).ReturnsAsync(account);
+            _twoFactorAuthenticatorMock.Setup(t => t.ValidateTwoFactorPIN(account.tOTPSecretKey, request.OTPCode.Trim(), 0)).Returns(false);
+
+            // Act & Assert
+            await Assert.ThrowsAsync<Exception>(() => _accountService.ConfirmSetupTwoFactorAuthenticator(accountId, request));
+        }
+
+        [Fact]
+        public async Task ConfirmSetupTwoFactorAuthenticator_TwoFactorCodeAlreadyUsed_ThrowsException()
+        {
+            // Arrange
+            var accountId = Guid.NewGuid();
+            var request = new ConfirmSetupTwoFactorAuthenticatorRequest { OTPCode = "123456" };
+            var account = new Account { tOTPSecretKey = new byte[16], OTPCode = Utils.Base64Encode("123456") };
+            _unitOfWorkMock.Setup(u => u.AccountRepository.GetByIdAsync(accountId)).ReturnsAsync(account);
+            _twoFactorAuthenticatorMock.Setup(t => t.ValidateTwoFactorPIN(account.tOTPSecretKey, request.OTPCode.Trim(), 0)).Returns(true);
+
+            // Act & Assert
+            await Assert.ThrowsAsync<Exception>(() => _accountService.ConfirmSetupTwoFactorAuthenticator(accountId, request));
+        }
+
+        [Fact]
+        public async Task ConfirmSetupTwoFactorAuthenticator_SuccessfulConfirmation_ReturnsBaseResponse()
+        {
+            // Arrange
+            var accountId = Guid.NewGuid();
+            var request = new ConfirmSetupTwoFactorAuthenticatorRequest { OTPCode = "123456" };
+            var account = new Account { tOTPSecretKey = new byte[16] };
+            _unitOfWorkMock.Setup(u => u.AccountRepository.GetByIdAsync(accountId)).ReturnsAsync(account);
+            _twoFactorAuthenticatorMock.Setup(t => t.ValidateTwoFactorPIN(account.tOTPSecretKey, request.OTPCode.Trim(), 0)).Returns(true);
+
+            // Act
+            var result = await _accountService.ConfirmSetupTwoFactorAuthenticator(accountId, request);
+
+            // Assert
+            Assert.Equal(200, result.Code);
+            Assert.Equal("Two factor authenticator confirmed successfully", result.Message);
+            _unitOfWorkMock.Verify(u => u.SaveChangesAsync(), Times.Once);
         }
 
         private string HashPassword(Account account, string password)
