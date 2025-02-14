@@ -19,5 +19,6 @@ namespace DrugWarehouseManagement.Service.Interface
         public Task<BaseResponse> DeactiveAccount(Guid accountId);
         public Task<BaseResponse> ActiveAccount(Guid accountId);
         public Task<BaseResponse> ChangePassword(Guid accountId, ChangePasswordRequest request);
+        public Task<BaseResponse> ConfirmSetupTwoFactorAuthenticator(Guid accountId, ConfirmSetupTwoFactorAuthenticatorRequest request);
     }
 }

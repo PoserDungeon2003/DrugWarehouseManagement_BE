@@ -19,6 +19,7 @@ namespace DrugWarehouseManagement.Repository.Models
         public int? RoleId { get; set; }
         [ProtectedPersonalData]
         public string? OTPCode { get; set; }
+        public string? BackupCode { get; set; }
         public AccountSettings? AccountSettings { get; set; }
 
         public virtual Role Role { get; set; } = null!;

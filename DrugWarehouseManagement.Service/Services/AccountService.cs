@@ -1,4 +1,5 @@
-﻿using DrugWarehouseManagement.Common;
+﻿using Azure.Core;
+using DrugWarehouseManagement.Common;
 using DrugWarehouseManagement.Common.Enums;
 using DrugWarehouseManagement.Repository;
 using DrugWarehouseManagement.Repository.Models;
@@ -27,7 +28,13 @@ namespace DrugWarehouseManagement.Service.Services
         private readonly IEmailService _emailService;
         private readonly IPasswordHelper _passwordHelper;
 
-        public AccountService(IUnitOfWork unitOfWork, ITokenHandlerService tokenHandler, ILogger<IAccountService> logger, IEmailService emailService, ITwoFactorAuthenticatorWrapper twoFactorAuthenticatorWrapper, IPasswordHelper passwordHelper)
+        public AccountService(
+            IUnitOfWork unitOfWork,
+            ITokenHandlerService tokenHandler,
+            ILogger<IAccountService> logger,
+            IEmailService emailService,
+            ITwoFactorAuthenticatorWrapper twoFactorAuthenticatorWrapper, 
+            IPasswordHelper passwordHelper)
         {
             _unitOfWork = unitOfWork;
             _passwordHelper = passwordHelper;
@@ -79,6 +86,38 @@ namespace DrugWarehouseManagement.Service.Services
             {
                 Code = 200,
                 Message = "Password changed successfully"
+            };
+        }
+
+        public async Task<BaseResponse> ConfirmSetupTwoFactorAuthenticator(Guid accountId, ConfirmSetupTwoFactorAuthenticatorRequest request)
+        {
+            var account = await _unitOfWork.AccountRepository.GetByIdAsync(accountId);
+
+            if (account == null)
+            {
+                throw new Exception("Account not found");
+            }
+
+            var verifyCode = VerifyTwoFactorCode(account.tOTPSecretKey, request.OTPCode.Trim());
+
+            if (!verifyCode)
+            {
+                throw new Exception("Two factor code is incorrect");
+            }
+
+            if (account.OTPCode != null && request.OTPCode == Utils.Base64Decode(account.OTPCode))
+            {
+                throw new Exception("Two factor code is already used");
+            }
+
+            account.OTPCode = Utils.Base64Encode(request.OTPCode.Trim());
+            account.TwoFactorEnabled = true;
+
+            await _unitOfWork.SaveChangesAsync();
+            return new BaseResponse
+            {
+                Code = 200,
+                Message = "Two factor authenticator confirmed successfully"
             };
         }
 
@@ -203,25 +242,68 @@ namespace DrugWarehouseManagement.Service.Services
 
             if (account.TwoFactorEnabled)
             {
-                if (request.tOtpCode == null)
+                if (request.OTPCode == null)
                 {
                     throw new Exception("Two factor code is required");
                 }
 
-                var verify = _twoFactorAuthenticator.ValidateTwoFactorPIN(account.tOTPSecretKey, request.tOtpCode.Trim(), 0);
+                var verify = VerifyTwoFactorCode(account.tOTPSecretKey, request.OTPCode.Trim());
 
                 if (!verify)
                 {
                     throw new Exception("Two factor code is incorrect");
                 }
 
-                if (!String.IsNullOrEmpty(account.OTPCode) && request.tOtpCode == Utils.Base64Decode(account.OTPCode))
+                if (!String.IsNullOrEmpty(account.OTPCode) && request.OTPCode == Utils.Base64Decode(account.OTPCode))
                 {
                     throw new Exception("Two factor code is already used");
                 }
 
-                account.OTPCode = Utils.Base64Encode(request.tOtpCode.Trim());
+                account.OTPCode = Utils.Base64Encode(request.OTPCode.Trim());
             }
+
+            //if (account.TwoFactorEnabled) // Đang suy nghĩ luồng backup code
+            //{
+            //    if (request.OTPCode == null || request.BackupCode == null)
+            //    {
+            //        throw new Exception("Two factor code or backup code is required");
+            //    }
+
+            //    bool isTwoFactorCodeValid = false;
+            //    PasswordVerificationResult isBackupCodeValid = PasswordVerificationResult.Failed;
+
+            //    if (request.OTPCode != null)
+            //    {
+            //        isTwoFactorCodeValid = VerifyTwoFactorCode(account.tOTPSecretKey, request.OTPCode.Trim());
+
+            //        if (!isTwoFactorCodeValid)
+            //        {
+            //            throw new Exception("Two factor code is incorrect");
+            //        }
+
+            //        if (!String.IsNullOrEmpty(account.OTPCode) && request.OTPCode == Utils.Base64Decode(account.OTPCode))
+            //        {
+            //            throw new Exception("Two factor code is already used");
+            //        }
+
+            //        account.OTPCode = Utils.Base64Encode(request.OTPCode.Trim());
+            //    }
+
+            //    if (request.BackupCode != null)
+            //    {
+            //        isBackupCodeValid = _passwordHelper.VerifyHashedValue(account.BackupCode, request.BackupCode);
+
+            //        if (isBackupCodeValid == PasswordVerificationResult.Failed)
+            //        {
+            //            throw new Exception("Backup code is incorrect or already used");
+            //        }
+            //    }
+
+            //    if (!isTwoFactorCodeValid)
+            //    {
+            //        throw new Exception("Invalid two factor code or backup code");
+            //    }
+            //}
 
             var verifyPassword = _passwordHelper.VerifyHashedPassword(account, account.PasswordHash, request.Password);
 
@@ -293,8 +375,10 @@ namespace DrugWarehouseManagement.Service.Services
             RandomNumberGenerator.Fill(secretKey);
 
             var setupCode = _twoFactorAuthenticator.GenerateSetupCode("DrugWarehouse", email, secretKey);
+            var backupCode = Utils.Generate2FABackupCode(16);
 
             account.tOTPSecretKey = secretKey;
+            account.BackupCode = _passwordHelper.HashValue(backupCode);
 
             await _unitOfWork.AccountRepository.UpdateAsync(account);
 
@@ -303,7 +387,8 @@ namespace DrugWarehouseManagement.Service.Services
             return new SetupTwoFactorAuthenticatorResponse
             {
                 ImageUrlQrCode = setupCode.QrCodeSetupImageUrl,
-                ManualEntryKey = setupCode.ManualEntryKey
+                ManualEntryKey = setupCode.ManualEntryKey,
+                BackupCode = backupCode
             };
         }
 
@@ -355,6 +440,11 @@ namespace DrugWarehouseManagement.Service.Services
                 Code = 200,
                 Message = "Account settings updated successfully"
             };
+        }
+
+        private bool VerifyTwoFactorCode(byte[] secretKey, string code)
+        {
+            return _twoFactorAuthenticator.ValidateTwoFactorPIN(secretKey, code.Trim(), 0);
         }
 
     }

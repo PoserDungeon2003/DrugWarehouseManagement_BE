@@ -138,5 +138,26 @@ namespace DrugWarehouseManagement.API.Controllers
                 });
             }
         }
+
+        [HttpPost("confirmSetup2FA")]
+        [Authorize]
+        public async Task<IActionResult> ConfirmSetupTwoFactorAuthenticator([FromBody] ConfirmSetupTwoFactorAuthenticatorRequest request)
+        {
+            var accountId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            try
+            {
+                var response = await _accountService.ConfirmSetupTwoFactorAuthenticator(Guid.Parse(accountId), request);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    Code = 400,
+                    Message = ex.Message,
+                });
+            }
+        }
+
     }
 }
