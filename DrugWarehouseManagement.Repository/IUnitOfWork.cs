@@ -10,6 +10,8 @@ namespace DrugWarehouseManagement.Repository
         Task RollbackTransaction();
         IAccountRepository AccountRepository { get; }
         IWarehouseRepository WarehouseRepository { get; }
+        IInboundRepository InboundRepository { get; }
+        IInboundDetailRepository InboundDetailRepository { get; }
         IOutboundRepository OutboundRepository { get; }
         IOutboundDetailsRepository OutboundDetailsRepository { get; }
         IProductRepository ProductRepository { get; }

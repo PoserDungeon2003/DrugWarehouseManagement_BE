@@ -14,8 +14,6 @@ namespace DrugWarehouseManagement.Service.DTO.Request
         public string? TrackingNumber { get; set; }
         public string? Note { get; set; }
 
-
-
         [Required]
         public List<CreateOutboundDetailRequest> OutboundDetails { get; set; } = new();
     }
