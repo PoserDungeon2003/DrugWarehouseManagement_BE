@@ -98,6 +98,11 @@ namespace DrugWarehouseManagement.Service.Services
                 throw new Exception("Account not found");
             }
 
+            if (account.TwoFactorAuthenticatorStatus == TwoFactorAuthenticatorSetupStatus.Completed)
+            {
+               throw new Exception("Two factor authenticator is already confirmed");
+            }
+
             var verifyCode = VerifyTwoFactorCode(account.tOTPSecretKey, request.OTPCode.Trim());
 
             if (!verifyCode)
@@ -112,6 +117,7 @@ namespace DrugWarehouseManagement.Service.Services
 
             account.OTPCode = Utils.Base64Encode(request.OTPCode.Trim());
             account.TwoFactorEnabled = true;
+            account.TwoFactorAuthenticatorStatus = TwoFactorAuthenticatorSetupStatus.Completed;
 
             await _unitOfWork.SaveChangesAsync();
             return new BaseResponse
@@ -379,6 +385,7 @@ namespace DrugWarehouseManagement.Service.Services
 
             account.tOTPSecretKey = secretKey;
             account.BackupCode = _passwordHelper.HashValue(backupCode);
+            account.TwoFactorAuthenticatorStatus = TwoFactorAuthenticatorSetupStatus.Pending;
 
             await _unitOfWork.AccountRepository.UpdateAsync(account);
 

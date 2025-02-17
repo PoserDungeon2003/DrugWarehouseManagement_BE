@@ -14,6 +14,7 @@ namespace DrugWarehouseManagement.Repository.Models
         [Unicode(true)]
         public string FullName { get; set; } = null!;
         public AccountStatus Status { get; set; } = AccountStatus.Active;
+        public TwoFactorAuthenticatorSetupStatus TwoFactorAuthenticatorStatus { get; set; } = TwoFactorAuthenticatorSetupStatus.NotStarted;
         [ProtectedPersonalData]
         public byte[]? tOTPSecretKey { get; set; }
         public int? RoleId { get; set; }
