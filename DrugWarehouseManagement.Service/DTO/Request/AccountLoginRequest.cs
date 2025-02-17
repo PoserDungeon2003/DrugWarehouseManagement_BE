@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace DrugWarehouseManagement.Service.Request
+namespace DrugWarehouseManagement.Service.DTO.Request
 {
     public class AccountLoginRequest
     {

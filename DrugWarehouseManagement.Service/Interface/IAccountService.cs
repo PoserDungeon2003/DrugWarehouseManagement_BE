@@ -1,7 +1,6 @@
 ﻿using DrugWarehouseManagement.Service.DTO.Request;
 using DrugWarehouseManagement.Service.DTO.Response;
 using DrugWarehouseManagement.Service.Extenstions;
-using DrugWarehouseManagement.Service.Request;
 
 namespace DrugWarehouseManagement.Service.Interface
 {

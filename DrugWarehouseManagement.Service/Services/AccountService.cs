@@ -6,9 +6,7 @@ using DrugWarehouseManagement.Repository.Models;
 using DrugWarehouseManagement.Service.DTO.Request;
 using DrugWarehouseManagement.Service.DTO.Response;
 using DrugWarehouseManagement.Service.Extenstions;
-using DrugWarehouseManagement.Service.Helper.Interface;
 using DrugWarehouseManagement.Service.Interface;
-using DrugWarehouseManagement.Service.Request;
 using DrugWarehouseManagement.Service.Wrapper.Interface;
 using Mapster;
 using Microsoft.AspNetCore.Identity;
@@ -26,7 +24,7 @@ namespace DrugWarehouseManagement.Service.Services
         private readonly ITwoFactorAuthenticatorWrapper _twoFactorAuthenticator;
         private readonly ILogger<IAccountService> _logger;
         private readonly IEmailService _emailService;
-        private readonly IPasswordHelper _passwordHelper;
+        private readonly IPasswordWrapper _passwordHelper;
 
         public AccountService(
             IUnitOfWork unitOfWork,
@@ -34,7 +32,7 @@ namespace DrugWarehouseManagement.Service.Services
             ILogger<IAccountService> logger,
             IEmailService emailService,
             ITwoFactorAuthenticatorWrapper twoFactorAuthenticatorWrapper, 
-            IPasswordHelper passwordHelper)
+            IPasswordWrapper passwordHelper)
         {
             _unitOfWork = unitOfWork;
             _passwordHelper = passwordHelper;

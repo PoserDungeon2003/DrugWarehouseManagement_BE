@@ -4,9 +4,7 @@ using DrugWarehouseManagement.Repository;
 using DrugWarehouseManagement.Repository.Models;
 using DrugWarehouseManagement.Service.DTO.Request;
 using DrugWarehouseManagement.Service.DTO.Response;
-using DrugWarehouseManagement.Service.Helper.Interface;
 using DrugWarehouseManagement.Service.Interface;
-using DrugWarehouseManagement.Service.Request;
 using DrugWarehouseManagement.Service.Services;
 using DrugWarehouseManagement.Service.Wrapper.Interface;
 using Google.Authenticator;
@@ -26,14 +24,14 @@ namespace DrugWarehouseManagement.UnitTest
         private readonly Mock<ITwoFactorAuthenticatorWrapper> _twoFactorAuthenticatorMock;
         private readonly Mock<ILogger<IAccountService>> _loggerMock;
         private readonly Mock<IEmailService> _emailServiceMock;
-        private readonly Mock<IPasswordHelper> _passwordHelperMock;
+        private readonly Mock<IPasswordWrapper> _passwordHelperMock;
         private readonly IPasswordHasher<Account> _passwordHasher;
         private readonly AccountService _accountService;
 
         public AccountServiceTests()
         {
             _unitOfWorkMock = new Mock<IUnitOfWork>();
-            _passwordHelperMock = new Mock<IPasswordHelper>();
+            _passwordHelperMock = new Mock<IPasswordWrapper>();
             _tokenHandlerMock = new Mock<ITokenHandlerService>();
             _twoFactorAuthenticatorMock = new Mock<ITwoFactorAuthenticatorWrapper>();
             _loggerMock = new Mock<ILogger<IAccountService>>();

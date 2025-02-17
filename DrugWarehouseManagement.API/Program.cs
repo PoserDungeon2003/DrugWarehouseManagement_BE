@@ -1,5 +1,4 @@
 using DrugWarehouseManagement.API.Middleware;
-using DrugWarehouseManagement.API.Middlewares;
 
 namespace DrugWarehouseManagement.API
 {
