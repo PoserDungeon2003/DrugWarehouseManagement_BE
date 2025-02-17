@@ -4,8 +4,6 @@ using DrugWarehouseManagement.Repository.Models;
 using DrugWarehouseManagement.Repository.Repositories;
 using DrugWarehouseManagement.Service.DTO.Request;
 using DrugWarehouseManagement.Service.DTO.Response;
-using DrugWarehouseManagement.Service.Helper;
-using DrugWarehouseManagement.Service.Helper.Interface;
 using DrugWarehouseManagement.Service.Interface;
 using DrugWarehouseManagement.Service.Services;
 using DrugWarehouseManagement.Service.Wrapper;
@@ -54,7 +52,7 @@ namespace DrugWarehouseManagement.API
             services.AddScoped<ITokenHandlerService, TokenHandlerService>();
             services.AddScoped<ITwoFactorAuthenticatorWrapper, TwoFactorAuthenticatorWrapper>();
             services.AddScoped<IPasswordHasher<Account>, PasswordHasher<Account>>();
-            services.AddScoped<IPasswordHelper, PasswordHelper>();
+            services.AddScoped<IPasswordWrapper, PasswordWrapper>();
             services.AddScoped<IAccountRepository, AccountRepository>();
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<IEmailService, EmailService>();

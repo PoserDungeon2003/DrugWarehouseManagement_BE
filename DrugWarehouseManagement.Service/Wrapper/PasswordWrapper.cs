@@ -1,14 +1,14 @@
 ﻿using DrugWarehouseManagement.Repository.Models;
-using DrugWarehouseManagement.Service.Helper.Interface;
+using DrugWarehouseManagement.Service.Wrapper.Interface;
 using Microsoft.AspNetCore.Identity;
 
-namespace DrugWarehouseManagement.Service.Helper
+namespace DrugWarehouseManagement.Service.Wrapper
 {
-    public class PasswordHelper : IPasswordHelper
+    public class PasswordWrapper : IPasswordWrapper
     {
         private readonly IPasswordHasher<Account> _passwordHelper;
 
-        public PasswordHelper(IPasswordHasher<Account> passwordHelper)
+        public PasswordWrapper(IPasswordHasher<Account> passwordHelper)
         {
             _passwordHelper = passwordHelper;
         }

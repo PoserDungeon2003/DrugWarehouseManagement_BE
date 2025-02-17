@@ -1,6 +1,6 @@
 ﻿using DrugWarehouseManagement.Service.DTO.Response;
 
-namespace DrugWarehouseManagement.API.Middlewares
+namespace DrugWarehouseManagement.API.Middleware
 {
     public class GlobalExceptionMiddleware
     {

@@ -1,9 +1,9 @@
 ﻿using DrugWarehouseManagement.Repository.Models;
 using Microsoft.AspNetCore.Identity;
 
-namespace DrugWarehouseManagement.Service.Helper.Interface
+namespace DrugWarehouseManagement.Service.Wrapper.Interface
 {
-    public interface IPasswordHelper
+    public interface IPasswordWrapper
     {
         string HashPassword(Account account, string password);
         PasswordVerificationResult VerifyHashedPassword(Account account, string hashedPassword, string password);
