@@ -98,7 +98,11 @@
 
     }
 
-
-
+    public enum TwoFactorAuthenticatorSetupStatus
+    {
+        NotStarted = 1,
+        Pending = 2,
+        Completed = 3,
+    }
 
 }
