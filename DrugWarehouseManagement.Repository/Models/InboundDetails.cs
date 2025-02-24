@@ -19,10 +19,12 @@ namespace DrugWarehouseManagement.Repository.Models
         public decimal TotalPrice { get; set; }
         public int InboundId { get; set; }
         public int ProductId { get; set; }
+        public int WarehouseId { get; set; }
         public InboundDetailStatus Status { get; set; } = InboundDetailStatus.Pending;
 
         public virtual Inbound Inbounds { get; set; } = null!;
         public virtual Product Products { get; set; } = null!;
+        public virtual Warehouse Warehouse { get; set; } = null!;
 
     }
 }
