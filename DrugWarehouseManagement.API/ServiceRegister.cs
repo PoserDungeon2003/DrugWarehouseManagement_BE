@@ -50,6 +50,7 @@ namespace DrugWarehouseManagement.API
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<ITokenHandlerService, TokenHandlerService>();
+            services.AddScoped<IPasswordWrapper, PasswordWrapper>();
             services.AddScoped<ITwoFactorAuthenticatorWrapper, TwoFactorAuthenticatorWrapper>();
             services.AddScoped<IPasswordHasher<Account>, PasswordHasher<Account>>();
             services.AddScoped<IPasswordWrapper, PasswordWrapper>();
