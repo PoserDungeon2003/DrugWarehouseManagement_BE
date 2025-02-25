@@ -15,12 +15,10 @@ namespace DrugWarehouseManagement.Repository.Models
         public string TaxCode { get; set; } = null!;
         public string? Fax { get; set; }
         public string Email { get; set; } = null!;
-        public int NumberOfOrders { get; set; } = 0;
         public ProviderStatus Status { get; set; } = ProviderStatus.Active;
 
-        public virtual List<Outbound> Outbounds { get; set; } = null!;
+        public virtual List<Lot> Lots { get; set; } = null!; 
         public virtual List<Inbound> Inbounds { get; set; } = null!;
-        public virtual List<Product> Products { get; set; } = null!;
 
     }
 }

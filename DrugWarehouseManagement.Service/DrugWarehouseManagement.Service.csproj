@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="EPPlus" Version="7.6.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\DrugWarehouseManagement.Repository\DrugWarehouseManagement.Repository.csproj" />
   </ItemGroup>
 

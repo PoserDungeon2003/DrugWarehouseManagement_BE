@@ -20,6 +20,11 @@
         Other = 4,
     }
 
+    public enum CustomerStatus
+    {
+        Active = 1,
+        Inactive = 2,
+    }
     public enum SupplierStatus
     {
         Active = 1,           // Supplier is active and available for transactions

@@ -62,6 +62,8 @@ namespace DrugWarehouseManagement.API
             services.AddScoped<IAuditLogsService, AuditLogsService>();
             services.AddScoped<IProductService, ProductService>();
             services.AddScoped<IWarehouseService, WarehouseService>();
+            services.AddScoped<ICustomerService, CustomerService>();
+
         }
 
         public static IServiceCollection AddAuthorizeService(this IServiceCollection services, IConfiguration configuration)

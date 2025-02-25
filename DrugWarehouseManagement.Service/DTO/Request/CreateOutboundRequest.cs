@@ -7,7 +7,7 @@ namespace DrugWarehouseManagement.Service.DTO.Request
 
         [Required]
         public string CustomerName { get; set; } = null!;
-
+        public int CustomerId { get; set; }
         public string? Address { get; set; }
         public string? PhoneNumber { get; set; }
         public string? OutboundOrderCode { get; set; }

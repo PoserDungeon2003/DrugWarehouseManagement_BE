@@ -11,9 +11,8 @@ namespace DrugWarehouseManagement.Repository.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int OutboundId { get; set; }
         public string OutboundCode { get; set; } = null!;
-        public string CustomerName { get; set; } = null!;
-        public string? Address { get; set; }
-        public string? PhoneNumber { get; set; }
+        public int CustomerId { get; set; }
+
         public string? OutboundOrderCode { get; set; }
         public string? TrackingNumber { get; set; }
         public string? Note { get; set; }
@@ -21,6 +20,7 @@ namespace DrugWarehouseManagement.Repository.Models
         public OutboundStatus Status { get; set; } = OutboundStatus.Pending;
         public Guid AccountId { get; set; }
 
+        public virtual Customer Customer { get; set; } = null!;
         public virtual List<OutboundDetails> OutboundDetails { get; set; } = null!;
         public virtual Account Account { get; set; } = null!;
     }

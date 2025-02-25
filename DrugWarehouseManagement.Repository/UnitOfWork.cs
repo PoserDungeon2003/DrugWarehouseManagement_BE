@@ -15,6 +15,7 @@ namespace DrugWarehouseManagement.Repository
         public IProductRepository ProductRepository { get; private set; }
         public IProviderRepository ProviderRepository { get; private set; }
         public IWarehouseRepository WarehouseRepository { get; private set; }
+        public ICustomerRepository CustomerRepository { get; private set; }
         public UnitOfWork(DrugWarehouseContext context)
         {
             _context = context;
@@ -26,6 +27,7 @@ namespace DrugWarehouseManagement.Repository
             ProductRepository ??= new ProductRepository(_context);
             ProviderRepository ??= new ProviderRepository(_context);
             WarehouseRepository ??= new WarehouseRepository(_context);
+            CustomerRepository ??= new CustomerRepository(_context);
         }
 
         public async Task BeginTransaction()
