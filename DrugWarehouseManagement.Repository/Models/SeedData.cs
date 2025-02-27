@@ -145,11 +145,11 @@ namespace DrugWarehouseManagement.Repository.Models
 
             // Seed Warehouses
             modelBuilder.Entity<Warehouse>().HasData(
-                new Warehouse { WarehouseId = 1, WarehouseName = "Central Warehouse", Address = "123 Main St", Status = WarehouseStatus.Active },
-                new Warehouse { WarehouseId = 2, WarehouseName = "East Warehouse", Address = "456 East St", Status = WarehouseStatus.Inactive },
-                new Warehouse { WarehouseId = 3, WarehouseName = "West Warehouse", Address = "789 West St", Status = WarehouseStatus.Inactive },
-                new Warehouse { WarehouseId = 4, WarehouseName = "North Warehouse", Address = "321 North St", Status = WarehouseStatus.Active },
-                new Warehouse { WarehouseId = 5, WarehouseName = "South Warehouse", Address = "654 South St", Status = WarehouseStatus.Active }
+                new Warehouse { WarehouseId = 1, WarehouseCode="CW-1", WarehouseName = "Central Warehouse", Address = "123 Main St", Status = WarehouseStatus.Active },
+                new Warehouse { WarehouseId = 2, WarehouseCode="EW-1", WarehouseName = "East Warehouse", Address = "456 East St", Status = WarehouseStatus.Inactive },
+                new Warehouse { WarehouseId = 3, WarehouseCode="WW-1", WarehouseName = "West Warehouse", Address = "789 West St", Status = WarehouseStatus.Inactive },
+                new Warehouse { WarehouseId = 4, WarehouseCode="NW-1", WarehouseName = "North Warehouse", Address = "321 North St", Status = WarehouseStatus.Active },
+                new Warehouse { WarehouseId = 5, WarehouseCode="SW-1", WarehouseName = "South Warehouse", Address = "654 South St", Status = WarehouseStatus.Active }
             );
 
             // Seed Products
@@ -163,11 +163,11 @@ namespace DrugWarehouseManagement.Repository.Models
 
             // Seed Lots
             modelBuilder.Entity<Lot>().HasData(
-                new Lot { LotId = 1, LotNumber = "L001", Quantity = 100, TemporaryWarehouseId = 10, ExpiryDate = instantNow.Plus(Duration.FromDays(365)), WarehouseId = 1, ProductId = 1 },
-                new Lot { LotId = 2, LotNumber = "L002", Quantity = 200, TemporaryWarehouseId = 20, ExpiryDate = instantNow.Plus(Duration.FromDays(300)), WarehouseId = 2, ProductId = 2 },
-                new Lot { LotId = 3, LotNumber = "L003", Quantity = 150, TemporaryWarehouseId = 15, ExpiryDate = instantNow.Plus(Duration.FromDays(180)), WarehouseId = 3, ProductId = 3 },
-                new Lot { LotId = 4, LotNumber = "L004", Quantity = 250, TemporaryWarehouseId = 25, ExpiryDate = instantNow.Plus(Duration.FromDays(450)), WarehouseId = 4, ProductId = 4 },
-                new Lot { LotId = 5, LotNumber = "L005", Quantity = 300, TemporaryWarehouseId = 30, ExpiryDate = instantNow.Plus(Duration.FromDays(500)), WarehouseId = 5, ProductId = 5 }
+                new Lot { LotId = 1, LotNumber = "L001", Quantity = 100, ExpiryDate = instantNow.Plus(Duration.FromDays(365)), WarehouseId = 1, ProductId = 1 },
+                new Lot { LotId = 2, LotNumber = "L002", Quantity = 200, ExpiryDate = instantNow.Plus(Duration.FromDays(300)), WarehouseId = 2, ProductId = 2 },
+                new Lot { LotId = 3, LotNumber = "L003", Quantity = 150, ExpiryDate = instantNow.Plus(Duration.FromDays(180)), WarehouseId = 3, ProductId = 3 },
+                new Lot { LotId = 4, LotNumber = "L004", Quantity = 250, ExpiryDate = instantNow.Plus(Duration.FromDays(450)), WarehouseId = 4, ProductId = 4 },
+                new Lot { LotId = 5, LotNumber = "L005", Quantity = 300, ExpiryDate = instantNow.Plus(Duration.FromDays(500)), WarehouseId = 5, ProductId = 5 }
             );
 
             // Seed Outbounds referencing the same Account IDs as above
