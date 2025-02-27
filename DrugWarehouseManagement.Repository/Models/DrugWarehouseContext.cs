@@ -66,10 +66,6 @@ namespace DrugWarehouseManagement.Repository.Models
 
             modelBuilder.Entity<Lot>(entity =>
             {
-                entity.HasOne(l => l.Warehouse)
-                    .WithMany()
-                    .HasForeignKey(l => l.WarehouseId);
-
                 entity.HasOne(l => l.TemporaryWarehouse)
                     .WithMany()
                     .HasForeignKey(l => l.TemporaryWarehouseId);

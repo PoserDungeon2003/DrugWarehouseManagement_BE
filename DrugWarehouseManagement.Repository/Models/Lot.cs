@@ -17,9 +17,7 @@ namespace DrugWarehouseManagement.Repository.Models
         public int WarehouseId { get; set; } // Permanent Warehouse
         public int ProductId { get; set; }
 
-        [ForeignKey(nameof(WarehouseId))]
         public virtual Warehouse Warehouse { get; set; } = null!;
-        [ForeignKey(nameof(TemporaryWarehouseId))]
         public virtual Warehouse? TemporaryWarehouse { get; set; }
         public virtual Product Product { get; set; } = null!;
         public virtual ICollection<OutboundDetails> OutboundDetails { get; set; } = new List<OutboundDetails>(); //1-N
