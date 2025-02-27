@@ -6,8 +6,6 @@ namespace DrugWarehouseManagement.Repository.Models
     {
         [Key]
         public int RoleId { get; set; }
-
-        [Required]
         public string RoleName { get; set; } = null!;
 
         public virtual List<Account> Accounts { get; set; } = null!;

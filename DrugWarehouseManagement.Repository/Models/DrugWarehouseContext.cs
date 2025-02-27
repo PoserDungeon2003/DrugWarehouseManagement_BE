@@ -14,6 +14,8 @@ namespace DrugWarehouseManagement.Repository.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+
             var seedData = new SeedData(modelBuilder);
             seedData.Seed();
             //modelBuilder.Entity<Account>()
@@ -73,6 +75,10 @@ namespace DrugWarehouseManagement.Repository.Models
 
             modelBuilder.Entity<Lot>(entity =>
             {
+                entity.HasOne(l => l.TemporaryWarehouse)
+                    .WithMany()
+                    .HasForeignKey(l => l.TemporaryWarehouseId);
+
                 entity.HasIndex(e => e.LotNumber, "IX_Lots_LotNumber")
                     .IsUnique();
             });
@@ -86,6 +92,24 @@ namespace DrugWarehouseManagement.Repository.Models
             modelBuilder.Entity<InboundDetails>(entity => 
             {
                 entity.HasIndex(e => e.LotNumber, "IX_InboundDetails_LotNumber");
+            });
+
+            modelBuilder.Entity<TransferOrder>(entity =>
+            {
+                entity.HasIndex(e => e.TransferOrderCode, "IX_TransferOrder_TransferOrderCode")
+                    .IsUnique();
+            });
+
+            modelBuilder.Entity<Provider>(entity =>
+            {
+                entity.HasIndex(e => e.PhoneNumber, "IX_Provider_PhoneNumber")
+                    .IsUnique();
+            });
+
+            modelBuilder.Entity<Warehouse>(entity =>
+            {
+                entity.HasIndex(e => e.WarehouseCode, "IX_Warehouse_WarehouseCode")
+                    .IsUnique();
             });
 
         }
@@ -103,5 +127,7 @@ namespace DrugWarehouseManagement.Repository.Models
         public DbSet<Warehouse> Warehouses { get; set; }
         public DbSet<AuditLogs> AuditLogs { get; set; }
         public DbSet<Lot> Lots { get; set; }
+        public DbSet<TransferOrder> TransferOrders { get; set; }
+        public DbSet<TransferOrderDetail> TransferOrderDetails { get; set; }
     }
 }
