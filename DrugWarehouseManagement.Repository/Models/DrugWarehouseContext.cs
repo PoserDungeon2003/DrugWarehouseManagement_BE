@@ -79,6 +79,24 @@ namespace DrugWarehouseManagement.Repository.Models
                 entity.HasIndex(e => e.LotNumber, "IX_InboundDetails_LotNumber");
             });
 
+            modelBuilder.Entity<TransferOrder>(entity =>
+            {
+                entity.HasIndex(e => e.TransferOrderCode, "IX_TransferOrder_TransferOrderCode")
+                    .IsUnique();
+            });
+
+            modelBuilder.Entity<Provider>(entity =>
+            {
+                entity.HasIndex(e => e.PhoneNumber, "IX_Provider_PhoneNumber")
+                    .IsUnique();
+            });
+
+            modelBuilder.Entity<Warehouse>(entity =>
+            {
+                entity.HasIndex(e => e.WarehouseCode, "IX_Warehouse_WarehouseCode")
+                    .IsUnique();
+            });
+
         }
 
 
@@ -93,5 +111,7 @@ namespace DrugWarehouseManagement.Repository.Models
         public DbSet<Warehouse> Warehouses { get; set; }
         public DbSet<AuditLogs> AuditLogs { get; set; }
         public DbSet<Lot> Lots { get; set; }
+        public DbSet<TransferOrder> TransferOrders { get; set; }
+        public DbSet<TransferOrderDetail> TransferOrderDetails { get; set; }
     }
 }
