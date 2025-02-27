@@ -145,11 +145,11 @@ namespace DrugWarehouseManagement.Repository.Models
 
             // Seed Warehouses
             modelBuilder.Entity<Warehouse>().HasData(
-                new Warehouse { WarehouseId = 1, WarehouseName = "Central Warehouse", Address = "123 Main St", Status = WarehouseStatus.Active },
-                new Warehouse { WarehouseId = 2, WarehouseName = "East Warehouse", Address = "456 East St", Status = WarehouseStatus.Inactive },
-                new Warehouse { WarehouseId = 3, WarehouseName = "West Warehouse", Address = "789 West St", Status = WarehouseStatus.Inactive },
-                new Warehouse { WarehouseId = 4, WarehouseName = "North Warehouse", Address = "321 North St", Status = WarehouseStatus.Active },
-                new Warehouse { WarehouseId = 5, WarehouseName = "South Warehouse", Address = "654 South St", Status = WarehouseStatus.Active }
+                new Warehouse { WarehouseId = 1, WarehouseCode="CW-1", WarehouseName = "Central Warehouse", Address = "123 Main St", Status = WarehouseStatus.Active },
+                new Warehouse { WarehouseId = 2, WarehouseCode="EW-1", WarehouseName = "East Warehouse", Address = "456 East St", Status = WarehouseStatus.Inactive },
+                new Warehouse { WarehouseId = 3, WarehouseCode="WW-1", WarehouseName = "West Warehouse", Address = "789 West St", Status = WarehouseStatus.Inactive },
+                new Warehouse { WarehouseId = 4, WarehouseCode="NW-1", WarehouseName = "North Warehouse", Address = "321 North St", Status = WarehouseStatus.Active },
+                new Warehouse { WarehouseId = 5, WarehouseCode="SW-1", WarehouseName = "South Warehouse", Address = "654 South St", Status = WarehouseStatus.Active }
             );
 
             // Seed Products
@@ -163,11 +163,11 @@ namespace DrugWarehouseManagement.Repository.Models
 
             // Seed Lots
             modelBuilder.Entity<Lot>().HasData(
-                new Lot { LotId = 1, LotNumber = "L001", Quantity = 100, TemporaryWarehouse = 10, ExpiryDate = instantNow.Plus(Duration.FromDays(365)), WarehouseId = 1, ProductId = 1 },
-                new Lot { LotId = 2, LotNumber = "L002", Quantity = 200, TemporaryWarehouse = 20, ExpiryDate = instantNow.Plus(Duration.FromDays(300)), WarehouseId = 2, ProductId = 2 },
-                new Lot { LotId = 3, LotNumber = "L003", Quantity = 150, TemporaryWarehouse = 15, ExpiryDate = instantNow.Plus(Duration.FromDays(180)), WarehouseId = 3, ProductId = 3 },
-                new Lot { LotId = 4, LotNumber = "L004", Quantity = 250, TemporaryWarehouse = 25, ExpiryDate = instantNow.Plus(Duration.FromDays(450)), WarehouseId = 4, ProductId = 4 },
-                new Lot { LotId = 5, LotNumber = "L005", Quantity = 300, TemporaryWarehouse = 30, ExpiryDate = instantNow.Plus(Duration.FromDays(500)), WarehouseId = 5, ProductId = 5 }
+                new Lot { LotId = 1, LotNumber = "L001", Quantity = 100, ExpiryDate = instantNow.Plus(Duration.FromDays(365)), WarehouseId = 1, ProductId = 1 },
+                new Lot { LotId = 2, LotNumber = "L002", Quantity = 200, ExpiryDate = instantNow.Plus(Duration.FromDays(300)), WarehouseId = 2, ProductId = 2 },
+                new Lot { LotId = 3, LotNumber = "L003", Quantity = 150, ExpiryDate = instantNow.Plus(Duration.FromDays(180)), WarehouseId = 3, ProductId = 3 },
+                new Lot { LotId = 4, LotNumber = "L004", Quantity = 250, ExpiryDate = instantNow.Plus(Duration.FromDays(450)), WarehouseId = 4, ProductId = 4 },
+                new Lot { LotId = 5, LotNumber = "L005", Quantity = 300, ExpiryDate = instantNow.Plus(Duration.FromDays(500)), WarehouseId = 5, ProductId = 5 }
             );
 
             // Seed Outbounds referencing the same Account IDs as above
@@ -307,11 +307,38 @@ namespace DrugWarehouseManagement.Repository.Models
                     LotId = 5
                 }
             );
+
+            modelBuilder.Entity<TransferOrder>().HasData(
+                new TransferOrder { TransferOrderId = 1, TransferOrderCode = "TO-1001", TransferOrderStatus = TransferOrderStatus.Pending, FromWareHouseId = 1, ToWareHouseId = 2 },
+                new TransferOrder { TransferOrderId = 2, TransferOrderCode = "TO-1002", TransferOrderStatus = TransferOrderStatus.Completed, FromWareHouseId = 2, ToWareHouseId = 3 },
+                new TransferOrder { TransferOrderId = 3, TransferOrderCode = "TO-1003", TransferOrderStatus = TransferOrderStatus.Pending, FromWareHouseId = 3, ToWareHouseId = 4 },
+                new TransferOrder { TransferOrderId = 4, TransferOrderCode = "TO-1004", TransferOrderStatus = TransferOrderStatus.InProgress, FromWareHouseId = 4, ToWareHouseId = 5 },
+                new TransferOrder { TransferOrderId = 5, TransferOrderCode = "TO-1005", TransferOrderStatus = TransferOrderStatus.Cancelled, FromWareHouseId = 5, ToWareHouseId = 1 },
+                new TransferOrder { TransferOrderId = 6, TransferOrderCode = "TO-1006", TransferOrderStatus = TransferOrderStatus.Completed, FromWareHouseId = 1, ToWareHouseId = 3 },
+                new TransferOrder { TransferOrderId = 7, TransferOrderCode = "TO-1007", TransferOrderStatus = TransferOrderStatus.Pending, FromWareHouseId = 2, ToWareHouseId = 4 },
+                new TransferOrder { TransferOrderId = 8, TransferOrderCode = "TO-1008", TransferOrderStatus = TransferOrderStatus.InProgress, FromWareHouseId = 3, ToWareHouseId = 5 },
+                new TransferOrder { TransferOrderId = 9, TransferOrderCode = "TO-1009", TransferOrderStatus = TransferOrderStatus.Completed, FromWareHouseId = 4, ToWareHouseId = 1 },
+                new TransferOrder { TransferOrderId = 10, TransferOrderCode = "TO-1010", TransferOrderStatus = TransferOrderStatus.Pending, FromWareHouseId = 5, ToWareHouseId = 2 }
+            );
+
+            modelBuilder.Entity<TransferOrderDetail>().HasData(
+                new TransferOrderDetail { TransferOrderDetailId = 1, Quantity = 10, ProductId = 1, LotId = 1, TransferOrderId = 1 },
+                new TransferOrderDetail { TransferOrderDetailId = 2, Quantity = 15, ProductId = 2, LotId = 2, TransferOrderId = 1 },
+                new TransferOrderDetail { TransferOrderDetailId = 3, Quantity = 5, ProductId = 3, LotId = 3, TransferOrderId = 2 },
+                new TransferOrderDetail { TransferOrderDetailId = 4, Quantity = 20, ProductId = 4, LotId = 4, TransferOrderId = 3 },
+                new TransferOrderDetail { TransferOrderDetailId = 5, Quantity = 12, ProductId = 5, LotId = 5, TransferOrderId = 3 },
+                new TransferOrderDetail { TransferOrderDetailId = 6, Quantity = 25, ProductId = 1, LotId = 5, TransferOrderId = 4 },
+                new TransferOrderDetail { TransferOrderDetailId = 7, Quantity = 30, ProductId = 2, LotId = 4, TransferOrderId = 5 },
+                new TransferOrderDetail { TransferOrderDetailId = 8, Quantity = 8, ProductId = 3, LotId = 3, TransferOrderId = 6 },
+                new TransferOrderDetail { TransferOrderDetailId = 9, Quantity = 14, ProductId = 4, LotId = 2, TransferOrderId = 7 },
+                new TransferOrderDetail { TransferOrderDetailId = 10, Quantity = 18, ProductId = 5, LotId = 1, TransferOrderId = 8 }
+            );
+
         }
 
         private string HashPassword(string password)
         {
-            return _passwordHasher.HashPassword("dummy", password);
+            return _passwordHasher.HashPassword(null, password);
         }
     }
 }
