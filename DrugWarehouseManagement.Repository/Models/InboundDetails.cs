@@ -12,14 +12,14 @@ namespace DrugWarehouseManagement.Repository.Models
         public int InboundDetailsId { get; set; }
         public string LotNumber { get; set; } = null!;
         public Instant? ManufacturingDate { get; set; }
-        public Instant ExpiryDate { get; set; }
+        public Instant? ExpiryDate { get; set; }
         public int Quantity { get; set; }
         public decimal UnitPrice { get; set; }
         public decimal TotalPrice { get; set; }
         public int InboundId { get; set; }
         public InboundDetailStatus Status { get; set; } = InboundDetailStatus.Pending;
 
-        public virtual Inbound Inbounds { get; set; } = null!;
+        public virtual Inbound Inbound { get; set; } = null!;
 
     }
 }

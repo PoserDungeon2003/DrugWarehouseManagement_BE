@@ -163,11 +163,11 @@ namespace DrugWarehouseManagement.Repository.Models
 
             // Seed Lots
             modelBuilder.Entity<Lot>().HasData(
-                new Lot { LotId = 1, LotNumber = "L001", Quantity = 100, TemporaryWarehouse = 10, ExpiryDate = instantNow.Plus(Duration.FromDays(365)), WarehouseId = 1, ProductId = 1 },
-                new Lot { LotId = 2, LotNumber = "L002", Quantity = 200, TemporaryWarehouse = 20, ExpiryDate = instantNow.Plus(Duration.FromDays(300)), WarehouseId = 2, ProductId = 2 },
-                new Lot { LotId = 3, LotNumber = "L003", Quantity = 150, TemporaryWarehouse = 15, ExpiryDate = instantNow.Plus(Duration.FromDays(180)), WarehouseId = 3, ProductId = 3 },
-                new Lot { LotId = 4, LotNumber = "L004", Quantity = 250, TemporaryWarehouse = 25, ExpiryDate = instantNow.Plus(Duration.FromDays(450)), WarehouseId = 4, ProductId = 4 },
-                new Lot { LotId = 5, LotNumber = "L005", Quantity = 300, TemporaryWarehouse = 30, ExpiryDate = instantNow.Plus(Duration.FromDays(500)), WarehouseId = 5, ProductId = 5 }
+                new Lot { LotId = 1, LotNumber = "L001", Quantity = 100, TemporaryWarehouseId = 10, ExpiryDate = instantNow.Plus(Duration.FromDays(365)), WarehouseId = 1, ProductId = 1 },
+                new Lot { LotId = 2, LotNumber = "L002", Quantity = 200, TemporaryWarehouseId = 20, ExpiryDate = instantNow.Plus(Duration.FromDays(300)), WarehouseId = 2, ProductId = 2 },
+                new Lot { LotId = 3, LotNumber = "L003", Quantity = 150, TemporaryWarehouseId = 15, ExpiryDate = instantNow.Plus(Duration.FromDays(180)), WarehouseId = 3, ProductId = 3 },
+                new Lot { LotId = 4, LotNumber = "L004", Quantity = 250, TemporaryWarehouseId = 25, ExpiryDate = instantNow.Plus(Duration.FromDays(450)), WarehouseId = 4, ProductId = 4 },
+                new Lot { LotId = 5, LotNumber = "L005", Quantity = 300, TemporaryWarehouseId = 30, ExpiryDate = instantNow.Plus(Duration.FromDays(500)), WarehouseId = 5, ProductId = 5 }
             );
 
             // Seed Outbounds referencing the same Account IDs as above
@@ -311,7 +311,7 @@ namespace DrugWarehouseManagement.Repository.Models
 
         private string HashPassword(string password)
         {
-            return _passwordHasher.HashPassword("dummy", password);
+            return _passwordHasher.HashPassword(null, password);
         }
     }
 }

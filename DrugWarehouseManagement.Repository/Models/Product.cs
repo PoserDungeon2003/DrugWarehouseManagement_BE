@@ -18,6 +18,6 @@ namespace DrugWarehouseManagement.Repository.Models
 
         public virtual Provider Provider { get; set; } = null!;
         public virtual List<OutboundDetails> OutboundDetails { get; set; } = null!;
-        public virtual List<Inbound> Inbounds { get; set; } = null!;
+        public virtual List<Inbound> Inbound { get; set; } = null!;
     }
 }
