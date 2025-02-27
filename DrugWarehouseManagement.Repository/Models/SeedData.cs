@@ -307,6 +307,33 @@ namespace DrugWarehouseManagement.Repository.Models
                     LotId = 5
                 }
             );
+
+            modelBuilder.Entity<TransferOrder>().HasData(
+                new TransferOrder { TransferOrderId = 1, TransferOrderCode = "TO-1001", TransferOrderStatus = TransferOrderStatus.Pending, FromWareHouseId = 1, ToWareHouseId = 2 },
+                new TransferOrder { TransferOrderId = 2, TransferOrderCode = "TO-1002", TransferOrderStatus = TransferOrderStatus.Completed, FromWareHouseId = 2, ToWareHouseId = 3 },
+                new TransferOrder { TransferOrderId = 3, TransferOrderCode = "TO-1003", TransferOrderStatus = TransferOrderStatus.Pending, FromWareHouseId = 3, ToWareHouseId = 4 },
+                new TransferOrder { TransferOrderId = 4, TransferOrderCode = "TO-1004", TransferOrderStatus = TransferOrderStatus.InProgress, FromWareHouseId = 4, ToWareHouseId = 5 },
+                new TransferOrder { TransferOrderId = 5, TransferOrderCode = "TO-1005", TransferOrderStatus = TransferOrderStatus.Cancelled, FromWareHouseId = 5, ToWareHouseId = 1 },
+                new TransferOrder { TransferOrderId = 6, TransferOrderCode = "TO-1006", TransferOrderStatus = TransferOrderStatus.Completed, FromWareHouseId = 1, ToWareHouseId = 3 },
+                new TransferOrder { TransferOrderId = 7, TransferOrderCode = "TO-1007", TransferOrderStatus = TransferOrderStatus.Pending, FromWareHouseId = 2, ToWareHouseId = 4 },
+                new TransferOrder { TransferOrderId = 8, TransferOrderCode = "TO-1008", TransferOrderStatus = TransferOrderStatus.InProgress, FromWareHouseId = 3, ToWareHouseId = 5 },
+                new TransferOrder { TransferOrderId = 9, TransferOrderCode = "TO-1009", TransferOrderStatus = TransferOrderStatus.Completed, FromWareHouseId = 4, ToWareHouseId = 1 },
+                new TransferOrder { TransferOrderId = 10, TransferOrderCode = "TO-1010", TransferOrderStatus = TransferOrderStatus.Pending, FromWareHouseId = 5, ToWareHouseId = 2 }
+            );
+
+            modelBuilder.Entity<TransferOrderDetail>().HasData(
+                new TransferOrderDetail { TransferOrderDetailId = 1, Quantity = 10, ProductId = 1, LotId = 1, TransferOrderId = 1 },
+                new TransferOrderDetail { TransferOrderDetailId = 2, Quantity = 15, ProductId = 2, LotId = 2, TransferOrderId = 1 },
+                new TransferOrderDetail { TransferOrderDetailId = 3, Quantity = 5, ProductId = 3, LotId = 3, TransferOrderId = 2 },
+                new TransferOrderDetail { TransferOrderDetailId = 4, Quantity = 20, ProductId = 4, LotId = 4, TransferOrderId = 3 },
+                new TransferOrderDetail { TransferOrderDetailId = 5, Quantity = 12, ProductId = 5, LotId = 5, TransferOrderId = 3 },
+                new TransferOrderDetail { TransferOrderDetailId = 6, Quantity = 25, ProductId = 1, LotId = 5, TransferOrderId = 4 },
+                new TransferOrderDetail { TransferOrderDetailId = 7, Quantity = 30, ProductId = 2, LotId = 4, TransferOrderId = 5 },
+                new TransferOrderDetail { TransferOrderDetailId = 8, Quantity = 8, ProductId = 3, LotId = 3, TransferOrderId = 6 },
+                new TransferOrderDetail { TransferOrderDetailId = 9, Quantity = 14, ProductId = 4, LotId = 2, TransferOrderId = 7 },
+                new TransferOrderDetail { TransferOrderDetailId = 10, Quantity = 18, ProductId = 5, LotId = 1, TransferOrderId = 8 }
+            );
+
         }
 
         private string HashPassword(string password)
