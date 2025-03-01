@@ -1,4 +1,4 @@
-﻿using DrugWarehouseManagement.Common.Enums;
+﻿using DrugWarehouseManagement.Common;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -25,5 +25,8 @@ namespace DrugWarehouseManagement.Repository.Models
 
         public virtual Role Role { get; set; } = null!;
         public virtual List<AuditLogs> AuditLogs { get; set; } = null!;
+        public virtual List<Inbound> Inbounds { get; set; } = null!;
+        public virtual List <Outbound> Outbounds { get; set; } = null!;
+        public virtual List<TransferOrder> TransferOrders { get; set; } = null!;
     }
 }

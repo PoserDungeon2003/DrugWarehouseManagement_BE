@@ -1,4 +1,4 @@
-﻿namespace DrugWarehouseManagement.Common.Enums
+﻿namespace DrugWarehouseManagement.Common
 {
     public enum AccountStatus
     {

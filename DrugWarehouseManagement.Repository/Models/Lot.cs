@@ -13,7 +13,8 @@ namespace DrugWarehouseManagement.Repository.Models
         public int Quantity { get; set; }
         public int? TemporaryWarehouseId { get; set; }
         //TODO: Add ExpiryDate
-        public Instant ExpiryDate { get; set; }
+        public DateOnly? ManufacturingDate { get; set; }
+        public DateOnly ExpiryDate { get; set; }
         public int WarehouseId { get; set; } // Permanent Warehouse
         public int ProviderId { get; set; }
         public int ProductId { get; set; }
@@ -23,6 +24,7 @@ namespace DrugWarehouseManagement.Repository.Models
         public virtual Warehouse? TemporaryWarehouse { get; set; }
         public virtual Product Product { get; set; } = null!;
         public virtual ICollection<OutboundDetails> OutboundDetails { get; set; } = new List<OutboundDetails>(); //1-N
+        public virtual List<TransferOrderDetail> TransferOrderDetails { get; set; } = null!;
 
     }
 }

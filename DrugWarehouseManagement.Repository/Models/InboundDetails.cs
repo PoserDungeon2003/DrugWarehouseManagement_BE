@@ -1,4 +1,4 @@
-﻿using DrugWarehouseManagement.Common.Enums;
+﻿using DrugWarehouseManagement.Common;
 using NodaTime;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -11,8 +11,8 @@ namespace DrugWarehouseManagement.Repository.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int InboundDetailsId { get; set; }
         public string LotNumber { get; set; } = null!;
-        public Instant? ManufacturingDate { get; set; }
-        public Instant? ExpiryDate { get; set; }
+        public DateOnly? ManufacturingDate { get; set; }
+        public DateOnly? ExpiryDate { get; set; }
         public int Quantity { get; set; }
         public decimal UnitPrice { get; set; }
         public decimal TotalPrice { get; set; }

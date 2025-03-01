@@ -13,6 +13,8 @@ namespace DrugWarehouseManagement.Repository.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int TransferOrderDetailId { get; set; }
+        public DateOnly ExpiryDate { get; set; }
+        public string UnitType { get; set; } = null!;
         public int Quantity { get; set; }
         public int ProductId { get; set; }
         public int LotId { get; set; }

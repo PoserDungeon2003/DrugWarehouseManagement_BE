@@ -1,4 +1,4 @@
-﻿using DrugWarehouseManagement.Common.Enums;
+﻿using DrugWarehouseManagement.Common;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -17,5 +17,6 @@ namespace DrugWarehouseManagement.Repository.Models
         
         public virtual List<OutboundDetails> OutboundDetails { get; set; } = null!;
         public virtual List<Inbound> Inbound { get; set; } = null!;
+        public virtual List<TransferOrderDetail> TransferOrderDetails { get; set; } = null!;
     }
 }
