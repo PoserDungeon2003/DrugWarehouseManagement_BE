@@ -1,4 +1,4 @@
-﻿using DrugWarehouseManagement.Common.Enums;
+﻿using DrugWarehouseManagement.Common;
 using NodaTime;
 
 namespace DrugWarehouseManagement.Service.DTO.Response

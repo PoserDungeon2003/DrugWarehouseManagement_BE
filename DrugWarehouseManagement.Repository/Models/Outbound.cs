@@ -1,4 +1,4 @@
-﻿using DrugWarehouseManagement.Common.Enums;
+﻿using DrugWarehouseManagement.Common;
 using NodaTime;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;

@@ -1,4 +1,4 @@
-﻿using DrugWarehouseManagement.Common.Enums;
+﻿using DrugWarehouseManagement.Common;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 

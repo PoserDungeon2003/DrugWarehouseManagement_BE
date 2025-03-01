@@ -1,4 +1,4 @@
-﻿using DrugWarehouseManagement.Common.Enums;
+﻿using DrugWarehouseManagement.Common;
 
 namespace DrugWarehouseManagement.Service.DTO.Request
 {

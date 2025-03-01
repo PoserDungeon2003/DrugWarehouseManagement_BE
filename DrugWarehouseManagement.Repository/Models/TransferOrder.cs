@@ -1,4 +1,4 @@
-﻿using DrugWarehouseManagement.Common.Enums;
+﻿using DrugWarehouseManagement.Common;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
