@@ -15,8 +15,10 @@ namespace DrugWarehouseManagement.Repository.Models
         //TODO: Add ExpiryDate
         public Instant ExpiryDate { get; set; }
         public int WarehouseId { get; set; } // Permanent Warehouse
+        public int ProviderId { get; set; }
         public int ProductId { get; set; }
 
+        public virtual Provider Provider { get; set; } = null!;
         public virtual Warehouse Warehouse { get; set; } = null!;
         public virtual Warehouse? TemporaryWarehouse { get; set; }
         public virtual Product Product { get; set; } = null!;

@@ -17,6 +17,7 @@ namespace DrugWarehouseManagement.Repository.Models
         public string Email { get; set; } = null!;
         public ProviderStatus Status { get; set; } = ProviderStatus.Active;
 
+        public virtual List<Lot> Lots { get; set; } = null!; 
         public virtual List<Inbound> Inbounds { get; set; } = null!;
         public virtual List<Product> Products { get; set; } = null!;
 

@@ -8,6 +8,7 @@ using DrugWarehouseManagement.Service.Interface;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 using NodaTime;
+using NodaTime.Calendars;
 using System.Net;
 
 namespace DrugWarehouseManagement.Service.Services
@@ -20,40 +21,42 @@ namespace DrugWarehouseManagement.Service.Services
             _unitOfWork = unitOfWork;
         }
 
-        //private async Task<string> GenerateOutboundCodeAsync()
-        //{
-        //    // Define a prefix for the code, such as "OUTB" (Outbound)
-        //    var prefix = "OUTB";
-        //    var random = new Random();
-        //    string newOutboundCode = string.Empty;
-        //    bool isUnique = false;
+        private async Task UpdateCustomerLoyaltyStatusAsync(int customerId)
+        {
+            // Đếm số đơn xuất không bị hủy của khách hàng
+            var count = await _unitOfWork.OutboundRepository
+                .GetAll()
+                .CountAsync(o => o.CustomerId == customerId && o.Status != OutboundStatus.Cancelled);
 
-        //    while (!isUnique)
-        //    {
-        //        // Generate a random 4-digit number
-        //        var randomNumber = random.Next(1000, 10000);
+            // Ví dụ: >= 5 đơn thì đánh dấu khách hàng thân thiết
+            if (count >= 5)
+            {
+                var customer = await _unitOfWork.CustomerRepository
+                    .GetAll()
+                    .FirstOrDefaultAsync(c => c.CustomerId == customerId);
 
-        //        // Combine the prefix and the random number to create the OutboundCode
-        //        newOutboundCode = $"{prefix}-{randomNumber}";
+                if (customer != null && !customer.IsLoyal)
+                {
+                    customer.IsLoyal = true;
+                    await _unitOfWork.CustomerRepository.UpdateAsync(customer);
+                    await _unitOfWork.SaveChangesAsync();
+                }
+            }
+        }
 
-        //        // Check if the generated code already exists in the database
-        //        var existingOutbound = await _unitOfWork.OutboundRepository
-        //            .GetAll()
-        //            .FirstOrDefaultAsync(o => o.OutboundCode == newOutboundCode);
 
-        //        if (existingOutbound == null)
-        //        {
-        //            // Code is unique
-        //            isUnique = true;
-        //        }
-        //    }
-        //    return newOutboundCode;
-        //}
 
         public async Task<BaseResponse> CreateOutbound(Guid accountId, CreateOutboundRequest request)
         {
             var response = new BaseResponse();
+            var customer = await _unitOfWork.CustomerRepository
+               .GetAll()
+               .FirstOrDefaultAsync(c => c.CustomerId == request.CustomerId);
 
+            if (customer == null)
+            {
+                throw new Exception("Khách hàng chưa tồn tại. Vui lòng tạo Customer trước khi xuất hàng.");
+            }
 
             // Sinh outbound code
             var generatedOutboundCode = $"OUTB-{DateTimeOffset.Now.ToUnixTimeMilliseconds()}";
@@ -120,13 +123,11 @@ namespace DrugWarehouseManagement.Service.Services
             }
             // Liên kết danh sách chi tiết vào navigation property của Outbound
             outbound.OutboundDetails = detailsList;
-
-            // Thêm Outbound vào context
             await _unitOfWork.OutboundRepository.CreateAsync(outbound);
 
             // Lưu các thay đổi cho cả Outbound, OutboundDetails và cập nhật Lot
             await _unitOfWork.SaveChangesAsync();
-
+            await UpdateCustomerLoyaltyStatusAsync(request.CustomerId);
             return new BaseResponse
             {
                 Code = (int)HttpStatusCode.OK,
@@ -144,7 +145,6 @@ namespace DrugWarehouseManagement.Service.Services
             {
                 var searchTerm = queryPaging.Search.Trim().ToLower();
 
-                // Try to parse the search term as an integer for OutboundId comparison.
                 if (int.TryParse(searchTerm, out int outboundId))
                 {
                     query = query.Where(o =>
@@ -182,7 +182,7 @@ namespace DrugWarehouseManagement.Service.Services
         public async Task<BaseResponse> UpdateOutbound(int outboundId, UpdateOutboundRequest request)
         {
             var outbound = await _unitOfWork.OutboundRepository
-                .GetAll()
+                .GetByWhere(o => o.OutboundId == outboundId)
                 .Include(o => o.OutboundDetails)
                 .FirstOrDefaultAsync(o => o.OutboundId == outboundId);
 
@@ -241,9 +241,6 @@ namespace DrugWarehouseManagement.Service.Services
             // Nếu không có giá trị cập nhật trạng thái, giữ nguyên trạng thái hiện tại của đơn xuất.
 
             // Cập nhật các trường khác
-            outbound.CustomerName = request.CustomerName;
-            outbound.Address = request.Address;
-            outbound.PhoneNumber = request.PhoneNumber;
             outbound.OutboundOrderCode = request.OutboundOrderCode;
             outbound.TrackingNumber = request.TrackingNumber;
             outbound.Note = request.Note;
@@ -257,7 +254,16 @@ namespace DrugWarehouseManagement.Service.Services
                 Message = "Outbound updated successfully"
             };
         }
-
+        public async Task<Outbound?> GetOutboundByIdWithDetailsAsync(int outboundId)
+        {
+            var outbound = await _unitOfWork.OutboundRepository
+                .GetByWhere(o => o.OutboundId == outboundId)
+                .Include(c => c.Customer)
+                .Include(o => o.OutboundDetails)
+                    .ThenInclude(d => d.Product)
+                .FirstOrDefaultAsync(o => o.OutboundId == outboundId);
+            return outbound;
+        }
     }
 }
 

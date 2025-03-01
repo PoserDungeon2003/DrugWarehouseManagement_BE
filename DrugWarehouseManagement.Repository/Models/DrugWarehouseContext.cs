@@ -45,7 +45,16 @@ namespace DrugWarehouseManagement.Repository.Models
                 .IsDescending()
                 .IsUnique();
             });
+            modelBuilder.Entity<Customer>(entity =>
+            {
+                entity.Property(e => e.PhoneNumber)
+                .HasMaxLength(15);
 
+                entity.HasIndex(e => e.PhoneNumber,"IX_Customers_PhoneNumber")
+                .IsUnique();
+                entity.HasIndex(e => e.Email, "IX_Customers_Email")
+                .IsUnique();
+            });
             modelBuilder.Entity<Outbound>(entity =>
             {
                 entity.HasIndex(e => e.OutboundCode, "IX_Outbounds_OutboundCode")
@@ -107,6 +116,7 @@ namespace DrugWarehouseManagement.Repository.Models
 
 
         public DbSet<Inbound> Inbounds { get; set; }
+        public DbSet<Customer> Customers { get; set; }  
         public DbSet<Outbound> Outbounds { get; set; }
         public DbSet<InboundDetails> InboundDetails { get; set; }
         public DbSet<OutboundDetails> OutboundDetails { get; set; }
