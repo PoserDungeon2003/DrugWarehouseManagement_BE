@@ -262,11 +262,11 @@ namespace DrugWarehouseManagement.Repository.Models
             );
             // 6. Seed Lots
             modelBuilder.Entity<Lot>().HasData(
-                new Lot { LotId = 1, LotNumber = "L001", Quantity = 100, ExpiryDate = instantNow.Plus(Duration.FromDays(365)), WarehouseId = 1, ProductId = 1, ProviderId = 1 },
-                new Lot { LotId = 2, LotNumber = "L002", Quantity = 200, ExpiryDate = instantNow.Plus(Duration.FromDays(300)), WarehouseId = 2, ProductId = 2, ProviderId = 2 },
-                new Lot { LotId = 3, LotNumber = "L003", Quantity = 150, ExpiryDate = instantNow.Plus(Duration.FromDays(180)), WarehouseId = 3, ProductId = 3, ProviderId = 3 },
-                new Lot { LotId = 4, LotNumber = "L004", Quantity = 250, ExpiryDate = instantNow.Plus(Duration.FromDays(450)), WarehouseId = 4, ProductId = 4, ProviderId = 4 },
-                new Lot { LotId = 5, LotNumber = "L005", Quantity = 300, ExpiryDate = instantNow.Plus(Duration.FromDays(500)), WarehouseId = 5, ProductId = 5, ProviderId = 5 }
+                new Lot { LotId = 1, LotNumber = "L001", Quantity = 100, ExpiryDate = new DateOnly(2026, 12, 31), WarehouseId = 1, ProductId = 1, ProviderId = 1 },
+                new Lot { LotId = 2, LotNumber = "L002", Quantity = 200, ExpiryDate = new DateOnly(2026, 12, 31), WarehouseId = 2, ProductId = 2, ProviderId = 2 },
+                new Lot { LotId = 3, LotNumber = "L003", Quantity = 150, ExpiryDate = new DateOnly(2026, 12, 31), WarehouseId = 3, ProductId = 3, ProviderId = 3 },
+                new Lot { LotId = 4, LotNumber = "L004", Quantity = 250, ExpiryDate = new DateOnly(2026, 12, 31), WarehouseId = 4, ProductId = 4, ProviderId = 4 },
+                new Lot { LotId = 5, LotNumber = "L005", Quantity = 300, ExpiryDate = new DateOnly(2026, 12, 31), WarehouseId = 5, ProductId = 5, ProviderId = 5 }
             );
 
             modelBuilder.Entity<Customer>().HasData(
@@ -347,7 +347,7 @@ namespace DrugWarehouseManagement.Repository.Models
                 {
                     OutboundDetailsId = 1,
                     LotNumber = "LOT-20240101",
-                    ExpiryDate = instantNow.Plus(Duration.FromDays(365)),
+                    ExpiryDate = new DateOnly(2026, 12, 31),
                     Quantity = 50,
                     UnitType = "Box",
                     UnitPrice = 12.5m,
@@ -360,7 +360,7 @@ namespace DrugWarehouseManagement.Repository.Models
                 {
                     OutboundDetailsId = 2,
                     LotNumber = "LOT-20240201",
-                    ExpiryDate = instantNow.Plus(Duration.FromDays(400)),
+                    ExpiryDate = new DateOnly(2026, 12, 31),
                     Quantity = 30,
                     UnitType = "Bottle",
                     UnitPrice = 20m,
@@ -373,7 +373,7 @@ namespace DrugWarehouseManagement.Repository.Models
                 {
                     OutboundDetailsId = 3,
                     LotNumber = "LOT-20240301",
-                    ExpiryDate = instantNow.Plus(Duration.FromDays(450)),
+                    ExpiryDate = new DateOnly(2026, 12, 31),
                     Quantity = 40,
                     UnitType = "Pack",
                     UnitPrice = 8m,
@@ -386,7 +386,7 @@ namespace DrugWarehouseManagement.Repository.Models
                 {
                     OutboundDetailsId = 4,
                     LotNumber = "LOT-20240401",
-                    ExpiryDate = instantNow.Plus(Duration.FromDays(500)),
+                    ExpiryDate = new DateOnly(2026, 12, 31),
                     Quantity = 20,
                     UnitType = "Vial",
                     UnitPrice = 50m,
@@ -399,7 +399,7 @@ namespace DrugWarehouseManagement.Repository.Models
                 {
                     OutboundDetailsId = 5,
                     LotNumber = "LOT-20240501",
-                    ExpiryDate = instantNow.Plus(Duration.FromDays(550)),
+                    ExpiryDate = new DateOnly(2026, 12, 31),
                     Quantity = 25,
                     UnitType = "Tube",
                     UnitPrice = 15m,
@@ -424,16 +424,16 @@ namespace DrugWarehouseManagement.Repository.Models
             );
 
             modelBuilder.Entity<TransferOrderDetail>().HasData(
-                new TransferOrderDetail { TransferOrderDetailId = 1, Quantity = 10, ProductId = 1, LotId = 1, TransferOrderId = 1 },
-                new TransferOrderDetail { TransferOrderDetailId = 2, Quantity = 15, ProductId = 2, LotId = 2, TransferOrderId = 1 },
-                new TransferOrderDetail { TransferOrderDetailId = 3, Quantity = 5, ProductId = 3, LotId = 3, TransferOrderId = 2 },
-                new TransferOrderDetail { TransferOrderDetailId = 4, Quantity = 20, ProductId = 4, LotId = 4, TransferOrderId = 3 },
-                new TransferOrderDetail { TransferOrderDetailId = 5, Quantity = 12, ProductId = 5, LotId = 5, TransferOrderId = 3 },
-                new TransferOrderDetail { TransferOrderDetailId = 6, Quantity = 25, ProductId = 1, LotId = 5, TransferOrderId = 4 },
-                new TransferOrderDetail { TransferOrderDetailId = 7, Quantity = 30, ProductId = 2, LotId = 4, TransferOrderId = 5 },
-                new TransferOrderDetail { TransferOrderDetailId = 8, Quantity = 8, ProductId = 3, LotId = 3, TransferOrderId = 6 },
-                new TransferOrderDetail { TransferOrderDetailId = 9, Quantity = 14, ProductId = 4, LotId = 2, TransferOrderId = 7 },
-                new TransferOrderDetail { TransferOrderDetailId = 10, Quantity = 18, ProductId = 5, LotId = 1, TransferOrderId = 8 }
+                new TransferOrderDetail { TransferOrderDetailId = 1, Quantity = 10, ProductId = 1, LotId = 1, TransferOrderId = 1, UnitType = "Hộp", ExpiryDate = new DateOnly(2026, 12, 31) },
+                new TransferOrderDetail { TransferOrderDetailId = 2, Quantity = 15, ProductId = 2, LotId = 2, TransferOrderId = 1, UnitType = "Hộp", ExpiryDate = new DateOnly(2026, 12, 31) },
+                new TransferOrderDetail { TransferOrderDetailId = 3, Quantity = 5, ProductId = 3, LotId = 3, TransferOrderId = 2, UnitType = "Hộp", ExpiryDate = new DateOnly(2026, 12, 31) },
+                new TransferOrderDetail { TransferOrderDetailId = 4, Quantity = 20, ProductId = 4, LotId = 4, TransferOrderId = 3, UnitType = "Hộp", ExpiryDate = new DateOnly(2026, 12, 31) },
+                new TransferOrderDetail { TransferOrderDetailId = 5, Quantity = 12, ProductId = 5, LotId = 5, TransferOrderId = 3, UnitType = "Hộp", ExpiryDate = new DateOnly(2026, 12, 31) },
+                new TransferOrderDetail { TransferOrderDetailId = 6, Quantity = 25, ProductId = 1, LotId = 5, TransferOrderId = 4, UnitType = "Hộp", ExpiryDate = new DateOnly(2026, 12, 31) },
+                new TransferOrderDetail { TransferOrderDetailId = 7, Quantity = 30, ProductId = 2, LotId = 4, TransferOrderId = 5, UnitType = "Hộp", ExpiryDate = new DateOnly(2026, 12, 31) },
+                new TransferOrderDetail { TransferOrderDetailId = 8, Quantity = 8, ProductId = 3, LotId = 3, TransferOrderId = 6, UnitType = "Hộp", ExpiryDate = new DateOnly(2026, 12, 31) },
+                new TransferOrderDetail { TransferOrderDetailId = 9, Quantity = 14, ProductId = 4, LotId = 2, TransferOrderId = 7, UnitType = "Hộp", ExpiryDate = new DateOnly(2026, 12, 31) },
+                new TransferOrderDetail { TransferOrderDetailId = 10, Quantity = 18, ProductId = 5, LotId = 1, TransferOrderId = 8, UnitType = "Hộp", ExpiryDate = new DateOnly(2026, 12, 31) }
             );
 
         }

@@ -77,7 +77,8 @@ namespace DrugWarehouseManagement.Repository.Models
             {
                 entity.HasOne(l => l.TemporaryWarehouse)
                     .WithMany()
-                    .HasForeignKey(l => l.TemporaryWarehouseId);
+                    .HasForeignKey(l => l.TemporaryWarehouseId)
+                    .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasIndex(e => e.LotNumber, "IX_Lots_LotNumber")
                     .IsUnique();
@@ -118,10 +119,12 @@ namespace DrugWarehouseManagement.Repository.Models
                     .IsUnique();
                 entity.HasOne(e => e.FromWareHouse)
                     .WithMany()
-                    .HasForeignKey(e => e.FromWareHouseId);
+                    .HasForeignKey(e => e.FromWareHouseId)
+                    .OnDelete(DeleteBehavior.Cascade);
                 entity.HasOne(e => e.ToWareHouse)
                     .WithMany()
-                    .HasForeignKey(e => e.ToWareHouseId);
+                    .HasForeignKey(e => e.ToWareHouseId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
         }

@@ -13,7 +13,8 @@ namespace DrugWarehouseManagement.Repository.Models
         public int Quantity { get; set; }
         public int? TemporaryWarehouseId { get; set; }
         //TODO: Add ExpiryDate
-        public Instant ExpiryDate { get; set; }
+        public DateOnly? ManufacturingDate { get; set; }
+        public DateOnly ExpiryDate { get; set; }
         public int WarehouseId { get; set; } // Permanent Warehouse
         public int ProviderId { get; set; }
         public int ProductId { get; set; }

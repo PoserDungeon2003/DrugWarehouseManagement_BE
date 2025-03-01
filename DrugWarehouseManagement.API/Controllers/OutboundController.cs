@@ -142,7 +142,7 @@ namespace DrugWarehouseManagement.API.Controllers
                     worksheet.Cells[currentRow, 1].Value = stt; // STT
                     worksheet.Cells[currentRow, 2].Value = detail.Product?.ProductName ?? "N/A";
                     worksheet.Cells[currentRow, 3].Value = detail.LotNumber;
-                    worksheet.Cells[currentRow, 4].Value = detail.ExpiryDate.ToDateTimeUtc().ToString("dd/MM/yyyy");
+                    worksheet.Cells[currentRow, 4].Value = detail.ExpiryDate.ToString("dd/MM/yyyy");
                     worksheet.Cells[currentRow, 5].Value = detail.UnitType;
                     worksheet.Cells[currentRow, 6].Value = detail.Quantity;
                     worksheet.Cells[currentRow, 7].Value = detail.UnitPrice;
