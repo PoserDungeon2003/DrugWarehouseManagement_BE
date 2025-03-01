@@ -18,11 +18,13 @@ namespace DrugWarehouseManagement.Repository.Models
         public TransferOrderStatus TransferOrderStatus { get; set; } = TransferOrderStatus.Pending;
         public int FromWareHouseId { get; set; }
         public int ToWareHouseId { get; set; }
+        public Guid AccountId { get; set; }
 
         [ForeignKey("FromWareHouseId")]
         public virtual Warehouse FromWareHouse { get; set; } = null!;
         [ForeignKey("ToWareHouseId")]
         public virtual Warehouse ToWareHouse { get; set; } = null!;
         public virtual List<TransferOrderDetail> TransferOrderDetails { get; set; } = null!;
+        public virtual Account Account { get; set; } = null!;
     }
 }

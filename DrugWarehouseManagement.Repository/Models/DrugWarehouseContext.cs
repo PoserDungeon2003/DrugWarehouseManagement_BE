@@ -112,6 +112,18 @@ namespace DrugWarehouseManagement.Repository.Models
                     .IsUnique();
             });
 
+            modelBuilder.Entity<TransferOrder>(entity =>
+            {
+                entity.HasIndex(e => e.TransferOrderCode)
+                    .IsUnique();
+                entity.HasOne(e => e.FromWareHouse)
+                    .WithMany()
+                    .HasForeignKey(e => e.FromWareHouseId);
+                entity.HasOne(e => e.ToWareHouse)
+                    .WithMany()
+                    .HasForeignKey(e => e.ToWareHouseId);
+            });
+
         }
 
 
