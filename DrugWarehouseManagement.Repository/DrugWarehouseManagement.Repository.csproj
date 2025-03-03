@@ -23,6 +23,7 @@
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.11" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.NodaTime" Version="8.0.11" />
     <PackageReference Include="Npgsql.Json.NET" Version="8.0.6" />
+    <PackageReference Include="QuestPDF" Version="2025.1.4" />
   </ItemGroup>
 
   <ItemGroup>

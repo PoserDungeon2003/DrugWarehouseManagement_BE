@@ -400,5 +400,6 @@ FodyWeavers.xsd
 *.sln.iml
 
 appsettings.Production.json
+appsettings.Docker.json
 Migrations/
 .env

@@ -110,7 +110,7 @@
         Completed = 3,
     }
 
-    public enum TransferOrderStatus
+    public enum LotTransferStatus
     {
         Pending = 1,
         InProgress = 2,
