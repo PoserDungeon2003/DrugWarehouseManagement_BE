@@ -13,8 +13,8 @@ namespace DrugWarehouseManagement.Repository.Models
         public string Resource { get; set; } = null!;
         public string Action { get; set; } = null!;
         public Dictionary<string, object> Payload { get; set; } = null!;
-        public Guid AccountId { get; set; }
+        public Guid? AccountId { get; set; }
 
-        public virtual Account Account { get; set; } = null!;
+        public virtual Account? Account { get; set; } = null!;
     }
 }

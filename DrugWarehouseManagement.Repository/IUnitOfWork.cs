@@ -8,6 +8,7 @@ namespace DrugWarehouseManagement.Repository
         Task BeginTransaction();
         Task CommitTransaction();
         Task RollbackTransaction();
+        ICustomerRepository CustomerRepository { get; }
         IAccountRepository AccountRepository { get; }
         IWarehouseRepository WarehouseRepository { get; }
         IInboundRepository InboundRepository { get; }
@@ -18,5 +19,7 @@ namespace DrugWarehouseManagement.Repository
         ILotRepository LotRepository { get; }
         IAuditLogsRepository AuditLogsRepository { get; }
         IProviderRepository ProviderRepository { get; }
+        ITransferOrderRepository TransferOrderRepository { get; }
+        ITransferOrderDetailRepository TransferOrderDetailsRepository { get; }
     }
 }

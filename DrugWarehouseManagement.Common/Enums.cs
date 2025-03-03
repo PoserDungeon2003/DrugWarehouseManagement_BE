@@ -1,4 +1,4 @@
-﻿namespace DrugWarehouseManagement.Common.Enums
+﻿namespace DrugWarehouseManagement.Common
 {
     public enum AccountStatus
     {
@@ -20,6 +20,11 @@
         Other = 4,
     }
 
+    public enum CustomerStatus
+    {
+        Active = 1,
+        Inactive = 2,
+    }
     public enum SupplierStatus
     {
         Active = 1,           // Supplier is active and available for transactions
@@ -103,6 +108,14 @@
         NotStarted = 1,
         Pending = 2,
         Completed = 3,
+    }
+
+    public enum TransferOrderStatus
+    {
+        Pending = 1,
+        InProgress = 2,
+        Completed = 3,
+        Cancelled = 4,
     }
 
 }

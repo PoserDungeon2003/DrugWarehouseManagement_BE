@@ -1,4 +1,4 @@
-﻿using DrugWarehouseManagement.Common.Enums;
+﻿using DrugWarehouseManagement.Common;
 using DrugWarehouseManagement.Repository;
 using DrugWarehouseManagement.Repository.Models;
 using DrugWarehouseManagement.Service.DTO.Request;
@@ -97,7 +97,6 @@ namespace DrugWarehouseManagement.Service.Services
             product.ProductCode = request.ProductCode;
             product.Type = request.Type;
             product.MadeFrom = request.MadeFrom;
-            product.ProviderId = request.ProviderId;
 
             await _unitOfWork.ProductRepository.UpdateAsync(product);
             await _unitOfWork.SaveChangesAsync();

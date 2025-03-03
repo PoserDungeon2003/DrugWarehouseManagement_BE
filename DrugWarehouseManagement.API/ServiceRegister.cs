@@ -50,6 +50,7 @@ namespace DrugWarehouseManagement.API
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<ITokenHandlerService, TokenHandlerService>();
+            services.AddScoped<IPasswordWrapper, PasswordWrapper>();
             services.AddScoped<ITwoFactorAuthenticatorWrapper, TwoFactorAuthenticatorWrapper>();
             services.AddScoped<IPasswordHasher<Account>, PasswordHasher<Account>>();
             services.AddScoped<IPasswordWrapper, PasswordWrapper>();
@@ -63,6 +64,8 @@ namespace DrugWarehouseManagement.API
             services.AddScoped<IAuditLogsService, AuditLogsService>();
             services.AddScoped<IProductService, ProductService>();
             services.AddScoped<IWarehouseService, WarehouseService>();
+            services.AddScoped<ICustomerService, CustomerService>();
+
         }
 
         public static IServiceCollection AddAuthorizeService(this IServiceCollection services, IConfiguration configuration)
