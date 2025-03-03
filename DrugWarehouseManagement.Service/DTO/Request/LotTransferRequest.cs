@@ -8,15 +8,15 @@ using System.Threading.Tasks;
 
 namespace DrugWarehouseManagement.Service.DTO.Request
 {
-    public class TransferOrderRequest
+    public class LotTransferRequest
     {
         public int FromWareHouseId { get; set; }
         public int ToWareHouseId { get; set; }  
         [Required]
-        public List<TransferOrderDetailRequest> TransferOrderDetails { get; set; } = null!;
+        public List<LotTransferDetailRequest> LotTransferDetails { get; set; } = null!;
     }
 
-    public class TransferOrderDetailRequest
+    public class LotTransferDetailRequest
     {
         public DateOnly ExpiryDate { get; set; }
         public string UnitType { get; set; } = null!;

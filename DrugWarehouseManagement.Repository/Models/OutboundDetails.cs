@@ -15,6 +15,7 @@ namespace DrugWarehouseManagement.Repository.Models
         public string UnitType { get; set; } = null!;
         public decimal UnitPrice { get; set; }
         public decimal TotalPrice { get; set; }
+        public float Discount { get; set; }
         public int ProductId { get; set; }
         public int OutboundId { get; set; }
         public int LotId { get; set; }

@@ -17,6 +17,6 @@ namespace DrugWarehouseManagement.Repository.Models
         
         public virtual List<OutboundDetails> OutboundDetails { get; set; } = null!;
         public virtual List<Inbound> Inbound { get; set; } = null!;
-        public virtual List<TransferOrderDetail> TransferOrderDetails { get; set; } = null!;
+        public virtual List<LotTransferDetail> LotTransferDetails { get; set; } = null!;
     }
 }

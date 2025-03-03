@@ -18,23 +18,23 @@ using System.Threading.Tasks;
 
 namespace DrugWarehouseManagement.Service.Services
 {
-    public class TransferOrderService : ITransferOrderService
+    public class LotTransferService : ILotTransferService
     {
         private readonly IUnitOfWork _unitOfWork;
 
-        public TransferOrderService(
+        public LotTransferService(
             IUnitOfWork unitOfWork
             )
         {
             _unitOfWork = unitOfWork;
         }
 
-        public Task<BaseResponse> ApproveTransferOrder(Guid accountId, int transferOrderId)
+        public Task<BaseResponse> ApproveLotTransfer(Guid accountId, int lotTransferId)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<BaseResponse> CreateTransferOrder(Guid accountId, TransferOrderRequest request)
+        public async Task<BaseResponse> CreateLotTransfer(Guid accountId, LotTransferRequest request)
         {
             var account = await _unitOfWork.AccountRepository.GetByIdAsync(accountId);
             if (account == null)
@@ -52,7 +52,7 @@ namespace DrugWarehouseManagement.Service.Services
 
             // TODO: Thêm luồng approve từ thủ kho, duyệt xong mới tính số lượng
 
-            foreach (var detail in request.TransferOrderDetails)
+            foreach (var detail in request.LotTransferDetails)
             {
                 var lot = await _unitOfWork.LotRepository.GetByIdAsync(detail.LotId);
 
@@ -118,22 +118,22 @@ namespace DrugWarehouseManagement.Service.Services
                 await _unitOfWork.LotRepository.CreateAsync(newLot);
             }
 
-            var transferOrder = request.Adapt<TransferOrder>();
-            transferOrder.AccountId = accountId;
-            transferOrder.TransferOrderCode = $"TO-{DateTime.Now:yyMMddHHmmss}";
+            var lotTransfer = request.Adapt<LotTransfer>();
+            lotTransfer.AccountId = accountId;
+            lotTransfer.LotTransferCode = $"TO-{DateTime.Now:yyMMddHHmmss}";
 
-            await _unitOfWork.TransferOrderRepository.CreateAsync(transferOrder);
+            await _unitOfWork.LotTransferRepository.CreateAsync(lotTransfer);
             await _unitOfWork.SaveChangesAsync();
 
             return new BaseResponse
             {
                 Code = (int)HttpStatusCode.OK,
                 Message = "Create transfer order successfully",
-                Result = transferOrder.Adapt<CreateTransferOrderResponse>(),  
+                Result = lotTransfer.Adapt<CreateLotTransferResponse>(),  
             };
         }
 
-        public Task<byte[]> ExportTransferOrder(Guid accountId, int transferOrderId)
+        public Task<byte[]> ExportLotTransfer(Guid accountId, int lotTransferId)
         {
             Settings.License = LicenseType.Community;
 

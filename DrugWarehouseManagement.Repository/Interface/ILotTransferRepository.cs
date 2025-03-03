@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DrugWarehouseManagement.Repository.Interface
 {
-    public interface ITransferOrderDetailRepository : IGenericRepository<TransferOrderDetail>
+    public interface ILotTransferRepository : IGenericRepository<LotTransfer>
     {
     }
 }

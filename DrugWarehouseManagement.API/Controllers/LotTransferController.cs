@@ -11,24 +11,24 @@ namespace DrugWarehouseManagement.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class TransferOrderController : ControllerBase
+    public class LotTransferController : ControllerBase
     {
-        private readonly ITransferOrderService _transferOrderService;
+        private readonly ILotTransferService _lotTransferService;
 
-        public TransferOrderController(ITransferOrderService transferOrderService)
+        public LotTransferController(ILotTransferService lotTransferService)
         {
-            _transferOrderService = transferOrderService;
+            _lotTransferService = lotTransferService;
         }
 
         [HttpPost]
         [Authorize]
-        public async Task<IActionResult> CreateTransferOrder([FromBody] TransferOrderRequest request)
+        public async Task<IActionResult> CreateLotTransfer([FromBody] LotTransferRequest request)
         {
             var accountId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             try
             {
-                var response = await _transferOrderService.CreateTransferOrder(Guid.Parse(accountId), request);
+                var response = await _lotTransferService.CreateLotTransfer(Guid.Parse(accountId), request);
                 return Ok(response);
             }
             catch (Exception ex)
@@ -43,13 +43,13 @@ namespace DrugWarehouseManagement.API.Controllers
 
         [HttpGet("export/{id}")]
         [Authorize]
-        public async Task<IActionResult> ExportTransferOrder([FromRoute] int id)
+        public async Task<IActionResult> ExportLotTransfer([FromRoute] int id)
         {
             var accountId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             try
             {
-                var response = await _transferOrderService.ExportTransferOrder(Guid.Parse(accountId), id);
+                var response = await _lotTransferService.ExportLotTransfer(Guid.Parse(accountId), id);
                 return File(response, "application/pdf", "PhieuChuyenKho.pdf");
             }
             catch (Exception ex)
