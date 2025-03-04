@@ -82,8 +82,8 @@ namespace DrugWarehouseManagement.Repository.Models
                     .HasForeignKey(l => l.TemporaryWarehouseId)
                     .OnDelete(DeleteBehavior.Cascade);
 
-                entity.HasIndex(e => e.LotNumber, "IX_Lots_LotNumber")
-                    .IsUnique();
+                entity.HasIndex(e => e.LotNumber, "IX_Lots_LotNumber");
+                    //.IsUnique();
             });
 
             modelBuilder.Entity<Product>(entity =>
