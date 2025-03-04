@@ -1,4 +1,5 @@
-﻿using DrugWarehouseManagement.Repository;
+﻿using Azure.Core;
+using DrugWarehouseManagement.Repository;
 using DrugWarehouseManagement.Repository.Models;
 using DrugWarehouseManagement.Service.DTO.Request;
 using DrugWarehouseManagement.Service.DTO.Response;
@@ -29,8 +30,29 @@ namespace DrugWarehouseManagement.Service.Services
             _unitOfWork = unitOfWork;
         }
 
-        public Task<BaseResponse> ApproveLotTransfer(Guid accountId, int lotTransferId)
+        public async Task<BaseResponse> ApproveLotTransfer(Guid accountId, string lotTransferCode)
         {
+            var account = await _unitOfWork.AccountRepository.GetByIdAsync(accountId);
+            if (account == null)
+            {
+                throw new Exception("Account not found");
+            }
+
+            var lotTransfer = await _unitOfWork.LotTransferRepository
+                                .GetByWhere(lt => lt.LotTransferCode.Equals(lotTransferCode))
+                                .FirstOrDefaultAsync();
+
+            if (lotTransfer == null)
+            {
+                throw new Exception("Lot transfer not found");
+            }
+
+            lotTransfer.LotTransferStatus = Common.LotTransferStatus.InProgress;
+
+            foreach (var detail in lotTransfer.LotTransferDetails)
+            {
+
+            }
             throw new NotImplementedException();
         }
 
@@ -50,16 +72,33 @@ namespace DrugWarehouseManagement.Service.Services
                 throw new Exception("Warehouse not found");
             }
 
-            // TODO: Thêm luồng approve từ thủ kho, duyệt xong mới tính số lượng
-
-            foreach (var detail in request.LotTransferDetails)
+            if (fromWarehouse.Status == Common.WarehouseStatus.Inactive || toWarehouse.Status == Common.WarehouseStatus.Inactive)
             {
-                var lot = await _unitOfWork.LotRepository.GetByIdAsync(detail.LotId);
+                throw new Exception("Warehouse is inactive");
+            }
+
+            var groupedDetails = request.LotTransferDetails
+                .GroupBy(l => new { l.LotNumber, l.ExpiryDate, l.ProductId })
+                .Select(l => new LotTransferDetailRequest
+                {
+                    LotNumber = l.Key.LotNumber,
+                    ExpiryDate = l.Key.ExpiryDate,
+                    ProductId = l.Key.ProductId,
+                    Quantity = l.Sum(d => d.Quantity),
+                    UnitType = l.First().UnitType,
+                }).ToList();
+
+            foreach (var detail in groupedDetails)
+            {
+                var lot = await _unitOfWork.LotRepository
+                            .GetByWhere(l => l.LotNumber.Equals(detail.LotNumber) && l.ExpiryDate == detail.ExpiryDate && l.WarehouseId == request.FromWareHouseId)
+                            .FirstOrDefaultAsync();
 
                 if (lot == null)
                 {
                     throw new Exception("Lot not found");
                 }
+                detail.LotId = lot.LotId;
 
                 var product = await _unitOfWork.ProductRepository.GetByIdAsync(detail.ProductId);
 
@@ -83,23 +122,30 @@ namespace DrugWarehouseManagement.Service.Services
                     throw new Exception("Quantity not enough");
                 }
 
+                if (request.ToWareHouseId == lot.WarehouseId)
+                {
+                    throw new Exception("Transfer to the same warehouse");
+                }
+
                 lot.Quantity -= detail.Quantity;
                 await _unitOfWork.LotRepository.UpdateAsync(lot);
 
-                var searchLotByLotNumber = await _unitOfWork.LotRepository
-                                    .GetByWhere(l => l.LotNumber == detail.NewLotNumber)
+                // Kiểm tra có lô hàng nào trong kho tới trùng thông tin không
+                var lotInWarehouseTo = await _unitOfWork.LotRepository
+                                    .GetByWhere(l => l.LotNumber == detail.LotNumber && l.ExpiryDate == detail.ExpiryDate && l.WarehouseId == request.ToWareHouseId)
                                     .FirstOrDefaultAsync();
 
-                // Kiểm tra mã lô mới đã tồn tại chưa
-                if (searchLotByLotNumber.LotNumber == lot.LotNumber)
-                {
-                    throw new Exception("New lot number must be different from old lot number");
-                }
+                // Kiểm tra mã lô mới có expiry date đã tồn tại chưa
+                //if (searchLotByLotNumber.LotNumber == lot.LotNumber)
+                //{
+                //    throw new Exception("New lot number must be different from old lot number");
+                //}
 
-                if (searchLotByLotNumber != null)
+                // Nếu có thì cộng thêm số lượng
+                if (lotInWarehouseTo != null)
                 {
-                    searchLotByLotNumber.Quantity += detail.Quantity;
-                    await _unitOfWork.LotRepository.UpdateAsync(searchLotByLotNumber);
+                    lotInWarehouseTo.Quantity += detail.Quantity;
+                    await _unitOfWork.LotRepository.UpdateAsync(lotInWarehouseTo);
                     continue;
                 }
 
@@ -110,17 +156,17 @@ namespace DrugWarehouseManagement.Service.Services
                     Quantity = detail.Quantity,
                     ExpiryDate = lot.ExpiryDate,
                     WarehouseId = request.ToWareHouseId,
-                    LotNumber = detail.NewLotNumber,
+                    LotNumber = lot.LotNumber,
                     ManufacturingDate = lot.ManufacturingDate,
-                    ProviderId = lot.ProviderId,                 
+                    ProviderId = lot.ProviderId,
                 };
 
                 await _unitOfWork.LotRepository.CreateAsync(newLot);
             }
 
             var lotTransfer = request.Adapt<LotTransfer>();
+            lotTransfer.LotTransferDetails = groupedDetails.Adapt<List<LotTransferDetail>>();
             lotTransfer.AccountId = accountId;
-            lotTransfer.LotTransferCode = $"TO-{DateTime.Now:yyMMddHHmmss}";
 
             await _unitOfWork.LotTransferRepository.CreateAsync(lotTransfer);
             await _unitOfWork.SaveChangesAsync();

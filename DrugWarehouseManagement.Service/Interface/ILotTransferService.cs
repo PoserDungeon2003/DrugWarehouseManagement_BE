@@ -12,6 +12,6 @@ namespace DrugWarehouseManagement.Service.Interface
     {
         public Task<BaseResponse> CreateLotTransfer(Guid accountId, LotTransferRequest request);
         public Task<byte[]> ExportLotTransfer(Guid accountId, int lotTransferId);
-        public Task<BaseResponse> ApproveLotTransfer(Guid accountId, int lotTransferId);
+        public Task<BaseResponse> ApproveLotTransfer(Guid accountId, string lotTransferCode);
     }
 }
