@@ -276,7 +276,13 @@ namespace DrugWarehouseManagement.Repository.Models
                 new Lot { LotId = 2, LotNumber = "L002", Quantity = 200, ExpiryDate = new DateOnly(2026, 12, 31), WarehouseId = 2, ProductId = 2, ProviderId = 2 },
                 new Lot { LotId = 3, LotNumber = "L003", Quantity = 150, ExpiryDate = new DateOnly(2026, 12, 31), WarehouseId = 3, ProductId = 3, ProviderId = 3 },
                 new Lot { LotId = 4, LotNumber = "L004", Quantity = 250, ExpiryDate = new DateOnly(2026, 12, 31), WarehouseId = 4, ProductId = 4, ProviderId = 4 },
-                new Lot { LotId = 5, LotNumber = "L005", Quantity = 300, ExpiryDate = new DateOnly(2026, 12, 31), WarehouseId = 5, ProductId = 5, ProviderId = 5 }
+                new Lot { LotId = 5, LotNumber = "L005", Quantity = 300, ExpiryDate = new DateOnly(2026, 12, 31), WarehouseId = 5, ProductId = 5, ProviderId = 5 },
+                new Lot { LotId = 6, LotNumber = "L006", Quantity = 100, ExpiryDate = new DateOnly(2026, 12, 31), WarehouseId = 1, ProductId = 1, ProviderId = 1 },
+                new Lot { LotId = 7, LotNumber = "L007", Quantity = 100, ExpiryDate = new DateOnly(2026, 12, 31), WarehouseId = 1, ProductId = 1, ProviderId = 1 },
+                new Lot { LotId = 8, LotNumber = "L008", Quantity = 100, ExpiryDate = new DateOnly(2026, 12, 31), WarehouseId = 1, ProductId = 1, ProviderId = 1 },
+                new Lot { LotId = 9, LotNumber = "L009", Quantity = 100, ExpiryDate = new DateOnly(2026, 12, 31), WarehouseId = 1, ProductId = 1, ProviderId = 1 },
+                new Lot { LotId = 10, LotNumber = "L0010", Quantity = 100, ExpiryDate = new DateOnly(2026, 12, 31), WarehouseId = 1, ProductId = 1, ProviderId = 1 }
+
             );
 
             modelBuilder.Entity<Customer>().HasData(
