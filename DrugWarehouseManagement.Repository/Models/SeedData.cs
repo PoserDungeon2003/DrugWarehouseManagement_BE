@@ -166,7 +166,9 @@ namespace DrugWarehouseManagement.Repository.Models
                     PhoneNumber = "123456789",
                     TaxCode = "TX123",
                     Email = "abc@pharma.com",
-                    Status = ProviderStatus.Active
+                    Status = ProviderStatus.Active,
+                    DocumentNumber = "GH12240001",
+                    DocumentIssueDate = new DateOnly(2024, 12, 02)
                 },
                 new Provider
                 {
@@ -176,7 +178,9 @@ namespace DrugWarehouseManagement.Repository.Models
                     PhoneNumber = "987654321",
                     TaxCode = "TX456",
                     Email = "xyz@drugs.com",
-                    Status = ProviderStatus.Active
+                    Status = ProviderStatus.Active,
+                    DocumentNumber = "GH12240002",
+                    DocumentIssueDate = new DateOnly(2024, 12, 02)
                 },
                 new Provider
                 {
@@ -186,7 +190,9 @@ namespace DrugWarehouseManagement.Repository.Models
                     PhoneNumber = "555555555",
                     TaxCode = "TX789",
                     Email = "contact@medicorp.com",
-                    Status = ProviderStatus.Active
+                    Status = ProviderStatus.Active,
+                    DocumentNumber = "GH12240003",
+                    DocumentIssueDate = new DateOnly(2024, 12, 02)
                 },
                 new Provider
                 {
@@ -196,7 +202,9 @@ namespace DrugWarehouseManagement.Repository.Models
                     PhoneNumber = "111111111",
                     TaxCode = "TX101",
                     Email = "info@wellness.com",
-                    Status = ProviderStatus.Inactive
+                    Status = ProviderStatus.Inactive,
+                    DocumentNumber = "GH12240004",
+                    DocumentIssueDate = new DateOnly(2024, 12, 02)
                 },
                 new Provider
                 {
@@ -206,7 +214,9 @@ namespace DrugWarehouseManagement.Repository.Models
                     PhoneNumber = "222222222",
                     TaxCode = "TX202",
                     Email = "help@safemeds.com",
-                    Status = ProviderStatus.Active
+                    Status = ProviderStatus.Active,
+                    DocumentNumber = "GH12240005",
+                    DocumentIssueDate = new DateOnly(2024, 12, 02)
                 }
             );
             // 4. Seed Warehouses
@@ -266,20 +276,26 @@ namespace DrugWarehouseManagement.Repository.Models
                 new Lot { LotId = 2, LotNumber = "L002", Quantity = 200, ExpiryDate = new DateOnly(2026, 12, 31), WarehouseId = 2, ProductId = 2, ProviderId = 2 },
                 new Lot { LotId = 3, LotNumber = "L003", Quantity = 150, ExpiryDate = new DateOnly(2026, 12, 31), WarehouseId = 3, ProductId = 3, ProviderId = 3 },
                 new Lot { LotId = 4, LotNumber = "L004", Quantity = 250, ExpiryDate = new DateOnly(2026, 12, 31), WarehouseId = 4, ProductId = 4, ProviderId = 4 },
-                new Lot { LotId = 5, LotNumber = "L005", Quantity = 300, ExpiryDate = new DateOnly(2026, 12, 31), WarehouseId = 5, ProductId = 5, ProviderId = 5 }
+                new Lot { LotId = 5, LotNumber = "L005", Quantity = 300, ExpiryDate = new DateOnly(2026, 12, 31), WarehouseId = 5, ProductId = 5, ProviderId = 5 },
+                new Lot { LotId = 6, LotNumber = "L006", Quantity = 100, ExpiryDate = new DateOnly(2026, 12, 31), WarehouseId = 1, ProductId = 1, ProviderId = 1 },
+                new Lot { LotId = 7, LotNumber = "L007", Quantity = 100, ExpiryDate = new DateOnly(2026, 12, 31), WarehouseId = 1, ProductId = 1, ProviderId = 1 },
+                new Lot { LotId = 8, LotNumber = "L008", Quantity = 100, ExpiryDate = new DateOnly(2026, 12, 31), WarehouseId = 1, ProductId = 1, ProviderId = 1 },
+                new Lot { LotId = 9, LotNumber = "L009", Quantity = 100, ExpiryDate = new DateOnly(2026, 12, 31), WarehouseId = 1, ProductId = 1, ProviderId = 1 },
+                new Lot { LotId = 10, LotNumber = "L0010", Quantity = 100, ExpiryDate = new DateOnly(2026, 12, 31), WarehouseId = 1, ProductId = 1, ProviderId = 1 }
+
             );
 
             modelBuilder.Entity<Customer>().HasData(
-                new Customer { CustomerId = 1, CustomerName = "John Doe", Address = "123 Main St", PhoneNumber = "555-1234", Email = "john.doe@example.com", IsLoyal = true, Status = CustomerStatus.Active },
-                new Customer { CustomerId = 2, CustomerName = "Jane Smith", Address = "456 Elm St", PhoneNumber = "555-5678", Email = "jane.smith@example.com", IsLoyal = false, Status = CustomerStatus.Active },
-                new Customer { CustomerId = 3, CustomerName = "Alice Johnson", Address = "789 Oak St", PhoneNumber = "555-8765", Email = "alice.johnson@example.com", IsLoyal = true, Status = CustomerStatus.Active },
-                new Customer { CustomerId = 4, CustomerName = "Bob Brown", Address = "321 Pine St", PhoneNumber = "555-4321", Email = "bob.brown@example.com", IsLoyal = false, Status = CustomerStatus.Active },
-                new Customer { CustomerId = 5, CustomerName = "Charlie Davis", Address = "654 Maple St", PhoneNumber = "555-6789", Email = "charlie.davis@example.com", IsLoyal = true, Status = CustomerStatus.Active },
-                new Customer { CustomerId = 6, CustomerName = "Diana Evans", Address = "987 Birch St", PhoneNumber = "555-9876", Email = "diana.evans@example.com", IsLoyal = false, Status = CustomerStatus.Inactive },
-                new Customer { CustomerId = 7, CustomerName = "Eve Foster", Address = "159 Cedar St", PhoneNumber = "555-1597", Email = "eve.foster@example.com", IsLoyal = true, Status = CustomerStatus.Inactive },
-                new Customer { CustomerId = 8, CustomerName = "Frank Green", Address = "753 Spruce St", PhoneNumber = "555-7531", Email = "frank.green@example.com", IsLoyal = false, Status = CustomerStatus.Inactive },
-                new Customer { CustomerId = 9, CustomerName = "Grace Harris", Address = "852 Willow St", PhoneNumber = "555-8524", Email = "grace.harris@example.com", IsLoyal = true, Status = CustomerStatus.Inactive },
-                new Customer { CustomerId = 10, CustomerName = "Henry Irving", Address = "951 Poplar St", PhoneNumber = "555-9513", Email = "henry.irving@example.com", IsLoyal = false, Status = CustomerStatus.Inactive }
+                new Customer { CustomerId = 1, CustomerName = "John Doe", Address = "123 Main St", PhoneNumber = "555-1234", Email = "john.doe@example.com", IsLoyal = true, Status = CustomerStatus.Active, DocumentNumber = "GH12240001", DocumentIssueDate = new DateOnly(2024, 12, 02) },
+                new Customer { CustomerId = 2, CustomerName = "Jane Smith", Address = "456 Elm St", PhoneNumber = "555-5678", Email = "jane.smith@example.com", IsLoyal = false, Status = CustomerStatus.Active, DocumentNumber = "GH12240002", DocumentIssueDate = new DateOnly(2024, 12, 02) },
+                new Customer { CustomerId = 3, CustomerName = "Alice Johnson", Address = "789 Oak St", PhoneNumber = "555-8765", Email = "alice.johnson@example.com", IsLoyal = true, Status = CustomerStatus.Active, DocumentNumber = "GH12240003", DocumentIssueDate = new DateOnly(2024, 12, 02) },
+                new Customer { CustomerId = 4, CustomerName = "Bob Brown", Address = "321 Pine St", PhoneNumber = "555-4321", Email = "bob.brown@example.com", IsLoyal = false, Status = CustomerStatus.Active, DocumentNumber = "GH12240004", DocumentIssueDate = new DateOnly(2024, 12, 02) },
+                new Customer { CustomerId = 5, CustomerName = "Charlie Davis", Address = "654 Maple St", PhoneNumber = "555-6789", Email = "charlie.davis@example.com", IsLoyal = true, Status = CustomerStatus.Active, DocumentNumber = "GH12240005", DocumentIssueDate = new DateOnly(2024, 12, 02) },
+                new Customer { CustomerId = 6, CustomerName = "Diana Evans", Address = "987 Birch St", PhoneNumber = "555-9876", Email = "diana.evans@example.com", IsLoyal = false, Status = CustomerStatus.Inactive, DocumentNumber = "GH12240006", DocumentIssueDate = new DateOnly(2024, 12, 02) },
+                new Customer { CustomerId = 7, CustomerName = "Eve Foster", Address = "159 Cedar St", PhoneNumber = "555-1597", Email = "eve.foster@example.com", IsLoyal = true, Status = CustomerStatus.Inactive, DocumentNumber = "GH12240007", DocumentIssueDate = new DateOnly(2024, 12, 02) },
+                new Customer { CustomerId = 8, CustomerName = "Frank Green", Address = "753 Spruce St", PhoneNumber = "555-7531", Email = "frank.green@example.com", IsLoyal = false, Status = CustomerStatus.Inactive, DocumentNumber = "GH12240008", DocumentIssueDate = new DateOnly(2024, 12, 02) },
+                new Customer { CustomerId = 9, CustomerName = "Grace Harris", Address = "852 Willow St", PhoneNumber = "555-8524", Email = "grace.harris@example.com", IsLoyal = true, Status = CustomerStatus.Inactive, DocumentNumber = "GH12240009", DocumentIssueDate = new DateOnly(2024, 12, 02) },
+                new Customer { CustomerId = 10, CustomerName = "Henry Irving", Address = "951 Poplar St", PhoneNumber = "555-9513", Email = "henry.irving@example.com", IsLoyal = false, Status = CustomerStatus.Inactive, DocumentNumber = "GH122400010", DocumentIssueDate = new DateOnly(2024, 12, 02) }
             );
 
             // 7. Seed Outbounds
@@ -410,30 +426,30 @@ namespace DrugWarehouseManagement.Repository.Models
                 }
             );
 
-            modelBuilder.Entity<TransferOrder>().HasData(
-                new TransferOrder { TransferOrderId = 1, TransferOrderCode = "TO-1001", TransferOrderStatus = TransferOrderStatus.Pending, FromWareHouseId = 1, ToWareHouseId = 2, AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555") },
-                new TransferOrder { TransferOrderId = 2, TransferOrderCode = "TO-1002", TransferOrderStatus = TransferOrderStatus.Completed, FromWareHouseId = 2, ToWareHouseId = 3, AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555") },
-                new TransferOrder { TransferOrderId = 3, TransferOrderCode = "TO-1003", TransferOrderStatus = TransferOrderStatus.Pending, FromWareHouseId = 3, ToWareHouseId = 4, AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555") },
-                new TransferOrder { TransferOrderId = 4, TransferOrderCode = "TO-1004", TransferOrderStatus = TransferOrderStatus.InProgress, FromWareHouseId = 4, ToWareHouseId = 5, AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555") },
-                new TransferOrder { TransferOrderId = 5, TransferOrderCode = "TO-1005", TransferOrderStatus = TransferOrderStatus.Cancelled, FromWareHouseId = 5, ToWareHouseId = 1, AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555") },
-                new TransferOrder { TransferOrderId = 6, TransferOrderCode = "TO-1006", TransferOrderStatus = TransferOrderStatus.Completed, FromWareHouseId = 1, ToWareHouseId = 3, AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555") },
-                new TransferOrder { TransferOrderId = 7, TransferOrderCode = "TO-1007", TransferOrderStatus = TransferOrderStatus.Pending, FromWareHouseId = 2, ToWareHouseId = 4, AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555") },
-                new TransferOrder { TransferOrderId = 8, TransferOrderCode = "TO-1008", TransferOrderStatus = TransferOrderStatus.InProgress, FromWareHouseId = 3, ToWareHouseId = 5, AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555") },
-                new TransferOrder { TransferOrderId = 9, TransferOrderCode = "TO-1009", TransferOrderStatus = TransferOrderStatus.Completed, FromWareHouseId = 4, ToWareHouseId = 1, AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555") },
-                new TransferOrder { TransferOrderId = 10, TransferOrderCode = "TO-1010", TransferOrderStatus = TransferOrderStatus.Pending, FromWareHouseId = 5, ToWareHouseId = 2, AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555") }
+            modelBuilder.Entity<LotTransfer>().HasData(
+                new LotTransfer { LotTransferId = 1, LotTransferCode = "TO-1001", LotTransferStatus = LotTransferStatus.Pending, FromWareHouseId = 1, ToWareHouseId = 2, AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555") },
+                new LotTransfer { LotTransferId = 2, LotTransferCode = "TO-1002", LotTransferStatus = LotTransferStatus.Completed, FromWareHouseId = 2, ToWareHouseId = 3, AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555") },
+                new LotTransfer { LotTransferId = 3, LotTransferCode = "TO-1003", LotTransferStatus = LotTransferStatus.Pending, FromWareHouseId = 3, ToWareHouseId = 4, AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555") },
+                new LotTransfer { LotTransferId = 4, LotTransferCode = "TO-1004", LotTransferStatus = LotTransferStatus.InProgress, FromWareHouseId = 4, ToWareHouseId = 5, AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555") },
+                new LotTransfer { LotTransferId = 5, LotTransferCode = "TO-1005", LotTransferStatus = LotTransferStatus.Cancelled, FromWareHouseId = 5, ToWareHouseId = 1, AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555") },
+                new LotTransfer { LotTransferId = 6, LotTransferCode = "TO-1006", LotTransferStatus = LotTransferStatus.Completed, FromWareHouseId = 1, ToWareHouseId = 3, AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555") },
+                new LotTransfer { LotTransferId = 7, LotTransferCode = "TO-1007", LotTransferStatus = LotTransferStatus.Pending, FromWareHouseId = 2, ToWareHouseId = 4, AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555") },
+                new LotTransfer { LotTransferId = 8, LotTransferCode = "TO-1008", LotTransferStatus = LotTransferStatus.InProgress, FromWareHouseId = 3, ToWareHouseId = 5, AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555") },
+                new LotTransfer { LotTransferId = 9, LotTransferCode = "TO-1009", LotTransferStatus = LotTransferStatus.Completed, FromWareHouseId = 4, ToWareHouseId = 1, AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555") },
+                new LotTransfer { LotTransferId = 10, LotTransferCode = "TO-1010", LotTransferStatus = LotTransferStatus.Pending, FromWareHouseId = 5, ToWareHouseId = 2, AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555") }
             );
 
-            modelBuilder.Entity<TransferOrderDetail>().HasData(
-                new TransferOrderDetail { TransferOrderDetailId = 1, Quantity = 10, ProductId = 1, LotId = 1, TransferOrderId = 1, UnitType = "Hộp", ExpiryDate = new DateOnly(2026, 12, 31) },
-                new TransferOrderDetail { TransferOrderDetailId = 2, Quantity = 15, ProductId = 2, LotId = 2, TransferOrderId = 1, UnitType = "Hộp", ExpiryDate = new DateOnly(2026, 12, 31) },
-                new TransferOrderDetail { TransferOrderDetailId = 3, Quantity = 5, ProductId = 3, LotId = 3, TransferOrderId = 2, UnitType = "Hộp", ExpiryDate = new DateOnly(2026, 12, 31) },
-                new TransferOrderDetail { TransferOrderDetailId = 4, Quantity = 20, ProductId = 4, LotId = 4, TransferOrderId = 3, UnitType = "Hộp", ExpiryDate = new DateOnly(2026, 12, 31) },
-                new TransferOrderDetail { TransferOrderDetailId = 5, Quantity = 12, ProductId = 5, LotId = 5, TransferOrderId = 3, UnitType = "Hộp", ExpiryDate = new DateOnly(2026, 12, 31) },
-                new TransferOrderDetail { TransferOrderDetailId = 6, Quantity = 25, ProductId = 1, LotId = 5, TransferOrderId = 4, UnitType = "Hộp", ExpiryDate = new DateOnly(2026, 12, 31) },
-                new TransferOrderDetail { TransferOrderDetailId = 7, Quantity = 30, ProductId = 2, LotId = 4, TransferOrderId = 5, UnitType = "Hộp", ExpiryDate = new DateOnly(2026, 12, 31) },
-                new TransferOrderDetail { TransferOrderDetailId = 8, Quantity = 8, ProductId = 3, LotId = 3, TransferOrderId = 6, UnitType = "Hộp", ExpiryDate = new DateOnly(2026, 12, 31) },
-                new TransferOrderDetail { TransferOrderDetailId = 9, Quantity = 14, ProductId = 4, LotId = 2, TransferOrderId = 7, UnitType = "Hộp", ExpiryDate = new DateOnly(2026, 12, 31) },
-                new TransferOrderDetail { TransferOrderDetailId = 10, Quantity = 18, ProductId = 5, LotId = 1, TransferOrderId = 8, UnitType = "Hộp", ExpiryDate = new DateOnly(2026, 12, 31) }
+            modelBuilder.Entity<LotTransferDetail>().HasData(
+                new LotTransferDetail { LotTransferDetailId = 1, Quantity = 10, ProductId = 1, LotId = 1, LotTransferId = 1, UnitType = "Hộp", ExpiryDate = new DateOnly(2026, 12, 31) },
+                new LotTransferDetail { LotTransferDetailId = 2, Quantity = 15, ProductId = 2, LotId = 2, LotTransferId = 1, UnitType = "Hộp", ExpiryDate = new DateOnly(2026, 12, 31) },
+                new LotTransferDetail { LotTransferDetailId = 3, Quantity = 5, ProductId = 3, LotId = 3, LotTransferId = 2, UnitType = "Hộp", ExpiryDate = new DateOnly(2026, 12, 31) },
+                new LotTransferDetail { LotTransferDetailId = 4, Quantity = 20, ProductId = 4, LotId = 4, LotTransferId = 3, UnitType = "Hộp", ExpiryDate = new DateOnly(2026, 12, 31) },
+                new LotTransferDetail { LotTransferDetailId = 5, Quantity = 12, ProductId = 5, LotId = 5, LotTransferId = 3, UnitType = "Hộp", ExpiryDate = new DateOnly(2026, 12, 31) },
+                new LotTransferDetail { LotTransferDetailId = 6, Quantity = 25, ProductId = 1, LotId = 5, LotTransferId = 4, UnitType = "Hộp", ExpiryDate = new DateOnly(2026, 12, 31) },
+                new LotTransferDetail { LotTransferDetailId = 7, Quantity = 30, ProductId = 2, LotId = 4, LotTransferId = 5, UnitType = "Hộp", ExpiryDate = new DateOnly(2026, 12, 31) },
+                new LotTransferDetail { LotTransferDetailId = 8, Quantity = 8, ProductId = 3, LotId = 3, LotTransferId = 6, UnitType = "Hộp", ExpiryDate = new DateOnly(2026, 12, 31) },
+                new LotTransferDetail { LotTransferDetailId = 9, Quantity = 14, ProductId = 4, LotId = 2, LotTransferId = 7, UnitType = "Hộp", ExpiryDate = new DateOnly(2026, 12, 31) },
+                new LotTransferDetail { LotTransferDetailId = 10, Quantity = 18, ProductId = 5, LotId = 1, LotTransferId = 8, UnitType = "Hộp", ExpiryDate = new DateOnly(2026, 12, 31) }
             );
 
         }

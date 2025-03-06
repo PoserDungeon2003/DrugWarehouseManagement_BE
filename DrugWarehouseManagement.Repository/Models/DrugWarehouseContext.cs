@@ -54,6 +54,8 @@ namespace DrugWarehouseManagement.Repository.Models
                 .IsUnique();
                 entity.HasIndex(e => e.Email, "IX_Customers_Email")
                 .IsUnique();
+                entity.HasIndex(e => e.DocumentNumber, "IX_Customers_DocumentNumber")
+                .IsUnique();
             });
             modelBuilder.Entity<Outbound>(entity =>
             {
@@ -80,7 +82,7 @@ namespace DrugWarehouseManagement.Repository.Models
                     .HasForeignKey(l => l.TemporaryWarehouseId)
                     .OnDelete(DeleteBehavior.Cascade);
 
-                entity.HasIndex(e => e.LotNumber, "IX_Lots_LotNumber")
+                entity.HasIndex(l => new { l.LotNumber, l.ExpiryDate, l.ProviderId, l.WarehouseId }, "IX_Lots_LotNumber_ExpiryDate_ProviderId_WarehouseId")
                     .IsUnique();
             });
 
@@ -95,15 +97,17 @@ namespace DrugWarehouseManagement.Repository.Models
                 entity.HasIndex(e => e.LotNumber, "IX_InboundDetails_LotNumber");
             });
 
-            modelBuilder.Entity<TransferOrder>(entity =>
+            modelBuilder.Entity<LotTransfer>(entity =>
             {
-                entity.HasIndex(e => e.TransferOrderCode, "IX_TransferOrder_TransferOrderCode")
+                entity.HasIndex(e => e.LotTransferCode, "IX_LotTransfer_LotTransferCode")
                     .IsUnique();
             });
 
             modelBuilder.Entity<Provider>(entity =>
             {
                 entity.HasIndex(e => e.PhoneNumber, "IX_Provider_PhoneNumber")
+                    .IsUnique();
+                entity.HasIndex(e => e.DocumentNumber, "IX_Provider_DocumentNumber")
                     .IsUnique();
             });
 
@@ -113,9 +117,9 @@ namespace DrugWarehouseManagement.Repository.Models
                     .IsUnique();
             });
 
-            modelBuilder.Entity<TransferOrder>(entity =>
+            modelBuilder.Entity<LotTransfer>(entity =>
             {
-                entity.HasIndex(e => e.TransferOrderCode)
+                entity.HasIndex(e => e.LotTransferCode)
                     .IsUnique();
                 entity.HasOne(e => e.FromWareHouse)
                     .WithMany()
@@ -142,7 +146,7 @@ namespace DrugWarehouseManagement.Repository.Models
         public DbSet<Warehouse> Warehouses { get; set; }
         public DbSet<AuditLogs> AuditLogs { get; set; }
         public DbSet<Lot> Lots { get; set; }
-        public DbSet<TransferOrder> TransferOrders { get; set; }
-        public DbSet<TransferOrderDetail> TransferOrderDetails { get; set; }
+        public DbSet<LotTransfer> LotTransfers { get; set; }
+        public DbSet<LotTransferDetail> LotTransferDetails { get; set; }
     }
 }

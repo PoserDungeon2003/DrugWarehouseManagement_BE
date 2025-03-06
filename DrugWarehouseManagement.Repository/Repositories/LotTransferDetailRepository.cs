@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace DrugWarehouseManagement.Repository.Repositories
 {
-    public class TransferOrderDetailRepository : GenericRepository<TransferOrderDetail>, ITransferOrderDetailRepository
+    public class LotTransferDetailRepository : GenericRepository<LotTransferDetail>, ILotTransferDetailRepository
     {
-        public TransferOrderDetailRepository(DrugWarehouseContext context) : base(context)
+        public LotTransferDetailRepository(DrugWarehouseContext context) : base(context)
         {
         }
     }

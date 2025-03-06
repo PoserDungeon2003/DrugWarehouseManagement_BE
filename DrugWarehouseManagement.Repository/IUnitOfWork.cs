@@ -19,7 +19,7 @@ namespace DrugWarehouseManagement.Repository
         ILotRepository LotRepository { get; }
         IAuditLogsRepository AuditLogsRepository { get; }
         IProviderRepository ProviderRepository { get; }
-        ITransferOrderRepository TransferOrderRepository { get; }
-        ITransferOrderDetailRepository TransferOrderDetailsRepository { get; }
+        ILotTransferRepository LotTransferRepository { get; }
+        ILotTransferDetailRepository LotTransferDetailsRepository { get; }
     }
 }

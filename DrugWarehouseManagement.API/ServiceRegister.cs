@@ -65,6 +65,7 @@ namespace DrugWarehouseManagement.API
             services.AddScoped<IProductService, ProductService>();
             services.AddScoped<IWarehouseService, WarehouseService>();
             services.AddScoped<ICustomerService, CustomerService>();
+            services.AddScoped<ILotTransferService, LotTransferService>();
 
         }
 
@@ -142,6 +143,14 @@ namespace DrugWarehouseManagement.API
                 .Map(dest => dest.UserName, src => src.Account.UserName)
                 .Map(dest => dest.FullName, src => src.Account.FullName);
             //.Map(dest => dest.Date, src => src.Date.ToDateTimeUtc());
+
+            TypeAdapterConfig<LotTransfer, CreateLotTransferResponse>
+                .NewConfig()
+                .Map(dest => dest.LotTransferStatus, src => src.LotTransferStatus.ToString())
+                .Map(dest => dest.FromWareHouse, src => src.FromWareHouse.WarehouseName)
+                .Map(dest => dest.ToWareHouse, src => src.ToWareHouse.WarehouseName)
+                .Map(dest => dest.Username, src => src.Account.UserName);
+
         }
 
         private static void AddEnum(IServiceCollection services)

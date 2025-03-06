@@ -9,13 +9,13 @@ using System.Threading.Tasks;
 
 namespace DrugWarehouseManagement.Repository.Models
 {
-    public class TransferOrder : TimeStamp
+    public class LotTransfer : TimeStamp
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int TransferOrderId { get; set; }
-        public string TransferOrderCode { get; set; } = null!;
-        public TransferOrderStatus TransferOrderStatus { get; set; } = TransferOrderStatus.Pending;
+        public int LotTransferId { get; set; }
+        public string LotTransferCode { get; set; } = null!;
+        public LotTransferStatus LotTransferStatus { get; set; } = LotTransferStatus.Pending;
         public int FromWareHouseId { get; set; }
         public int ToWareHouseId { get; set; }
         public Guid AccountId { get; set; }
@@ -24,7 +24,7 @@ namespace DrugWarehouseManagement.Repository.Models
         public virtual Warehouse FromWareHouse { get; set; } = null!;
         [ForeignKey("ToWareHouseId")]
         public virtual Warehouse ToWareHouse { get; set; } = null!;
-        public virtual List<TransferOrderDetail> TransferOrderDetails { get; set; } = null!;
+        public virtual List<LotTransferDetail> LotTransferDetails { get; set; } = null!;
         public virtual Account Account { get; set; } = null!;
     }
 }

@@ -18,8 +18,8 @@ namespace DrugWarehouseManagement.Repository
         public IProviderRepository ProviderRepository { get; private set; }
         public IWarehouseRepository WarehouseRepository { get; private set; }
         public ICustomerRepository CustomerRepository { get; private set; }
-        public ITransferOrderRepository TransferOrderRepository { get; private set; }
-        public ITransferOrderDetailRepository TransferOrderDetailsRepository { get; private set; }
+        public ILotTransferRepository LotTransferRepository { get; private set; }
+        public ILotTransferDetailRepository LotTransferDetailsRepository { get; private set; }
 
         public UnitOfWork(DrugWarehouseContext context)
         {
@@ -35,8 +35,8 @@ namespace DrugWarehouseManagement.Repository
             ProviderRepository ??= new ProviderRepository(_context);
             WarehouseRepository ??= new WarehouseRepository(_context);
             CustomerRepository ??= new CustomerRepository(_context);
-            TransferOrderRepository ??= new TransferOrderRepository(_context);
-            TransferOrderDetailsRepository ??= new TransferOrderDetailRepository(_context);
+            LotTransferRepository ??= new LotTransferRepository(_context);
+            LotTransferDetailsRepository ??= new LotTransferDetailRepository(_context);
         }
 
         public async Task BeginTransaction()
