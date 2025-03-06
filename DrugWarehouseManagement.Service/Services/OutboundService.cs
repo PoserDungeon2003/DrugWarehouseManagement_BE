@@ -9,6 +9,7 @@ using Mapster;
 using Microsoft.EntityFrameworkCore;
 using NodaTime;
 using NodaTime.Calendars;
+using NodaTime.Text;
 using System.Net;
 
 namespace DrugWarehouseManagement.Service.Services
@@ -157,13 +158,23 @@ namespace DrugWarehouseManagement.Service.Services
                         EF.Functions.Like(o.OutboundCode.ToLower(), $"%{searchTerm}%"));
                 }
             }
-            if (queryPaging.DateFrom.HasValue)
+            if (queryPaging.DateFrom != null)
             {
-                query = query.Where(o => o.OutboundDate >= queryPaging.DateFrom.Value);
+                var dateFrom = InstantPattern.ExtendedIso.Parse(queryPaging.DateFrom);
+                if (!dateFrom.Success)
+                {
+                    throw new Exception("DateFrom is invalid ISO format");
+                }
+                query = query.Where(o => o.OutboundDate >= dateFrom.Value);
             }
-            if (queryPaging.DateTo.HasValue)
+            if (queryPaging.DateTo != null)
             {
-                query = query.Where(o => o.OutboundDate <= queryPaging.DateTo.Value);
+                var dateTo = InstantPattern.ExtendedIso.Parse(queryPaging.DateTo);
+                if (!dateTo.Success)
+                {
+                    throw new Exception("DateTo is invalid ISO format");
+                }
+                query = query.Where(o => o.OutboundDate <= dateTo.Value);
             }
             query = query.OrderByDescending(o => o.OutboundDate);
             var paginatedOutbounds = await query.ToPaginatedResultAsync(queryPaging.Page, queryPaging.PageSize);
