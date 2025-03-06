@@ -149,6 +149,13 @@ namespace DrugWarehouseManagement.API
                 .Map(dest => dest.ToWareHouse, src => src.ToWareHouse.WarehouseName)
                 .Map(dest => dest.Username, src => src.Account.UserName);
 
+            TypeAdapterConfig<LotTransfer, ViewLotTransfer>
+                .NewConfig()
+                .Map(dest => dest.LotTransferStatus, src => src.LotTransferStatus.ToString())
+                .Map(dest => dest.FromWareHouse, src => src.FromWareHouse.WarehouseName)
+                .Map(dest => dest.ToWareHouse, src => src.ToWareHouse.WarehouseName)
+                .Map(dest => dest.CreatedBy, src => src.Account.FullName);
+
         }
 
         private static void AddEnum(IServiceCollection services)
