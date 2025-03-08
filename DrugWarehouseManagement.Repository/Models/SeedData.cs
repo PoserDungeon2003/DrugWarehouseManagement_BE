@@ -26,7 +26,7 @@ namespace DrugWarehouseManagement.Repository.Models
                 new Role { RoleId = 2, RoleName = "Inventory Manager" },
                 new Role { RoleId = 3, RoleName = "Accountant" },
                 new Role { RoleId = 4, RoleName = "Sale Admin" },
-                new Role { RoleId = 5, RoleName = "CEO" }
+                new Role { RoleId = 5, RoleName = "Director" }
             );
 
             // 2. Seed Accounts
@@ -440,16 +440,16 @@ namespace DrugWarehouseManagement.Repository.Models
             );
 
             modelBuilder.Entity<LotTransferDetail>().HasData(
-                new LotTransferDetail { LotTransferDetailId = 1, Quantity = 10, ProductId = 1, LotId = 1, LotTransferId = 1, UnitType = "Hộp", ExpiryDate = new DateOnly(2026, 12, 31) },
-                new LotTransferDetail { LotTransferDetailId = 2, Quantity = 15, ProductId = 2, LotId = 2, LotTransferId = 1, UnitType = "Hộp", ExpiryDate = new DateOnly(2026, 12, 31) },
-                new LotTransferDetail { LotTransferDetailId = 3, Quantity = 5, ProductId = 3, LotId = 3, LotTransferId = 2, UnitType = "Hộp", ExpiryDate = new DateOnly(2026, 12, 31) },
-                new LotTransferDetail { LotTransferDetailId = 4, Quantity = 20, ProductId = 4, LotId = 4, LotTransferId = 3, UnitType = "Hộp", ExpiryDate = new DateOnly(2026, 12, 31) },
-                new LotTransferDetail { LotTransferDetailId = 5, Quantity = 12, ProductId = 5, LotId = 5, LotTransferId = 3, UnitType = "Hộp", ExpiryDate = new DateOnly(2026, 12, 31) },
-                new LotTransferDetail { LotTransferDetailId = 6, Quantity = 25, ProductId = 1, LotId = 5, LotTransferId = 4, UnitType = "Hộp", ExpiryDate = new DateOnly(2026, 12, 31) },
-                new LotTransferDetail { LotTransferDetailId = 7, Quantity = 30, ProductId = 2, LotId = 4, LotTransferId = 5, UnitType = "Hộp", ExpiryDate = new DateOnly(2026, 12, 31) },
-                new LotTransferDetail { LotTransferDetailId = 8, Quantity = 8, ProductId = 3, LotId = 3, LotTransferId = 6, UnitType = "Hộp", ExpiryDate = new DateOnly(2026, 12, 31) },
-                new LotTransferDetail { LotTransferDetailId = 9, Quantity = 14, ProductId = 4, LotId = 2, LotTransferId = 7, UnitType = "Hộp", ExpiryDate = new DateOnly(2026, 12, 31) },
-                new LotTransferDetail { LotTransferDetailId = 10, Quantity = 18, ProductId = 5, LotId = 1, LotTransferId = 8, UnitType = "Hộp", ExpiryDate = new DateOnly(2026, 12, 31) }
+                new LotTransferDetail { LotTransferDetailId = 1, Quantity = 10, ProductId = 1, LotId = 1, LotTransferId = 1, ExpiryDate = new DateOnly(2026, 12, 31) },
+                new LotTransferDetail { LotTransferDetailId = 2, Quantity = 15, ProductId = 2, LotId = 2, LotTransferId = 1, ExpiryDate = new DateOnly(2026, 12, 31) },
+                new LotTransferDetail { LotTransferDetailId = 3, Quantity = 5, ProductId = 3, LotId = 3, LotTransferId = 2, ExpiryDate = new DateOnly(2026, 12, 31) },
+                new LotTransferDetail { LotTransferDetailId = 4, Quantity = 20, ProductId = 4, LotId = 4, LotTransferId = 3, ExpiryDate = new DateOnly(2026, 12, 31) },
+                new LotTransferDetail { LotTransferDetailId = 5, Quantity = 12, ProductId = 5, LotId = 5, LotTransferId = 3, ExpiryDate = new DateOnly(2026, 12, 31) },
+                new LotTransferDetail { LotTransferDetailId = 6, Quantity = 25, ProductId = 1, LotId = 5, LotTransferId = 4, ExpiryDate = new DateOnly(2026, 12, 31) },
+                new LotTransferDetail { LotTransferDetailId = 7, Quantity = 30, ProductId = 2, LotId = 4, LotTransferId = 5, ExpiryDate = new DateOnly(2026, 12, 31) },
+                new LotTransferDetail { LotTransferDetailId = 8, Quantity = 8, ProductId = 3, LotId = 3, LotTransferId = 6, ExpiryDate = new DateOnly(2026, 12, 31) },
+                new LotTransferDetail { LotTransferDetailId = 9, Quantity = 14, ProductId = 4, LotId = 2, LotTransferId = 7, ExpiryDate = new DateOnly(2026, 12, 31) },
+                new LotTransferDetail { LotTransferDetailId = 10, Quantity = 18, ProductId = 5, LotId = 1, LotTransferId = 8, ExpiryDate = new DateOnly(2026, 12, 31) }
             );
 
         }
