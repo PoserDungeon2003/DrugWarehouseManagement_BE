@@ -14,7 +14,6 @@ namespace DrugWarehouseManagement.Repository.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int LotTransferDetailId { get; set; }
         public DateOnly ExpiryDate { get; set; }
-        public string UnitType { get; set; } = null!;
         public int Quantity { get; set; }
         public int ProductId { get; set; }
         public int LotId { get; set; }
