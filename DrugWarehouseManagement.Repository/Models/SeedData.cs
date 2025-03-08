@@ -26,7 +26,7 @@ namespace DrugWarehouseManagement.Repository.Models
                 new Role { RoleId = 2, RoleName = "Inventory Manager" },
                 new Role { RoleId = 3, RoleName = "Accountant" },
                 new Role { RoleId = 4, RoleName = "Sale Admin" },
-                new Role { RoleId = 5, RoleName = "CEO" }
+                new Role { RoleId = 5, RoleName = "Director" }
             );
 
             // 2. Seed Accounts

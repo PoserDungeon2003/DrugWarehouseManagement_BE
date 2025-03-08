@@ -42,6 +42,7 @@ namespace DrugWarehouseManagement.API
             app.UseCors("AllowAll");
 
             app.UseAuthentication();
+            app.UseMiddleware<ConcurrencyMiddleware>();
             app.UseAuthorization();
 
             app.MapControllers();
