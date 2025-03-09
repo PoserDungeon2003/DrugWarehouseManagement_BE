@@ -1,4 +1,5 @@
-﻿using DrugWarehouseManagement.Service.DTO.Request;
+﻿using DrugWarehouseManagement.Common;
+using DrugWarehouseManagement.Service.DTO.Request;
 using DrugWarehouseManagement.Service.DTO.Response;
 using DrugWarehouseManagement.Service.Interface;
 using Microsoft.AspNetCore.Authorization;
@@ -61,27 +62,6 @@ namespace DrugWarehouseManagement.API.Controllers
                 });
             }
 
-        }
-
-        [HttpPost("approve/{id}")]
-        [Authorize]
-        public async Task<IActionResult> ApproveLotTransfer([FromRoute] int id)
-        {
-            var accountId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            try
-            {
-                var response = await _lotTransferService.ApproveLotTransfer(Guid.Parse(accountId), id);
-                return Ok(response);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new BaseResponse
-                {
-                    Code = 400,
-                    Message = ex.Message,
-                });
-            }
         }
 
         [HttpPost("cancel/{id}")]

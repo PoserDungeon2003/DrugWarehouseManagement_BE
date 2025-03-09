@@ -18,5 +18,15 @@ namespace DrugWarehouseManagement.Service.DTO.Response
         public string CreatedBy { get; set; } = null!;
         public Instant CreatedAt { get; set; }
         public Instant? UpdatedAt { get; set; }
+        public List<ViewLotTransferDetail> LotTransferDetails { get; set; } = new List<ViewLotTransferDetail>();
+    }
+
+    public class ViewLotTransferDetail
+    {
+        public int LotTransferDetailId { get; set; }
+        public DateOnly ExpiryDate { get; set; }
+        public int Quantity { get; set; }
+        public string ProductName { get; set; } = null!;
+        public string LotNumber { get; set; } = null!;
     }
 }

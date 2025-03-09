@@ -154,7 +154,14 @@ namespace DrugWarehouseManagement.API
                 .Map(dest => dest.LotTransferStatus, src => src.LotTransferStatus.ToString())
                 .Map(dest => dest.FromWareHouse, src => src.FromWareHouse.WarehouseName)
                 .Map(dest => dest.ToWareHouse, src => src.ToWareHouse.WarehouseName)
-                .Map(dest => dest.CreatedBy, src => src.Account.FullName);
+                .Map(dest => dest.CreatedBy, src => src.Account.FullName)
+                .IgnoreNullValues(true);
+
+            TypeAdapterConfig<LotTransferDetail, ViewLotTransferDetail>
+                .NewConfig()
+                .Map(dest => dest.ProductName, src => src.Product.ProductName)
+                .Map(dest => dest.LotNumber, src => src.Lot.LotNumber)
+                .IgnoreNullValues(true);
 
         }
 
