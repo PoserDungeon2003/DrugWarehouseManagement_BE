@@ -127,5 +127,26 @@ namespace DrugWarehouseManagement.API.Controllers
             }
         }
 
+        [HttpPut]
+        [Authorize]
+        public async Task<IActionResult> UpdateLotTransfer([FromBody] UpdateLotTransferRequest request)
+        {
+            var accountId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            try
+            {
+                var response = await _lotTransferService.UpdateLotTransfer(Guid.Parse(accountId), request);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    Code = 400,
+                    Message = ex.Message,
+                });
+            }
+        }
+
     }
 }

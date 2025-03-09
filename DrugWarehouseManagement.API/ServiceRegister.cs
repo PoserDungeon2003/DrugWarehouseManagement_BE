@@ -163,6 +163,10 @@ namespace DrugWarehouseManagement.API
                 .Map(dest => dest.LotNumber, src => src.Lot.LotNumber)
                 .IgnoreNullValues(true);
 
+            TypeAdapterConfig<UpdateLotTransferRequest, LotTransfer>
+                .NewConfig()
+                .IgnoreNullValues(true);
+
         }
 
         private static void AddEnum(IServiceCollection services)
