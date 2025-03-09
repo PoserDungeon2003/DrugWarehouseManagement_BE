@@ -7,7 +7,7 @@ namespace DrugWarehouseManagement.Service.Interface
     public interface IAccountService
     {
         public Task<AccountLoginResponse> LoginWithUsername(AccountLoginRequest request);
-        public Task<SetupTwoFactorAuthenticatorResponse> SetupTwoFactorAuthenticator(string email);
+        public Task<SetupTwoFactorAuthenticatorResponse> SetupTwoFactorAuthenticator(Guid accountId);
         public Task<BaseResponse> CreateAccount(CreateAccountRequest request);
         public Task<BaseResponse> UpdateAccountSettings(Guid accountId, UpdateAccountSettingsRequest request);
         public Task<PaginatedResult<ViewAccount>> GetAccountsPaginatedAsync(QueryPaging request);
@@ -19,5 +19,6 @@ namespace DrugWarehouseManagement.Service.Interface
         public Task<BaseResponse> ActiveAccount(Guid accountId);
         public Task<BaseResponse> ChangePassword(Guid accountId, ChangePasswordRequest request);
         public Task<BaseResponse> ConfirmSetupTwoFactorAuthenticator(Guid accountId, ConfirmSetupTwoFactorAuthenticatorRequest request);
+        public Task<BaseResponse> AdminReset2FA(Guid accountId);
     }
 }

@@ -58,13 +58,13 @@ namespace DrugWarehouseManagement.API.Controllers
             }
         }
 
-        [HttpGet("activeAccount")]
+        [HttpGet("activeAccount/{id}")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> ActiveAccount([FromQuery][Required] Guid accountId)
+        public async Task<IActionResult> ActiveAccount([FromRoute][Required] Guid id)
         {
             try
             {
-                var response = await _accountService.ActiveAccount(accountId);
+                var response = await _accountService.ActiveAccount(id);
                 return Ok(response);
             }
             catch (Exception ex)
@@ -77,13 +77,13 @@ namespace DrugWarehouseManagement.API.Controllers
             }
         }
 
-        [HttpGet("deactiveAccount")]
+        [HttpGet("deactiveAccount/{id}")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> DeactiveAccount([FromQuery][Required] Guid accountId)
+        public async Task<IActionResult> DeactiveAccount([FromRoute][Required] Guid id)
         {
             try
             {
-                var response = await _accountService.DeactiveAccount(accountId);
+                var response = await _accountService.DeactiveAccount(id);
                 return Ok(response);
             }
             catch (Exception ex)
@@ -96,13 +96,13 @@ namespace DrugWarehouseManagement.API.Controllers
             }
         }
 
-        [HttpDelete("deleteAccount")]
+        [HttpDelete("deleteAccount/{id}")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> DeleteAccount([FromQuery][Required] Guid accountId)
+        public async Task<IActionResult> DeleteAccount([FromRoute][Required] Guid id)
         {
             try
             {
-                var response = await _accountService.DeleteAccount(accountId);
+                var response = await _accountService.DeleteAccount(id);
                 return Ok(response);
             }
             catch (Exception ex)
@@ -115,13 +115,32 @@ namespace DrugWarehouseManagement.API.Controllers
             }
         }
 
-        [HttpPost("resetPassword")]
+        [HttpPost("resetPassword/{id}")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> ResetPassword([FromQuery][Required] Guid accountId)
+        public async Task<IActionResult> ResetPassword([FromRoute][Required] Guid id)
         {
             try
             {
-                var response = await _accountService.ResetPassword(accountId);
+                var response = await _accountService.ResetPassword(id);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    Code = 400,
+                    Message = ex.Message,
+                });
+            }
+        }
+
+        [HttpPost("reset2FA/{id}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> AdminReset2FA([FromRoute][Required] Guid id)
+        {
+            try
+            {
+                var response = await _accountService.AdminReset2FA(id);
                 return Ok(response);
             }
             catch (Exception ex)

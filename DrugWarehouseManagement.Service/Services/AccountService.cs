@@ -59,6 +59,29 @@ namespace DrugWarehouseManagement.Service.Services
             };
         }
 
+        public async Task<BaseResponse> AdminReset2FA(Guid accountId)
+        {
+            var account = await _unitOfWork.AccountRepository.GetByIdAsync(accountId);
+            if (account == null)
+            {
+                throw new Exception("Account not found");
+            }
+
+            account.tOTPSecretKey = null;
+            account.BackupCode = null;
+            account.TwoFactorAuthenticatorStatus = TwoFactorAuthenticatorSetupStatus.NotStarted;
+            account.OTPCode = null;
+            account.TwoFactorEnabled = false;
+
+            await _unitOfWork.SaveChangesAsync();
+
+            return new BaseResponse
+            {
+                Code = 200,
+                Message = "Two factor authenticator reset successfully"
+            };
+        }
+
         public async Task<BaseResponse> ChangePassword(Guid accountId, ChangePasswordRequest request)
         {
             var account = await _unitOfWork.AccountRepository.GetByIdAsync(accountId);
@@ -356,9 +379,9 @@ namespace DrugWarehouseManagement.Service.Services
             };
         }
 
-        public async Task<SetupTwoFactorAuthenticatorResponse> SetupTwoFactorAuthenticator(string email)
+        public async Task<SetupTwoFactorAuthenticatorResponse> SetupTwoFactorAuthenticator(Guid accountId)
         {
-            var account = await _unitOfWork.AccountRepository.GetByWhere(x => x.Email == email.Trim()).FirstOrDefaultAsync();
+            var account = await _unitOfWork.AccountRepository.GetByIdAsync(accountId);
 
             if (account == null)
             {
@@ -379,7 +402,7 @@ namespace DrugWarehouseManagement.Service.Services
             byte[] secretKey = new byte[16];
             RandomNumberGenerator.Fill(secretKey);
 
-            var setupCode = _twoFactorAuthenticator.GenerateSetupCode("DrugWarehouse", email, secretKey);
+            var setupCode = _twoFactorAuthenticator.GenerateSetupCode("DrugWarehouse", account.Email, secretKey);
             var backupCode = Utils.Generate2FABackupCode(16);
 
             account.tOTPSecretKey = secretKey;
