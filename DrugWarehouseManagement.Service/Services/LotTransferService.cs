@@ -1,4 +1,5 @@
 ﻿using Azure.Core;
+using DrugWarehouseManagement.Common;
 using DrugWarehouseManagement.Repository;
 using DrugWarehouseManagement.Repository.Models;
 using DrugWarehouseManagement.Service.DTO.Request;
@@ -7,6 +8,7 @@ using DrugWarehouseManagement.Service.Extenstions;
 using DrugWarehouseManagement.Service.Interface;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
+using NodaTime;
 using NodaTime.Text;
 using QuestPDF;
 using QuestPDF.Fluent;
@@ -31,26 +33,6 @@ namespace DrugWarehouseManagement.Service.Services
             )
         {
             _unitOfWork = unitOfWork;
-        }
-
-        public async Task<BaseResponse> ApproveLotTransfer(Guid accountId, int lotTransferId)
-        {
-            var account = await _unitOfWork.AccountRepository.GetByIdAsync(accountId);
-            if (account == null)
-            {
-                throw new Exception("Account not found");
-            }
-
-            var lotTransfer = await _unitOfWork.LotTransferRepository.GetByIdAsync(lotTransferId);
-
-            if (lotTransfer == null)
-            {
-                throw new Exception("Lot transfer not found");
-            }
-
-            lotTransfer.LotTransferStatus = Common.LotTransferStatus.InProgress;
-
-            throw new NotImplementedException();
         }
 
         public async Task<BaseResponse> CancelLotTransfer(Guid accountId, int lotTransferId)
@@ -305,9 +287,24 @@ namespace DrugWarehouseManagement.Service.Services
             return pdfBytes;
         }
 
-        public Task<ViewLotTransfer> GetLotTransferById(int lotTransferId)
+        public async Task<ViewLotTransfer> GetLotTransferById(int lotTransferId)
         {
-            throw new NotImplementedException();
+            var lotTransfer = await _unitOfWork.LotTransferRepository
+                                    .GetByWhere(lt => lt.LotTransferId == lotTransferId)
+                                    .Include(w => w.FromWareHouse)
+                                    .Include(w => w.ToWareHouse)
+                                    .Include(lt => lt.LotTransferDetails)
+                                        .ThenInclude(ltd => ltd.Lot)
+                                            .ThenInclude(p => p.Provider)
+                                    .Include(lt => lt.LotTransferDetails)
+                                        .ThenInclude(ltd => ltd.Product)
+                                    .FirstOrDefaultAsync();
+            if (lotTransfer == null)
+            {
+                throw new Exception("Lot transfer order not found");
+            }
+
+            return lotTransfer.Adapt<ViewLotTransfer>();
         }
 
         public async Task<PaginatedResult<ViewLotTransfer>> GetLotTransfers(QueryPaging queryPaging)
@@ -317,8 +314,10 @@ namespace DrugWarehouseManagement.Service.Services
                                     .Include(w => w.FromWareHouse)
                                     .Include(w => w.ToWareHouse)
                                     .Include(a => a.Account)
-                                    .OrderByDescending(lt => lt.CreatedAt)
-                                    .Where(lt => lt.LotTransferStatus != Common.LotTransferStatus.Cancelled)
+                                    .OrderByDescending(lt => lt.UpdatedAt.HasValue)
+                                    .ThenByDescending(lt => lt.UpdatedAt)
+                                    .ThenByDescending(lt => lt.CreatedAt)
+                                    //.Where(lt => lt.LotTransferStatus != Common.LotTransferStatus.Cancelled)
                                     .AsQueryable();
             
             if (!string.IsNullOrEmpty(queryPaging.Search))
@@ -355,9 +354,34 @@ namespace DrugWarehouseManagement.Service.Services
             return result.Adapt<PaginatedResult<ViewLotTransfer>>();
         }
 
-        public Task<BaseResponse> UpdateLotTransfer(Guid accountId, UpdateLotTransferRequest request)
+        public async Task<BaseResponse> UpdateLotTransfer(Guid accountId, UpdateLotTransferRequest request)
         {
-            throw new NotImplementedException();
+            var account = await _unitOfWork.AccountRepository.GetByIdAsync(accountId);
+            if (account == null)
+            {
+                throw new Exception("Account not found");
+            }
+
+            var lotTransfer = await _unitOfWork.LotTransferRepository.GetByWhere(lt => lt.LotTransferId == request.LotTransferId)
+                                                                    .Include(ltd => ltd.LotTransferDetails)
+                                                                    .FirstOrDefaultAsync();
+
+            if (lotTransfer == null)
+            {
+                throw new Exception("Lot transfer not found");
+            }
+
+            lotTransfer.UpdatedAt = SystemClock.Instance.GetCurrentInstant();
+            request.Adapt(lotTransfer);
+
+            await _unitOfWork.LotTransferRepository.UpdateAsync(lotTransfer);
+            await _unitOfWork.SaveChangesAsync();
+
+            return new BaseResponse
+            {
+                Code = (int)HttpStatusCode.OK,
+                Message = "Update transfer order successfully",
+            };
         }
     }
 }

@@ -10,6 +10,7 @@ using Google.Authenticator;
 using Mapster;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
+using Microsoft.Identity.Client;
 using MockQueryable;
 using Moq;
 using System.Linq.Expressions;
@@ -250,13 +251,13 @@ namespace DrugWarehouseManagement.UnitTest
         public async Task SetupTwoFactorAuthenticator_AccountNotFound_ThrowsException()
         {
             // Arrange
-            var email = "testuser@example.com";
+            var accountId = Guid.NewGuid();
             var mockAccounts = new List<Account>().AsQueryable().BuildMock();
             _unitOfWorkMock.Setup(u => u.AccountRepository.GetByWhere(It.IsAny<Expression<Func<Account, bool>>>()))
                 .Returns(mockAccounts);
 
             // Act & Assert
-            var exception = await Assert.ThrowsAsync<Exception>(() => _accountService.SetupTwoFactorAuthenticator(email));
+            var exception = await Assert.ThrowsAsync<Exception>(() => _accountService.SetupTwoFactorAuthenticator(accountId));
             Assert.Equal("Account not found", exception.Message);
         }
 
@@ -267,15 +268,15 @@ namespace DrugWarehouseManagement.UnitTest
             var email = "testuser@example.com";
             var account = new Account
             {
+                Id = Guid.NewGuid(),
                 Email = email,
                 TwoFactorEnabled = true,
             };
-            var mockAccounts = new List<Account> { account }.AsQueryable().BuildMock();
-            _unitOfWorkMock.Setup(u => u.AccountRepository.GetByWhere(It.IsAny<Expression<Func<Account, bool>>>()))
-                .Returns(mockAccounts);
+            _unitOfWorkMock.Setup(u => u.AccountRepository.GetByIdAsync(account.Id))
+                .ReturnsAsync(account);
 
             // Act & Assert
-            var exception = await Assert.ThrowsAsync<Exception>(() => _accountService.SetupTwoFactorAuthenticator(email));
+            var exception = await Assert.ThrowsAsync<Exception>(() => _accountService.SetupTwoFactorAuthenticator(account.Id));
             Assert.Equal("Two factor authenticator is already setup", exception.Message);
         }
 
@@ -286,19 +287,19 @@ namespace DrugWarehouseManagement.UnitTest
             var email = "testuser@example.com";
             var account = new Account
             {
+                Id = Guid.NewGuid(),
                 Email = email,
                 TwoFactorEnabled = false,
             };
-            var mockAccounts = new List<Account> { account }.AsQueryable().BuildMock();
-            _unitOfWorkMock.Setup(u => u.AccountRepository.GetByWhere(It.IsAny<Expression<Func<Account, bool>>>()))
-                .Returns(mockAccounts);
+            _unitOfWorkMock.Setup(u => u.AccountRepository.GetByIdAsync(account.Id))
+                .ReturnsAsync(account);
             _unitOfWorkMock.Setup(u => u.AccountRepository.UpdateAsync(It.IsAny<Account>())).Returns(Task.CompletedTask);
             _unitOfWorkMock.Setup(u => u.SaveChangesAsync()).Returns(Task.CompletedTask);
             _twoFactorAuthenticatorMock.Setup(t => t.GenerateSetupCode(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<byte[]>()))
                 .Returns(new SetupCode("ManualEntryKey", "ImageUrlQrCode", "QrCodeSetupImageUrl"));
 
             // Act
-            var response = await _accountService.SetupTwoFactorAuthenticator(email);
+            var response = await _accountService.SetupTwoFactorAuthenticator(account.Id);
 
             // Assert
             Assert.NotNull(response);
