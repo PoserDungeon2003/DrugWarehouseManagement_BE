@@ -1,4 +1,5 @@
-﻿using DrugWarehouseManagement.Service.DTO.Request;
+﻿using DrugWarehouseManagement.Common;
+using DrugWarehouseManagement.Service.DTO.Request;
 using NodaTime;
 using System;
 using System.Collections.Generic;
@@ -14,9 +15,14 @@ namespace DrugWarehouseManagement.Service.DTO.Response
         public int InboundId { get; set; }
         public string? InboundCode { get; set; }
         public string? ProviderOrderCode { get; set; }
+        public int Quantity { get; set; }
+        public decimal Price { get; set; }
         public string? Note { get; set; }
         public string? ProviderName { get; set; }
-        public List<InboundDetailResponse> InboundDetailList { get; set; } = new List<InboundDetailResponse>();
+        public string? ProductName { get; set; }
+        public string? WareHouseName { get; set; }
+        public string? InboundDate { get; set; } // Ngày nhập kho
+        public InboundStatus Status { get; set; }
     }
 
     public class InboundDetailResponse

@@ -18,7 +18,6 @@ namespace DrugWarehouseManagement.API.Controllers
         }
 
         [HttpPost]
-        [Authorize]
         public async Task<IActionResult> CreateInbound([FromBody] CreateInboundRequest request)
         {
             try

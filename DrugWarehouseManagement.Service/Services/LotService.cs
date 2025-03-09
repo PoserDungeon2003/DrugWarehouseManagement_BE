@@ -17,20 +17,39 @@ namespace DrugWarehouseManagement.Service.Services
         }
         public async Task<BaseResponse> CreateLot(CreateLotRequest request)
         {
+            // Ensure the foreign keys exist before creating the lot
+            var product = await _unitOfWork.ProductRepository.GetByIdAsync(request.ProductId);
+            if (product == null) return new BaseResponse { Code = 404, Message = "Product not found" };
+
+            var warehouse = await _unitOfWork.WarehouseRepository.GetByIdAsync(request.WarehouseId);
+            if (warehouse == null) return new BaseResponse { Code = 404, Message = "Warehouse not found" };
+
+            if (request.ProviderId > 0)
+            {
+                var provider = await _unitOfWork.ProviderRepository.GetByIdAsync(request.ProviderId);
+                if (provider == null) return new BaseResponse { Code = 404, Message = "Provider not found" };
+            }
+
             var lot = new Lot
             {
                 LotNumber = request.LotNumber,
-                TemporaryWarehouse = request.TemporaryWarehouse,
+                Quantity = request.Quantity,
+                TemporaryWarehouseId = request.WarehouseId,
                 WarehouseId = request.WarehouseId,
+                ManufacturingDate = request.ManufacturingDate ?? default,
+                ExpiryDate = request.ExpiryDate,
                 ProductId = request.ProductId,
-                ExpiryDate = request.ExpiryDate
+                ProviderId = request.ProviderId
             };
+
+
 
             await _unitOfWork.LotRepository.CreateAsync(lot);
             await _unitOfWork.SaveChangesAsync();
 
             return new BaseResponse { Code = 200, Message = "Lot created successfully" };
         }
+
 
         public async Task<BaseResponse> UpdateLot(UpdateLotRequest request)
         {
@@ -41,11 +60,13 @@ namespace DrugWarehouseManagement.Service.Services
             }
 
             lot.LotNumber = string.IsNullOrWhiteSpace(request.LotNumber) ? lot.LotNumber : request.LotNumber;
-            lot.TemporaryWarehouse = request.TemporaryWarehouse != 0 ? request.TemporaryWarehouse : lot.TemporaryWarehouse;
-            lot.WarehouseId = request.WarehouseId != 0 ? request.WarehouseId : lot.WarehouseId;
-            lot.ProductId = request.ProductId != 0 ? request.ProductId : lot.ProductId;
-            lot.ExpiryDate = request.ExpiryDate != default ? request.ExpiryDate : lot.ExpiryDate;
-
+            lot.Quantity = request.Quantity ?? lot.Quantity;
+            lot.TemporaryWarehouseId = request.TemporaryWarehouse ?? lot.TemporaryWarehouseId;
+            lot.WarehouseId = request.WarehouseId ?? lot.WarehouseId;
+            lot.ProductId = request.ProductId ?? lot.ProductId;
+            lot.ProviderId = request.ProviderId ?? lot.ProviderId;
+            lot.ManufacturingDate = request.ManufacturingDate ?? lot.ManufacturingDate;
+            lot.ExpiryDate = request.ExpiryDate ?? lot.ExpiryDate;
 
             await _unitOfWork.LotRepository.UpdateAsync(lot);
             await _unitOfWork.SaveChangesAsync();
@@ -80,8 +101,10 @@ namespace DrugWarehouseManagement.Service.Services
                 LotNumber = lot.LotNumber,
                 TemporaryWarehouse = string.Empty,
                 WarehouseName = lot.Warehouse.WarehouseName,
-                ProductName = lot.Products.ProductName,
-                ExpiryDate = lot.ExpiryDate
+                ProductName = lot.Product.ProductName,
+                ProviderName = lot.Provider.ProviderName,
+                ExpiryDate = lot.ExpiryDate,
+                ManufacturingDate = lot.ManufacturingDate
             };
         }
 

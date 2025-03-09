@@ -14,6 +14,9 @@ namespace DrugWarehouseManagement.Service.DTO.Response
         public string TemporaryWarehouse { get; set; } = string.Empty;
         public string WarehouseName { get; set; } = null!; // Permanent Warehouse
         public string ProductName { get; set; } = null!;
-        public Instant ExpiryDate { get; set; }
+        public string ProviderName { get; set; } = null!;
+        public DateOnly ExpiryDate { get; set; }
+        public DateOnly? ManufacturingDate { get; set; }
+
     }
 }
