@@ -315,6 +315,8 @@ namespace DrugWarehouseManagement.Service.Services
                 throw new Exception("Password is incorrect");
             }
 
+            account.ConcurrencyStamp = Guid.NewGuid().ToString();
+
             await _unitOfWork.AccountRepository.UpdateAsync(account);
             await _unitOfWork.SaveChangesAsync();
 
