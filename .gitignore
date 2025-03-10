@@ -403,3 +403,4 @@ appsettings.Production.json
 appsettings.Docker.json
 Migrations/
 .env
+*-credential[s].json

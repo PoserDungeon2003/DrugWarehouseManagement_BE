@@ -8,6 +8,8 @@ using DrugWarehouseManagement.Service.Interface;
 using DrugWarehouseManagement.Service.Services;
 using DrugWarehouseManagement.Service.Wrapper;
 using DrugWarehouseManagement.Service.Wrapper.Interface;
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
 using Mapster;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -17,6 +19,8 @@ using Microsoft.OpenApi.Models;
 using Npgsql;
 using System.Text;
 using System.Text.Json.Serialization;
+using Minio;
+using Minio.DataModel.Args;
 
 namespace DrugWarehouseManagement.API
 {
@@ -48,6 +52,14 @@ namespace DrugWarehouseManagement.API
             AddEnum(services);
             AddCors(services);
 
+            var accessKey = configuration["Minio:AccessKey"];
+            var secretKey = configuration["Minio:SecretKey"];
+            var endpoint = configuration["Minio:Endpoint"];
+            var ssl = configuration.GetValue<bool>("Minio:SSL");
+            InitializeMinio(services, accessKey, secretKey, endpoint, ssl);
+
+            InitializeFirebase();
+
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<ITokenHandlerService, TokenHandlerService>();
             services.AddScoped<IPasswordWrapper, PasswordWrapper>();
@@ -64,6 +76,8 @@ namespace DrugWarehouseManagement.API
             services.AddScoped<IWarehouseService, WarehouseService>();
             services.AddScoped<ICustomerService, CustomerService>();
             services.AddScoped<ILotTransferService, LotTransferService>();
+            services.AddScoped<IMinioService, MinioService>();
+            services.AddScoped<IFirebaseService, FirebaseService>();
 
         }
 
@@ -186,6 +200,28 @@ namespace DrugWarehouseManagement.API
                            .AllowAnyHeader();
                 });
             });
+        }
+
+        private static void InitializeFirebase()
+        {
+            if (FirebaseApp.DefaultInstance == null)
+            {
+                FirebaseApp.Create(new AppOptions()
+                {
+                    Credential = GoogleCredential.FromFile("firebase-credentials.json")
+                });
+
+                Console.WriteLine("Firebase Initialized.");
+            }
+        }
+
+        private static void InitializeMinio(IServiceCollection services, string accessKey, string secretKey, string endpoint, bool ssl = false)
+        {
+            services.AddMinio(configureClient => configureClient
+                .WithEndpoint(endpoint)
+                .WithCredentials(accessKey, secretKey)
+                .WithSSL(ssl)
+                .Build());
         }
 
     }

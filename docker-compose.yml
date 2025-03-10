@@ -49,8 +49,27 @@ services:
     restart: unless-stopped
     networks:
       - drugmanagement-network
+  minio:
+    image: minio/minio:latest
+    container_name: minio-drugmanagement
+    environment:
+      - MINIO_ROOT_USER=admin
+      - MINIO_ROOT_PASSWORD=supersecret
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"  # MinIO API
+      - "9001:9001"  # MinIO Console
+    volumes:
+      - minio_data:/data
+    restart: unless-stopped
+    depends_on:
+      - api
+      - postgres
+    networks:
+      - drugmanagement-network
 volumes:
   data:
   sql_data:
+  minio_data:
 networks:
   drugmanagement-network:
