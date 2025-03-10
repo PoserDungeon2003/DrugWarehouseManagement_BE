@@ -137,6 +137,12 @@ namespace DrugWarehouseManagement.API
 
         private static void AddMapper()
         {
+            TypeAdapterConfig<Outbound, OutboundResponse>
+            .NewConfig()
+            .Map(dest => dest.CustomerName, src => src.Customer.CustomerName)
+            .Map(dest => dest.Address, src => src.Customer.Address)
+            .Map(dest => dest.PhoneNumber, src => src.Customer.PhoneNumber)
+            .Map(dest => dest.OutboundDetails, src => src.OutboundDetails);
             TypeAdapterConfig<Account, ViewAccount>
                 .NewConfig()
                 .Map(dest => dest.Status, src => src.Status.ToString())
@@ -174,7 +180,7 @@ namespace DrugWarehouseManagement.API
                 .Map(dest => dest.CreatedBy, src => src.Account.FullName);
 
         }
-        
+
         private static void AddEnum(IServiceCollection services)
         {
             services.AddControllers().AddJsonOptions(options =>

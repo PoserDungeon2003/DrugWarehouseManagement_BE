@@ -140,6 +140,7 @@ namespace DrugWarehouseManagement.Service.Services
         {
             var query = _unitOfWork.OutboundRepository
                         .GetAll()
+                        .Include(o => o.Customer)
                         .Include(o => o.OutboundDetails)
                         .AsQueryable();
             if (!string.IsNullOrEmpty(queryPaging.Search))

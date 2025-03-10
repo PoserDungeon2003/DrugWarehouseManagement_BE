@@ -67,7 +67,21 @@ namespace DrugWarehouseManagement.API.Controllers
             var result = await _outboundService.SearchOutboundsAsync(queryPaging);
             return Ok(result);
         }
-
+        
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetOutboundById(int id)
+        {
+            var outbound = await _outboundService.GetOutboundByIdWithDetailsAsync(id);
+            if (outbound == null)
+            {
+                return NotFound(new BaseResponse
+                {
+                    Code = 404,
+                    Message = "Outbound not found."
+                });
+            }
+            return Ok(outbound);
+        }
         [HttpGet("export/{id}")]
         public async Task<IActionResult> ExportOutboundInvoice(int id)
         {
