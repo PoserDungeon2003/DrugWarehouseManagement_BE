@@ -2,6 +2,7 @@
 using DrugWarehouseManagement.Service.DTO.Response;
 using DrugWarehouseManagement.Service.Interface;
 using Microsoft.AspNetCore.Mvc;
+using System.Runtime.CompilerServices;
 
 namespace DrugWarehouseManagement.API.Controllers
 {
@@ -9,7 +10,7 @@ namespace DrugWarehouseManagement.API.Controllers
     [ApiController]
     public class ProviderController : ControllerBase
     {
-        private readonly IProviderService _providerService;
+        private readonly IProviderService _providerService;   
         public ProviderController(IProviderService providerService)
         {
             _providerService = providerService;
