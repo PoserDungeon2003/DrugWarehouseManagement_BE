@@ -1,4 +1,4 @@
-﻿using DrugWarehouseManagement.Repository.Models;
+﻿using DrugWarehouseManagement.Service.DTO.Response;
 using System;
 using System.Collections.Generic;
 using System.Linq;

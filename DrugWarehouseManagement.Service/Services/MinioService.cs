@@ -27,66 +27,50 @@ namespace DrugWarehouseManagement.Service.Services
 
         public async Task<FileUploadResponse> FileUpload(string bucketName, IFormFile file, string fileName)
         {
-            try
+            // Make a bucket on the server, if not already present.
+            var beArgs = new BucketExistsArgs()
+                .WithBucket(bucketName);
+            bool found = await _minioClient.BucketExistsAsync(beArgs).ConfigureAwait(false);
+            if (!found)
             {
-                // Make a bucket on the server, if not already present.
-                var beArgs = new BucketExistsArgs()
+                var mbArgs = new MakeBucketArgs()
                     .WithBucket(bucketName);
-                bool found = await _minioClient.BucketExistsAsync(beArgs).ConfigureAwait(false);
-                if (!found)
-                {
-                    var mbArgs = new MakeBucketArgs()
-                        .WithBucket(bucketName);
-                    await _minioClient.MakeBucketAsync(mbArgs).ConfigureAwait(false);
-                }
-                // Upload a file to bucket.
-                using var stream = file.OpenReadStream();
-                var putObjectArgs = new PutObjectArgs()
-                    .WithBucket(bucketName)
-                    .WithObject(fileName)
-                    .WithObjectSize(file.Length)
-                    .WithStreamData(stream)
-                    .WithContentType(file.ContentType);
+                await _minioClient.MakeBucketAsync(mbArgs).ConfigureAwait(false);
+            }
+            // Upload a file to bucket.
+            using var stream = file.OpenReadStream();
+            var putObjectArgs = new PutObjectArgs()
+                .WithBucket(bucketName)
+                .WithObject(fileName)
+                .WithObjectSize(file.Length)
+                .WithStreamData(stream)
+                .WithContentType(file.ContentType);
 
-                var response = await _minioClient.PutObjectAsync(putObjectArgs).ConfigureAwait(false);
-                _logger.LogInformation("Successfully uploaded " + file.FileName);
-                return new FileUploadResponse
-                {
-                    PutObjectResponse = response,
-                    ContentType = file.ContentType,
-                    Extension = file.FileName.Split('.').Last()
-                };
-            }
-            catch (MinioException e)
+            var response = await _minioClient.PutObjectAsync(putObjectArgs).ConfigureAwait(false);
+            _logger.LogInformation("Successfully uploaded " + file.FileName);
+            return new FileUploadResponse
             {
-                _logger.LogError("File Upload Error: {0}", e.Message);
-                return null;
-            }
+                PutObjectResponse = response,
+                ContentType = file.ContentType,
+                Extension = file.FileName.Split('.').Last()
+            };
         }
 
         public async Task<MemoryStream?> GetFileAsync(string bucketName, string objectName)
         {
             var memoryStream = new MemoryStream();
 
-            try
-            {
-                // Download file from MinIO and copy to memory stream
-                var args = new GetObjectArgs()
-                    .WithBucket(bucketName)
-                    .WithObject(objectName)
-                    .WithCallbackStream(async stream => await stream.CopyToAsync(memoryStream));
+            // Download file from MinIO and copy to memory stream
+            var args = new GetObjectArgs()
+                .WithBucket(bucketName)
+                .WithObject(objectName)
+                .WithCallbackStream(async stream => await stream.CopyToAsync(memoryStream));
 
-                await _minioClient.GetObjectAsync(args);
+            await _minioClient.GetObjectAsync(args);
 
-                // Reset stream position before returning
-                memoryStream.Position = 0;
-                return memoryStream;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error retrieving file from MinIO: {ex.Message}");
-                return null;
-            }
+            // Reset stream position before returning
+            memoryStream.Position = 0;
+            return memoryStream;
         }
     }
 }

@@ -11,6 +11,7 @@ namespace DrugWarehouseManagement.API.Controllers
     public class AssetController : ControllerBase
     {
         private readonly IMinioService _minioService;
+
         public AssetController(IMinioService minioService)
         {
             _minioService = minioService;
