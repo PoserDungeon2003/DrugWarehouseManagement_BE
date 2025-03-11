@@ -1,4 +1,6 @@
 using DrugWarehouseManagement.API.Middleware;
+using DrugWarehouseManagement.Service.Interface;
+using Hangfire;
 
 namespace DrugWarehouseManagement.API
 {
@@ -9,7 +11,7 @@ namespace DrugWarehouseManagement.API
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
-
+            
             builder.Configuration
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
@@ -40,14 +42,22 @@ namespace DrugWarehouseManagement.API
             app.UseMiddleware<AuditLoggingMiddleware>();
             app.UseMiddleware<GlobalExceptionMiddleware>();
             app.UseCors("AllowAll");
-
+            app.UseHangfireDashboard("/hangfire");
             app.UseAuthentication();
             app.UseMiddleware<ConcurrencyMiddleware>();
             app.UseAuthorization();
 
             app.MapControllers();
-
+            ConfigureHangfireJobs(app);
             app.Run();
+        }
+        private static void ConfigureHangfireJobs(WebApplication app)
+        {
+            RecurringJob.AddOrUpdate<IInventoryService>(
+                "CheckLowStockAndExpiry",
+                service => service.NotifyLowStockAndExpiryAsync(),
+                Cron.Daily
+            );
         }
     }
 }

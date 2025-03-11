@@ -1,4 +1,4 @@
-﻿using DrugWarehouseManagement.Service.DTO.Request;
+﻿    using DrugWarehouseManagement.Service.DTO.Request;
 using DrugWarehouseManagement.Service.DTO.Response;
 using DrugWarehouseManagement.Service.Interface;
 using Microsoft.AspNetCore.Authorization;
@@ -67,7 +67,21 @@ namespace DrugWarehouseManagement.API.Controllers
             var result = await _outboundService.SearchOutboundsAsync(queryPaging);
             return Ok(result);
         }
-
+        
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetOutboundById(int id)
+        {
+            var outbound = await _outboundService.GetOutboundByIdWithDetailsAsync(id);
+            if (outbound == null)
+            {
+                return NotFound(new BaseResponse
+                {
+                    Code = 404,
+                    Message = "Outbound not found."
+                });
+            }
+            return Ok(outbound);
+        }
         [HttpGet("export/{id}")]
         public async Task<IActionResult> ExportOutboundInvoice(int id)
         {
@@ -83,14 +97,15 @@ namespace DrugWarehouseManagement.API.Controllers
                         Message = "Outbound not found."
                     });
                 }
-                // Create file excel in memory
+
                 using var package = new ExcelPackage();
                 var worksheet = package.Workbook.Worksheets.Add("PhieuGiaoNhan");
-                // Cấu hình font, cỡ chữ chung
+
+                // 1) Cấu hình font chung
                 worksheet.Cells.Style.Font.Name = "Times New Roman";
                 worksheet.Cells.Style.Font.Size = 11;
 
-                // Phần header công ty, khách hàng
+                // 2) Header công ty, khách hàng
                 worksheet.Cells["A1"].Value = "CÔNG TY TNHH DƯỢC PHẨM TRUNG HẠNH";
                 worksheet.Cells["A2"].Value = "Đ/c: 2/35 Châu Hưng, P.6, Quận Tân Bình, Tp.Hồ Chí Minh";
                 worksheet.Cells["A3"].Value = "ĐT: 0993 129 300";
@@ -116,7 +131,7 @@ namespace DrugWarehouseManagement.API.Controllers
                 worksheet.Cells["E8"].Value = "Ngày:";
                 worksheet.Cells["F8"].Value = outbound.OutboundDate?.ToDateTimeUtc().ToString("dd/MM/yyyy");
 
-                // Tiêu đề bảng chi tiết
+                // 3) Tiêu đề bảng chi tiết
                 int startRow = 11;
                 worksheet.Cells[startRow, 1].Value = "STT";
                 worksheet.Cells[startRow, 2].Value = "Tên hàng";
@@ -127,19 +142,18 @@ namespace DrugWarehouseManagement.API.Controllers
                 worksheet.Cells[startRow, 7].Value = "Đơn giá";
                 worksheet.Cells[startRow, 8].Value = "Thành tiền";
 
-                // Canh giữa, in đậm
                 using (var range = worksheet.Cells[startRow, 1, startRow, 8])
                 {
                     range.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
                     range.Style.Font.Bold = true;
                 }
 
-                // Đổ dữ liệu OutboundDetails
+                // 4) Đổ dữ liệu chi tiết
                 int currentRow = startRow + 1;
                 int stt = 1;
                 foreach (var detail in outbound.OutboundDetails)
                 {
-                    worksheet.Cells[currentRow, 1].Value = stt; // STT
+                    worksheet.Cells[currentRow, 1].Value = stt;
                     worksheet.Cells[currentRow, 2].Value = detail.Product?.ProductName ?? "N/A";
                     worksheet.Cells[currentRow, 3].Value = detail.LotNumber;
                     worksheet.Cells[currentRow, 4].Value = detail.ExpiryDate.ToString("dd/MM/yyyy");
@@ -148,7 +162,7 @@ namespace DrugWarehouseManagement.API.Controllers
                     worksheet.Cells[currentRow, 7].Value = detail.UnitPrice;
                     worksheet.Cells[currentRow, 8].Value = detail.TotalPrice;
 
-                    // Định dạng canh phải cho số
+                    // Canh phải các cột số
                     worksheet.Cells[currentRow, 6].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
                     worksheet.Cells[currentRow, 7].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
                     worksheet.Cells[currentRow, 8].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
@@ -157,20 +171,30 @@ namespace DrugWarehouseManagement.API.Controllers
                     currentRow++;
                 }
 
-                // Tính tổng
+                // 5) Dòng tính tổng
                 worksheet.Cells[currentRow, 7].Value = "Tổng cộng:";
                 worksheet.Cells[currentRow, 7].Style.Font.Bold = true;
                 worksheet.Cells[currentRow, 7].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
 
-                // =SUM(H12 : H{currentRow-1})
                 worksheet.Cells[currentRow, 8].Formula = $"SUM(H{(startRow + 1)}:H{(currentRow - 1)})";
                 worksheet.Cells[currentRow, 8].Style.Font.Bold = true;
                 worksheet.Cells[currentRow, 8].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
 
-                // Auto-fit
+                // 6) Chuyển vùng dữ liệu (trừ dòng tổng) thành 1 table
+                //    Để table không bao gồm dòng tổng, ta lấy đến (currentRow - 1)
+                using (var tableRange = worksheet.Cells[startRow, 1, currentRow - 1, 8])
+                {
+                    // Thêm table
+                    var detailTable = worksheet.Tables.Add(tableRange, "OutboundDetailTable");
+                    detailTable.TableStyle = OfficeOpenXml.Table.TableStyles.Medium2;
+                    detailTable.ShowHeader = true;    // đã có header
+                    detailTable.ShowTotal = false;    // ta tính tổng thủ công bên ngoài
+                }
+
+                // 7) Auto-fit
                 worksheet.Cells[1, 1, currentRow, 8].AutoFitColumns();
 
-                // Lưu file vào MemoryStream
+                // 8) Lưu vào MemoryStream
                 var stream = new MemoryStream();
                 package.SaveAs(stream);
                 stream.Position = 0;
