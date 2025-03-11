@@ -22,7 +22,7 @@ namespace DrugWarehouseManagement.API.Controllers
         {
             try
             {
-                var response = await _minioService.GetFileAsync($"drugwarehouse-reports/{inboundId}", id);
+                var response = await _minioService.GetFileAsync($"drugwarehouse-reports", $"{inboundId}/{id}");
                 return File(response.ToArray(), "application/octet-stream", id);
             }
             catch (Exception ex)
