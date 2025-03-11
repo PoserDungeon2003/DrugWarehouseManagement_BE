@@ -1,5 +1,5 @@
 ﻿using DrugWarehouseManagement.Repository;
-using DrugWarehouseManagement.Repository.Models;
+using DrugWarehouseManagement.Service.DTO.Response;
 using DrugWarehouseManagement.Service.Interface;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
