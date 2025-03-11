@@ -211,7 +211,6 @@ namespace DrugWarehouseManagement.API
                     Credential = GoogleCredential.FromFile("firebase-credentials.json")
                 });
 
-                Console.WriteLine("Firebase Initialized.");
             }
         }
 
