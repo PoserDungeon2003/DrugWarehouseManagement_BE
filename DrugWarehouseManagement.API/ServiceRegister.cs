@@ -1,4 +1,5 @@
-﻿using DrugWarehouseManagement.Repository;
+﻿using DrugWarehouseManagement.API.Middleware;
+using DrugWarehouseManagement.Repository;
 using DrugWarehouseManagement.Repository.Interface;
 using DrugWarehouseManagement.Repository.Models;
 using DrugWarehouseManagement.Repository.Repositories;
@@ -8,6 +9,8 @@ using DrugWarehouseManagement.Service.Interface;
 using DrugWarehouseManagement.Service.Services;
 using DrugWarehouseManagement.Service.Wrapper;
 using DrugWarehouseManagement.Service.Wrapper.Interface;
+using Hangfire;
+using Hangfire.PostgreSql;
 using Mapster;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -42,6 +45,19 @@ namespace DrugWarehouseManagement.API
                 });
             });
 
+            services.AddHangfire((provider, config) =>
+            {
+                config.UseSimpleAssemblyNameTypeSerializer();
+                config.UseRecommendedSerializerSettings();
+                config.SetDataCompatibilityLevel(CompatibilityLevel.Version_170);
+
+                // Use PostgreSQL as storage
+                config.UsePostgreSqlStorage(configuration.GetConnectionString("DefaultConnection"));
+
+                // Use our custom JobActivator
+                config.UseActivator(new ScopedJobActivator(provider.GetRequiredService<IServiceScopeFactory>()));
+            });
+            services.AddHangfireServer();
             services.AddAuthorizeService(configuration);
 
             AddMapper();
@@ -64,7 +80,8 @@ namespace DrugWarehouseManagement.API
             services.AddScoped<IWarehouseService, WarehouseService>();
             services.AddScoped<ICustomerService, CustomerService>();
             services.AddScoped<ILotTransferService, LotTransferService>();
-
+            services.AddScoped<IInventoryService, InventoryService>();
+            services.AddScoped<IProviderService, ProviderService>();
         }
 
         public static IServiceCollection AddAuthorizeService(this IServiceCollection services, IConfiguration configuration)
@@ -120,6 +137,12 @@ namespace DrugWarehouseManagement.API
 
         private static void AddMapper()
         {
+            TypeAdapterConfig<Outbound, OutboundResponse>
+            .NewConfig()
+            .Map(dest => dest.CustomerName, src => src.Customer.CustomerName)
+            .Map(dest => dest.Address, src => src.Customer.Address)
+            .Map(dest => dest.PhoneNumber, src => src.Customer.PhoneNumber)
+            .Map(dest => dest.OutboundDetails, src => src.OutboundDetails);
             TypeAdapterConfig<Account, ViewAccount>
                 .NewConfig()
                 .Map(dest => dest.Status, src => src.Status.ToString())

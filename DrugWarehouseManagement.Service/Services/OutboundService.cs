@@ -106,8 +106,6 @@ namespace DrugWarehouseManagement.Service.Services
                 // Nếu hợp lệ, trừ số lượng trong Lot
                 lot.Quantity -= detailRequest.Quantity;
                 await _unitOfWork.LotRepository.UpdateAsync(lot);
-
-                // Tạo đối tượng OutboundDetails
                 var detail = new OutboundDetails
                 {
                     LotId = detailRequest.LotId,
@@ -140,6 +138,7 @@ namespace DrugWarehouseManagement.Service.Services
         {
             var query = _unitOfWork.OutboundRepository
                         .GetAll()
+                        .Include(o => o.Customer)
                         .Include(o => o.OutboundDetails)
                         .AsQueryable();
             if (!string.IsNullOrEmpty(queryPaging.Search))
