@@ -17,13 +17,13 @@ namespace DrugWarehouseManagement.API.Controllers
             _minioService = minioService;
         }
 
-        [HttpGet("inbound/{inboundId}/report/{id}")]
+        [HttpGet("inbound/{inboundId}/{id}")]
         [Authorize]
-        public async Task<IActionResult> GetInboundReportAsset(string inboundId, string id)
+        public async Task<IActionResult> GetInboundAsset(string inboundId, string id)
         {
             try
             {
-                var response = await _minioService.GetFileAsync($"drugwarehouse-reports", $"{inboundId}/{id}");
+                var response = await _minioService.GetFileAsync($"drugwarehouse", $"{inboundId}/{id}");
                 return File(response.ToArray(), "application/octet-stream", id);
             }
             catch (Exception ex)
