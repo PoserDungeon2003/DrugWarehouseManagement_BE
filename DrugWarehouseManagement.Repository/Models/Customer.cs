@@ -20,7 +20,6 @@ namespace DrugWarehouseManagement.Repository.Models
         public string? Email { get; set; }
         public bool IsLoyal { get; set; }  = false;
         public string DocumentNumber { get; set; } = null!; // Số chứng từ của khách hàng
-        public DateOnly DocumentIssueDate { get; set; } // Ngày cấp chứng từ
         public CustomerStatus Status { get; set; } = CustomerStatus.Active;
 
         public virtual ICollection<Outbound> Outbounds { get; set; } = new List<Outbound>();

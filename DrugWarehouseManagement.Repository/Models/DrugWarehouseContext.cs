@@ -90,6 +90,9 @@ namespace DrugWarehouseManagement.Repository.Models
             {
                 entity.HasIndex(e => e.ProductCode, "IX_Products_ProductCode")
                     .IsUnique();
+                entity.HasMany(e => e.Categories)
+                    .WithMany(e => e.Products)
+                    .UsingEntity<ProductCategories>();
             });
 
             modelBuilder.Entity<InboundDetails>(entity => 
@@ -131,6 +134,30 @@ namespace DrugWarehouseManagement.Repository.Models
                     .OnDelete(DeleteBehavior.Cascade);
             });
 
+            modelBuilder.Entity<Categories>(entity =>
+            {
+                entity.HasMany(e => e.Products)
+                    .WithMany(e => e.Categories)
+                    .UsingEntity<ProductCategories>();
+                entity.HasOne(e => e.ParentCategory)
+                    .WithMany(e => e.SubCategories)
+                    .HasForeignKey(e => e.ParentCategoryId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<Asset>(entity =>
+            {
+                entity.HasMany(e => e.Providers)
+                    .WithMany(e => e.Assets)
+                    .UsingEntity<ProviderAssets>();
+                entity.HasMany(e => e.Inbounds)
+                    .WithMany(e => e.Assets)
+                    .UsingEntity<InboundAssets>();
+                entity.HasMany(e => e.InboundReports)
+                    .WithMany(e => e.Assets)
+                    .UsingEntity<InboundReportAssets>();
+            });
+
         }
 
 
@@ -148,5 +175,9 @@ namespace DrugWarehouseManagement.Repository.Models
         public DbSet<Lot> Lots { get; set; }
         public DbSet<LotTransfer> LotTransfers { get; set; }
         public DbSet<LotTransferDetail> LotTransferDetails { get; set; }
+        public DbSet<Categories> Categories { get; set; }
+        public DbSet<InboundReport> InboundReports { get; set; }
+        public DbSet<InboundRequest> InboundRequests { get; set; }
+        public DbSet<Asset> Assets { get; set; }
     }
 }

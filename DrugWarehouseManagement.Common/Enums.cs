@@ -118,4 +118,30 @@
         Cancelled = 4,
     }
 
+    public enum CategoriesStatus
+    {
+        Active = 1,
+        Inactive = 2,
+    }
+
+    public enum InboundRequestStatus
+    {
+        Pending = 1,
+        Completed = 3,
+        Cancelled = 4,
+    }
+
+    public enum InboundReportStatus
+    {
+        Pending = 1,
+        Completed = 2,
+        Cancelled = 3,
+    }
+
+    public enum AssetStatus
+    {
+        Active = 1,
+        Inactive = 2,
+    }
+
 }

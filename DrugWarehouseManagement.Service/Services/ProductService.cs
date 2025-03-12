@@ -56,7 +56,7 @@ namespace DrugWarehouseManagement.Service.Services
                 query = query.Where(p =>
                     EF.Functions.Like(p.ProductName.ToLower(), $"%{searchTerm}%") ||
                     EF.Functions.Like(p.ProductCode.ToLower(), $"%{searchTerm}%") ||
-                    EF.Functions.Like(p.Type.ToLower(), $"%{searchTerm}%")
+                    EF.Functions.Like(p.SKU.ToLower(), $"%{searchTerm}%")
                 );
             }
             query = query.OrderByDescending(p => p.ProductId);
@@ -95,7 +95,7 @@ namespace DrugWarehouseManagement.Service.Services
             // Update fields
             product.ProductName = request.ProductName;
             product.ProductCode = request.ProductCode;
-            product.Type = request.Type;
+            product.SKU = request.Type;
             product.MadeFrom = request.MadeFrom;
 
             await _unitOfWork.ProductRepository.UpdateAsync(product);

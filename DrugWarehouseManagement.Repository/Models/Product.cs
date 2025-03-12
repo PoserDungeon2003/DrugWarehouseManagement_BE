@@ -11,11 +11,13 @@ namespace DrugWarehouseManagement.Repository.Models
         public int ProductId { get; set; }
         public string ProductName { get; set; } = null!;
         public string ProductCode { get; set; } = null!;
-        public string Type { get; set; } = null!;
+        public string SKU { get; set; } = null!;
         public string MadeFrom { get; set; } = null!;
         public ProductStatus Status { get; set; } = ProductStatus.Active;
         
         public virtual List<Inbound> Inbound { get; set; } = null!;
         public virtual List<LotTransferDetail> LotTransferDetails { get; set; } = null!;
+        public virtual List<InboundRequestDetails> InboundRequestDetails { get; set; } = null!;
+        public List<Categories> Categories { get; set; } = null!;
     }
 }

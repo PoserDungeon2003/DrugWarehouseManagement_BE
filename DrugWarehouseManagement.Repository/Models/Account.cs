@@ -28,5 +28,8 @@ namespace DrugWarehouseManagement.Repository.Models
         public virtual List<Inbound> Inbounds { get; set; } = null!;
         public virtual List <Outbound> Outbounds { get; set; } = null!;
         public virtual List<LotTransfer> LotTransfers { get; set; } = null!;
+        public virtual List<InboundRequest> InboundRequests { get; set; } = null!;
+        public virtual List<InboundReport> InboundReports { get; set; } = null!;
+        public virtual List<Asset> Assets { get; set; } = null!;
     }
 }
