@@ -368,7 +368,6 @@ namespace DrugWarehouseManagement.Repository.Models
                     UnitType = "Box",
                     UnitPrice = 12.5m,
                     TotalPrice = 625m,
-                    ProductId = 1,
                     OutboundId = 1,
                     LotId = 1
                 },
@@ -381,7 +380,6 @@ namespace DrugWarehouseManagement.Repository.Models
                     UnitType = "Bottle",
                     UnitPrice = 20m,
                     TotalPrice = 600m,
-                    ProductId = 2,
                     OutboundId = 2,
                     LotId = 2
                 },
@@ -394,7 +392,6 @@ namespace DrugWarehouseManagement.Repository.Models
                     UnitType = "Pack",
                     UnitPrice = 8m,
                     TotalPrice = 320m,
-                    ProductId = 3,
                     OutboundId = 3,
                     LotId = 3
                 },
@@ -407,7 +404,6 @@ namespace DrugWarehouseManagement.Repository.Models
                     UnitType = "Vial",
                     UnitPrice = 50m,
                     TotalPrice = 1000m,
-                    ProductId = 4,
                     OutboundId = 4,
                     LotId = 4
                 },
@@ -420,7 +416,6 @@ namespace DrugWarehouseManagement.Repository.Models
                     UnitType = "Tube",
                     UnitPrice = 15m,
                     TotalPrice = 375m,
-                    ProductId = 5,
                     OutboundId = 5,
                     LotId = 5
                 }

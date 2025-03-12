@@ -88,6 +88,8 @@ namespace DrugWarehouseManagement.API
             services.AddScoped<IAccountRepository, AccountRepository>();
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<IEmailService, EmailService>();
+            services.AddScoped<IInboundService, InboundService>();
+            services.AddScoped<ILotService, LotService>();
             services.AddScoped<IOutboundService, OutboundService>();
             services.AddScoped<IAuditLogsRepository, AuditLogsRepository>();
             services.AddScoped<IAuditLogsService, AuditLogsService>();
@@ -231,14 +233,14 @@ namespace DrugWarehouseManagement.API
 
         private static void InitializeFirebase()
         {
-            if (FirebaseApp.DefaultInstance == null)
-            {
-                FirebaseApp.Create(new AppOptions()
-                {
-                    Credential = GoogleCredential.FromFile("firebase-credentials.json")
-                });
+            //if (FirebaseApp.DefaultInstance == null)
+            //{
+            //    FirebaseApp.Create(new AppOptions()
+            //    {
+            //        Credential = GoogleCredential.FromFile("firebase-credentials.json")
+            //    });
 
-            }
+            //}
         }
 
         private static void InitializeMinio(IServiceCollection services, string accessKey, string secretKey, string endpoint, bool ssl = false)
