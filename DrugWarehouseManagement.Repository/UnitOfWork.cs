@@ -10,6 +10,8 @@ namespace DrugWarehouseManagement.Repository
         public ILotRepository LotRepository { get; private set; }
         public IAccountRepository AccountRepository { get; private set; }
         public IAuditLogsRepository AuditLogsRepository { get; private set; }
+        public IInboundRepository InboundRepository { get; private set; }
+        public IInboundDetailRepository InboundDetailRepository { get; private set; }
         public IOutboundDetailsRepository OutboundDetailsRepository { get; private set; }
         public IOutboundRepository OutboundRepository { get; private set; }
         public IProductRepository ProductRepository { get; private set; }
@@ -24,6 +26,8 @@ namespace DrugWarehouseManagement.Repository
             _context = context;
             AccountRepository ??= new AccountRepository(_context);
             AuditLogsRepository ??= new AuditLogsRepository(_context);
+            InboundRepository ??= new InboundRepository(_context);
+            InboundDetailRepository ??= new InboundDetailRepository(_context);
             OutboundRepository ??= new OutboundRepository(_context);
             OutboundDetailsRepository ??= new OutboundDetailRepostitory(_context);
             LotRepository ??= new LotRepository(_context);
