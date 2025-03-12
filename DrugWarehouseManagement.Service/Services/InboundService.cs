@@ -15,6 +15,7 @@ using Azure.Core;
 using System.Text.RegularExpressions;
 using DrugWarehouseManagement.Common;
 using Microsoft.Identity.Client;
+using NodaTime.Text;
 
 namespace DrugWarehouseManagement.Service.Services
 {
@@ -187,13 +188,26 @@ namespace DrugWarehouseManagement.Service.Services
                 }
             }
 
-            if (request.DateFrom.HasValue)
+            var pattern = InstantPattern.ExtendedIso;
+
+            if (!string.IsNullOrEmpty(request.DateFrom))
             {
-                query = query.Where(i => i.CreatedAt >= request.DateFrom.Value);
+                var parseResult = pattern.Parse(request.DateFrom);
+                if (parseResult.Success)
+                {
+                    Instant dateFromInstant = parseResult.Value;
+                    query = query.Where(i => i.CreatedAt >= dateFromInstant);
+                }
             }
-            if (request.DateTo.HasValue)
+
+            if (!string.IsNullOrEmpty(request.DateTo))
             {
-                query = query.Where(i => i.CreatedAt <= request.DateTo.Value);
+                var parseResult = pattern.Parse(request.DateTo);
+                if (parseResult.Success)
+                {
+                    Instant dateToInstant = parseResult.Value;
+                    query = query.Where(i => i.CreatedAt <= dateToInstant);
+                }
             }
 
             query = query.OrderByDescending(i => i.CreatedAt);
