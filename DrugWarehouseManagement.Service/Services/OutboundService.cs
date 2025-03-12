@@ -115,7 +115,6 @@ namespace DrugWarehouseManagement.Service.Services
                     LotNumber = lot.LotNumber,       // Lấy từ Lot entity
                     ExpiryDate = lot.ExpiryDate,
                     TotalPrice = detailRequest.Quantity * detailRequest.UnitPrice,
-                    ProductId = lot.ProductId        // Lấy ProductId từ Lot                                          
                 };
 
                 detailsList.Add(detail);
@@ -140,6 +139,7 @@ namespace DrugWarehouseManagement.Service.Services
                         .GetAll()
                         .Include(o => o.Customer)
                         .Include(o => o.OutboundDetails)
+                        .ThenInclude(od => od.Lot)
                         .AsQueryable();
             if (!string.IsNullOrEmpty(queryPaging.Search))
             {
@@ -270,7 +270,8 @@ namespace DrugWarehouseManagement.Service.Services
                 .GetByWhere(o => o.OutboundId == outboundId)
                 .Include(c => c.Customer)
                 .Include(o => o.OutboundDetails)
-                    .ThenInclude(d => d.Product)
+                 .ThenInclude(od => od.Lot)
+                .ThenInclude(l => l.Product)
                 .FirstOrDefaultAsync(o => o.OutboundId == outboundId);
             return outbound;
         }
