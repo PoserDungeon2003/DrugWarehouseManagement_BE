@@ -168,7 +168,6 @@ namespace DrugWarehouseManagement.Repository.Models
                     Email = "abc@pharma.com",
                     Status = ProviderStatus.Active,
                     DocumentNumber = "GH12240001",
-                    DocumentIssueDate = new DateOnly(2024, 12, 02)
                 },
                 new Provider
                 {
@@ -180,7 +179,6 @@ namespace DrugWarehouseManagement.Repository.Models
                     Email = "xyz@drugs.com",
                     Status = ProviderStatus.Active,
                     DocumentNumber = "GH12240002",
-                    DocumentIssueDate = new DateOnly(2024, 12, 02)
                 },
                 new Provider
                 {
@@ -192,7 +190,6 @@ namespace DrugWarehouseManagement.Repository.Models
                     Email = "contact@medicorp.com",
                     Status = ProviderStatus.Active,
                     DocumentNumber = "GH12240003",
-                    DocumentIssueDate = new DateOnly(2024, 12, 02)
                 },
                 new Provider
                 {
@@ -204,7 +201,6 @@ namespace DrugWarehouseManagement.Repository.Models
                     Email = "info@wellness.com",
                     Status = ProviderStatus.Inactive,
                     DocumentNumber = "GH12240004",
-                    DocumentIssueDate = new DateOnly(2024, 12, 02)
                 },
                 new Provider
                 {
@@ -216,7 +212,6 @@ namespace DrugWarehouseManagement.Repository.Models
                     Email = "help@safemeds.com",
                     Status = ProviderStatus.Active,
                     DocumentNumber = "GH12240005",
-                    DocumentIssueDate = new DateOnly(2024, 12, 02)
                 }
             );
             // 4. Seed Warehouses
@@ -234,7 +229,7 @@ namespace DrugWarehouseManagement.Repository.Models
                     ProductId = 1,
                     ProductName = "Paracetamol",
                     ProductCode = "P001",
-                    Type = "Tablet",
+                    SKU = "Tablet",
                     MadeFrom = "Chemical"
                 },
                 new Product
@@ -242,7 +237,7 @@ namespace DrugWarehouseManagement.Repository.Models
                     ProductId = 2,
                     ProductName = "Aspirin",
                     ProductCode = "P002",
-                    Type = "Capsule",
+                    SKU = "Capsule",
                     MadeFrom = "Chemical"
                 },
                 new Product
@@ -250,7 +245,7 @@ namespace DrugWarehouseManagement.Repository.Models
                     ProductId = 3,
                     ProductName = "Ibuprofen",
                     ProductCode = "P003",
-                    Type = "Gel",
+                    SKU = "Gel",
                     MadeFrom = "Chemical"
                 },
                 new Product
@@ -258,7 +253,7 @@ namespace DrugWarehouseManagement.Repository.Models
                     ProductId = 4,
                     ProductName = "Vitamin C",
                     ProductCode = "P004",
-                    Type = "Syrup",
+                    SKU = "Syrup",
                     MadeFrom = "Natural"
                 },
                 new Product
@@ -266,7 +261,7 @@ namespace DrugWarehouseManagement.Repository.Models
                     ProductId = 5,
                     ProductName = "Cough Syrup",
                     ProductCode = "P005",
-                    Type = "Liquid",
+                    SKU = "Liquid",
                     MadeFrom = "Herbal"
                 }
             );
@@ -286,16 +281,16 @@ namespace DrugWarehouseManagement.Repository.Models
             );
 
             modelBuilder.Entity<Customer>().HasData(
-                new Customer { CustomerId = 1, CustomerName = "John Doe", Address = "123 Main St", PhoneNumber = "555-1234", Email = "john.doe@example.com", IsLoyal = true, Status = CustomerStatus.Active, DocumentNumber = "GH12240001", DocumentIssueDate = new DateOnly(2024, 12, 02) },
-                new Customer { CustomerId = 2, CustomerName = "Jane Smith", Address = "456 Elm St", PhoneNumber = "555-5678", Email = "jane.smith@example.com", IsLoyal = false, Status = CustomerStatus.Active, DocumentNumber = "GH12240002", DocumentIssueDate = new DateOnly(2024, 12, 02) },
-                new Customer { CustomerId = 3, CustomerName = "Alice Johnson", Address = "789 Oak St", PhoneNumber = "555-8765", Email = "alice.johnson@example.com", IsLoyal = true, Status = CustomerStatus.Active, DocumentNumber = "GH12240003", DocumentIssueDate = new DateOnly(2024, 12, 02) },
-                new Customer { CustomerId = 4, CustomerName = "Bob Brown", Address = "321 Pine St", PhoneNumber = "555-4321", Email = "bob.brown@example.com", IsLoyal = false, Status = CustomerStatus.Active, DocumentNumber = "GH12240004", DocumentIssueDate = new DateOnly(2024, 12, 02) },
-                new Customer { CustomerId = 5, CustomerName = "Charlie Davis", Address = "654 Maple St", PhoneNumber = "555-6789", Email = "charlie.davis@example.com", IsLoyal = true, Status = CustomerStatus.Active, DocumentNumber = "GH12240005", DocumentIssueDate = new DateOnly(2024, 12, 02) },
-                new Customer { CustomerId = 6, CustomerName = "Diana Evans", Address = "987 Birch St", PhoneNumber = "555-9876", Email = "diana.evans@example.com", IsLoyal = false, Status = CustomerStatus.Inactive, DocumentNumber = "GH12240006", DocumentIssueDate = new DateOnly(2024, 12, 02) },
-                new Customer { CustomerId = 7, CustomerName = "Eve Foster", Address = "159 Cedar St", PhoneNumber = "555-1597", Email = "eve.foster@example.com", IsLoyal = true, Status = CustomerStatus.Inactive, DocumentNumber = "GH12240007", DocumentIssueDate = new DateOnly(2024, 12, 02) },
-                new Customer { CustomerId = 8, CustomerName = "Frank Green", Address = "753 Spruce St", PhoneNumber = "555-7531", Email = "frank.green@example.com", IsLoyal = false, Status = CustomerStatus.Inactive, DocumentNumber = "GH12240008", DocumentIssueDate = new DateOnly(2024, 12, 02) },
-                new Customer { CustomerId = 9, CustomerName = "Grace Harris", Address = "852 Willow St", PhoneNumber = "555-8524", Email = "grace.harris@example.com", IsLoyal = true, Status = CustomerStatus.Inactive, DocumentNumber = "GH12240009", DocumentIssueDate = new DateOnly(2024, 12, 02) },
-                new Customer { CustomerId = 10, CustomerName = "Henry Irving", Address = "951 Poplar St", PhoneNumber = "555-9513", Email = "henry.irving@example.com", IsLoyal = false, Status = CustomerStatus.Inactive, DocumentNumber = "GH122400010", DocumentIssueDate = new DateOnly(2024, 12, 02) }
+                new Customer { CustomerId = 1, CustomerName = "John Doe", Address = "123 Main St", PhoneNumber = "555-1234", Email = "john.doe@example.com", IsLoyal = true, Status = CustomerStatus.Active, DocumentNumber = "GH12240001" },
+                new Customer { CustomerId = 2, CustomerName = "Jane Smith", Address = "456 Elm St", PhoneNumber = "555-5678", Email = "jane.smith@example.com", IsLoyal = false, Status = CustomerStatus.Active, DocumentNumber = "GH12240002" },
+                new Customer { CustomerId = 3, CustomerName = "Alice Johnson", Address = "789 Oak St", PhoneNumber = "555-8765", Email = "alice.johnson@example.com", IsLoyal = true, Status = CustomerStatus.Active, DocumentNumber = "GH12240003" },
+                new Customer { CustomerId = 4, CustomerName = "Bob Brown", Address = "321 Pine St", PhoneNumber = "555-4321", Email = "bob.brown@example.com", IsLoyal = false, Status = CustomerStatus.Active, DocumentNumber = "GH12240004" },
+                new Customer { CustomerId = 5, CustomerName = "Charlie Davis", Address = "654 Maple St", PhoneNumber = "555-6789", Email = "charlie.davis@example.com", IsLoyal = true, Status = CustomerStatus.Active, DocumentNumber = "GH12240005" },
+                new Customer { CustomerId = 6, CustomerName = "Diana Evans", Address = "987 Birch St", PhoneNumber = "555-9876", Email = "diana.evans@example.com", IsLoyal = false, Status = CustomerStatus.Inactive, DocumentNumber = "GH12240006" },
+                new Customer { CustomerId = 7, CustomerName = "Eve Foster", Address = "159 Cedar St", PhoneNumber = "555-1597", Email = "eve.foster@example.com", IsLoyal = true, Status = CustomerStatus.Inactive, DocumentNumber = "GH12240007" },
+                new Customer { CustomerId = 8, CustomerName = "Frank Green", Address = "753 Spruce St", PhoneNumber = "555-7531", Email = "frank.green@example.com", IsLoyal = false, Status = CustomerStatus.Inactive, DocumentNumber = "GH12240008" },
+                new Customer { CustomerId = 9, CustomerName = "Grace Harris", Address = "852 Willow St", PhoneNumber = "555-8524", Email = "grace.harris@example.com", IsLoyal = true, Status = CustomerStatus.Inactive, DocumentNumber = "GH12240009" },
+                new Customer { CustomerId = 10, CustomerName = "Henry Irving", Address = "951 Poplar St", PhoneNumber = "555-9513", Email = "henry.irving@example.com", IsLoyal = false, Status = CustomerStatus.Inactive, DocumentNumber = "GH122400010" }
             );
 
             // 7. Seed Outbounds

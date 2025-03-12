@@ -16,12 +16,11 @@ namespace DrugWarehouseManagement.Repository.Models
         public string? Nationality { get; set; }
         public string Email { get; set; } = null!;
         public string DocumentNumber { get; set; } = null!; // Số chứng từ của nhà cung cấp
-        public DateOnly DocumentIssueDate { get; set; } // Ngày cấp chứng từ
         public ProviderStatus Status { get; set; } = ProviderStatus.Active;
 
         public virtual List<Lot> Lots { get; set; } = null!; 
         public virtual List<Inbound> Inbounds { get; set; } = null!;
         public virtual List<Product> Products { get; set; } = null!;
-
+        public virtual List<Asset> Assets { get; set; } = null!;
     }
 }

@@ -261,7 +261,7 @@ namespace DrugWarehouseManagement.Service.Services
                                 table.Cell().Border(1).Text($"{detail.Lot.LotNumber}");
                                 table.Cell().Border(1).Text($"{detail.Lot.ExpiryDate.ToString("dd/MM/yyyy")}");
                                 table.Cell().Border(1).Text($"{detail.Lot.Provider.ProviderName}");
-                                table.Cell().Border(1).Text($"{detail.Product.Type.ToUpper()}");
+                                table.Cell().Border(1).Text($"{detail.Product.SKU.ToUpper()}");
                                 table.Cell().Border(1).Text($"{detail.Quantity.ToString("N0", new CultureInfo("vi-VN"))}");
                                 table.Cell().Border(1).Text("0");
                                 index++;
