@@ -13,12 +13,12 @@ namespace DrugWarehouseManagement.Repository.Models
         [Key]
         public int CategoryId { get; set; }
         public string CategoryName { get; set; } = null!;
-        public int ParentCategoryId { get; set; }
+        public int? ParentCategoryId { get; set; }
         public string Description { get; set; } = null!;
         public CategoriesStatus Status { get; set; } = CategoriesStatus.Active;
 
         public Categories? ParentCategory { get; set; }
-        public List<Categories> SubCategories { get; set; } = null!;
+        public List<Categories>? SubCategories { get; set; }
         public List<Product> Products { get; set; } = null!;
         public List<Asset> Assets { get; set; } = null!;
     }
