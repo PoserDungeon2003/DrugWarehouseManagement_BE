@@ -15,7 +15,6 @@ namespace DrugWarehouseManagement.Repository.Models
         public string MadeFrom { get; set; } = null!;
         public ProductStatus Status { get; set; } = ProductStatus.Active;
         
-        public virtual List<OutboundDetails> OutboundDetails { get; set; } = null!;
         public virtual List<Inbound> Inbound { get; set; } = null!;
         public virtual List<LotTransferDetail> LotTransferDetails { get; set; } = null!;
     }
