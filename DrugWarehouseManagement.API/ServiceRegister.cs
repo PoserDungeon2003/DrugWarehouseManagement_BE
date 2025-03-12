@@ -1,4 +1,5 @@
-﻿using DrugWarehouseManagement.Repository;
+﻿using DrugWarehouseManagement.API.Middleware;
+using DrugWarehouseManagement.Repository;
 using DrugWarehouseManagement.Repository.Interface;
 using DrugWarehouseManagement.Repository.Models;
 using DrugWarehouseManagement.Repository.Repositories;
@@ -8,6 +9,10 @@ using DrugWarehouseManagement.Service.Interface;
 using DrugWarehouseManagement.Service.Services;
 using DrugWarehouseManagement.Service.Wrapper;
 using DrugWarehouseManagement.Service.Wrapper.Interface;
+using Hangfire;
+using Hangfire.PostgreSql;
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
 using Mapster;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -17,6 +22,8 @@ using Microsoft.OpenApi.Models;
 using Npgsql;
 using System.Text;
 using System.Text.Json.Serialization;
+using Minio;
+using Minio.DataModel.Args;
 
 namespace DrugWarehouseManagement.API
 {
@@ -42,11 +49,32 @@ namespace DrugWarehouseManagement.API
                 });
             });
 
+            services.AddHangfire((provider, config) =>
+            {
+                config.UseSimpleAssemblyNameTypeSerializer();
+                config.UseRecommendedSerializerSettings();
+                config.SetDataCompatibilityLevel(CompatibilityLevel.Version_170);
+
+                // Use PostgreSQL as storage
+                config.UsePostgreSqlStorage(configuration.GetConnectionString("DefaultConnection"));
+
+                // Use our custom JobActivator
+                config.UseActivator(new ScopedJobActivator(provider.GetRequiredService<IServiceScopeFactory>()));
+            });
+            services.AddHangfireServer();
             services.AddAuthorizeService(configuration);
 
             AddMapper();
             AddEnum(services);
             AddCors(services);
+
+            var accessKey = configuration["Minio:AccessKey"];
+            var secretKey = configuration["Minio:SecretKey"];
+            var endpoint = configuration["Minio:Endpoint"];
+            var ssl = configuration.GetValue<bool>("Minio:SSL");
+            InitializeMinio(services, accessKey, secretKey, endpoint, ssl);
+
+            InitializeFirebase();
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<ITokenHandlerService, TokenHandlerService>();
@@ -66,6 +94,10 @@ namespace DrugWarehouseManagement.API
             services.AddScoped<IWarehouseService, WarehouseService>();
             services.AddScoped<ICustomerService, CustomerService>();
             services.AddScoped<ILotTransferService, LotTransferService>();
+            services.AddScoped<IInventoryService, InventoryService>();
+            services.AddScoped<IProviderService, ProviderService>();
+            services.AddScoped<IMinioService, MinioService>();
+            services.AddScoped<IFirebaseService, FirebaseService>();
 
         }
 
@@ -122,6 +154,12 @@ namespace DrugWarehouseManagement.API
 
         private static void AddMapper()
         {
+            TypeAdapterConfig<Outbound, OutboundResponse>
+            .NewConfig()
+            .Map(dest => dest.CustomerName, src => src.Customer.CustomerName)
+            .Map(dest => dest.Address, src => src.Customer.Address)
+            .Map(dest => dest.PhoneNumber, src => src.Customer.PhoneNumber)
+            .Map(dest => dest.OutboundDetails, src => src.OutboundDetails);
             TypeAdapterConfig<Account, ViewAccount>
                 .NewConfig()
                 .Map(dest => dest.Status, src => src.Status.ToString())
@@ -151,6 +189,24 @@ namespace DrugWarehouseManagement.API
                 .Map(dest => dest.ToWareHouse, src => src.ToWareHouse.WarehouseName)
                 .Map(dest => dest.Username, src => src.Account.UserName);
 
+            TypeAdapterConfig<LotTransfer, ViewLotTransfer>
+                .NewConfig()
+                .Map(dest => dest.LotTransferStatus, src => src.LotTransferStatus.ToString())
+                .Map(dest => dest.FromWareHouse, src => src.FromWareHouse.WarehouseName)
+                .Map(dest => dest.ToWareHouse, src => src.ToWareHouse.WarehouseName)
+                .Map(dest => dest.CreatedBy, src => src.Account.FullName)
+                .IgnoreNullValues(true);
+
+            TypeAdapterConfig<LotTransferDetail, ViewLotTransferDetail>
+                .NewConfig()
+                .Map(dest => dest.ProductName, src => src.Product.ProductName)
+                .Map(dest => dest.LotNumber, src => src.Lot.LotNumber)
+                .IgnoreNullValues(true);
+
+            TypeAdapterConfig<UpdateLotTransferRequest, LotTransfer>
+                .NewConfig()
+                .IgnoreNullValues(true);
+
         }
 
         private static void AddEnum(IServiceCollection services)
@@ -170,6 +226,27 @@ namespace DrugWarehouseManagement.API
                            .AllowAnyHeader();
                 });
             });
+        }
+
+        private static void InitializeFirebase()
+        {
+            if (FirebaseApp.DefaultInstance == null)
+            {
+                FirebaseApp.Create(new AppOptions()
+                {
+                    Credential = GoogleCredential.FromFile("firebase-credentials.json")
+                });
+
+            }
+        }
+
+        private static void InitializeMinio(IServiceCollection services, string accessKey, string secretKey, string endpoint, bool ssl = false)
+        {
+            services.AddMinio(configureClient => configureClient
+                .WithEndpoint(endpoint)
+                .WithCredentials(accessKey, secretKey)
+                .WithSSL(ssl)
+                .Build());
         }
 
     }

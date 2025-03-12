@@ -1,4 +1,5 @@
-﻿using DrugWarehouseManagement.Service.DTO.Request;
+﻿using DrugWarehouseManagement.Common;
+using DrugWarehouseManagement.Service.DTO.Request;
 using DrugWarehouseManagement.Service.DTO.Response;
 using DrugWarehouseManagement.Service.Interface;
 using Microsoft.AspNetCore.Authorization;
@@ -41,7 +42,7 @@ namespace DrugWarehouseManagement.API.Controllers
             }
         }
 
-        [HttpGet("export/{id}")]
+        [HttpPost("export/{id}")]
         [Authorize]
         public async Task<IActionResult> ExportLotTransfer([FromRoute] int id)
         {
@@ -61,6 +62,90 @@ namespace DrugWarehouseManagement.API.Controllers
                 });
             }
 
+        }
+
+        [HttpPost("cancel/{id}")]
+        [Authorize]
+        public async Task<IActionResult> CancelLotTransfer([FromRoute] int id)
+        {
+            var accountId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            try
+            {
+                var response = await _lotTransferService.CancelLotTransfer(Guid.Parse(accountId), id);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    Code = 400,
+                    Message = ex.Message,
+                });
+            }
+        }
+
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> GetLotTransfers([FromQuery] QueryPaging request)
+        {
+            var accountId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            try
+            {
+                var response = await _lotTransferService.GetLotTransfers(request);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    Code = 400,
+                    Message = ex.Message,
+                });
+            }
+        }
+
+        [HttpGet("{id}")]
+        [Authorize]
+        public async Task<IActionResult> GetLotTransferById([FromRoute] int id)
+        {
+            var accountId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            try
+            {
+                var response = await _lotTransferService.GetLotTransferById(id);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    Code = 400,
+                    Message = ex.Message,
+                });
+            }
+        }
+
+        [HttpPut]
+        [Authorize]
+        public async Task<IActionResult> UpdateLotTransfer([FromBody] UpdateLotTransferRequest request)
+        {
+            var accountId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            try
+            {
+                var response = await _lotTransferService.UpdateLotTransfer(Guid.Parse(accountId), request);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    Code = 400,
+                    Message = ex.Message,
+                });
+            }
         }
 
     }

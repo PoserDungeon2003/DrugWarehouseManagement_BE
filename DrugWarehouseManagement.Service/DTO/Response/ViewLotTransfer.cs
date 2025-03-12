@@ -1,4 +1,5 @@
 ﻿using DrugWarehouseManagement.Common;
+using NodaTime;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,25 +8,25 @@ using System.Threading.Tasks;
 
 namespace DrugWarehouseManagement.Service.DTO.Response
 {
-    public class CreateLotTransferResponse
+    public class ViewLotTransfer
     {
         public int LotTransferId { get; set; }
         public string LotTransferCode { get; set; } = null!;
         public string LotTransferStatus { get; set; } = null!;
         public string FromWareHouse { get; set; } = null!;
         public string ToWareHouse { get; set; } = null!;
-        public string Username { get; set; } = null!;
-        public List<CreateLotTransferDetailResponse> LotTransferDetails { get; set; } = null!;
+        public string CreatedBy { get; set; } = null!;
+        public Instant CreatedAt { get; set; }
+        public Instant? UpdatedAt { get; set; }
+        public List<ViewLotTransferDetail> LotTransferDetails { get; set; } = new List<ViewLotTransferDetail>();
     }
 
-    public class CreateLotTransferDetailResponse
+    public class ViewLotTransferDetail
     {
         public int LotTransferDetailId { get; set; }
         public DateOnly ExpiryDate { get; set; }
-        public string UnitType { get; set; } = null!;
         public int Quantity { get; set; }
-        public int ProductId { get; set; }
-        public int LotId { get; set; }
-        public int LotTransferId { get; set; }
+        public string ProductName { get; set; } = null!;
+        public string LotNumber { get; set; } = null!;
     }
 }

@@ -26,7 +26,7 @@ namespace DrugWarehouseManagement.Repository.Models
                 new Role { RoleId = 2, RoleName = "Inventory Manager" },
                 new Role { RoleId = 3, RoleName = "Accountant" },
                 new Role { RoleId = 4, RoleName = "Sale Admin" },
-                new Role { RoleId = 5, RoleName = "CEO" }
+                new Role { RoleId = 5, RoleName = "Director" }
             );
 
             // 2. Seed Accounts
@@ -221,11 +221,11 @@ namespace DrugWarehouseManagement.Repository.Models
             );
             // 4. Seed Warehouses
             modelBuilder.Entity<Warehouse>().HasData(
-                new Warehouse { WarehouseId = 1, WarehouseCode="CW-1", WarehouseName = "Central Warehouse", Address = "123 Main St", Status = WarehouseStatus.Active },
-                new Warehouse { WarehouseId = 2, WarehouseCode="EW-1", WarehouseName = "East Warehouse", Address = "456 East St", Status = WarehouseStatus.Inactive },
-                new Warehouse { WarehouseId = 3, WarehouseCode="WW-1", WarehouseName = "West Warehouse", Address = "789 West St", Status = WarehouseStatus.Inactive },
-                new Warehouse { WarehouseId = 4, WarehouseCode="NW-1", WarehouseName = "North Warehouse", Address = "321 North St", Status = WarehouseStatus.Active },
-                new Warehouse { WarehouseId = 5, WarehouseCode="SW-1", WarehouseName = "South Warehouse", Address = "654 South St", Status = WarehouseStatus.Active }
+                new Warehouse { WarehouseId = 1, WarehouseCode = "CW-1", WarehouseName = "Central Warehouse", Address = "123 Main St", Status = WarehouseStatus.Active },
+                new Warehouse { WarehouseId = 2, WarehouseCode = "EW-1", WarehouseName = "East Warehouse", Address = "456 East St", Status = WarehouseStatus.Inactive },
+                new Warehouse { WarehouseId = 3, WarehouseCode = "WW-1", WarehouseName = "West Warehouse", Address = "789 West St", Status = WarehouseStatus.Inactive },
+                new Warehouse { WarehouseId = 4, WarehouseCode = "NW-1", WarehouseName = "North Warehouse", Address = "321 North St", Status = WarehouseStatus.Active },
+                new Warehouse { WarehouseId = 5, WarehouseCode = "SW-1", WarehouseName = "South Warehouse", Address = "654 South St", Status = WarehouseStatus.Active }
             );
             // 5. Seed Products
             modelBuilder.Entity<Product>().HasData(
@@ -272,17 +272,17 @@ namespace DrugWarehouseManagement.Repository.Models
             );
             // 6. Seed Lots
             modelBuilder.Entity<Lot>().HasData(
-                new Lot { LotId = 1, LotNumber = "L001", Quantity = 100, ExpiryDate = new DateOnly(2026, 12, 31), WarehouseId = 1, ProductId = 1, ProviderId = 1 },
-                new Lot { LotId = 2, LotNumber = "L002", Quantity = 200, ExpiryDate = new DateOnly(2026, 12, 31), WarehouseId = 2, ProductId = 2, ProviderId = 2 },
-                new Lot { LotId = 3, LotNumber = "L003", Quantity = 150, ExpiryDate = new DateOnly(2026, 12, 31), WarehouseId = 3, ProductId = 3, ProviderId = 3 },
-                new Lot { LotId = 4, LotNumber = "L004", Quantity = 250, ExpiryDate = new DateOnly(2026, 12, 31), WarehouseId = 4, ProductId = 4, ProviderId = 4 },
-                new Lot { LotId = 5, LotNumber = "L005", Quantity = 300, ExpiryDate = new DateOnly(2026, 12, 31), WarehouseId = 5, ProductId = 5, ProviderId = 5 },
-                new Lot { LotId = 6, LotNumber = "L006", Quantity = 100, ExpiryDate = new DateOnly(2026, 12, 31), WarehouseId = 1, ProductId = 1, ProviderId = 1 },
-                new Lot { LotId = 7, LotNumber = "L007", Quantity = 100, ExpiryDate = new DateOnly(2026, 12, 31), WarehouseId = 1, ProductId = 1, ProviderId = 1 },
-                new Lot { LotId = 8, LotNumber = "L008", Quantity = 100, ExpiryDate = new DateOnly(2026, 12, 31), WarehouseId = 1, ProductId = 1, ProviderId = 1 },
-                new Lot { LotId = 9, LotNumber = "L009", Quantity = 100, ExpiryDate = new DateOnly(2026, 12, 31), WarehouseId = 1, ProductId = 1, ProviderId = 1 },
-                new Lot { LotId = 10, LotNumber = "L0010", Quantity = 100, ExpiryDate = new DateOnly(2026, 12, 31), WarehouseId = 1, ProductId = 1, ProviderId = 1 }
+                 new Lot { LotId = 1, LotNumber = "L001", Quantity = 100, ManufacturingDate = new DateOnly(2024, 1, 1), ExpiryDate = new DateOnly(2026, 12, 31), WarehouseId = 1, ProductId = 1, ProviderId = 1 },
+                 new Lot { LotId = 2, LotNumber = "L002", Quantity = 200, ManufacturingDate = new DateOnly(2023, 6, 15), ExpiryDate = new DateOnly(2026, 10, 20), WarehouseId = 2, ProductId = 2, ProviderId = 2 },
+                 new Lot { LotId = 3, LotNumber = "L003", Quantity = 150, ManufacturingDate = new DateOnly(2023, 8, 10), ExpiryDate = new DateOnly(2027, 3, 25), WarehouseId = 3, ProductId = 3, ProviderId = 3 },
+                 new Lot { LotId = 4, LotNumber = "L004", Quantity = 250, ManufacturingDate = new DateOnly(2022, 12, 5), ExpiryDate = new DateOnly(2025, 11, 30), WarehouseId = 4, ProductId = 4, ProviderId = 4 },
+                 new Lot { LotId = 5, LotNumber = "L005", Quantity = 300, ManufacturingDate = new DateOnly(2024, 2, 20), ExpiryDate = new DateOnly(2026, 9, 15), WarehouseId = 5, ProductId = 5, ProviderId = 5 },
 
+                 // New Lots with quantity < 10 and expiry within 1 year or < 60% shelf life
+                 new Lot { LotId = 11, LotNumber = "L011", Quantity = 5, ManufacturingDate = new DateOnly(2023, 3, 10), ExpiryDate = new DateOnly(2025, 4, 1), WarehouseId = 2, ProductId = 2, ProviderId = 2 },
+                 new Lot { LotId = 12, LotNumber = "L012", Quantity = 7, ManufacturingDate = new DateOnly(2023, 8, 5), ExpiryDate = new DateOnly(2025, 6, 30), WarehouseId = 3, ProductId = 3, ProviderId = 3 },
+                 new Lot { LotId = 13, LotNumber = "L013", Quantity = 3, ManufacturingDate = new DateOnly(2024, 1, 20), ExpiryDate = new DateOnly(2025, 2, 15), WarehouseId = 1, ProductId = 4, ProviderId = 4 },
+                 new Lot { LotId = 14, LotNumber = "L014", Quantity = 9, ManufacturingDate = new DateOnly(2024, 5, 1), ExpiryDate = new DateOnly(2025, 5, 15), WarehouseId = 4, ProductId = 5, ProviderId = 5 }
             );
 
             modelBuilder.Entity<Customer>().HasData(
@@ -368,7 +368,6 @@ namespace DrugWarehouseManagement.Repository.Models
                     UnitType = "Box",
                     UnitPrice = 12.5m,
                     TotalPrice = 625m,
-                    ProductId = 1,
                     OutboundId = 1,
                     LotId = 1
                 },
@@ -381,7 +380,6 @@ namespace DrugWarehouseManagement.Repository.Models
                     UnitType = "Bottle",
                     UnitPrice = 20m,
                     TotalPrice = 600m,
-                    ProductId = 2,
                     OutboundId = 2,
                     LotId = 2
                 },
@@ -394,7 +392,6 @@ namespace DrugWarehouseManagement.Repository.Models
                     UnitType = "Pack",
                     UnitPrice = 8m,
                     TotalPrice = 320m,
-                    ProductId = 3,
                     OutboundId = 3,
                     LotId = 3
                 },
@@ -407,7 +404,6 @@ namespace DrugWarehouseManagement.Repository.Models
                     UnitType = "Vial",
                     UnitPrice = 50m,
                     TotalPrice = 1000m,
-                    ProductId = 4,
                     OutboundId = 4,
                     LotId = 4
                 },
@@ -420,7 +416,6 @@ namespace DrugWarehouseManagement.Repository.Models
                     UnitType = "Tube",
                     UnitPrice = 15m,
                     TotalPrice = 375m,
-                    ProductId = 5,
                     OutboundId = 5,
                     LotId = 5
                 }
@@ -440,16 +435,16 @@ namespace DrugWarehouseManagement.Repository.Models
             );
 
             modelBuilder.Entity<LotTransferDetail>().HasData(
-                new LotTransferDetail { LotTransferDetailId = 1, Quantity = 10, ProductId = 1, LotId = 1, LotTransferId = 1, UnitType = "Hộp", ExpiryDate = new DateOnly(2026, 12, 31) },
-                new LotTransferDetail { LotTransferDetailId = 2, Quantity = 15, ProductId = 2, LotId = 2, LotTransferId = 1, UnitType = "Hộp", ExpiryDate = new DateOnly(2026, 12, 31) },
-                new LotTransferDetail { LotTransferDetailId = 3, Quantity = 5, ProductId = 3, LotId = 3, LotTransferId = 2, UnitType = "Hộp", ExpiryDate = new DateOnly(2026, 12, 31) },
-                new LotTransferDetail { LotTransferDetailId = 4, Quantity = 20, ProductId = 4, LotId = 4, LotTransferId = 3, UnitType = "Hộp", ExpiryDate = new DateOnly(2026, 12, 31) },
-                new LotTransferDetail { LotTransferDetailId = 5, Quantity = 12, ProductId = 5, LotId = 5, LotTransferId = 3, UnitType = "Hộp", ExpiryDate = new DateOnly(2026, 12, 31) },
-                new LotTransferDetail { LotTransferDetailId = 6, Quantity = 25, ProductId = 1, LotId = 5, LotTransferId = 4, UnitType = "Hộp", ExpiryDate = new DateOnly(2026, 12, 31) },
-                new LotTransferDetail { LotTransferDetailId = 7, Quantity = 30, ProductId = 2, LotId = 4, LotTransferId = 5, UnitType = "Hộp", ExpiryDate = new DateOnly(2026, 12, 31) },
-                new LotTransferDetail { LotTransferDetailId = 8, Quantity = 8, ProductId = 3, LotId = 3, LotTransferId = 6, UnitType = "Hộp", ExpiryDate = new DateOnly(2026, 12, 31) },
-                new LotTransferDetail { LotTransferDetailId = 9, Quantity = 14, ProductId = 4, LotId = 2, LotTransferId = 7, UnitType = "Hộp", ExpiryDate = new DateOnly(2026, 12, 31) },
-                new LotTransferDetail { LotTransferDetailId = 10, Quantity = 18, ProductId = 5, LotId = 1, LotTransferId = 8, UnitType = "Hộp", ExpiryDate = new DateOnly(2026, 12, 31) }
+                new LotTransferDetail { LotTransferDetailId = 1, Quantity = 10, ProductId = 1, LotId = 1, LotTransferId = 1, ExpiryDate = new DateOnly(2026, 12, 31) },
+                new LotTransferDetail { LotTransferDetailId = 2, Quantity = 15, ProductId = 2, LotId = 2, LotTransferId = 1, ExpiryDate = new DateOnly(2026, 12, 31) },
+                new LotTransferDetail { LotTransferDetailId = 3, Quantity = 5, ProductId = 3, LotId = 3, LotTransferId = 2, ExpiryDate = new DateOnly(2026, 12, 31) },
+                new LotTransferDetail { LotTransferDetailId = 4, Quantity = 20, ProductId = 4, LotId = 4, LotTransferId = 3, ExpiryDate = new DateOnly(2026, 12, 31) },
+                new LotTransferDetail { LotTransferDetailId = 5, Quantity = 12, ProductId = 5, LotId = 5, LotTransferId = 3, ExpiryDate = new DateOnly(2026, 12, 31) },
+                new LotTransferDetail { LotTransferDetailId = 6, Quantity = 25, ProductId = 1, LotId = 5, LotTransferId = 4, ExpiryDate = new DateOnly(2026, 12, 31) },
+                new LotTransferDetail { LotTransferDetailId = 7, Quantity = 30, ProductId = 2, LotId = 4, LotTransferId = 5, ExpiryDate = new DateOnly(2026, 12, 31) },
+                new LotTransferDetail { LotTransferDetailId = 8, Quantity = 8, ProductId = 3, LotId = 3, LotTransferId = 6, ExpiryDate = new DateOnly(2026, 12, 31) },
+                new LotTransferDetail { LotTransferDetailId = 9, Quantity = 14, ProductId = 4, LotId = 2, LotTransferId = 7, ExpiryDate = new DateOnly(2026, 12, 31) },
+                new LotTransferDetail { LotTransferDetailId = 10, Quantity = 18, ProductId = 5, LotId = 1, LotTransferId = 8, ExpiryDate = new DateOnly(2026, 12, 31) }
             );
 
         }

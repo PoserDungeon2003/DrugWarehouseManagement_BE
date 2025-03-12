@@ -9,6 +9,7 @@ using Mapster;
 using Microsoft.EntityFrameworkCore;
 using NodaTime;
 using NodaTime.Calendars;
+using NodaTime.Text;
 using System.Net;
 
 namespace DrugWarehouseManagement.Service.Services
@@ -105,8 +106,6 @@ namespace DrugWarehouseManagement.Service.Services
                 // Nếu hợp lệ, trừ số lượng trong Lot
                 lot.Quantity -= detailRequest.Quantity;
                 await _unitOfWork.LotRepository.UpdateAsync(lot);
-
-                // Tạo đối tượng OutboundDetails
                 var detail = new OutboundDetails
                 {
                     LotId = detailRequest.LotId,
@@ -116,7 +115,6 @@ namespace DrugWarehouseManagement.Service.Services
                     LotNumber = lot.LotNumber,       // Lấy từ Lot entity
                     ExpiryDate = lot.ExpiryDate,
                     TotalPrice = detailRequest.Quantity * detailRequest.UnitPrice,
-                    ProductId = lot.ProductId        // Lấy ProductId từ Lot                                          
                 };
 
                 detailsList.Add(detail);
@@ -139,7 +137,9 @@ namespace DrugWarehouseManagement.Service.Services
         {
             var query = _unitOfWork.OutboundRepository
                         .GetAll()
+                        .Include(o => o.Customer)
                         .Include(o => o.OutboundDetails)
+                        .ThenInclude(od => od.Lot)
                         .AsQueryable();
             if (!string.IsNullOrEmpty(queryPaging.Search))
             {
@@ -157,13 +157,23 @@ namespace DrugWarehouseManagement.Service.Services
                         EF.Functions.Like(o.OutboundCode.ToLower(), $"%{searchTerm}%"));
                 }
             }
-            if (queryPaging.DateFrom.HasValue)
+            if (queryPaging.DateFrom != null)
             {
-                query = query.Where(o => o.OutboundDate >= queryPaging.DateFrom.Value);
+                var dateFrom = InstantPattern.ExtendedIso.Parse(queryPaging.DateFrom);
+                if (!dateFrom.Success)
+                {
+                    throw new Exception("DateFrom is invalid ISO format");
+                }
+                query = query.Where(o => o.OutboundDate >= dateFrom.Value);
             }
-            if (queryPaging.DateTo.HasValue)
+            if (queryPaging.DateTo != null)
             {
-                query = query.Where(o => o.OutboundDate <= queryPaging.DateTo.Value);
+                var dateTo = InstantPattern.ExtendedIso.Parse(queryPaging.DateTo);
+                if (!dateTo.Success)
+                {
+                    throw new Exception("DateTo is invalid ISO format");
+                }
+                query = query.Where(o => o.OutboundDate <= dateTo.Value);
             }
             query = query.OrderByDescending(o => o.OutboundDate);
             var paginatedOutbounds = await query.ToPaginatedResultAsync(queryPaging.Page, queryPaging.PageSize);
@@ -260,7 +270,8 @@ namespace DrugWarehouseManagement.Service.Services
                 .GetByWhere(o => o.OutboundId == outboundId)
                 .Include(c => c.Customer)
                 .Include(o => o.OutboundDetails)
-                    .ThenInclude(d => d.Product)
+                 .ThenInclude(od => od.Lot)
+                .ThenInclude(l => l.Product)
                 .FirstOrDefaultAsync(o => o.OutboundId == outboundId);
             return outbound;
         }

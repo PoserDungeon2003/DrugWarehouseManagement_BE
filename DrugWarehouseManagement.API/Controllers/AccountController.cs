@@ -42,10 +42,10 @@ namespace DrugWarehouseManagement.API.Controllers
         [Authorize]
         public async Task<IActionResult> SetupTwoFactorAuthenticator()
         {
-            var email = User.FindFirstValue(ClaimTypes.Email);
+            var accountId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             try
             {
-                var response = await _accountService.SetupTwoFactorAuthenticator(email);
+                var response = await _accountService.SetupTwoFactorAuthenticator(Guid.Parse(accountId));
                 return Ok(response);
             }
             catch (Exception ex)
