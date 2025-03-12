@@ -17,9 +17,9 @@ namespace DrugWarehouseManagement.API.Controllers
             _minioService = minioService;
         }
 
-        [HttpGet("inbound/{inboundId}/report/{id}")]
+        [HttpGet("inbound/{inboundId}/{id}")]
         [Authorize]
-        public async Task<IActionResult> GetInboundReportAsset(string inboundId, string id)
+        public async Task<IActionResult> GetInboundAsset(string inboundId, string id)
         {
             try
             {

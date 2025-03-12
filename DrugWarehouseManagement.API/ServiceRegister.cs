@@ -56,7 +56,10 @@ namespace DrugWarehouseManagement.API
                 config.SetDataCompatibilityLevel(CompatibilityLevel.Version_170);
 
                 // Use PostgreSQL as storage
-                config.UsePostgreSqlStorage(configuration.GetConnectionString("DefaultConnection"));
+                config.UsePostgreSqlStorage(options =>
+                {
+                    options.UseNpgsqlConnection(configuration.GetConnectionString("DefaultConnection"));
+                });
 
                 // Use our custom JobActivator
                 config.UseActivator(new ScopedJobActivator(provider.GetRequiredService<IServiceScopeFactory>()));
