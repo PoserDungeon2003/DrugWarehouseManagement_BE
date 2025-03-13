@@ -11,10 +11,10 @@ namespace DrugWarehouseManagement.Repository.Models
     public class Categories : TimeStamp
     {
         [Key]
-        public int CategoryId { get; set; }
+        public int CategoriesId { get; set; }
         public string CategoryName { get; set; } = null!;
         public int? ParentCategoryId { get; set; }
-        public string Description { get; set; } = null!;
+        public string? Description { get; set; }
         public CategoriesStatus Status { get; set; } = CategoriesStatus.Active;
 
         public Categories? ParentCategory { get; set; }

@@ -9,6 +9,6 @@ namespace DrugWarehouseManagement.Repository.Models
     public class ProductCategories
     {
         public int ProductId { get; set; }
-        public int CategoryId { get; set; }
+        public int CategoriesId { get; set; }
     }
 }
