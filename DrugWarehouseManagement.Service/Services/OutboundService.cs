@@ -235,6 +235,7 @@ namespace DrugWarehouseManagement.Service.Services
                         }
                         outbound.Status = request.Status.Value;
                     }
+                    //TODO : Thêm trạng thái hoàn thành, chuyển từ InProgress sang Completed, cho phep chuyen tu Inprogress sang Cancelled
                     else
                     {
                         // Nếu đơn không ở trạng thái Pending (và không phải hủy), ta không cho phép thay đổi trạng thái.
@@ -246,9 +247,8 @@ namespace DrugWarehouseManagement.Service.Services
                 }
             }
             outbound.OutboundOrderCode = request.OutboundOrderCode;
-            outbound.TrackingNumber = request.TrackingNumber;
             outbound.Note = request.Note;
-
+            outbound.UpdatedAt = SystemClock.Instance.GetCurrentInstant();
             await _unitOfWork.OutboundRepository.UpdateAsync(outbound);
             await _unitOfWork.SaveChangesAsync();
 
