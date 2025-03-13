@@ -143,6 +143,8 @@ namespace DrugWarehouseManagement.Repository.Models
                     .WithMany(e => e.SubCategories)
                     .HasForeignKey(e => e.ParentCategoryId)
                     .OnDelete(DeleteBehavior.Restrict);
+                entity.HasIndex(e => e.CategoryName, "IX_Categories_CategoryName")
+                    .IsUnique();
             });
 
             modelBuilder.Entity<Asset>(entity =>
