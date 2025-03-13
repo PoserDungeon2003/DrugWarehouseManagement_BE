@@ -105,7 +105,7 @@ namespace DrugWarehouseManagement.Service.Services
                 categories = categories
                                  .Where(c => 
                                         c.CategoryName.Contains(query.Search) || 
-                                        c.CategoryId.ToString().Contains(query.Search)
+                                        c.CategoriesId.ToString().Contains(query.Search)
                                  );
             }
 

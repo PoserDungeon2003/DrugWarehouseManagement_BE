@@ -215,26 +215,26 @@ namespace DrugWarehouseManagement.Repository.Models
                 }
             );
             modelBuilder.Entity<Categories>().HasData(
-                new Categories { CategoryId = 1, CategoryName = "Prescription Drugs", ParentCategoryId = null, Description = "Medications that require a prescription from a doctor.", Status = CategoriesStatus.Active },
-                new Categories { CategoryId = 2, CategoryName = "Over-the-Counter Drugs", ParentCategoryId = null, Description = "Medications that can be bought without a prescription.", Status = CategoriesStatus.Active },
-                new Categories { CategoryId = 3, CategoryName = "Medical Devices", ParentCategoryId = null, Description = "Equipment used for medical purposes.", Status = CategoriesStatus.Active },
-                new Categories { CategoryId = 4, CategoryName = "Skincare Products", ParentCategoryId = null, Description = "Cosmetic and therapeutic products for skincare.", Status = CategoriesStatus.Active },
-                new Categories { CategoryId = 5, CategoryName = "Vitamins & Supplements", ParentCategoryId = null, Description = "Products that provide essential nutrients.", Status = CategoriesStatus.Active },
-                new Categories { CategoryId = 6, CategoryName = "Pain Relievers", ParentCategoryId = 2, Description = "Medications to relieve pain.", Status = CategoriesStatus.Active },
-                new Categories { CategoryId = 7, CategoryName = "Antibiotics", ParentCategoryId = 1, Description = "Drugs used to treat bacterial infections.", Status = CategoriesStatus.Active },
-                new Categories { CategoryId = 8, CategoryName = "Diagnostic Tools", ParentCategoryId = 3, Description = "Devices used for medical diagnosis.", Status = CategoriesStatus.Active },
-                new Categories { CategoryId = 9, CategoryName = "Eye Care Products", ParentCategoryId = null, Description = "Products for maintaining eye health.", Status = CategoriesStatus.Active },
-                new Categories { CategoryId = 10, CategoryName = "Baby & Maternity Products", ParentCategoryId = null, Description = "Healthcare products for mothers and babies.", Status = CategoriesStatus.Active },
-                new Categories { CategoryId = 11, CategoryName = "Cold & Flu Medicine", ParentCategoryId = 2, Description = "Medications for treating cold and flu symptoms.", Status = CategoriesStatus.Active },
-                new Categories { CategoryId = 12, CategoryName = "First Aid Supplies", ParentCategoryId = 3, Description = "Basic medical supplies for first aid.", Status = CategoriesStatus.Active },
-                new Categories { CategoryId = 13, CategoryName = "Anti-aging Products", ParentCategoryId = 4, Description = "Skincare products designed for anti-aging.", Status = CategoriesStatus.Active },
-                new Categories { CategoryId = 14, CategoryName = "Probiotics", ParentCategoryId = 5, Description = "Supplements containing beneficial bacteria.", Status = CategoriesStatus.Active },
-                new Categories { CategoryId = 15, CategoryName = "Topical Pain Relievers", ParentCategoryId = 6, Description = "Pain relief creams and gels.", Status = CategoriesStatus.Active },
-                new Categories { CategoryId = 16, CategoryName = "Broad-Spectrum Antibiotics", ParentCategoryId = 7, Description = "Antibiotics effective against a wide range of bacteria.", Status = CategoriesStatus.Active },
-                new Categories { CategoryId = 17, CategoryName = "Blood Pressure Monitors", ParentCategoryId = 8, Description = "Devices for monitoring blood pressure.", Status = CategoriesStatus.Active },
-                new Categories { CategoryId = 18, CategoryName = "Contact Lens Solutions", ParentCategoryId = 9, Description = "Solutions for cleaning and storing contact lenses.", Status = CategoriesStatus.Active },
-                new Categories { CategoryId = 19, CategoryName = "Prenatal Vitamins", ParentCategoryId = 10, Description = "Vitamins designed for pregnant women.", Status = CategoriesStatus.Active },
-                new Categories { CategoryId = 20, CategoryName = "Thermometers", ParentCategoryId = 8, Description = "Devices used to measure body temperature.", Status = CategoriesStatus.Active }
+                new Categories { CategoriesId = 1, CategoryName = "Prescription Drugs", ParentCategoryId = null, Description = "Medications that require a prescription from a doctor.", Status = CategoriesStatus.Active },
+                new Categories { CategoriesId = 2, CategoryName = "Over-the-Counter Drugs", ParentCategoryId = null, Description = "Medications that can be bought without a prescription.", Status = CategoriesStatus.Active },
+                new Categories { CategoriesId = 3, CategoryName = "Medical Devices", ParentCategoryId = null, Description = "Equipment used for medical purposes.", Status = CategoriesStatus.Active },
+                new Categories { CategoriesId = 4, CategoryName = "Skincare Products", ParentCategoryId = null, Description = "Cosmetic and therapeutic products for skincare.", Status = CategoriesStatus.Active },
+                new Categories { CategoriesId = 5, CategoryName = "Vitamins & Supplements", ParentCategoryId = null, Description = "Products that provide essential nutrients.", Status = CategoriesStatus.Active },
+                new Categories { CategoriesId = 6, CategoryName = "Pain Relievers", ParentCategoryId = 2, Description = "Medications to relieve pain.", Status = CategoriesStatus.Active },
+                new Categories { CategoriesId = 7, CategoryName = "Antibiotics", ParentCategoryId = 1, Description = "Drugs used to treat bacterial infections.", Status = CategoriesStatus.Active },
+                new Categories { CategoriesId = 8, CategoryName = "Diagnostic Tools", ParentCategoryId = 3, Description = "Devices used for medical diagnosis.", Status = CategoriesStatus.Active },
+                new Categories { CategoriesId = 9, CategoryName = "Eye Care Products", ParentCategoryId = null, Description = "Products for maintaining eye health.", Status = CategoriesStatus.Active },
+                new Categories { CategoriesId = 10, CategoryName = "Baby & Maternity Products", ParentCategoryId = null, Description = "Healthcare products for mothers and babies.", Status = CategoriesStatus.Active },
+                new Categories { CategoriesId = 11, CategoryName = "Cold & Flu Medicine", ParentCategoryId = 2, Description = "Medications for treating cold and flu symptoms.", Status = CategoriesStatus.Active },
+                new Categories { CategoriesId = 12, CategoryName = "First Aid Supplies", ParentCategoryId = 3, Description = "Basic medical supplies for first aid.", Status = CategoriesStatus.Active },
+                new Categories { CategoriesId = 13, CategoryName = "Anti-aging Products", ParentCategoryId = 4, Description = "Skincare products designed for anti-aging.", Status = CategoriesStatus.Active },
+                new Categories { CategoriesId = 14, CategoryName = "Probiotics", ParentCategoryId = 5, Description = "Supplements containing beneficial bacteria.", Status = CategoriesStatus.Active },
+                new Categories { CategoriesId = 15, CategoryName = "Topical Pain Relievers", ParentCategoryId = 6, Description = "Pain relief creams and gels.", Status = CategoriesStatus.Active },
+                new Categories { CategoriesId = 16, CategoryName = "Broad-Spectrum Antibiotics", ParentCategoryId = 7, Description = "Antibiotics effective against a wide range of bacteria.", Status = CategoriesStatus.Active },
+                new Categories { CategoriesId = 17, CategoryName = "Blood Pressure Monitors", ParentCategoryId = 8, Description = "Devices for monitoring blood pressure.", Status = CategoriesStatus.Active },
+                new Categories { CategoriesId = 18, CategoryName = "Contact Lens Solutions", ParentCategoryId = 9, Description = "Solutions for cleaning and storing contact lenses.", Status = CategoriesStatus.Active },
+                new Categories { CategoriesId = 19, CategoryName = "Prenatal Vitamins", ParentCategoryId = 10, Description = "Vitamins designed for pregnant women.", Status = CategoriesStatus.Active },
+                new Categories { CategoriesId = 20, CategoryName = "Thermometers", ParentCategoryId = 8, Description = "Devices used to measure body temperature.", Status = CategoriesStatus.Active }
             );
             // 4. Seed Warehouses
             modelBuilder.Entity<Warehouse>().HasData(

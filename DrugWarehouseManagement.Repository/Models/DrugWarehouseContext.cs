@@ -90,9 +90,6 @@ namespace DrugWarehouseManagement.Repository.Models
             {
                 entity.HasIndex(e => e.ProductCode, "IX_Products_ProductCode")
                     .IsUnique();
-                entity.HasMany(e => e.Categories)
-                    .WithMany(e => e.Products)
-                    .UsingEntity<ProductCategories>();
             });
 
             modelBuilder.Entity<InboundDetails>(entity => 
@@ -158,6 +155,20 @@ namespace DrugWarehouseManagement.Repository.Models
                 entity.HasMany(e => e.InboundReports)
                     .WithMany(e => e.Assets)
                     .UsingEntity<InboundReportAssets>();
+            });
+
+            modelBuilder.Entity<Asset>(entity =>
+            {
+                entity.HasIndex(e => e.FileUrl, "IX_Assets_FileUrl")
+                    .IsUnique();
+                entity.HasIndex(e => e.FileName, "IX_Assets_FileName")
+                    .IsUnique();
+            });
+
+            modelBuilder.Entity<InboundRequest>(entity =>
+            {
+                entity.HasIndex(e => e.InboundRequestCode, "IX_InboundRequest_InboundRequestCode")
+                    .IsUnique();
             });
 
         }
