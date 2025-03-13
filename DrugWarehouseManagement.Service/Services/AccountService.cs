@@ -11,6 +11,7 @@ using Mapster;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 
@@ -346,7 +347,36 @@ namespace DrugWarehouseManagement.Service.Services
             return new AccountLoginResponse
             {
                 Role = account.Role.RoleName,
+                RefreshToken = _tokenHandler.GenerateRefreshToken(account.Id),
                 Token = _tokenHandler.GenerateJwtToken(account)
+            };
+        }
+
+        public async Task<RefreshTokenResponse> GenerateRefreshToken(RefreshTokenRequest request)
+        {
+            var principal = _tokenHandler.ValidateRefreshToken(request.RefreshToken);
+            if (principal == null)
+            {
+                throw new Exception("Invalid refresh token");
+            }
+
+            var accountId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            var account = await _unitOfWork.AccountRepository.GetByWhere(acc => acc.Id == Guid.Parse(accountId))
+                                                            .Include(x => x.Role)
+                                                            .FirstOrDefaultAsync();
+            if (account == null)
+            {
+                throw new Exception("Account not found");
+            }
+
+            account.ConcurrencyStamp = Guid.NewGuid().ToString();
+            await _unitOfWork.AccountRepository.UpdateAsync(account);
+            await _unitOfWork.SaveChangesAsync();
+
+            return new RefreshTokenResponse
+            {
+                Token = _tokenHandler.GenerateJwtToken(account),
             };
         }
 

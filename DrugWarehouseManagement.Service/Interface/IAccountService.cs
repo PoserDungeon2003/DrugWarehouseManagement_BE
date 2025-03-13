@@ -20,5 +20,6 @@ namespace DrugWarehouseManagement.Service.Interface
         public Task<BaseResponse> ChangePassword(Guid accountId, ChangePasswordRequest request);
         public Task<BaseResponse> ConfirmSetupTwoFactorAuthenticator(Guid accountId, ConfirmSetupTwoFactorAuthenticatorRequest request);
         public Task<BaseResponse> AdminReset2FA(Guid accountId);
+        public Task<RefreshTokenResponse> GenerateRefreshToken(RefreshTokenRequest request);
     }
 }
