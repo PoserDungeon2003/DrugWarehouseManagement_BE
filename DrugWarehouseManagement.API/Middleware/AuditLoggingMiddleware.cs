@@ -16,7 +16,7 @@ namespace DrugWarehouseManagement.API.Middleware
 
         public async Task InvokeAsync(HttpContext context, IUnitOfWork unitOfWork)
         {
-            if (!context.Request.Headers.ContainsKey("Authorization") || context.Request.Path.ToString().Contains("login", StringComparison.OrdinalIgnoreCase))
+            if (!context.Request.Headers.ContainsKey("Authorization") || context.Request.Path.ToString().Contains("login", StringComparison.OrdinalIgnoreCase) || context.Request.Path.ToString().Contains("refreshToken", StringComparison.OrdinalIgnoreCase))
             {
                 await _next(context);
                 return;
