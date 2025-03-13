@@ -119,11 +119,8 @@ namespace DrugWarehouseManagement.Service.Services
 
                 detailsList.Add(detail);
             }
-            // Liên kết danh sách chi tiết vào navigation property của Outbound
             outbound.OutboundDetails = detailsList;
             await _unitOfWork.OutboundRepository.CreateAsync(outbound);
-
-            // Lưu các thay đổi cho cả Outbound, OutboundDetails và cập nhật Lot
             await _unitOfWork.SaveChangesAsync();
             await UpdateCustomerLoyaltyStatusAsync(request.CustomerId);
             return new BaseResponse
@@ -248,9 +245,6 @@ namespace DrugWarehouseManagement.Service.Services
                     }
                 }
             }
-            // Nếu không có giá trị cập nhật trạng thái, giữ nguyên trạng thái hiện tại của đơn xuất.
-
-            // Cập nhật các trường khác
             outbound.OutboundOrderCode = request.OutboundOrderCode;
             outbound.TrackingNumber = request.TrackingNumber;
             outbound.Note = request.Note;
