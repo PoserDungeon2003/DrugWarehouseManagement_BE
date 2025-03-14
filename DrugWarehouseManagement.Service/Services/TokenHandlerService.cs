@@ -35,8 +35,8 @@ namespace DrugWarehouseManagement.Service.Services
                 issuer: _configuration["Jwt:Issuer"],
                 audience: _configuration["Jwt:Audience"],
                 claims: claims,
-                //expires: DateTime.Now.AddHours(5),
-                expires: DateTime.Now.AddMinutes(1),
+                expires: DateTime.Now.AddHours(6),
+                // expires: DateTime.Now.AddMinutes(1),
                 signingCredentials: creds
             );
 
@@ -57,8 +57,8 @@ namespace DrugWarehouseManagement.Service.Services
                 issuer: _configuration["Jwt:Issuer"],
                 audience: _configuration["Jwt:Audience"],
                 claims: claims,
-                //expires: DateTime.Now.AddDays(5),
-                expires: DateTime.Now.AddMinutes(2),
+                expires: DateTime.Now.AddDays(6),
+                // expires: DateTime.Now.AddMinutes(2),
                 signingCredentials: creds
             );
 
