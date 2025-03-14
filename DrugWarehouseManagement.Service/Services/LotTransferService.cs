@@ -44,6 +44,16 @@ namespace DrugWarehouseManagement.Service.Services
                 throw new Exception("Lot transfer not found");
             }
 
+            if (lotTransfer.LotTransferStatus == Common.LotTransferStatus.Cancelled)
+            {
+                throw new Exception("Lot transfer is already cancelled");
+            }
+
+            if (lotTransfer.LotTransferStatus != LotTransferStatus.Pending)
+            {
+                throw new Exception("Can't cancel lot with status Pending");
+            }
+
             foreach (var detail in lotTransfer.LotTransferDetails)
             {
                 var lot = await _unitOfWork.LotRepository.GetByIdAsync(detail.LotId);

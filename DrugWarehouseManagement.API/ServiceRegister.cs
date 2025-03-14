@@ -101,6 +101,7 @@ namespace DrugWarehouseManagement.API
             services.AddScoped<IProviderService, ProviderService>();
             services.AddScoped<IMinioService, MinioService>();
             services.AddScoped<IFirebaseService, FirebaseService>();
+            services.AddScoped<ICategoriesService, CategoriesService>();
 
         }
 
@@ -210,6 +211,11 @@ namespace DrugWarehouseManagement.API
             TypeAdapterConfig<UpdateLotTransferRequest, LotTransfer>
                 .NewConfig()
                 .IgnoreNullValues(true);
+
+            TypeAdapterConfig<Categories, ViewCategories>
+                .NewConfig()
+                .Map(dest => dest.ParentCategoryName, src => src.ParentCategory.CategoryName)
+                .Map(dest => dest.SubCategories, src => src.SubCategories.Adapt<List<ViewCategories>>());
 
         }
 
