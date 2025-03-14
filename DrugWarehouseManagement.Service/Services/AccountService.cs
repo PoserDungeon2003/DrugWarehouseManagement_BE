@@ -357,7 +357,7 @@ namespace DrugWarehouseManagement.Service.Services
             var principal = _tokenHandler.ValidateRefreshToken(request.RefreshToken);
             if (principal == null)
             {
-                throw new Exception("Invalid refresh token");
+                throw new UnauthorizedAccessException("Invalid refresh token");
             }
 
             var accountId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;

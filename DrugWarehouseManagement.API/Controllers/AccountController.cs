@@ -166,6 +166,14 @@ namespace DrugWarehouseManagement.API.Controllers
                 var response = await _accountService.GenerateRefreshToken(request);
                 return Ok(response);
             }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new BaseResponse
+                {
+                    Code = 401,
+                    Message = ex.Message,
+                });
+            }
             catch (Exception ex)
             {
                 return BadRequest(new BaseResponse
