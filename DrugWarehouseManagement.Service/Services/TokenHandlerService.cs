@@ -29,7 +29,7 @@ namespace DrugWarehouseManagement.Service.Services
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512);
 
             var token = new JwtSecurityToken(
                 issuer: _configuration["Jwt:Issuer"],
@@ -51,7 +51,7 @@ namespace DrugWarehouseManagement.Service.Services
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:RefreshKey"]!));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512);
 
             var token = new JwtSecurityToken(
                 issuer: _configuration["Jwt:Issuer"],
@@ -87,7 +87,7 @@ namespace DrugWarehouseManagement.Service.Services
                 var principal = tokenHandler.ValidateToken(token, validationParameters, out SecurityToken validatedToken);
 
                 if (validatedToken is not JwtSecurityToken jwtToken ||
-                    !jwtToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
+                    !jwtToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha512, StringComparison.InvariantCultureIgnoreCase))
                 {
                     throw new SecurityTokenException("Invalid token");
                 }
