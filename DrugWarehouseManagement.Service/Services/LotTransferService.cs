@@ -44,6 +44,16 @@ namespace DrugWarehouseManagement.Service.Services
                 throw new Exception("Lot transfer not found");
             }
 
+            if (lotTransfer.LotTransferStatus == Common.LotTransferStatus.Cancelled)
+            {
+                throw new Exception("Lot transfer is already cancelled");
+            }
+
+            if (lotTransfer.LotTransferStatus != LotTransferStatus.Pending)
+            {
+                throw new Exception("Can't cancel lot with status Pending");
+            }
+
             foreach (var detail in lotTransfer.LotTransferDetails)
             {
                 var lot = await _unitOfWork.LotRepository.GetByIdAsync(detail.LotId);
@@ -210,7 +220,7 @@ namespace DrugWarehouseManagement.Service.Services
             {
                 container.Page(page =>
                 {
-                    page.Size(PageSizes.A4);
+                    page.Size(PageSizes.A5);
                     page.Margin(8);
                     page.DefaultTextStyle(x => x.FontSize(10));
 
@@ -274,11 +284,11 @@ namespace DrugWarehouseManagement.Service.Services
 
                     page.Footer().Row(row =>
                     {
-                        row.ConstantItem(100).Text("Người lập\n\n\n\n(Ký, họ tên)").AlignCenter();
-                        row.ConstantItem(100).Text("Thủ kho\n\n\n\n(Ký, họ tên)").AlignCenter();
-                        row.ConstantItem(100).Text("KTT\n\n\n\n(Ký, họ tên)").AlignCenter();
-                        row.ConstantItem(100).Text("Ca trưởng\n\n\n\n(Ký, họ tên)").AlignCenter();
-                        row.ConstantItem(100).Text("Giám sát\n\n\n\n(Ký, họ tên)").AlignCenter();
+                        row.RelativeItem().Text("Người lập\n\n\n\n(Ký, họ tên)").AlignCenter();
+                        row.RelativeItem().Text("Thủ kho\n\n\n\n(Ký, họ tên)").AlignCenter();
+                        row.RelativeItem().Text("KTT\n\n\n\n(Ký, họ tên)").AlignCenter();
+                        row.RelativeItem().Text("Ca trưởng\n\n\n\n(Ký, họ tên)").AlignCenter();
+                        row.RelativeItem().Text("Giám sát\n\n\n\n(Ký, họ tên)").AlignCenter();
                         row.RelativeItem().Text("Giám đốc\n\n\n\n(Ký, họ tên)").AlignCenter();
                     });
                 });
