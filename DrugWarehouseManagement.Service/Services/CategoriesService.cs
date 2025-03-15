@@ -134,9 +134,35 @@ namespace DrugWarehouseManagement.Service.Services
             return result.Adapt<PaginatedResult<ViewCategories>>();
         }
 
-        public Task<BaseResponse> UpdateCategory(int categoryId, UpdateCategoryRequest createCategoryRequest)
+        public async Task<BaseResponse> UpdateCategory(UpdateCategoryRequest updateCategoryRequest)
         {
-            throw new NotImplementedException();
+            var category = await _unitOfWork.CategoriesRepository.GetByIdAsync(updateCategoryRequest.CategoriesId);
+
+            if (category == null)
+            {
+                throw new Exception("Category not found");
+            }
+
+            updateCategoryRequest.Adapt(category);
+
+            if (updateCategoryRequest.ParentCategoryId != null)
+            {
+                var parentCategory = await _unitOfWork.CategoriesRepository.GetByIdAsync(updateCategoryRequest.ParentCategoryId);
+                if (parentCategory == null)
+                {
+                    throw new Exception("Parent category not found");
+                }
+            }
+            category.ParentCategoryId = updateCategoryRequest.ParentCategoryId;
+
+            await _unitOfWork.CategoriesRepository.UpdateAsync(category);
+            await _unitOfWork.SaveChangesAsync();
+
+            return new BaseResponse
+            {
+                Code = 200,
+                Message = "Category updated successfully",
+            };
         }
     }
 }

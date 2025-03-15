@@ -19,7 +19,7 @@ namespace DrugWarehouseManagement.API.Controllers
         }
 
         [HttpGet]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> GetListCategories([FromQuery] QueryPaging query)
         {
             try
@@ -38,7 +38,7 @@ namespace DrugWarehouseManagement.API.Controllers
         }
 
         [HttpPost]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryRequest createCategoryRequest)
         {
             try
@@ -56,13 +56,13 @@ namespace DrugWarehouseManagement.API.Controllers
             }
         }
 
-        [HttpPut("{id}")]
-        //[Authorize]
-        public async Task<IActionResult> UpdateCategory([FromRoute] int id, [FromBody] UpdateCategoryRequest updateCategoryRequest)
+        [HttpPut]
+        [Authorize]
+        public async Task<IActionResult> UpdateCategory([FromBody] UpdateCategoryRequest updateCategoryRequest)
         {
             try
             {
-                var result = await _categoriesService.UpdateCategory(id, updateCategoryRequest);
+                var result = await _categoriesService.UpdateCategory(updateCategoryRequest);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -76,7 +76,7 @@ namespace DrugWarehouseManagement.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> DeleteCategory([FromRoute] int id)
         {
             try
@@ -94,8 +94,8 @@ namespace DrugWarehouseManagement.API.Controllers
             }
         }
 
-        [HttpPost("{id}/active")]
-        //[Authorize]
+        [HttpPost("active/{id}")]
+        [Authorize]
         public async Task<IActionResult> ActiveCategory([FromRoute] int id)
         {
             try

@@ -1,5 +1,7 @@
-﻿using DrugWarehouseManagement.Repository;
+﻿using DrugWarehouseManagement.Common;
+using DrugWarehouseManagement.Repository;
 using DrugWarehouseManagement.Repository.Models;
+using Newtonsoft.Json;
 using NodaTime;
 using System.Security.Claims;
 
@@ -48,11 +50,11 @@ namespace DrugWarehouseManagement.API.Middleware
                             Date = SystemClock.Instance.GetCurrentInstant(),
                             Resource = context.Request.Path,
                             Action = context.Request.Method,
-                            Payload = new Dictionary<string, object>
+                            Payload = JsonConvert.SerializeObject(new
                             {
-                                { "Request", await FormatRequest(context.Request) },
-                                { "Response", string.IsNullOrEmpty(responseText) ? $"Status Code: {context.Response.StatusCode}" : responseText }
-                            },
+                                Request = await FormatRequest(context.Request),
+                                Response = string.IsNullOrEmpty(Utils.Base64Encode(responseText)) ? $"Status Code: {context.Response.StatusCode}" : Utils.Base64Encode(responseText)
+                            }),
                             AccountId = parsedAccountId
                         };
 

@@ -10,7 +10,7 @@ namespace DrugWarehouseManagement.Service.DTO.Response
 {
     public class ViewCategories
     {
-        public int CategoryId { get; set; }
+        public int CategoriesId { get; set; }
         public string CategoryName { get; set; } = null!;
         public int? ParentCategoryId { get; set; }
         public string? ParentCategoryName { get; set; }
@@ -21,7 +21,7 @@ namespace DrugWarehouseManagement.Service.DTO.Response
 
     public class ViewSubCategories
     {
-        public int CategoryId { get; set; }
+        public int CategoriesId { get; set; }
         public string CategoryName { get; set; } = null!;
     }
 }
