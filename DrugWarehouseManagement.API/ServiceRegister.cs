@@ -214,8 +214,12 @@ namespace DrugWarehouseManagement.API
 
             TypeAdapterConfig<Categories, ViewCategories>
                 .NewConfig()
-                .Map(dest => dest.ParentCategoryName, src => src.ParentCategory.CategoryName)
-                .Map(dest => dest.SubCategories, src => src.SubCategories.Adapt<List<ViewCategories>>());
+                .Map(dest => dest.ParentCategoryName, src => src.ParentCategory.CategoryName);
+
+            TypeAdapterConfig<UpdateCategoryRequest, Categories>
+                .NewConfig()
+                .IgnoreNullValues(true)
+                .Map(dest => dest.ParentCategoryId, src => src.ParentCategoryId);
 
         }
 
@@ -240,14 +244,14 @@ namespace DrugWarehouseManagement.API
 
         private static void InitializeFirebase()
         {
-            //if (FirebaseApp.DefaultInstance == null)
-            //{
-            //    FirebaseApp.Create(new AppOptions()
-            //    {
-            //        Credential = GoogleCredential.FromFile("firebase-credentials.json")
-            //    });
+            if (FirebaseApp.DefaultInstance == null)
+            {
+                FirebaseApp.Create(new AppOptions()
+                {
+                    Credential = GoogleCredential.FromFile("firebase-credentials.json")
+                });
 
-            //}
+            }
         }
 
         private static void InitializeMinio(IServiceCollection services, string accessKey, string secretKey, string endpoint, bool ssl = false)

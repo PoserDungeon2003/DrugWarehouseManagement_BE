@@ -6,12 +6,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DrugWarehouseManagement.Common;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DrugWarehouseManagement.Repository.Models
 {
     public class Asset
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int AssetId { get; set; }
         public string FileUrl { get; set; } = null!;
         public string FileName { get; set; } = null!;

@@ -6,12 +6,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DrugWarehouseManagement.Common;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DrugWarehouseManagement.Repository.Models
 {
     public class InboundReport : TimeStamp
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int InboundReportId { get; set; }
         public Instant ReportDate { get; set; } = SystemClock.Instance.GetCurrentInstant();
         public InboundReportStatus Status { get; set; } = InboundReportStatus.Pending;
