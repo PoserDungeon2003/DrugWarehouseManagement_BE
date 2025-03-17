@@ -4,18 +4,12 @@ using DrugWarehouseManagement.Service.DTO.Request;
 using DrugWarehouseManagement.Service.DTO.Response;
 using DrugWarehouseManagement.Service.Extenstions;
 using DrugWarehouseManagement.Service.Interface;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using NodaTime;
 using Microsoft.EntityFrameworkCore;
-using Azure.Core;
 using System.Text.RegularExpressions;
 using DrugWarehouseManagement.Common;
-using Microsoft.Identity.Client;
 using NodaTime.Text;
+using Mapster;
 
 namespace DrugWarehouseManagement.Service.Services
 {
@@ -29,32 +23,7 @@ namespace DrugWarehouseManagement.Service.Services
 
         public async Task<BaseResponse> CreateInbound(CreateInboundRequest request)
         {
-            //Valid Foreign key in Model property
-            var validationResponse = await CheckForeignKey(request);
-            if (validationResponse.Code != 200)
-            {
-                return validationResponse;
-            }
-
             var inboundCode = GenerateInboundCode();
-
-            // Create Inbound entity 
-            var inbound = new Inbound
-            {
-                InboundCode = inboundCode,
-                ProviderOrderCode = request.ProviderOrderCode,
-                Quantity = request.Quantity,
-                Price = request.Price,
-                Note = request.Note,
-                InboundDate = request.InboundDate,
-                ProviderId = request.ProviderId,
-                AccountId = request.AccountId,
-                ProductId = request.ProductId,
-                WarehouseId = request.WarehouseId,
-                UpdatedAt = SystemClock.Instance.GetCurrentInstant()
-            };
-
-            await _unitOfWork.InboundRepository.CreateAsync(inbound);
             await _unitOfWork.SaveChangesAsync();
 
             return new BaseResponse
@@ -103,15 +72,9 @@ namespace DrugWarehouseManagement.Service.Services
                 return new BaseResponse { Code = 404, Message = "Inbound not found" };
             }
 
-            //Valid Foreign key in Model property
-            var validationResponse = await CheckForeignKey(request);
-            if (validationResponse.Code != 200)
-            {
-                return validationResponse;
-            }
+            inbound = request.Adapt<Inbound>();
 
-            // Update inbound details
-            ApplyUpdates(inbound, request);
+            await _unitOfWork.InboundRepository.UpdateAsync(inbound);
             await _unitOfWork.SaveChangesAsync();
 
             return new BaseResponse { Code = 200, Message = "Inbound updated successfully" };
@@ -236,87 +199,6 @@ namespace DrugWarehouseManagement.Service.Services
             };
         }
 
-        private async Task<BaseResponse> CheckForeignKey<T>(T request) where T : class
-        {
-            Guid accountId;
-            int? providerId = null;
-            int? productId = null;
-            int? warehouseId = null;
-            bool checkProvider = false, checkProduct = false, checkWarehouse = false;
-
-            if (request is CreateInboundRequest createRequest)
-            {
-                accountId = createRequest.AccountId;
-                providerId = createRequest.ProviderId;
-                productId = createRequest.ProductId;
-                warehouseId = createRequest.WarehouseId;
-                checkProvider = checkProduct = checkWarehouse = true; // Always check in CreateInboundRequest
-            }
-            else if (request is UpdateInboundRequest updateRequest)
-            {
-                accountId = updateRequest.AccountId;
-                if (updateRequest.ProviderId.HasValue)
-                {
-                    providerId = updateRequest.ProviderId;
-                    checkProvider = true;
-                }
-                if (updateRequest.ProductId.HasValue)
-                {
-                    productId = updateRequest.ProductId;
-                    checkProduct = true;
-                }
-                if (updateRequest.WarehouseId.HasValue)
-                {
-                    warehouseId = updateRequest.WarehouseId;
-                    checkWarehouse = true;
-                }
-            }
-            else
-            {
-                return new BaseResponse { Code = 400, Message = "Invalid request type" };
-            }
-
-            // Validate if the account exists
-            var account = await _unitOfWork.AccountRepository.GetByIdAsync(accountId);
-            if (account == null)
-            {
-                return new BaseResponse { Code = 404, Message = "Account not found" };
-            }
-
-            // Validate if the provider exists (only if necessary)
-            if (checkProvider && providerId.HasValue)
-            {
-                var provider = await _unitOfWork.ProviderRepository.GetByIdAsync(providerId.Value);
-                if (provider == null)
-                {
-                    return new BaseResponse { Code = 404, Message = "Provider does not exist" };
-                }
-            }
-
-            // Validate if the product exists (only if necessary)
-            if (checkProduct && productId.HasValue)
-            {
-                var product = await _unitOfWork.ProductRepository.GetByIdAsync(productId.Value);
-                if (product == null)
-                {
-                    return new BaseResponse { Code = 404, Message = "Product does not exist" };
-                }
-            }
-
-            // Validate if the warehouse exists (only if necessary)
-            if (checkWarehouse && warehouseId.HasValue)
-            {
-                var warehouse = await _unitOfWork.WarehouseRepository.GetByIdAsync(warehouseId.Value);
-                if (warehouse == null)
-                {
-                    return new BaseResponse { Code = 404, Message = "Warehouse does not exist" };
-                }
-            }
-
-            return new BaseResponse { Code = 200, Message = "Validation successful" };
-        }
-
-
         private string GenerateInboundCode()
         {
             // Generate 4 random digits
@@ -337,22 +219,6 @@ namespace DrugWarehouseManagement.Service.Services
             }
 
             return inboundCode;
-        }
-
-        // Method to apply updates to an existing inbound entity
-        public void ApplyUpdates(Inbound inbound, UpdateInboundRequest request)
-        {
-            inbound.ProviderOrderCode = string.IsNullOrWhiteSpace(request.ProviderOrderCode) ? inbound.ProviderOrderCode : request.ProviderOrderCode;
-            inbound.Note = string.IsNullOrWhiteSpace(request.Note) ? inbound.Note : request.Note;
-            inbound.ProviderId = request.ProviderId ?? inbound.ProviderId;
-            inbound.Quantity = request.Quantity ?? inbound.Quantity;
-            inbound.Price = request.Price ?? inbound.Price;
-            inbound.ProductId = request.ProductId ?? inbound.ProductId;
-            inbound.WarehouseId = request.WarehouseId ?? inbound.WarehouseId;
-            inbound.InboundDate = request.InboundDate ?? inbound.InboundDate;
-
-            inbound.AccountId = request.AccountId;
-            inbound.UpdatedAt = SystemClock.Instance.GetCurrentInstant();
         }
 
     }
