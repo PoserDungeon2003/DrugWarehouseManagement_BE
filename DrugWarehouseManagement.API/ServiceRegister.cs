@@ -101,6 +101,7 @@ namespace DrugWarehouseManagement.API
             services.AddScoped<IProviderService, ProviderService>();
             services.AddScoped<IMinioService, MinioService>();
             services.AddScoped<IFirebaseService, FirebaseService>();
+            services.AddScoped<ICategoriesService, CategoriesService>();
 
         }
 
@@ -121,7 +122,8 @@ namespace DrugWarehouseManagement.API
                     ValidateIssuerSigningKey = true,
                     ValidIssuer = configuration["Jwt:Issuer"],
                     ValidAudience = configuration["Jwt:Audience"],
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]))
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"])),
+                    ClockSkew = TimeSpan.Zero
                 };
             });
 
@@ -210,6 +212,15 @@ namespace DrugWarehouseManagement.API
                 .NewConfig()
                 .IgnoreNullValues(true);
 
+            TypeAdapterConfig<Categories, ViewCategories>
+                .NewConfig()
+                .Map(dest => dest.ParentCategoryName, src => src.ParentCategory.CategoryName);
+
+            TypeAdapterConfig<UpdateCategoryRequest, Categories>
+                .NewConfig()
+                .IgnoreNullValues(true)
+                .Map(dest => dest.ParentCategoryId, src => src.ParentCategoryId);
+
         }
 
         private static void AddEnum(IServiceCollection services)
@@ -233,14 +244,14 @@ namespace DrugWarehouseManagement.API
 
         private static void InitializeFirebase()
         {
-            //if (FirebaseApp.DefaultInstance == null)
-            //{
-            //    FirebaseApp.Create(new AppOptions()
-            //    {
-            //        Credential = GoogleCredential.FromFile("firebase-credentials.json")
-            //    });
+            if (FirebaseApp.DefaultInstance == null)
+            {
+                FirebaseApp.Create(new AppOptions()
+                {
+                    Credential = GoogleCredential.FromFile("firebase-credentials.json")
+                });
 
-            //}
+            }
         }
 
         private static void InitializeMinio(IServiceCollection services, string accessKey, string secretKey, string endpoint, bool ssl = false)
