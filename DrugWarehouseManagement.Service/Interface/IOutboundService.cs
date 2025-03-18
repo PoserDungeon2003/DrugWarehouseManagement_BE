@@ -11,7 +11,6 @@ namespace DrugWarehouseManagement.Service.Interface
         public Task<BaseResponse> CreateOutbound(Guid accountId, CreateOutboundRequest request);
         Task<PaginatedResult<OutboundResponse>> SearchOutboundsAsync(QueryPaging queryPaging);
         Task<Outbound?> GetOutboundByIdWithDetailsAsync(int outboundId);
-        Task<OutboundResponse> GetOutboundByIdAsync(int id);
 
     }
 }

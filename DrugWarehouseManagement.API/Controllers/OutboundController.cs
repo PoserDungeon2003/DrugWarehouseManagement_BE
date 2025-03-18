@@ -71,7 +71,7 @@ namespace DrugWarehouseManagement.API.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetOutboundById(int id)
         {
-            var outbound = await _outboundService.GetOutboundByIdAsync(id);
+            var outbound = await _outboundService.GetOutboundByIdWithDetailsAsync(id);
             if (outbound == null)
             {
                 return NotFound(new BaseResponse
