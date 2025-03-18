@@ -5,6 +5,7 @@ using DrugWarehouseManagement.Service.DTO.Response;
 using DrugWarehouseManagement.Service.Extenstions;
 using DrugWarehouseManagement.Service.Interface;
 using Mapster;
+using Microsoft.EntityFrameworkCore;
 
 namespace DrugWarehouseManagement.Service.Services
 {
@@ -97,7 +98,6 @@ namespace DrugWarehouseManagement.Service.Services
             {
                 LotId = lot.LotId,
                 LotNumber = lot.LotNumber,
-                TemporaryWarehouse = string.Empty,
                 WarehouseName = lot.Warehouse.WarehouseName,
                 ProductName = lot.Product.ProductName,
                 ProviderName = lot.Provider.ProviderName,
@@ -110,8 +110,10 @@ namespace DrugWarehouseManagement.Service.Services
         {
             request.Search = request.Search?.ToLower().Trim() ?? "";
             var query = await _unitOfWork.LotRepository.GetAll()
-                        .Where(x => x.LotNumber.Contains(request.Search) || x.WarehouseId.Equals(request.Search))
-                        .ToPaginatedResultAsync(request.Page, request.PageSize);
+                            .Include(x => x.Warehouse)
+                            .Include(x => x.Provider)
+                            .Where(x => x.LotNumber.Contains(request.Search) || x.WarehouseId.Equals(request.Search))
+                            .ToPaginatedResultAsync(request.Page, request.PageSize);
             return query.Adapt<PaginatedResult<ViewLot>>();
         }
 

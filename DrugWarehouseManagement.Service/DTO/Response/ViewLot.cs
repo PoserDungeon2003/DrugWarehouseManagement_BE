@@ -11,7 +11,6 @@ namespace DrugWarehouseManagement.Service.DTO.Response
     {
         public int LotId { get; set; }
         public string LotNumber { get; set; } = null!;
-        public string TemporaryWarehouse { get; set; } = string.Empty;
         public string WarehouseName { get; set; } = null!; // Permanent Warehouse
         public string ProductName { get; set; } = null!;
         public string ProviderName { get; set; } = null!;

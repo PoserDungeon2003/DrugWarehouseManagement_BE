@@ -61,7 +61,7 @@ namespace DrugWarehouseManagement.API.Controllers
         /// Searches outbounds by OutboundId or OutboundCode using pagination.
         /// Example: GET api/outbounds/search?page=1&pageSize=10&search=OUTB-1234
         /// </summary>
-        [HttpGet("search")]
+        [HttpGet]
         public async Task<IActionResult> SearchOutbounds([FromQuery] QueryPaging queryPaging)
         {
             var result = await _outboundService.SearchOutboundsAsync(queryPaging);

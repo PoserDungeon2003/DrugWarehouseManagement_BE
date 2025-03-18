@@ -1,5 +1,6 @@
 ﻿using DrugWarehouseManagement.Common;
 using DrugWarehouseManagement.Repository;
+using DrugWarehouseManagement.Service.Interface;
 using Microsoft.EntityFrameworkCore;
 using NodaTime;
 using OfficeOpenXml;
@@ -11,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace DrugWarehouseManagement.Service.Services
 {
-    public class InventoryReportService
+    public class InventoryReportService : IInventoryReportService
     {
         private readonly IUnitOfWork _unitOfWork;
 
@@ -118,7 +119,7 @@ namespace DrugWarehouseManagement.Service.Services
                 int remain = beginning + buyQty + transferInQty - sellQty;
                 ws.Cells[row, 1].Value = p.ProductCode;
                 ws.Cells[row, 2].Value = p.ProductName;
-                ws.Cells[row, 3].Value = "Hộp"; // Tùy logic
+                ws.Cells[row, 3].Value = p.SKU; // Tùy logic
                 ws.Cells[row, 4].Value = beginning;
                 ws.Cells[row, 5].Value = buyQty;
                 ws.Cells[row, 6].Value = transferInQty;
