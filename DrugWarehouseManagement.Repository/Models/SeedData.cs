@@ -31,188 +31,25 @@ namespace DrugWarehouseManagement.Repository.Models
 
             // 2. Seed Accounts
             modelBuilder.Entity<Account>().HasData(
-                // Admin Accounts
-                new Account
-                {
-                    Id = Guid.Parse("ec57b9d9-680d-4caf-8122-9325352a1e9b"),
-                    UserName = "admin1",
-                    Email = "admin1@example.com",
-                    FullName = "Admin One",
-                    PhoneNumber = "1234567890",
-                    PasswordHash = HashPassword("SecurePassword1!"),
-                    Status = AccountStatus.Active,
-                    RoleId = 1
-                },
-                new Account
-                {
-                    Id = Guid.Parse("1c4b98f1-e040-42d9-9887-f65011400dd7"),
-                    UserName = "admin2",
-                    Email = "admin2@example.com",
-                    FullName = "Admin Two",
-                    PhoneNumber = "0987654321",
-                    PasswordHash = HashPassword("SecurePassword2!"),
-                    Status = AccountStatus.Active,
-                    RoleId = 1
-                },
-                // Inventory Manager Accounts
-                new Account
-                {
-                    Id = Guid.Parse("7e006221-9a70-498d-a0b2-ae587c0cd1e8"),
-                    UserName = "manager1",
-                    Email = "manager1@example.com",
-                    FullName = "Manager One",
-                    PhoneNumber = "1122334455",
-                    PasswordHash = HashPassword("SecurePassword3!"),
-                    Status = AccountStatus.Active,
-                    RoleId = 2
-                },
-                new Account
-                {
-                    Id = Guid.Parse("4cab1ddc-9ebf-4488-aa28-c472393623ac"),
-                    UserName = "manager2",
-                    Email = "manager2@example.com",
-                    FullName = "Manager Two",
-                    PhoneNumber = "5566778899",
-                    PasswordHash = HashPassword("SecurePassword4!"),
-                    Status = AccountStatus.Active,
-                    RoleId = 2
-                },
-                new Account
-                {
-                    Id = Guid.Parse("88376119-6a82-489f-97d4-8b2ad19b7d67"),
-                    UserName = "manager3",
-                    Email = "manager3@example.com",
-                    FullName = "Manager Three",
-                    PhoneNumber = "6677889900",
-                    PasswordHash = HashPassword("SecurePassword5!"),
-                    Status = AccountStatus.Active,
-                    RoleId = 2
-                },
-                // Staff accounts
-                new Account
-                {
-                    Id = Guid.Parse("11111111-1111-1111-1111-111111111111"),
-                    UserName = "staff1",
-                    Email = "staff1@example.com",
-                    FullName = "Staff One",
-                    PhoneNumber = "7788990011",
-                    PasswordHash = HashPassword("SecurePassword7!"),
-                    Status = AccountStatus.Active,
-                    RoleId = 3
-                },
-                new Account
-                {
-                    Id = Guid.Parse("22222222-2222-2222-2222-222222222222"),
-                    UserName = "staff2",
-                    Email = "staff2@example.com",
-                    FullName = "Staff Two",
-                    PhoneNumber = "9900112233",
-                    PasswordHash = HashPassword("SecurePassword8!"),
-                    Status = AccountStatus.Active,
-                    RoleId = 3
-                },
-                new Account
-                {
-                    Id = Guid.Parse("33333333-3333-3333-3333-333333333333"),
-                    UserName = "staff3",
-                    Email = "staff3@example.com",
-                    FullName = "Staff Three",
-                    PhoneNumber = "2233445566",
-                    PasswordHash = HashPassword("SecurePassword9!"),
-                    Status = AccountStatus.Active,
-                    RoleId = 3
-                },
-                new Account
-                {
-                    Id = Guid.Parse("44444444-4444-4444-4444-444444444444"),
-                    UserName = "staff4",
-                    Email = "staff4@example.com",
-                    FullName = "Staff Four",
-                    PhoneNumber = "4455667788",
-                    PasswordHash = HashPassword("SecurePassword10!"),
-                    Status = AccountStatus.Active,
-                    RoleId = 3
-                },
-                new Account
-                {
-                    Id = Guid.Parse("55555555-5555-5555-5555-555555555555"),
-                    UserName = "saleadmin1",
-                    Email = "saleadmin1@example.com",
-                    FullName = "Sale Admin 1",
-                    PhoneNumber = "938443122",
-                    PasswordHash = HashPassword("SecurePassword11!"),
-                    Status = AccountStatus.Active,
-                    RoleId = 4
-                },
-                new Account
-                {
-                    Id = Guid.Parse("66666666-6666-6666-6666-666666666666"),
-                    UserName = "ceo1",
-                    Email = "ceo1@example.com",
-                    FullName = "CEO 1",
-                    PhoneNumber = "5673434392",
-                    PasswordHash = HashPassword("SecurePassword12!"),
-                    Status = AccountStatus.Active,
-                    RoleId = 5
-                }
+                new Account { Id = Guid.Parse("ec57b9d9-680d-4caf-8122-9325352a1e9b"), UserName = "admin1", Email = "admin1@example.com", FullName = "Admin One", PhoneNumber = "1234567890", PasswordHash = HashPassword("SecurePassword1!"), Status = AccountStatus.Active, RoleId = 1 },
+                new Account { Id = Guid.Parse("1c4b98f1-e040-42d9-9887-f65011400dd7"), UserName = "admin2", Email = "admin2@example.com", FullName = "Admin Two", PhoneNumber = "0987654321", PasswordHash = HashPassword("SecurePassword2!"), Status = AccountStatus.Active, RoleId = 1 },
+                new Account { Id = Guid.Parse("7e006221-9a70-498d-a0b2-ae587c0cd1e8"), UserName = "manager1", Email = "manager1@example.com", FullName = "Manager One", PhoneNumber = "1122334455", PasswordHash = HashPassword("SecurePassword3!"), Status = AccountStatus.Active, RoleId = 2 },
+                new Account { Id = Guid.Parse("4cab1ddc-9ebf-4488-aa28-c472393623ac"), UserName = "manager2", Email = "manager2@example.com", FullName = "Manager Two", PhoneNumber = "5566778899", PasswordHash = HashPassword("SecurePassword4!"), Status = AccountStatus.Active, RoleId = 2 },
+                new Account { Id = Guid.Parse("88376119-6a82-489f-97d4-8b2ad19b7d67"), UserName = "manager3", Email = "manager3@example.com", FullName = "Manager Three", PhoneNumber = "6677889900", PasswordHash = HashPassword("SecurePassword5!"), Status = AccountStatus.Active, RoleId = 2 },
+                new Account { Id = Guid.Parse("11111111-1111-1111-1111-111111111111"), UserName = "staff1", Email = "staff1@example.com", FullName = "Staff One", PhoneNumber = "7788990011", PasswordHash = HashPassword("SecurePassword7!"), Status = AccountStatus.Active, RoleId = 3 },
+                new Account { Id = Guid.Parse("22222222-2222-2222-2222-222222222222"), UserName = "staff2", Email = "staff2@example.com", FullName = "Staff Two", PhoneNumber = "9900112233", PasswordHash = HashPassword("SecurePassword8!"), Status = AccountStatus.Active, RoleId = 3 },
+                new Account { Id = Guid.Parse("33333333-3333-3333-3333-333333333333"), UserName = "staff3", Email = "staff3@example.com", FullName = "Staff Three", PhoneNumber = "2233445566", PasswordHash = HashPassword("SecurePassword9!"), Status = AccountStatus.Active, RoleId = 3 },
+                new Account { Id = Guid.Parse("44444444-4444-4444-4444-444444444444"), UserName = "staff4", Email = "staff4@example.com", FullName = "Staff Four", PhoneNumber = "4455667788", PasswordHash = HashPassword("SecurePassword10!"), Status = AccountStatus.Active, RoleId = 3 },
+                new Account { Id = Guid.Parse("55555555-5555-5555-5555-555555555555"), UserName = "saleadmin1", Email = "saleadmin1@example.com", FullName = "Sale Admin 1", PhoneNumber = "938443122", PasswordHash = HashPassword("SecurePassword11!"), Status = AccountStatus.Active, RoleId = 4 },
+                new Account { Id = Guid.Parse("66666666-6666-6666-6666-666666666666"), UserName = "ceo1", Email = "ceo1@example.com", FullName = "CEO 1", PhoneNumber = "5673434392", PasswordHash = HashPassword("SecurePassword12!"), Status = AccountStatus.Active, RoleId = 5 }
             );
             // 3. Seed Providers
             modelBuilder.Entity<Provider>().HasData(
-                new Provider
-                {
-                    ProviderId = 1,
-                    ProviderName = "ABC Pharma",
-                    Address = "12 Pharma St",
-                    PhoneNumber = "123456789",
-                    TaxCode = "TX123",
-                    Email = "abc@pharma.com",
-                    Status = ProviderStatus.Active,
-                    DocumentNumber = "GH12240001",
-                },
-                new Provider
-                {
-                    ProviderId = 2,
-                    ProviderName = "XYZ Drugs",
-                    Address = "34 Medicine Rd",
-                    PhoneNumber = "987654321",
-                    TaxCode = "TX456",
-                    Email = "xyz@drugs.com",
-                    Status = ProviderStatus.Active,
-                    DocumentNumber = "GH12240002",
-                },
-                new Provider
-                {
-                    ProviderId = 3,
-                    ProviderName = "MediCorp",
-                    Address = "56 Health Ave",
-                    PhoneNumber = "555555555",
-                    TaxCode = "TX789",
-                    Email = "contact@medicorp.com",
-                    Status = ProviderStatus.Active,
-                    DocumentNumber = "GH12240003",
-                },
-                new Provider
-                {
-                    ProviderId = 4,
-                    ProviderName = "Wellness Inc",
-                    Address = "78 Wellness Ln",
-                    PhoneNumber = "111111111",
-                    TaxCode = "TX101",
-                    Email = "info@wellness.com",
-                    Status = ProviderStatus.Inactive,
-                    DocumentNumber = "GH12240004",
-                },
-                new Provider
-                {
-                    ProviderId = 5,
-                    ProviderName = "SafeMeds",
-                    Address = "90 Secure Blvd",
-                    PhoneNumber = "222222222",
-                    TaxCode = "TX202",
-                    Email = "help@safemeds.com",
-                    Status = ProviderStatus.Active,
-                    DocumentNumber = "GH12240005",
-                }
+                new Provider { ProviderId = 1, ProviderName = "ABC Pharma", Address = "12 Pharma St", PhoneNumber = "123456789", TaxCode = "TX123", Email = "abc@pharma.com", Status = ProviderStatus.Active, DocumentNumber = "GH12240001" },
+                new Provider { ProviderId = 2, ProviderName = "XYZ Drugs", Address = "34 Medicine Rd", PhoneNumber = "987654321", TaxCode = "TX456", Email = "xyz@drugs.com", Status = ProviderStatus.Active, DocumentNumber = "GH12240002" },
+                new Provider { ProviderId = 3, ProviderName = "MediCorp", Address = "56 Health Ave", PhoneNumber = "555555555", TaxCode = "TX789", Email = "contact@medicorp.com", Status = ProviderStatus.Active, DocumentNumber = "GH12240003" },
+                new Provider { ProviderId = 4, ProviderName = "Wellness Inc", Address = "78 Wellness Ln", PhoneNumber = "111111111", TaxCode = "TX101", Email = "info@wellness.com", Status = ProviderStatus.Inactive, DocumentNumber = "GH12240004" },
+                new Provider { ProviderId = 5, ProviderName = "SafeMeds", Address = "90 Secure Blvd", PhoneNumber = "222222222", TaxCode = "TX202", Email = "help@safemeds.com", Status = ProviderStatus.Active, DocumentNumber = "GH12240005" }
             );
             modelBuilder.Entity<Categories>().HasData(
                 new Categories { CategoriesId = 1, CategoryName = "Prescription Drugs", ParentCategoryId = null, Description = "Medications that require a prescription from a doctor.", Status = CategoriesStatus.Active },
@@ -246,46 +83,11 @@ namespace DrugWarehouseManagement.Repository.Models
             );
             // 5. Seed Products
             modelBuilder.Entity<Product>().HasData(
-                new Product
-                {
-                    ProductId = 1,
-                    ProductName = "Paracetamol",
-                    ProductCode = "P001",
-                    SKU = "Tablet",
-                    MadeFrom = "Chemical"
-                },
-                new Product
-                {
-                    ProductId = 2,
-                    ProductName = "Aspirin",
-                    ProductCode = "P002",
-                    SKU = "Capsule",
-                    MadeFrom = "Chemical"
-                },
-                new Product
-                {
-                    ProductId = 3,
-                    ProductName = "Ibuprofen",
-                    ProductCode = "P003",
-                    SKU = "Gel",
-                    MadeFrom = "Chemical"
-                },
-                new Product
-                {
-                    ProductId = 4,
-                    ProductName = "Vitamin C",
-                    ProductCode = "P004",
-                    SKU = "Syrup",
-                    MadeFrom = "Natural"
-                },
-                new Product
-                {
-                    ProductId = 5,
-                    ProductName = "Cough Syrup",
-                    ProductCode = "P005",
-                    SKU = "Liquid",
-                    MadeFrom = "Herbal"
-                }
+                new Product { ProductId = 1, ProductName = "Paracetamol", ProductCode = "P001", SKU = "Tablet", MadeFrom = "Chemical" },
+                new Product { ProductId = 2, ProductName = "Aspirin", ProductCode = "P002", SKU = "Capsule", MadeFrom = "Chemical" },
+                new Product { ProductId = 3, ProductName = "Ibuprofen", ProductCode = "P003", SKU = "Gel", MadeFrom = "Chemical" },
+                new Product { ProductId = 4, ProductName = "Vitamin C", ProductCode = "P004", SKU = "Syrup", MadeFrom = "Natural" },
+                new Product { ProductId = 5, ProductName = "Cough Syrup", ProductCode = "P005", SKU = "Liquid", MadeFrom = "Herbal" }
             );
             // 6. Seed Lots
             modelBuilder.Entity<Lot>().HasData(
@@ -317,127 +119,22 @@ namespace DrugWarehouseManagement.Repository.Models
 
             // 7. Seed Outbounds
             modelBuilder.Entity<Outbound>().HasData(
-                new Outbound
-                {
-                    OutboundId = 1,
-                    OutboundCode = "OB001",
-                    OutboundOrderCode = "ORD001",
-                    TrackingNumber = "TRK001",
-                    OutboundDate = instantNow,
-                    Status = OutboundStatus.Pending,
-                    AccountId = Guid.Parse("ec57b9d9-680d-4caf-8122-9325352a1e9b"),
-                    CustomerId = 1,
-                },
-                new Outbound
-                {
-                    OutboundId = 2,
-                    OutboundCode = "OB002",
-                    OutboundOrderCode = "ORD002",
-                    TrackingNumber = "TRK002",
-                    OutboundDate = instantNow,
-                    Status = OutboundStatus.InProgress,
-                    AccountId = Guid.Parse("1c4b98f1-e040-42d9-9887-f65011400dd7"),
-                    CustomerId = 2,
-                },
-                new Outbound
-                {
-                    OutboundId = 3,
-                    OutboundCode = "OB003",
-                    OutboundOrderCode = "ORD003",
-                    TrackingNumber = "TRK003",
-                    OutboundDate = instantNow,
-                    Status = OutboundStatus.Packed,
-                    AccountId = Guid.Parse("7e006221-9a70-498d-a0b2-ae587c0cd1e8"),
-                    CustomerId = 3,
-                },
-                new Outbound
-                {
-                    OutboundId = 4,
-                    OutboundCode = "OB004",
-                    OutboundOrderCode = "ORD004",
-                    TrackingNumber = "TRK004",
-                    OutboundDate = instantNow,
-                    Status = OutboundStatus.AcceptedFromCustomer,
-                    AccountId = Guid.Parse("4cab1ddc-9ebf-4488-aa28-c472393623ac"),
-                    CustomerId = 4,
-                },
-                new Outbound
-                {
-                    OutboundId = 5,
-                    OutboundCode = "OB005",
-                    OutboundOrderCode = "ORD005",
-                    TrackingNumber = "TRK005",
-                    OutboundDate = instantNow,
-                    Status = OutboundStatus.Cancelled,
-                    AccountId = Guid.Parse("88376119-6a82-489f-97d4-8b2ad19b7d67"),
-                    CustomerId = 5,
-                }
+                new Outbound { OutboundId = 1, OutboundCode = "OB001", OutboundOrderCode = "ORD001", OutboundDate = instantNow, Status = OutboundStatus.Pending, AccountId = Guid.Parse("ec57b9d9-680d-4caf-8122-9325352a1e9b"), CustomerId = 1 },
+                new Outbound { OutboundId = 2, OutboundCode = "OB002", OutboundOrderCode = "ORD002", OutboundDate = instantNow, Status = OutboundStatus.InProgress, AccountId = Guid.Parse("1c4b98f1-e040-42d9-9887-f65011400dd7"), CustomerId = 2 },
+                new Outbound { OutboundId = 3, OutboundCode = "OB003", OutboundOrderCode = "ORD003", OutboundDate = instantNow, Status = OutboundStatus.Completed, AccountId = Guid.Parse("7e006221-9a70-498d-a0b2-ae587c0cd1e8"), CustomerId = 3 },
+                new Outbound { OutboundId = 4, OutboundCode = "OB004", OutboundOrderCode = "ORD004", OutboundDate = instantNow, Status = OutboundStatus.Completed, AccountId = Guid.Parse("4cab1ddc-9ebf-4488-aa28-c472393623ac"), CustomerId = 4 },
+                new Outbound { OutboundId = 5, OutboundCode = "OB005", OutboundOrderCode = "ORD005", OutboundDate = instantNow, Status = OutboundStatus.Cancelled, AccountId = Guid.Parse("88376119-6a82-489f-97d4-8b2ad19b7d67"), CustomerId = 5 }
             );
 
             // 9. Seed OutboundDetails
             modelBuilder.Entity<OutboundDetails>().HasData(
-                new OutboundDetails
-                {
-                    OutboundDetailsId = 1,
-                    LotNumber = "LOT-20240101",
-                    ExpiryDate = new DateOnly(2026, 12, 31),
-                    Quantity = 50,
-                    UnitType = "Box",
-                    UnitPrice = 12.5m,
-                    TotalPrice = 625m,
-                    OutboundId = 1,
-                    LotId = 1
-                },
-                new OutboundDetails
-                {
-                    OutboundDetailsId = 2,
-                    LotNumber = "LOT-20240201",
-                    ExpiryDate = new DateOnly(2026, 12, 31),
-                    Quantity = 30,
-                    UnitType = "Bottle",
-                    UnitPrice = 20m,
-                    TotalPrice = 600m,
-                    OutboundId = 2,
-                    LotId = 2
-                },
-                new OutboundDetails
-                {
-                    OutboundDetailsId = 3,
-                    LotNumber = "LOT-20240301",
-                    ExpiryDate = new DateOnly(2026, 12, 31),
-                    Quantity = 40,
-                    UnitType = "Pack",
-                    UnitPrice = 8m,
-                    TotalPrice = 320m,
-                    OutboundId = 3,
-                    LotId = 3
-                },
-                new OutboundDetails
-                {
-                    OutboundDetailsId = 4,
-                    LotNumber = "LOT-20240401",
-                    ExpiryDate = new DateOnly(2026, 12, 31),
-                    Quantity = 20,
-                    UnitType = "Vial",
-                    UnitPrice = 50m,
-                    TotalPrice = 1000m,
-                    OutboundId = 4,
-                    LotId = 4
-                },
-                new OutboundDetails
-                {
-                    OutboundDetailsId = 5,
-                    LotNumber = "LOT-20240501",
-                    ExpiryDate = new DateOnly(2026, 12, 31),
-                    Quantity = 25,
-                    UnitType = "Tube",
-                    UnitPrice = 15m,
-                    TotalPrice = 375m,
-                    OutboundId = 5,
-                    LotId = 5
-                }
+                new OutboundDetails { OutboundDetailsId = 1, LotNumber = "LOT-20240101", ExpiryDate = new DateOnly(2026, 12, 31), Quantity = 50, UnitType = "Box", UnitPrice = 12.5m, TotalPrice = 625m, OutboundId = 1, LotId = 1 },
+                new OutboundDetails { OutboundDetailsId = 2, LotNumber = "LOT-20240201", ExpiryDate = new DateOnly(2026, 12, 31), Quantity = 30, UnitType = "Bottle", UnitPrice = 20m, TotalPrice = 600m, OutboundId = 2, LotId = 2 },
+                new OutboundDetails { OutboundDetailsId = 3, LotNumber = "LOT-20240301", ExpiryDate = new DateOnly(2026, 12, 31), Quantity = 40, UnitType = "Pack", UnitPrice = 8m, TotalPrice = 320m, OutboundId = 3, LotId = 3 },
+                new OutboundDetails { OutboundDetailsId = 4, LotNumber = "LOT-20240401", ExpiryDate = new DateOnly(2026, 12, 31), Quantity = 20, UnitType = "Vial", UnitPrice = 50m, TotalPrice = 1000m, OutboundId = 4, LotId = 4 },
+                new OutboundDetails { OutboundDetailsId = 5, LotNumber = "LOT-20240501", ExpiryDate = new DateOnly(2026, 12, 31), Quantity = 25, UnitType = "Tube", UnitPrice = 15m, TotalPrice = 375m, OutboundId = 5, LotId = 5 }
             );
-
+            //10. Seed LotTransfers
             modelBuilder.Entity<LotTransfer>().HasData(
                 new LotTransfer { LotTransferId = 1, LotTransferCode = "TO-1001", LotTransferStatus = LotTransferStatus.Pending, FromWareHouseId = 1, ToWareHouseId = 2, AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555") },
                 new LotTransfer { LotTransferId = 2, LotTransferCode = "TO-1002", LotTransferStatus = LotTransferStatus.Completed, FromWareHouseId = 2, ToWareHouseId = 3, AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555") },
@@ -448,9 +145,10 @@ namespace DrugWarehouseManagement.Repository.Models
                 new LotTransfer { LotTransferId = 7, LotTransferCode = "TO-1007", LotTransferStatus = LotTransferStatus.Pending, FromWareHouseId = 2, ToWareHouseId = 4, AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555") },
                 new LotTransfer { LotTransferId = 8, LotTransferCode = "TO-1008", LotTransferStatus = LotTransferStatus.InProgress, FromWareHouseId = 3, ToWareHouseId = 5, AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555") },
                 new LotTransfer { LotTransferId = 9, LotTransferCode = "TO-1009", LotTransferStatus = LotTransferStatus.Completed, FromWareHouseId = 4, ToWareHouseId = 1, AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555") },
-                new LotTransfer { LotTransferId = 10, LotTransferCode = "TO-1010", LotTransferStatus = LotTransferStatus.Pending, FromWareHouseId = 5, ToWareHouseId = 2, AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555") }
-            );
-
+                new LotTransfer { LotTransferId = 10, LotTransferCode = "TO-1010", LotTransferStatus = LotTransferStatus.Pending, FromWareHouseId = 5, ToWareHouseId = 2, AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555") },
+                new LotTransfer { LotTransferId = 11, LotTransferCode = "TO-1011", LotTransferStatus = LotTransferStatus.Completed, FromWareHouseId = 1, ToWareHouseId = 2, AccountId = Guid.Parse("ec57b9d9-680d-4caf-8122-9325352a1e9b"), CreatedAt = instantNow.Plus(Duration.FromDays(45)) }
+                );
+            //11. Seed LotTransferDetails
             modelBuilder.Entity<LotTransferDetail>().HasData(
                 new LotTransferDetail { LotTransferDetailId = 1, Quantity = 10, ProductId = 1, LotId = 1, LotTransferId = 1, ExpiryDate = new DateOnly(2026, 12, 31) },
                 new LotTransferDetail { LotTransferDetailId = 2, Quantity = 15, ProductId = 2, LotId = 2, LotTransferId = 1, ExpiryDate = new DateOnly(2026, 12, 31) },
@@ -461,11 +159,31 @@ namespace DrugWarehouseManagement.Repository.Models
                 new LotTransferDetail { LotTransferDetailId = 7, Quantity = 30, ProductId = 2, LotId = 4, LotTransferId = 5, ExpiryDate = new DateOnly(2026, 12, 31) },
                 new LotTransferDetail { LotTransferDetailId = 8, Quantity = 8, ProductId = 3, LotId = 3, LotTransferId = 6, ExpiryDate = new DateOnly(2026, 12, 31) },
                 new LotTransferDetail { LotTransferDetailId = 9, Quantity = 14, ProductId = 4, LotId = 2, LotTransferId = 7, ExpiryDate = new DateOnly(2026, 12, 31) },
-                new LotTransferDetail { LotTransferDetailId = 10, Quantity = 18, ProductId = 5, LotId = 1, LotTransferId = 8, ExpiryDate = new DateOnly(2026, 12, 31) }
+                new LotTransferDetail { LotTransferDetailId = 10, Quantity = 18, ProductId = 5, LotId = 1, LotTransferId = 8, ExpiryDate = new DateOnly(2026, 12, 31) },
+                new LotTransferDetail { LotTransferDetailId = 11, Quantity = 10, ProductId = 1, LotId = 1, LotTransferId = 11, ExpiryDate = new DateOnly(2026, 12, 31) }
+
             );
-
+            //12. Seed Inbounds
+            modelBuilder.Entity<Inbound>().HasData(
+                new Inbound { InboundId = 1, InboundCode = "IB001", ProviderOrderCode = "PORD001", Quantity = 50, Price = 100m, Note = "First inbound - pending", InboundDate = instantNow, Status = InboundStatus.Pending, ProviderId = 1, AccountId = Guid.Parse("ec57b9d9-680d-4caf-8122-9325352a1e9b"), ProductId = 1, WarehouseId = 1 },
+                new Inbound { InboundId = 2, InboundCode = "IB002", ProviderOrderCode = "PORD002", Quantity = 80, Price = 200m, Note = "Second inbound - completed", InboundDate = instantNow, Status = InboundStatus.Completed, ProviderId = 2, AccountId = Guid.Parse("1c4b98f1-e040-42d9-9887-f65011400dd7"), ProductId = 2, WarehouseId = 2 },
+                new Inbound { InboundId = 3, InboundCode = "IB003", ProviderOrderCode = "PORD003", Quantity = 100, Price = 150m, Note = "Third inbound - cancelled", InboundDate = instantNow, Status = InboundStatus.Cancelled, ProviderId = 3, AccountId = Guid.Parse("7e006221-9a70-498d-a0b2-ae587c0cd1e8"), ProductId = 3, WarehouseId = 3 },
+                new Inbound { InboundId = 4, InboundCode = "IB004", ProviderOrderCode = "PORD004", Quantity = 120, Price = 80m, Note = "Fourth inbound - pending", InboundDate = instantNow, Status = InboundStatus.Pending, ProviderId = 4, AccountId = Guid.Parse("4cab1ddc-9ebf-4488-aa28-c472393623ac"), ProductId = 4, WarehouseId = 4 },
+                new Inbound { InboundId = 5, InboundCode = "IB005", ProviderOrderCode = "PORD005", Quantity = 60, Price = 60m, Note = "Fifth inbound - completed", InboundDate = instantNow, Status = InboundStatus.Completed, ProviderId = 5, AccountId = Guid.Parse("88376119-6a82-489f-97d4-8b2ad19b7d67"), ProductId = 5, WarehouseId = 5 },
+                new Inbound { InboundId = 6, InboundCode = "IB006", ProviderOrderCode = "PORD006", Quantity = 40, Price = 80m, Note = "Inbound for opening stock", InboundDate = instantNow.Minus(Duration.FromDays(400)), Status = InboundStatus.Completed, ProviderId = 1, AccountId = Guid.Parse("ec57b9d9-680d-4caf-8122-9325352a1e9b"), ProductId = 1, WarehouseId = 1 },
+                new Inbound { InboundId = 7, InboundCode = "IB007", ProviderOrderCode = "PORD007", Quantity = 60, Price = 120m, Note = "Inbound within date range", InboundDate = instantNow.Plus(Duration.FromDays(40)), Status = InboundStatus.Completed, ProviderId = 2, AccountId = Guid.Parse("1c4b98f1-e040-42d9-9887-f65011400dd7"), ProductId = 1, WarehouseId = 1 }
+            );
+            //13. Seed InboundDetails
+            modelBuilder.Entity<InboundDetails>().HasData(
+                new InboundDetails { InboundDetailsId = 1, LotNumber = "LOT-INB001-A", ManufacturingDate = new DateOnly(2023, 1, 1), ExpiryDate = new DateOnly(2025, 12, 31), Quantity = 50, UnitPrice = 10m, OpeningStock = 20, TotalPrice = 500m, InboundId = 1, Status = InboundDetailStatus.Pending },
+                new InboundDetails { InboundDetailsId = 2, LotNumber = "LOT-INB002-A", ManufacturingDate = new DateOnly(2022, 6, 1), ExpiryDate = new DateOnly(2024, 12, 31), Quantity = 80, UnitPrice = 12.5m, OpeningStock = 30, TotalPrice = 1000m, InboundId = 2, Status = InboundDetailStatus.Accepted },
+                new InboundDetails { InboundDetailsId = 3, LotNumber = "LOT-INB003-A", ManufacturingDate = new DateOnly(2023, 5, 10), ExpiryDate = new DateOnly(2026, 3, 15), Quantity = 100, UnitPrice = 5m, OpeningStock = 10, TotalPrice = 500m, InboundId = 3, Status = InboundDetailStatus.Accepted },
+                new InboundDetails { InboundDetailsId = 4, LotNumber = "LOT-INB004-A", ManufacturingDate = new DateOnly(2022, 10, 25), ExpiryDate = new DateOnly(2025, 9, 1), Quantity = 120, UnitPrice = 7m, OpeningStock = 25, TotalPrice = 840m, InboundId = 4, Status = InboundDetailStatus.Pending },
+                new InboundDetails { InboundDetailsId = 5, LotNumber = "LOT-INB005-A", ManufacturingDate = new DateOnly(2023, 2, 5), ExpiryDate = new DateOnly(2026, 6, 20), Quantity = 60, UnitPrice = 15m, OpeningStock = 15, TotalPrice = 900m, InboundId = 5, Status = InboundDetailStatus.Accepted },
+                new InboundDetails { InboundDetailsId = 6, LotNumber = "LOT-INB006-A", ManufacturingDate = new DateOnly(2024, 6, 1), ExpiryDate = new DateOnly(2026, 12, 31), Quantity = 40, UnitPrice = 2m, OpeningStock = 10, TotalPrice = 80m, InboundId = 6, Status = InboundDetailStatus.Accepted },
+                new InboundDetails { InboundDetailsId = 7, LotNumber = "LOT-INB007-A", ManufacturingDate = new DateOnly(2024, 7, 1), ExpiryDate = new DateOnly(2026, 12, 31), Quantity = 60, UnitPrice = 2m, OpeningStock = 5, TotalPrice = 120m, InboundId = 7, Status = InboundDetailStatus.Accepted }
+            );
         }
-
         private string HashPassword(string password)
         {
             return _passwordHasher.HashPassword(null, password);
