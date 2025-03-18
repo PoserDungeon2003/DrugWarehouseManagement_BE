@@ -77,6 +77,11 @@ namespace DrugWarehouseManagement.Repository.Models
 
             modelBuilder.Entity<Lot>(entity =>
             {
+                entity.HasOne(l => l.TemporaryWarehouse)
+                    .WithMany()
+                    .HasForeignKey(l => l.TemporaryWarehouseId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
                 entity.HasIndex(l => new { l.LotNumber, l.ExpiryDate, l.ProviderId, l.WarehouseId }, "IX_Lots_LotNumber_ExpiryDate_ProviderId_WarehouseId")
                     .IsUnique();
             });
