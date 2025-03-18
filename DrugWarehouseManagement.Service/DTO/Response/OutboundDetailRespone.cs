@@ -23,7 +23,6 @@ namespace DrugWarehouseManagement.Service.DTO.Response
         public string? Address { get; set; }
         public string? PhoneNumber { get; set; }
         public string? OutboundOrderCode { get; set; }
-        public string? TrackingNumber { get; set; }
         public Instant? OutboundDate { get; set; }
         public OutboundStatus Status { get; set; }
         public List<OutboundDetailRespone> OutboundDetails { get; set; } = new List<OutboundDetailRespone>();

@@ -52,6 +52,7 @@
         Pending = 1,           // Stock-in/stock-out request is pending
         InProgress = 2,        // Stock-in/stock-out is being processed
         Cancelled = 3,         // Stozck-in/stock-out request was cancelled    
+        Completed = 4,         // Stock-in/stock-out has been completed
         AcceptedFromWarehouse = 4,          // Stock-out request was accepted
         AcceptedFromCustomer = 5,          // Stock-out request was accepted
         RejectedFromWarehouse = 6,          // Stock-out request was rejected    

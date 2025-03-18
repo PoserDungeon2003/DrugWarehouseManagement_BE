@@ -159,6 +159,9 @@ namespace DrugWarehouseManagement.API
 
         private static void AddMapper()
         {
+            TypeAdapterConfig<OutboundDetails, OutboundDetailRespone>
+            .NewConfig()
+            .Map(dest => dest.ProductName, src => src.Lot.Product.ProductName);
             TypeAdapterConfig<Outbound, OutboundResponse>
             .NewConfig()
             .Map(dest => dest.CustomerName, src => src.Customer.CustomerName)
