@@ -102,6 +102,7 @@ namespace DrugWarehouseManagement.API
             services.AddScoped<IMinioService, MinioService>();
             services.AddScoped<IFirebaseService, FirebaseService>();
             services.AddScoped<ICategoriesService, CategoriesService>();
+            services.AddScoped<IInventoryReportService, InventoryReportService>();
 
         }
 
@@ -159,6 +160,9 @@ namespace DrugWarehouseManagement.API
 
         private static void AddMapper()
         {
+            TypeAdapterConfig<OutboundDetails, OutboundDetailRespone>
+            .NewConfig()
+            .Map(dest => dest.ProductName, src => src.Lot.Product.ProductName);
             TypeAdapterConfig<Outbound, OutboundResponse>
             .NewConfig()
             .Map(dest => dest.CustomerName, src => src.Customer.CustomerName)

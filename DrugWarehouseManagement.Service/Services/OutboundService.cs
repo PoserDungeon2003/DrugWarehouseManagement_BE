@@ -11,6 +11,7 @@ using NodaTime;
 using NodaTime.Calendars;
 using NodaTime.Text;
 using System.Net;
+using System.Net.Sockets;
 
 namespace DrugWarehouseManagement.Service.Services
 {
@@ -46,7 +47,22 @@ namespace DrugWarehouseManagement.Service.Services
         }
 
 
-
+        public async Task<OutboundResponse> GetOutboundByIdAsync(int outboundId)
+        {
+            var outbound = await _unitOfWork.OutboundRepository
+                .GetByWhere(o => o.OutboundId == outboundId)
+                .Include(c => c.Customer)
+                .Include(o => o.OutboundDetails)
+                .ThenInclude(od => od.Lot)
+                .ThenInclude(l => l.Product)
+                .FirstOrDefaultAsync(o => o.OutboundId == outboundId);
+            if (outbound == null)
+            {
+                throw new Exception("Outbound not found.");
+            }
+            var outboundResponse = outbound.Adapt<OutboundResponse>();
+            return outboundResponse;
+        }
         public async Task<BaseResponse> CreateOutbound(Guid accountId, CreateOutboundRequest request)
         {
             var response = new BaseResponse();
@@ -119,11 +135,8 @@ namespace DrugWarehouseManagement.Service.Services
 
                 detailsList.Add(detail);
             }
-            // Liên kết danh sách chi tiết vào navigation property của Outbound
             outbound.OutboundDetails = detailsList;
             await _unitOfWork.OutboundRepository.CreateAsync(outbound);
-
-            // Lưu các thay đổi cho cả Outbound, OutboundDetails và cập nhật Lot
             await _unitOfWork.SaveChangesAsync();
             await UpdateCustomerLoyaltyStatusAsync(request.CustomerId);
             return new BaseResponse
@@ -140,6 +153,7 @@ namespace DrugWarehouseManagement.Service.Services
                         .Include(o => o.Customer)
                         .Include(o => o.OutboundDetails)
                         .ThenInclude(od => od.Lot)
+                         .ThenInclude(l => l.Product)
                         .AsQueryable();
             if (!string.IsNullOrEmpty(queryPaging.Search))
             {
@@ -187,8 +201,6 @@ namespace DrugWarehouseManagement.Service.Services
                 CurrentPage = paginatedOutbounds.CurrentPage
             };
         }
-
-
         public async Task<BaseResponse> UpdateOutbound(int outboundId, UpdateOutboundRequest request)
         {
             var outbound = await _unitOfWork.OutboundRepository
@@ -204,14 +216,17 @@ namespace DrugWarehouseManagement.Service.Services
             // Nếu có giá trị cập nhật trạng thái trong request
             if (request.Status.HasValue)
             {
-                if (request.Status.Value == OutboundStatus.Cancelled)
+                var newStatus = request.Status.Value;
+
+                if (newStatus == OutboundStatus.Cancelled)
                 {
-                    if (outbound.Status != OutboundStatus.Pending)
+                    // Cho phép hủy từ Pending hoặc InProgress
+                    if (outbound.Status != OutboundStatus.Pending && outbound.Status != OutboundStatus.InProgress)
                     {
-                        throw new Exception("Chỉ được phép hủy đơn xuất đang ở trạng thái Pending.");
+                        throw new Exception("Chỉ được phép hủy đơn xuất khi đang ở trạng thái Pending hoặc InProgress.");
                     }
 
-                    // Với mỗi chi tiết đơn xuất đã trừ số lượng từ lô, cộng lại số lượng đó vào lô.
+                    // Cộng lại số lượng sản phẩm vào kho khi hủy đơn
                     foreach (var detail in outbound.OutboundDetails)
                     {
                         var lot = await _unitOfWork.LotRepository
@@ -224,36 +239,32 @@ namespace DrugWarehouseManagement.Service.Services
                             await _unitOfWork.LotRepository.UpdateAsync(lot);
                         }
                     }
-                    // Cập nhật trạng thái thành Cancelled.
                     outbound.Status = OutboundStatus.Cancelled;
+                }
+                else if (newStatus == OutboundStatus.InProgress)
+                {
+                    if (outbound.Status != OutboundStatus.Pending)
+                    {
+                        throw new Exception("Chỉ được phép chuyển từ Pending sang InProgress.");
+                    }
+                    outbound.Status = OutboundStatus.InProgress;
+                }
+                else if (newStatus == OutboundStatus.Completed)
+                {
+                    if (outbound.Status != OutboundStatus.InProgress)
+                    {
+                        throw new Exception("Chỉ được phép chuyển từ InProgress sang Completed.");
+                    }
+                    outbound.Status = OutboundStatus.Completed;
                 }
                 else
                 {
-                    // Nếu trạng thái update không phải Cancelled, chỉ cho phép chuyển từ Pending sang InProgress.
-                    if (outbound.Status == OutboundStatus.Pending)
-                    {
-                        if (request.Status.Value != OutboundStatus.InProgress)
-                        {
-                            throw new Exception("Từ trạng thái Pending chỉ được phép chuyển sang InProgress hoặc hủy (Cancelled).");
-                        }
-                        outbound.Status = request.Status.Value;
-                    }
-                    else
-                    {
-                        // Nếu đơn không ở trạng thái Pending (và không phải hủy), ta không cho phép thay đổi trạng thái.
-                        if (request.Status.Value != outbound.Status)
-                        {
-                            throw new Exception("Cập nhật trạng thái không được phép trong trạng thái hiện tại.");
-                        }
-                    }
+                    throw new Exception("Trạng thái cập nhật không hợp lệ.");
                 }
             }
-            // Nếu không có giá trị cập nhật trạng thái, giữ nguyên trạng thái hiện tại của đơn xuất.
-
-            // Cập nhật các trường khác
             outbound.OutboundOrderCode = request.OutboundOrderCode;
-            outbound.TrackingNumber = request.TrackingNumber;
             outbound.Note = request.Note;
+            outbound.UpdatedAt = SystemClock.Instance.GetCurrentInstant();
 
             await _unitOfWork.OutboundRepository.UpdateAsync(outbound);
             await _unitOfWork.SaveChangesAsync();
@@ -264,7 +275,8 @@ namespace DrugWarehouseManagement.Service.Services
                 Message = "Outbound updated successfully"
             };
         }
-        public async Task<Outbound?> GetOutboundByIdWithDetailsAsync(int outboundId)
+
+        public async Task<Outbound> GetOutboundByIdWithDetailsAsync(int outboundId)
         {
             var outbound = await _unitOfWork.OutboundRepository
                 .GetByWhere(o => o.OutboundId == outboundId)

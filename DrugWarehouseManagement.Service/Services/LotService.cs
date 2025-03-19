@@ -5,6 +5,7 @@ using DrugWarehouseManagement.Service.DTO.Response;
 using DrugWarehouseManagement.Service.Extenstions;
 using DrugWarehouseManagement.Service.Interface;
 using Mapster;
+using Microsoft.EntityFrameworkCore;
 
 namespace DrugWarehouseManagement.Service.Services
 {
@@ -34,7 +35,6 @@ namespace DrugWarehouseManagement.Service.Services
             {
                 LotNumber = request.LotNumber,
                 Quantity = request.Quantity,
-                TemporaryWarehouseId = request.WarehouseId,
                 WarehouseId = request.WarehouseId,
                 ManufacturingDate = request.ManufacturingDate ?? default,
                 ExpiryDate = request.ExpiryDate,
@@ -61,7 +61,6 @@ namespace DrugWarehouseManagement.Service.Services
 
             lot.LotNumber = string.IsNullOrWhiteSpace(request.LotNumber) ? lot.LotNumber : request.LotNumber;
             lot.Quantity = request.Quantity ?? lot.Quantity;
-            lot.TemporaryWarehouseId = request.TemporaryWarehouse ?? lot.TemporaryWarehouseId;
             lot.WarehouseId = request.WarehouseId ?? lot.WarehouseId;
             lot.ProductId = request.ProductId ?? lot.ProductId;
             lot.ProviderId = request.ProviderId ?? lot.ProviderId;
@@ -99,7 +98,6 @@ namespace DrugWarehouseManagement.Service.Services
             {
                 LotId = lot.LotId,
                 LotNumber = lot.LotNumber,
-                TemporaryWarehouse = string.Empty,
                 WarehouseName = lot.Warehouse.WarehouseName,
                 ProductName = lot.Product.ProductName,
                 ProviderName = lot.Provider.ProviderName,
@@ -112,8 +110,10 @@ namespace DrugWarehouseManagement.Service.Services
         {
             request.Search = request.Search?.ToLower().Trim() ?? "";
             var query = await _unitOfWork.LotRepository.GetAll()
-                        .Where(x => x.LotNumber.Contains(request.Search) || x.TemporaryWarehouse.Equals(request.Search) || x.WarehouseId.Equals(request.Search))
-                        .ToPaginatedResultAsync(request.Page, request.PageSize);
+                            .Include(x => x.Warehouse)
+                            .Include(x => x.Provider)
+                            .Where(x => x.LotNumber.Contains(request.Search) || x.WarehouseId.Equals(request.Search))
+                            .ToPaginatedResultAsync(request.Page, request.PageSize);
             return query.Adapt<PaginatedResult<ViewLot>>();
         }
 
