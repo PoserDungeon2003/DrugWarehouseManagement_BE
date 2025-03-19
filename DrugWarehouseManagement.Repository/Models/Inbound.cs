@@ -13,6 +13,7 @@ namespace DrugWarehouseManagement.Repository.Models
         public string? InboundCode { get; set; } // Mã phiếu
         public string? ProviderOrderCode { get; set; } // Mã đơn hàng
         public string? Note { get; set; }
+        public decimal? Price { get; set; }
         public Instant? InboundDate { get; set; } // Ngày nhập kho
         public InboundStatus Status { get; set; } = InboundStatus.Pending;
         public int ProviderId { get; set; } // Provider
