@@ -179,72 +179,23 @@ namespace DrugWarehouseManagement.Repository.Models
             );
             //12. Seed Inbounds
             modelBuilder.Entity<Inbound>().HasData(
-                new Inbound { InboundId = 1, InboundCode = "IB001", ProviderOrderCode = "PORD001", Quantity = 100, Price = 100m, Note = "Inbound #1", InboundDate = instantNow, Status = InboundStatus.Pending, ProviderId = 1, AccountId = Guid.Parse("ec57b9d9-680d-4caf-8122-9325352a1e9b"), ProductId = 1, WarehouseId = 1 },
-                new Inbound { InboundId = 2, InboundCode = "IB002", ProviderOrderCode = "PORD002", Quantity = 200, Price = 200m, Note = "Inbound #2", InboundDate = instantNow, Status = InboundStatus.Completed, ProviderId = 2, AccountId = Guid.Parse("1c4b98f1-e040-42d9-9887-f65011400dd7"), ProductId = 2, WarehouseId = 2 },
-                new Inbound { InboundId = 3, InboundCode = "IB003", ProviderOrderCode = "PORD003", Quantity = 150, Price = 150m, Note = "Inbound #3", InboundDate = instantNow, Status = InboundStatus.Cancelled, ProviderId = 3, AccountId = Guid.Parse("7e006221-9a70-498d-a0b2-ae587c0cd1e8"), ProductId = 3, WarehouseId = 3 },
-                new Inbound { InboundId = 4, InboundCode = "IB004", ProviderOrderCode = "PORD004", Quantity = 250, Price = 80m, Note = "Inbound #4", InboundDate = instantNow.Plus(Duration.FromDays(10)), Status = InboundStatus.Pending, ProviderId = 4, AccountId = Guid.Parse("4cab1ddc-9ebf-4488-aa28-c472393623ac"), ProductId = 4, WarehouseId = 4 },
-                new Inbound { InboundId = 5, InboundCode = "IB005", ProviderOrderCode = "PORD005", Quantity = 300, Price = 60m, Note = "Inbound #5", InboundDate = instantNow.Plus(Duration.FromDays(15)), Status = InboundStatus.Completed, ProviderId = 5, AccountId = Guid.Parse("88376119-6a82-489f-97d4-8b2ad19b7d67"), ProductId = 5, WarehouseId = 5 },
-                new Inbound { InboundId = 6, InboundCode = "IB006", ProviderOrderCode = "PORD006", Quantity = 50, Price = 80m, Note = "Inbound #6", InboundDate = instantNow.Minus(Duration.FromDays(400)), Status = InboundStatus.Completed, ProviderId = 1, AccountId = Guid.Parse("ec57b9d9-680d-4caf-8122-9325352a1e9b"), ProductId = 6, WarehouseId = 1 },
-                new Inbound { InboundId = 7, InboundCode = "IB007", ProviderOrderCode = "PORD007", Quantity = 8, Price = 120m, Note = "Inbound #7", InboundDate = instantNow.Plus(Duration.FromDays(40)), Status = InboundStatus.Completed, ProviderId = 2, AccountId = Guid.Parse("1c4b98f1-e040-42d9-9887-f65011400dd7"), ProductId = 7, WarehouseId = 2 },
-                new Inbound { InboundId = 8, InboundCode = "IB008", ProviderOrderCode = "PORD008", Quantity = 95, Price = 90m, Note = "Inbound #8", InboundDate = instantNow.Plus(Duration.FromDays(45)), Status = InboundStatus.Pending, ProviderId = 3, AccountId = Guid.Parse("7e006221-9a70-498d-a0b2-ae587c0cd1e8"), ProductId = 8, WarehouseId = 3 },
-                new Inbound { InboundId = 9, InboundCode = "IB009", ProviderOrderCode = "PORD009", Quantity = 4, Price = 110m, Note = "Inbound #9", InboundDate = instantNow.Plus(Duration.FromDays(50)), Status = InboundStatus.Completed, ProviderId = 4, AccountId = Guid.Parse("4cab1ddc-9ebf-4488-aa28-c472393623ac"), ProductId = 9, WarehouseId = 4 },
-                new Inbound { InboundId = 10, InboundCode = "IB010", ProviderOrderCode = "PORD010", Quantity = 12, Price = 95m, Note = "Inbound #10", InboundDate = instantNow.Plus(Duration.FromDays(60)), Status = InboundStatus.Pending, ProviderId = 5, AccountId = Guid.Parse("88376119-6a82-489f-97d4-8b2ad19b7d67"), ProductId = 10, WarehouseId = 5 },
-                new Inbound
-                {
-                    InboundId = 11,
-                    InboundCode = "IB011",
-                    ProviderOrderCode = "PORD011",
-                    Quantity = 100,         // Tổng số lượng nhập
-                    Price = 110m,
-                    Note = "Inbound #11 with multiple lots",
-                    InboundDate = instantNow,
-                    Status = InboundStatus.Pending,
-                    ProviderId = 1,
-                    AccountId = Guid.Parse("ec57b9d9-680d-4caf-8122-9325352a1e9b"),
-                    ProductId = 1,
-                    WarehouseId = 1
-                }
-
-                );
-            // ================== InboundDetails (10 dòng) ==================
+                new Inbound { InboundId = 1, InboundCode = "IB001", ProviderOrderCode = "PORD001", Note = "First inbound - pending", InboundDate = instantNow, Status = InboundStatus.Pending, ProviderId = 1, AccountId = Guid.Parse("ec57b9d9-680d-4caf-8122-9325352a1e9b"), WarehouseId = 1 },
+                new Inbound { InboundId = 2, InboundCode = "IB002", ProviderOrderCode = "PORD002", Note = "Second inbound - completed", InboundDate = instantNow, Status = InboundStatus.Completed, ProviderId = 2, AccountId = Guid.Parse("1c4b98f1-e040-42d9-9887-f65011400dd7"), WarehouseId = 2 },
+                new Inbound { InboundId = 3, InboundCode = "IB003", ProviderOrderCode = "PORD003", Note = "Third inbound - cancelled", InboundDate = instantNow, Status = InboundStatus.Cancelled, ProviderId = 3, AccountId = Guid.Parse("7e006221-9a70-498d-a0b2-ae587c0cd1e8"), WarehouseId = 3 },
+                new Inbound { InboundId = 4, InboundCode = "IB004", ProviderOrderCode = "PORD004", Note = "Fourth inbound - pending", InboundDate = instantNow, Status = InboundStatus.Pending, ProviderId = 4, AccountId = Guid.Parse("4cab1ddc-9ebf-4488-aa28-c472393623ac"), WarehouseId = 4 },
+                new Inbound { InboundId = 5, InboundCode = "IB005", ProviderOrderCode = "PORD005",  Note = "Fifth inbound - completed", InboundDate = instantNow, Status = InboundStatus.Completed, ProviderId = 5, AccountId = Guid.Parse("88376119-6a82-489f-97d4-8b2ad19b7d67"), WarehouseId = 5 },
+                new Inbound { InboundId = 6, InboundCode = "IB006", ProviderOrderCode = "PORD006",  Note = "Inbound for opening stock", InboundDate = instantNow.Minus(Duration.FromDays(400)), Status = InboundStatus.Completed, ProviderId = 1, AccountId = Guid.Parse("ec57b9d9-680d-4caf-8122-9325352a1e9b"),  WarehouseId = 1 },
+                new Inbound { InboundId = 7, InboundCode = "IB007", ProviderOrderCode = "PORD007", Note = "Inbound within date range", InboundDate = instantNow.Plus(Duration.FromDays(40)), Status = InboundStatus.Completed, ProviderId = 2, AccountId = Guid.Parse("1c4b98f1-e040-42d9-9887-f65011400dd7"), WarehouseId = 1 }
+            );
+            //13. Seed InboundDetails
             modelBuilder.Entity<InboundDetails>().HasData(
-                 new InboundDetails { InboundDetailsId = 1, LotNumber = "L001", ManufacturingDate = new DateOnly(2023, 1, 1), ExpiryDate = new DateOnly(2025, 12, 31), Quantity = 100, UnitPrice = 10m, OpeningStock = 20, TotalPrice = 1000m, InboundId = 1, Status = InboundDetailStatus.Pending },
-                 new InboundDetails { InboundDetailsId = 2, LotNumber = "L002", ManufacturingDate = new DateOnly(2023, 3, 15), ExpiryDate = new DateOnly(2026, 10, 20), Quantity = 200, UnitPrice = 12.5m, OpeningStock = 30, TotalPrice = 2500m, InboundId = 2, Status = InboundDetailStatus.Accepted },
-                 new InboundDetails { InboundDetailsId = 3, LotNumber = "L003", ManufacturingDate = new DateOnly(2023, 5, 10), ExpiryDate = new DateOnly(2026, 3, 25), Quantity = 150, UnitPrice = 5m, OpeningStock = 10, TotalPrice = 750m, InboundId = 3, Status = InboundDetailStatus.Accepted },
-                 new InboundDetails { InboundDetailsId = 4, LotNumber = "L004", ManufacturingDate = new DateOnly(2022, 12, 5), ExpiryDate = new DateOnly(2025, 11, 30), Quantity = 250, UnitPrice = 7m, OpeningStock = 25, TotalPrice = 1750m, InboundId = 4, Status = InboundDetailStatus.Pending },
-                 new InboundDetails { InboundDetailsId = 5, LotNumber = "L005", ManufacturingDate = new DateOnly(2024, 2, 20), ExpiryDate = new DateOnly(2026, 9, 15), Quantity = 300, UnitPrice = 15m, OpeningStock = 15, TotalPrice = 4500m, InboundId = 5, Status = InboundDetailStatus.Accepted },
-                 new InboundDetails { InboundDetailsId = 6, LotNumber = "L006", ManufacturingDate = new DateOnly(2024, 3, 1), ExpiryDate = new DateOnly(2025, 12, 31), Quantity = 50, UnitPrice = 2m, OpeningStock = 10, TotalPrice = 100m, InboundId = 6, Status = InboundDetailStatus.Accepted },
-                 new InboundDetails { InboundDetailsId = 7, LotNumber = "L007", ManufacturingDate = new DateOnly(2023, 2, 10), ExpiryDate = new DateOnly(2024, 8, 10), Quantity = 8, UnitPrice = 2m, OpeningStock = 5, TotalPrice = 16m, InboundId = 7, Status = InboundDetailStatus.Accepted },
-                 new InboundDetails { InboundDetailsId = 8, LotNumber = "L008", ManufacturingDate = new DateOnly(2023, 7, 1), ExpiryDate = new DateOnly(2025, 7, 1), Quantity = 95, UnitPrice = 3m, OpeningStock = 8, TotalPrice = 285m, InboundId = 8, Status = InboundDetailStatus.Pending },
-                 new InboundDetails { InboundDetailsId = 9, LotNumber = "L009", ManufacturingDate = new DateOnly(2024, 1, 20), ExpiryDate = new DateOnly(2025, 2, 15), Quantity = 4, UnitPrice = 4m, OpeningStock = 12, TotalPrice = 16m, InboundId = 9, Status = InboundDetailStatus.Accepted },
-                 new InboundDetails { InboundDetailsId = 10, LotNumber = "L010", ManufacturingDate = new DateOnly(2024, 5, 1), ExpiryDate = new DateOnly(2025, 5, 15), Quantity = 12, UnitPrice = 5m, OpeningStock = 9, TotalPrice = 60m, InboundId = 10, Status = InboundDetailStatus.Pending },
-                 new InboundDetails
-                 {
-                     InboundDetailsId = 11,
-                     LotNumber = "L011",
-                     ManufacturingDate = new DateOnly(2024, 1, 1),
-                     ExpiryDate = new DateOnly(2026, 1, 1),
-                     Quantity = 60,         // Số lượng nhập từ số lô L011
-                     UnitPrice = 10m,
-                     OpeningStock = 0,
-                     TotalPrice = 60 * 10m, // = 600m
-                     InboundId = 11,
-                     Status = InboundDetailStatus.Pending
-                 },
-                new InboundDetails
-                {
-                    InboundDetailsId = 12,
-                    LotNumber = "L012",
-                    ManufacturingDate = new DateOnly(2024, 2, 1),
-                    ExpiryDate = new DateOnly(2026, 2, 1),
-                    Quantity = 40,         // Số lượng nhập từ số lô L012
-                    UnitPrice = 10m,
-                    OpeningStock = 0,
-                    TotalPrice = 40 * 10m, // = 400m
-                    InboundId = 11,
-                    Status = InboundDetailStatus.Pending
-                }
-
+                new InboundDetails { InboundDetailsId = 1, LotNumber = "LOT-INB001-A", ManufacturingDate = new DateOnly(2023, 1, 1), ExpiryDate = new DateOnly(2025, 12, 31), Quantity = 50, UnitPrice = 10m, OpeningStock = 20, TotalPrice = 500m, InboundId = 1 },
+                new InboundDetails { InboundDetailsId = 2, LotNumber = "LOT-INB002-A", ManufacturingDate = new DateOnly(2022, 6, 1), ExpiryDate = new DateOnly(2024, 12, 31), Quantity = 80, UnitPrice = 12.5m, OpeningStock = 30, TotalPrice = 1000m, InboundId = 2 },
+                new InboundDetails { InboundDetailsId = 3, LotNumber = "LOT-INB003-A", ManufacturingDate = new DateOnly(2023, 5, 10), ExpiryDate = new DateOnly(2026, 3, 15), Quantity = 100, UnitPrice = 5m, OpeningStock = 10, TotalPrice = 500m, InboundId = 3 },
+                new InboundDetails { InboundDetailsId = 4, LotNumber = "LOT-INB004-A", ManufacturingDate = new DateOnly(2022, 10, 25), ExpiryDate = new DateOnly(2025, 9, 1), Quantity = 120, UnitPrice = 7m, OpeningStock = 25, TotalPrice = 840m, InboundId = 4 },
+                new InboundDetails { InboundDetailsId = 5, LotNumber = "LOT-INB005-A", ManufacturingDate = new DateOnly(2023, 2, 5), ExpiryDate = new DateOnly(2026, 6, 20), Quantity = 60, UnitPrice = 15m, OpeningStock = 15, TotalPrice = 900m, InboundId = 5 },
+                new InboundDetails { InboundDetailsId = 6, LotNumber = "LOT-INB006-A", ManufacturingDate = new DateOnly(2024, 6, 1), ExpiryDate = new DateOnly(2026, 12, 31), Quantity = 40, UnitPrice = 2m, OpeningStock = 10, TotalPrice = 80m, InboundId = 6 },
+                new InboundDetails { InboundDetailsId = 7, LotNumber = "LOT-INB007-A", ManufacturingDate = new DateOnly(2024, 7, 1), ExpiryDate = new DateOnly(2026, 12, 31), Quantity = 60, UnitPrice = 2m, OpeningStock = 5, TotalPrice = 120m, InboundId = 7 }
             );
         }
         private string HashPassword(string password)

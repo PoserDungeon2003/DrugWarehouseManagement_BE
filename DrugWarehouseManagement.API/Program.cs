@@ -2,6 +2,7 @@ using DrugWarehouseManagement.API.Middleware;
 using DrugWarehouseManagement.Repository.Models;
 using DrugWarehouseManagement.Service.Interface;
 using Google;
+using DrugWarehouseManagement.Service.Services;
 using Hangfire;
 using Microsoft.EntityFrameworkCore;
 
@@ -31,6 +32,13 @@ namespace DrugWarehouseManagement.API
                 .AddNewtonsoftJson(options =>
                 options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
             );
+
+            // Test Video Detection
+            builder.Services.AddSingleton<VideoDetectionService>(provider =>
+            {
+                string modelPath = @"D:\DoAn-FPT\real\DrugWarehouseManagement_BE\yolov8n.onnx";
+                return new VideoDetectionService(modelPath);
+            });
 
             ServiceRegister.RegisterServices(builder.Services, builder.Configuration);
 
