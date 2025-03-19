@@ -17,10 +17,12 @@ namespace DrugWarehouseManagement.Repository.Models
         public string InboundRequestCode { get; set; } = null!;
         public InboundRequestStatus Status { get; set; } = InboundRequestStatus.WaitingForAccountantApproval;
         public string? Note { get; set; }
+        public decimal? Price { get; set; }
         public Guid AccountId { get; set; }
 
         public virtual Account Account { get; set; } = null!;
         public virtual List<InboundRequestDetails> InboundRequestDetails { get; set; } = null!;
+        public List<Asset> Assets { get; set; } = null!;
 
     }
 }

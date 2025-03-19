@@ -24,7 +24,7 @@ namespace DrugWarehouseManagement.Repository.Models
         public Guid AccountId { get; set; }
         public int CategoryId { get; set; }
 
-        public List<Inbound> Inbounds { get; set; } = null!;
+        public List<InboundRequest> InboundRequests { get; set; } = null!;
         public List<InboundReport> InboundReports { get; set; } = null!;
         public virtual List<Provider> Providers { get; set; } = null!;
         public virtual Account Account { get; set; } = null!;

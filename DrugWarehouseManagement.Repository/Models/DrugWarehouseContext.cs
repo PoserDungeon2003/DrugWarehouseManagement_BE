@@ -144,9 +144,9 @@ namespace DrugWarehouseManagement.Repository.Models
                 entity.HasMany(e => e.Providers)
                     .WithMany(e => e.Assets)
                     .UsingEntity<ProviderAssets>();
-                entity.HasMany(e => e.Inbounds)
+                entity.HasMany(e => e.InboundRequests)
                     .WithMany(e => e.Assets)
-                    .UsingEntity<InboundAssets>();
+                    .UsingEntity<InboundRequestAssets>();
                 entity.HasMany(e => e.InboundReports)
                     .WithMany(e => e.Assets)
                     .UsingEntity<InboundReportAssets>();

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DrugWarehouseManagement.Repository.Interface
 {
-    public interface IInboundAssetsRepository : IGenericRepository<InboundAssets>
+    public interface IInboundAssetsRepository : IGenericRepository<InboundRequestAssets>
     {
     }
 }
