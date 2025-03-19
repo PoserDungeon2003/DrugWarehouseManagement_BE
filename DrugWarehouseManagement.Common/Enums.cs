@@ -36,10 +36,10 @@
     }
     public enum InboundDetailStatus
     {
-        Pending = 1,            // Item is awaiting processing or receipt
-        Received = 2,           // Item has been received in the warehouse
-        Rejected = 3,           // Item was rejected after inspection
-        Accepted = 4,           // Item was returned after being received
+        Pending = 1,           // Stock-in/stock-out request is pending
+        InProgress = 2,        // Stock-in/stock-out is being processed
+        Completed = 3,         // Stock-in/stock-out has been completed
+        Cancelled = 4          // Stozck-in/stock-out request was cancelled
     }
     public enum WarehouseStatus
     {
@@ -60,13 +60,7 @@
         Pending = 1,           // Stock-in/stock-out request is pending
         InProgress = 2,        // Stock-in/stock-out is being processed
         Completed = 3,         // Stock-in/stock-out has been completed
-        Cancelled = 4,         // Stozck-in/stock-out request was cancelled
-        PartiallyAccepted = 5, // Stock-in request was partially accepted
-        AcceptedFromSupllier = 6,
-        AcceptedFromWarehouse = 7,
-        RejectedFromSupllier = 8,
-        RejectedFromWarehouse = 9,
-
+        Cancelled = 4          // Stozck-in/stock-out request was cancelled
     }
 
 
@@ -122,9 +116,13 @@
 
     public enum InboundRequestStatus
     {
-        Pending = 1,
-        Completed = 3,
-        Cancelled = 4,
+        WaitingForAccountantApproval = 1,
+        WaitingForDirectorApproval = 2,
+        InProgress = 3,
+        WaitingForSaleAdminApproval = 4,
+        WaitingForImport = 5,
+        Completed = 6,
+        Cancelled = 7,
     }
 
     public enum InboundReportStatus
