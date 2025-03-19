@@ -1,6 +1,4 @@
-﻿using DrugWarehouseManagement.Common;
-using Microsoft.AspNetCore.Http;
-using NodaTime;
+﻿using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -10,15 +8,15 @@ using System.Threading.Tasks;
 
 namespace DrugWarehouseManagement.Service.DTO.Request
 {
-    public class CreateInboundReportRequest
+    public class UpdateInboundReportRequest
     {
-        [Required(ErrorMessage = "InboundId is required.")]
-        [Range(1, int.MaxValue, ErrorMessage = "InboundId must be a positive number.")]
-        public int InboundId { get; set; }
+        [Required]
+        [Range(1, int.MaxValue, ErrorMessage = "InboundReportId must be greater than 0.")]
+        public int InboundReportId { get; set; }
 
         [Required(ErrorMessage = "ProblemDescription is required.")]
         [MaxLength(1000, ErrorMessage = "ProblemDescription must be at most 1000 characters.")]
         public string ProblemDescription { get; set; } = null!;
-        public IFormFileCollection AssetFiles {  get; set; }
+        public IFormFileCollection AssetFiles { get; set; }
     }
 }

@@ -1,10 +1,7 @@
 ﻿using Emgu.CV.CvEnum;
-using Emgu.CV.Structure;
 using Emgu.CV;
 using Microsoft.ML.OnnxRuntime.Tensors;
 using Microsoft.ML.OnnxRuntime;
-using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Text;

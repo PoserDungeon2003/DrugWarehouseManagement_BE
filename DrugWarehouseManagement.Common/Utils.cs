@@ -1,4 +1,5 @@
-﻿using System.Security.Cryptography;
+﻿using System.Reflection.Metadata;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace DrugWarehouseManagement.Common
@@ -77,6 +78,11 @@ namespace DrugWarehouseManagement.Common
             // file name can be mapped to folder. Ex: folder/file.pdf
             // Ex: inbound/1/report/[folder-name]/1.pdf
             return $"{prefix}/{id}/{type}/{fileName}";
+        }
+
+        public static string FormatDateOnly(DateOnly? date)
+        {
+            return date?.ToString("dd/MM/yyyy") ?? "N/A";
         }
     }
 }

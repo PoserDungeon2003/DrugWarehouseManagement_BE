@@ -24,11 +24,11 @@ namespace DrugWarehouseManagement.Service.DTO.Request
         public int Quantity { get; set; }
 
         [Required(ErrorMessage = "UnitPrice is required.")]
-        [Range(0.1, double.MaxValue, ErrorMessage = "UnitPrice must be greater than 0.1")]
+        [Range(0.1, double.MaxValue, ErrorMessage = "UnitPrice must be greater than 0.")]
         public decimal UnitPrice { get; set; }
 
         [Required(ErrorMessage = "TotalPrice is required.")]
-        [Range(0.1, double.MaxValue, ErrorMessage = "TotalPrice must be greater than 0.1")]
+        [Range(0.1, double.MaxValue, ErrorMessage = "TotalPrice must be greater than 0.")]
         public decimal TotalPrice { get; set; }
     }
 }

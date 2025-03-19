@@ -15,7 +15,7 @@ namespace DrugWarehouseManagement.Repository.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int InboundRequestId { get; set; }
         public string InboundRequestCode { get; set; } = null!;
-        public InboundRequestStatus Status { get; set; } = InboundRequestStatus.Pending;
+        public InboundRequestStatus Status { get; set; } = InboundRequestStatus.WaitingForAccountantApproval;
         public string? Note { get; set; }
         public Guid AccountId { get; set; }
 

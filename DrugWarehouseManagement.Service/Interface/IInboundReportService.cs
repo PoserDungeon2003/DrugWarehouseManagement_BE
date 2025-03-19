@@ -11,12 +11,10 @@ namespace DrugWarehouseManagement.Service.Interface
 {
     public interface IInboundReportService
     {
-        public Task<BaseResponse> CreateInbound(CreateInboundRequest request);
-        public Task<BaseResponse> CreateInboundDetail(CreateInboundRequest request);
-        public Task<BaseResponse> UpdateInbound(UpdateInboundRequest request);
-        public Task<BaseResponse> UpdateInboundStatus(UpdateInboundStatusRequest request);
-        public Task<BaseResponse> DeleteInbound(int inboundId);
-        public Task<ViewInbound> GetInboundById(int inboundId);
-        public Task<PaginatedResult<ViewInbound>> GetInboundsPaginatedAsync(QueryPaging request);
+        public Task<BaseResponse> CreateInboundReport(CreateInboundReportRequest request);
+        public Task<BaseResponse> UpdateInboundReport(UpdateInboundReportRequest request);
+        public Task<BaseResponse> DeleteInboundReport(int inboundReporttId);
+        public Task<ViewInbound> GetInboundReportById(int inboundReporttId);
+        public Task<PaginatedResult<ViewInbound>> GetInboundReportsPaginatedAsync(QueryPaging request);
     }
 }

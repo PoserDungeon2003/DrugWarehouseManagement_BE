@@ -1,6 +1,7 @@
 ﻿using DrugWarehouseManagement.Service.DTO.Request;
 using DrugWarehouseManagement.Service.DTO.Response;
 using DrugWarehouseManagement.Service.Interface;
+using Emgu.CV.Features2D;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -9,23 +10,23 @@ namespace DrugWarehouseManagement.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class InboundController : ControllerBase
+    public class InboundRequestController : ControllerBase
     {
-        private readonly IInboundService _inboundService;
+        private readonly IInboundRequestService _inboundRequestService;
 
-        public InboundController(IInboundService inboundService)
+        public InboundRequestController(IInboundRequestService inboundRequestService)
         {
-            _inboundService = inboundService;
+            _inboundRequestService = inboundRequestService;
         }
 
         [HttpPost]
         [Authorize]
-        public async Task<IActionResult> CreateInbound([FromBody] CreateInboundRequest request)
+        public async Task<IActionResult> CreateInboundRequest([FromBody] CreateInboundOrderRequest request)
         {
             try
             {
                 var accountId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-                var response = await _inboundService.CreateInbound(accountId, request);
+                var response = await _inboundRequestService.CreateInboundRequest(accountId, request);
                 return Ok(response);
             }
             catch (Exception ex)
@@ -40,12 +41,12 @@ namespace DrugWarehouseManagement.API.Controllers
 
         [HttpPut]
         [Authorize]
-        public async Task<IActionResult> UpdateInbound([FromBody] UpdateInboundRequest request)
+        public async Task<IActionResult> UpdateInboundRequest([FromBody] UpdateInboundOrderRequest request)
         {
             try
             {
                 var accountId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-                var response = await _inboundService.UpdateInbound(accountId, request);
+                var response = await _inboundRequestService.UpdateInboundRequest(accountId, request);
                 return Ok(response);
             }
             catch (Exception ex)
@@ -60,12 +61,12 @@ namespace DrugWarehouseManagement.API.Controllers
 
         [HttpPut("status")]
         [Authorize]
-        public async Task<IActionResult> UpdateInboundStatus([FromBody] UpdateInboundStatusRequest request)
+        public async Task<IActionResult> UpdateInboundRequestStatus([FromBody] UpdateInboundOrderStatusRequest request)
         {
             try
             {
                 var accountId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-                var response = await _inboundService.UpdateInboundStatus(accountId, request);
+                var response = await _inboundRequestService.UpdateInboundRequestStatus(accountId, request);
                 return Ok(response);
             }
             catch (Exception ex)
@@ -80,12 +81,12 @@ namespace DrugWarehouseManagement.API.Controllers
 
         [HttpDelete("{inboundId}")]
         [Authorize]
-        public async Task<IActionResult> DeleteInbound(int inboundId)
+        public async Task<IActionResult> DeleteInboundRequset(int inboundId)
         {
             try
             {
                 var accountId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-                var response = await _inboundService.DeleteInbound(accountId, inboundId);
+                var response = await _inboundRequestService.DeleteInboundRequest(accountId, inboundId);
                 return Ok(response);
             }
             catch (Exception ex)
@@ -99,11 +100,11 @@ namespace DrugWarehouseManagement.API.Controllers
         }
 
         [HttpGet("{inboundId}")]
-        public async Task<IActionResult> GetInboundById(int inboundId)
+        public async Task<IActionResult> GetInboundRequestById(int inboundId)
         {
             try
             {
-                var response = await _inboundService.GetInboundById(inboundId);
+                var response = await _inboundRequestService.GetInboundRequestById(inboundId);
                 return Ok(response);
             }
             catch (Exception ex)
@@ -117,11 +118,11 @@ namespace DrugWarehouseManagement.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetInboundsPaginated([FromQuery] QueryPaging request)
+        public async Task<IActionResult> GetInboundRequestsPaginated([FromQuery] QueryPaging request)
         {
             try
             {
-                var result = await _inboundService.GetInboundsPaginatedAsync(request);
+                var result = await _inboundRequestService.GetInboundRequestsPaginatedAsync(request);
                 return Ok(result);
             }
             catch (Exception ex)
