@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace DrugWarehouseManagement.Repository.Models
 {
-    public class InboundAssets
+    public class InboundRequestAssets
     {
-        public int InboundId { get; set; }
+        public int InboundRequestId { get; set; }
         public int AssetId { get; set; }
     }
 }
