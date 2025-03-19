@@ -1,6 +1,9 @@
 using DrugWarehouseManagement.API.Middleware;
+using DrugWarehouseManagement.Repository.Models;
 using DrugWarehouseManagement.Service.Interface;
+using Google;
 using Hangfire;
+using Microsoft.EntityFrameworkCore;
 
 namespace DrugWarehouseManagement.API
 {
@@ -31,8 +34,7 @@ namespace DrugWarehouseManagement.API
 
             ServiceRegister.RegisterServices(builder.Services, builder.Configuration);
 
-            var app = builder.Build();
-
+            var app = builder.Build();     
             if (!app.Environment.IsProduction())
             {
                 app.UseSwagger();
