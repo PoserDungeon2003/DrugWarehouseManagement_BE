@@ -166,6 +166,15 @@ namespace DrugWarehouseManagement.Repository.Models
                     .IsUnique();
             });
 
+            modelBuilder.Entity<Device>(entity =>
+            {
+                entity.HasIndex(e => e.DeviceCode, "IX_Devices_DeviceCode")
+                    .IsUnique();
+
+                entity.HasIndex(e => e.ApiKey, "IX_Devices_ApiKey")
+                    .IsUnique();
+            });
+
         }
 
 
@@ -187,5 +196,6 @@ namespace DrugWarehouseManagement.Repository.Models
         public DbSet<InboundReport> InboundReports { get; set; }
         public DbSet<InboundRequest> InboundRequests { get; set; }
         public DbSet<Asset> Assets { get; set; }
+        public DbSet<Device> Devices { get; set; }
     }
 }

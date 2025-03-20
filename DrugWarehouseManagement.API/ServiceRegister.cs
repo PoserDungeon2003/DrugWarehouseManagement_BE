@@ -103,7 +103,7 @@ namespace DrugWarehouseManagement.API
             services.AddScoped<IFirebaseService, FirebaseService>();
             services.AddScoped<ICategoriesService, CategoriesService>();
             //services.AddScoped<IInventoryReportService, InventoryReportService>();
-
+            services.AddScoped<IDeviceService, DeviceService>();
         }
 
         public static IServiceCollection AddAuthorizeService(this IServiceCollection services, IConfiguration configuration)

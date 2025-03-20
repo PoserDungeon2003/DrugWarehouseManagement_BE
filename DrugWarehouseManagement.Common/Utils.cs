@@ -84,5 +84,11 @@ namespace DrugWarehouseManagement.Common
         {
             return date?.ToString("dd/MM/yyyy") ?? "N/A";
         }
+
+        public static string GenerateApiKey()
+        {
+            return Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
+        }
+
     }
 }
