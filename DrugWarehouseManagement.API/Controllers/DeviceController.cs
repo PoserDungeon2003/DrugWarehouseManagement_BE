@@ -20,7 +20,7 @@ namespace DrugWarehouseManagement.API.Controllers
         }
 
         [HttpPost("registerDevice")]
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> RegisterDevice([FromBody] RegisterDeviceRequest request)
         {
             try
