@@ -101,7 +101,6 @@ namespace DrugWarehouseManagement.Repository.Models
                 new Lot { LotId = 3, LotNumber = "L003", Quantity = 150, ManufacturingDate = new DateOnly(2023, 5, 10), ExpiryDate = new DateOnly(2026, 3, 25), WarehouseId = 3, ProductId = 3, ProviderId = 3 },
                 new Lot { LotId = 4, LotNumber = "L004", Quantity = 250, ManufacturingDate = new DateOnly(2022, 12, 5), ExpiryDate = new DateOnly(2025, 11, 30), WarehouseId = 4, ProductId = 4, ProviderId = 4 },
                 new Lot { LotId = 5, LotNumber = "L005", Quantity = 300, ManufacturingDate = new DateOnly(2024, 2, 20), ExpiryDate = new DateOnly(2026, 9, 15), WarehouseId = 5, ProductId = 5, ProviderId = 5 },
-
                 new Lot { LotId = 6, LotNumber = "L006", Quantity = 50, ManufacturingDate = new DateOnly(2024, 3, 1), ExpiryDate = new DateOnly(2025, 12, 31), WarehouseId = 1, ProductId = 6, ProviderId = 1 },
                 new Lot { LotId = 7, LotNumber = "L007", Quantity = 8, ManufacturingDate = new DateOnly(2023, 2, 10), ExpiryDate = new DateOnly(2024, 8, 10), WarehouseId = 2, ProductId = 7, ProviderId = 2 },
                 new Lot { LotId = 8, LotNumber = "L008", Quantity = 95, ManufacturingDate = new DateOnly(2023, 7, 1), ExpiryDate = new DateOnly(2025, 7, 1), WarehouseId = 3, ProductId = 8, ProviderId = 3 },
