@@ -167,22 +167,7 @@ namespace DrugWarehouseManagement.Repository.Models
                 new LotTransferDetail { LotTransferDetailId = 5, LotTransferId = 4, LotId = 105, Quantity = 25 },
                 new LotTransferDetail { LotTransferDetailId = 6, LotTransferId = 5, LotId = 106, Quantity = 60 }
             );
-            modelBuilder.Entity<InboundRequest>().HasData(
-                new InboundRequest { InboundRequestId = 1, InboundRequestCode = "REQ-001", AccountId = Guid.Parse("ec57b9d9-680d-4caf-8122-9325352a1e9b"), CreatedAt = Instant.FromDateTimeOffset(new DateTimeOffset(new DateTime(2025, 03, 01))), Status = InboundRequestStatus.Completed },
-                new InboundRequest { InboundRequestId = 2, InboundRequestCode = "REQ-002", AccountId = Guid.Parse("1c4b98f1-e040-42d9-9887-f65011400dd7"), CreatedAt = Instant.FromDateTimeOffset(new DateTimeOffset(new DateTime(2025, 03, 05))), Status = InboundRequestStatus.Completed },
-                new InboundRequest { InboundRequestId = 3, InboundRequestCode = "REQ-003", AccountId = Guid.Parse("4cab1ddc-9ebf-4488-aa28-c472393623ac"), CreatedAt = Instant.FromDateTimeOffset(new DateTimeOffset(new DateTime(2025, 03, 10))), Status = InboundRequestStatus.Completed },
-                new InboundRequest { InboundRequestId = 4, InboundRequestCode = "REQ-004", AccountId = Guid.Parse("ec57b9d9-680d-4caf-8122-9325352a1e9b"), CreatedAt = Instant.FromDateTimeOffset(new DateTimeOffset(new DateTime(2025, 03, 15))), Status = InboundRequestStatus.Completed },
-                new InboundRequest { InboundRequestId = 5, InboundRequestCode = "REQ-005", AccountId = Guid.Parse("1c4b98f1-e040-42d9-9887-f65011400dd7"), CreatedAt = Instant.FromDateTimeOffset(new DateTimeOffset(new DateTime(2025, 03, 20))), Status = InboundRequestStatus.Completed }
-            );
-
-            modelBuilder.Entity<InboundRequestDetails>().HasData(
-                new InboundRequestDetails { InboundRequestId = 1, ProductId = 101, Quantity = 500 },
-                new InboundRequestDetails { InboundRequestId = 1, ProductId = 102, Quantity = 300 },
-                new InboundRequestDetails { InboundRequestId = 2, ProductId = 103, Quantity = 200 },
-                new InboundRequestDetails { InboundRequestId = 3, ProductId = 104, Quantity = 400 },
-                new InboundRequestDetails { InboundRequestId = 4, ProductId = 105, Quantity = 250 }
-            );
-
+            
             modelBuilder.Entity<Inbound>().HasData(
                 new Inbound { InboundId = 1, InboundCode = "INB001", ProviderOrderCode = "PO001", Note = "First inbound", InboundDate = Instant.FromUtc(2024, 3, 22, 0, 0), Status = InboundStatus.Pending, ProviderId = 1, AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555"), WarehouseId = 1, InboundRequestId = 1 },
                 new Inbound { InboundId = 2, InboundCode = "INB002", ProviderOrderCode = "PO002", Note = "Second inbound", InboundDate = Instant.FromUtc(2024, 3, 23, 0, 0), Status = InboundStatus.InProgress, ProviderId = 2, AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555"), WarehouseId = 2, InboundRequestId = 2 },
@@ -213,7 +198,7 @@ namespace DrugWarehouseManagement.Repository.Models
                 new InboundRequestDetails { InboundRequestDetailsId = 3, Quantity = 50, UnitPrice = 20.0m, TotalPrice = 1000, ProductId = 3, InboundRequestId = 2 },
                 new InboundRequestDetails { InboundRequestDetailsId = 4, Quantity = 75, UnitPrice = 12.0m, TotalPrice = 900, ProductId = 4, InboundRequestId = 3 },
                 new InboundRequestDetails { InboundRequestDetailsId = 5, Quantity = 150, UnitPrice = 8.5m, TotalPrice = 1275, ProductId = 5, InboundRequestId = 4 }
-
+            );
 
         }
         private string HashPassword(string password)
