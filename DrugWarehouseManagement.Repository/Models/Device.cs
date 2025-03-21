@@ -15,7 +15,7 @@ namespace DrugWarehouseManagement.Repository.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int DeviceId { get; set; }
         public string DeviceName { get; set; } = null!;
-        public string DeviceCode { get; set; } = null!;
+        public string SerialNumber { get; set; } = null!;
         public string DeviceType { get; set; } = null!;
         [ProtectedPersonalData]
         public string ApiKey { get; set; } = string.Empty;

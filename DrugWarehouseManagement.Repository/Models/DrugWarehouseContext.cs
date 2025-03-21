@@ -168,7 +168,7 @@ namespace DrugWarehouseManagement.Repository.Models
 
             modelBuilder.Entity<Device>(entity =>
             {
-                entity.HasIndex(e => e.DeviceCode, "IX_Devices_DeviceCode")
+                entity.HasIndex(e => e.SerialNumber, "IX_Devices_SerialNumber")
                     .IsUnique();
 
                 entity.HasIndex(e => e.ApiKey, "IX_Devices_ApiKey")
