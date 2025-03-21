@@ -165,7 +165,8 @@ namespace DrugWarehouseManagement.API
             TypeAdapterConfig<OutboundDetails, OutboundDetailRespone>
             .NewConfig()
             .Map(dest => dest.ProductName, src => src.Lot.Product.ProductName)
-            .Map(dest => dest.UnitType, src => src.Lot.Product.SKU);
+            .Map(dest => dest.UnitType, src => src.Lot.Product.SKU)
+            .Map(dest => dest.LotNumber, src => src.Lot.LotNumber);  
             TypeAdapterConfig<Outbound, OutboundResponse>
             .NewConfig()
             .Map(dest => dest.CustomerName, src => src.Customer.CustomerName)

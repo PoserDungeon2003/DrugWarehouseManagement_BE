@@ -9,7 +9,6 @@ namespace DrugWarehouseManagement.Repository.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int OutboundDetailsId { get; set; }
-        public string LotNumber { get; set; } = null!;
         public DateOnly ExpiryDate { get; set; }
         public int Quantity { get; set; }
         public decimal UnitPrice { get; set; }
