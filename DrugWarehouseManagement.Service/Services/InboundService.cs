@@ -143,6 +143,9 @@ namespace DrugWarehouseManagement.Service.Services
             var query = _unitOfWork.InboundRepository
                         .GetAll()
                         .Include(i => i.InboundDetails)
+                        .Include(i => i.Provider)
+                        .Include(i => i.Account)
+                        .Include(i => i.Provider)
                         .Where(i => i.Status != InboundStatus.Cancelled)
                         .AsQueryable();
 
@@ -206,7 +209,7 @@ namespace DrugWarehouseManagement.Service.Services
             string randomDigits = random.Next(1000, 9999).ToString(); // Generate 4 random digits
             string dateDigits = DateTime.Now.ToString("MMdd"); // Get 4-digit based on current date (MMDD)
 
-            string inboundCode = $"IRC{randomDigits}{dateDigits}";
+            string inboundCode = $"IC{randomDigits}{dateDigits}";
 
             if (!Regex.IsMatch(inboundCode, "^IC\\d{4}\\d{4}$"))
             {

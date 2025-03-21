@@ -167,44 +167,39 @@ namespace DrugWarehouseManagement.Repository.Models
                 new LotTransferDetail { LotTransferDetailId = 5, LotTransferId = 4, LotId = 105, Quantity = 25 },
                 new LotTransferDetail { LotTransferDetailId = 6, LotTransferId = 5, LotId = 106, Quantity = 60 }
             );
-            modelBuilder.Entity<InboundRequest>().HasData(
-                new InboundRequest { InboundRequestId = 1, InboundRequestCode = "REQ-001", AccountId = Guid.Parse("ec57b9d9-680d-4caf-8122-9325352a1e9b"), CreatedAt = Instant.FromDateTimeOffset(new DateTimeOffset(new DateTime(2025, 03, 01))), Status = InboundRequestStatus.Completed },
-                new InboundRequest { InboundRequestId = 2, InboundRequestCode = "REQ-002", AccountId = Guid.Parse("1c4b98f1-e040-42d9-9887-f65011400dd7"), CreatedAt = Instant.FromDateTimeOffset(new DateTimeOffset(new DateTime(2025, 03, 05))), Status = InboundRequestStatus.Completed },
-                new InboundRequest { InboundRequestId = 3, InboundRequestCode = "REQ-003", AccountId = Guid.Parse("4cab1ddc-9ebf-4488-aa28-c472393623ac"), CreatedAt = Instant.FromDateTimeOffset(new DateTimeOffset(new DateTime(2025, 03, 10))), Status = InboundRequestStatus.Completed },
-                new InboundRequest { InboundRequestId = 4, InboundRequestCode = "REQ-004", AccountId = Guid.Parse("ec57b9d9-680d-4caf-8122-9325352a1e9b"), CreatedAt = Instant.FromDateTimeOffset(new DateTimeOffset(new DateTime(2025, 03, 15))), Status = InboundRequestStatus.Completed },
-                new InboundRequest { InboundRequestId = 5, InboundRequestCode = "REQ-005", AccountId = Guid.Parse("1c4b98f1-e040-42d9-9887-f65011400dd7"), CreatedAt = Instant.FromDateTimeOffset(new DateTimeOffset(new DateTime(2025, 03, 20))), Status = InboundRequestStatus.Completed }
-            );
-
-            modelBuilder.Entity<InboundRequestDetails>().HasData(
-                new InboundRequestDetails { InboundRequestId = 1, ProductId = 101, Quantity = 500 },
-                new InboundRequestDetails { InboundRequestId = 1, ProductId = 102, Quantity = 300 },
-                new InboundRequestDetails { InboundRequestId = 2, ProductId = 103, Quantity = 200 },
-                new InboundRequestDetails { InboundRequestId = 3, ProductId = 104, Quantity = 400 },
-                new InboundRequestDetails { InboundRequestId = 4, ProductId = 105, Quantity = 250 }
-            );
+            
             modelBuilder.Entity<Inbound>().HasData(
-                new Inbound { InboundId = 1, InboundCode = "INB-001", InboundRequestId = 1, WarehouseId = 1, CreatedAt = Instant.FromDateTimeOffset(new DateTimeOffset(new DateTime(2025, 03, 02))), Status = InboundStatus.Completed },
-                new Inbound { InboundId = 2, InboundCode = "INB-002", InboundRequestId = 2, WarehouseId = 2, CreatedAt = Instant.FromDateTimeOffset(new DateTimeOffset(new DateTime(2025, 03, 06))), Status = InboundStatus.Completed },
-                new Inbound { InboundId = 3, InboundCode = "INB-003", InboundRequestId = 3, WarehouseId = 1, CreatedAt = Instant.FromDateTimeOffset(new DateTimeOffset(new DateTime(2025, 03, 11))), Status = InboundStatus.Completed },
-                new Inbound { InboundId = 4, InboundCode = "INB-004", InboundRequestId = 4, WarehouseId = 3, CreatedAt = Instant.FromDateTimeOffset(new DateTimeOffset(new DateTime(2025, 03, 16))), Status = InboundStatus.Completed },
-                new Inbound { InboundId = 5, InboundCode = "INB-005", InboundRequestId = 5, WarehouseId = 2, CreatedAt = Instant.FromDateTimeOffset(new DateTimeOffset(new DateTime(2025, 03, 21))), Status = InboundStatus.Completed }
+                new Inbound { InboundId = 1, InboundCode = "INB001", ProviderOrderCode = "PO001", Note = "First inbound", InboundDate = Instant.FromUtc(2024, 3, 22, 0, 0), Status = InboundStatus.Pending, ProviderId = 1, AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555"), WarehouseId = 1, InboundRequestId = 1 },
+                new Inbound { InboundId = 2, InboundCode = "INB002", ProviderOrderCode = "PO002", Note = "Second inbound", InboundDate = Instant.FromUtc(2024, 3, 23, 0, 0), Status = InboundStatus.InProgress, ProviderId = 2, AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555"), WarehouseId = 2, InboundRequestId = 2 },
+                new Inbound { InboundId = 3, InboundCode = "INB003", ProviderOrderCode = "PO003", Note = "Third inbound", InboundDate = Instant.FromUtc(2024, 3, 24, 0, 0), Status = InboundStatus.Completed, ProviderId = 3, AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555"), WarehouseId = 3, InboundRequestId = 3 },
+                new Inbound { InboundId = 4, InboundCode = "INB004", ProviderOrderCode = "PO004", Note = "Fourth inbound", InboundDate = Instant.FromUtc(2024, 3, 25, 0, 0), Status = InboundStatus.Pending, ProviderId = 4, AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555"), WarehouseId = 4, InboundRequestId = 4 },
+                new Inbound { InboundId = 5, InboundCode = "INB005", ProviderOrderCode = "PO005", Note = "Fifth inbound", InboundDate = Instant.FromUtc(2024, 3, 26, 0, 0), Status = InboundStatus.Pending, ProviderId = 5, AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555"), WarehouseId = 5, InboundRequestId = 5 }
             );
 
             modelBuilder.Entity<InboundDetails>().HasData(
-                new InboundDetails { InboundDetailsId = 1, InboundId = 1, ProductId = 101, Quantity = 500, LotNumber = "LOT-001" },
-                new InboundDetails { InboundDetailsId = 2, InboundId = 1, ProductId = 102, Quantity = 300, LotNumber = "LOT-002" },
-                new InboundDetails { InboundDetailsId = 3, InboundId = 2, ProductId = 103, Quantity = 200, LotNumber = "LOT-003" },
-                new InboundDetails { InboundDetailsId = 4, InboundId = 3, ProductId = 104, Quantity = 400, LotNumber = "LOT-004" },
-                new InboundDetails { InboundDetailsId = 5, InboundId = 4, ProductId = 105, Quantity = 250, LotNumber = "LOT-005" }
+                new InboundDetails { InboundDetailsId = 1, LotNumber = "L001", ManufacturingDate = new DateOnly(2024, 1, 1), ExpiryDate = new DateOnly(2025, 1, 1), ProductId = 1, Quantity = 100, UnitPrice = 10.5m, OpeningStock = 50, TotalPrice = 1050, InboundId = 1},
+                new InboundDetails { InboundDetailsId = 2, LotNumber = "L002", ManufacturingDate = new DateOnly(2024, 2, 1), ExpiryDate = new DateOnly(2025, 2, 1), ProductId = 2, Quantity = 150, UnitPrice = 9.5m, OpeningStock = 70, TotalPrice = 1425, InboundId = 1},
+                new InboundDetails { InboundDetailsId = 3, LotNumber = "L003", ManufacturingDate = new DateOnly(2023, 12, 1), ExpiryDate = new DateOnly(2024, 12, 1), ProductId = 3, Quantity = 200, UnitPrice = 8.0m, OpeningStock = 80, TotalPrice = 1600, InboundId = 2},
+                new InboundDetails { InboundDetailsId = 4, LotNumber = "L004", ManufacturingDate = new DateOnly(2024, 3, 1), ExpiryDate = new DateOnly(2026, 3, 1), ProductId = 4, Quantity = 120, UnitPrice = 11.0m, OpeningStock = 60, TotalPrice = 1320, InboundId = 3 },
+                new InboundDetails { InboundDetailsId = 5, LotNumber = "L005", ManufacturingDate = new DateOnly(2024, 4, 1), ExpiryDate = new DateOnly(2026, 4, 1), ProductId = 5, Quantity = 50, UnitPrice = 15.0m, OpeningStock = 30, TotalPrice = 750, InboundId = 4}
             );
 
-            modelBuilder.Entity<Lot>().HasData(
-                new Lot { LotId = 1, LotNumber = "LOT-001", ProductId = 101, ExpiryDate = DateOnly.FromDateTime(new DateTime(2026, 03, 01)), Quantity = 500 },
-                new Lot { LotId = 2, LotNumber = "LOT-002", ProductId = 102, ExpiryDate = DateOnly.FromDateTime(new DateTime(2026, 03, 05)), Quantity = 300 },
-                new Lot { LotId = 3, LotNumber = "LOT-003", ProductId = 103, ExpiryDate = DateOnly.FromDateTime(new DateTime(2026, 03, 10)), Quantity = 200 },
-                new Lot { LotId = 4, LotNumber = "LOT-004", ProductId = 104, ExpiryDate = DateOnly.FromDateTime(new DateTime(2026, 03, 15)), Quantity = 400 },
-                new Lot { LotId = 5, LotNumber = "LOT-005", ProductId = 105, ExpiryDate = DateOnly.FromDateTime(new DateTime(2026, 03, 20)), Quantity = 250 }
+            modelBuilder.Entity<InboundRequest>().HasData(
+                new InboundRequest { InboundRequestId = 1, InboundRequestCode = "IR001", Status = InboundRequestStatus.WaitingForAccountantApproval, Note = "First inbound request", Price = 5000, AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555") },
+                new InboundRequest { InboundRequestId = 2, InboundRequestCode = "IR002", Status = InboundRequestStatus.WaitingForDirectorApproval, Note = "Second inbound request", Price = 8000, AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555") },
+                new InboundRequest { InboundRequestId = 3, InboundRequestCode = "IR003", Status = InboundRequestStatus.WaitingForAccountantApproval, Note = "Third inbound request", Price = 6000, AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555") },
+                new InboundRequest { InboundRequestId = 4, InboundRequestCode = "IR004", Status = InboundRequestStatus.Completed, Note = "Fourth inbound request", Price = 7000, AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555") },
+                new InboundRequest { InboundRequestId = 5, InboundRequestCode = "IR005", Status = InboundRequestStatus.Completed, Note = "Fifth inbound request", Price = 9000, AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555") }
             );
+
+            modelBuilder.Entity<InboundRequestDetails>().HasData(
+                new InboundRequestDetails { InboundRequestDetailsId = 1, Quantity = 100, UnitPrice = 10.5m, TotalPrice = 1050, ProductId = 1, InboundRequestId = 1 },
+                new InboundRequestDetails { InboundRequestDetailsId = 2, Quantity = 200, UnitPrice = 9.0m, TotalPrice = 1800, ProductId = 2, InboundRequestId = 1 },
+                new InboundRequestDetails { InboundRequestDetailsId = 3, Quantity = 50, UnitPrice = 20.0m, TotalPrice = 1000, ProductId = 3, InboundRequestId = 2 },
+                new InboundRequestDetails { InboundRequestDetailsId = 4, Quantity = 75, UnitPrice = 12.0m, TotalPrice = 900, ProductId = 4, InboundRequestId = 3 },
+                new InboundRequestDetails { InboundRequestDetailsId = 5, Quantity = 150, UnitPrice = 8.5m, TotalPrice = 1275, ProductId = 5, InboundRequestId = 4 }
+            );
+
         }
         private string HashPassword(string password)
         {
