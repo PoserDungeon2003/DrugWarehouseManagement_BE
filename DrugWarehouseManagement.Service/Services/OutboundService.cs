@@ -257,6 +257,14 @@ namespace DrugWarehouseManagement.Service.Services
                     }
                     outbound.Status = OutboundStatus.Completed;
                 }
+                else if (newStatus == OutboundStatus.Returned)
+                {
+                    if (outbound.Status != OutboundStatus.Completed)
+                    {
+                        throw new Exception("Chỉ được phép chuyển từ Completed sang Returned.");
+                    }
+                    outbound.Status = OutboundStatus.Returned;
+                }
                 else
                 {
                     throw new Exception("Trạng thái cập nhật không hợp lệ.");

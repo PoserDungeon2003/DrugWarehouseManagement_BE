@@ -61,6 +61,7 @@
         InProgress = 2,        // Stock-in/stock-out is being processed
         Completed = 3,         // Stock-in/stock-out has been completed
         Cancelled = 4          // Stozck-in/stock-out request was cancelled
+        
     }
 
 

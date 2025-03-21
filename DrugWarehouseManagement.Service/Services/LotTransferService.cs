@@ -204,7 +204,6 @@ namespace DrugWarehouseManagement.Service.Services
                                             .ThenInclude(ltd => ltd.Lot)
                                                 .ThenInclude(p => p.Provider)
                                         .Include(lt => lt.LotTransferDetails)
-                                            .ThenInclude(ltd => ltd.Product)
                                         .FirstOrDefaultAsync();
 
             if (lotTransfer == null)
@@ -266,12 +265,12 @@ namespace DrugWarehouseManagement.Service.Services
                             foreach (var detail in lotTransfer.LotTransferDetails)
                             {
                                 table.Cell().Border(1).Text($"{index + 1}");
-                                table.Cell().Border(1).Text($"{detail.Product.ProductName}");
-                                table.Cell().Border(1).Text($"{detail.Product.ProductCode}");
+                                table.Cell().Border(1).Text($"{detail.Lot.Product.ProductName}");
+                                table.Cell().Border(1).Text($"{detail.Lot.Product.ProductCode}");
                                 table.Cell().Border(1).Text($"{detail.Lot.LotNumber}");
                                 table.Cell().Border(1).Text($"{detail.Lot.ExpiryDate.ToString("dd/MM/yyyy")}");
                                 table.Cell().Border(1).Text($"{detail.Lot.Provider.ProviderName}");
-                                table.Cell().Border(1).Text($"{detail.Product.SKU.ToUpper()}");
+                                table.Cell().Border(1).Text($"{detail.Lot.Product.SKU.ToUpper()}");
                                 table.Cell().Border(1).Text($"{detail.Quantity.ToString("N0", new CultureInfo("vi-VN"))}");
                                 table.Cell().Border(1).Text("0");
                                 index++;
@@ -307,7 +306,6 @@ namespace DrugWarehouseManagement.Service.Services
                                         .ThenInclude(ltd => ltd.Lot)
                                             .ThenInclude(p => p.Provider)
                                     .Include(lt => lt.LotTransferDetails)
-                                        .ThenInclude(ltd => ltd.Product)
                                     .FirstOrDefaultAsync();
             if (lotTransfer == null)
             {

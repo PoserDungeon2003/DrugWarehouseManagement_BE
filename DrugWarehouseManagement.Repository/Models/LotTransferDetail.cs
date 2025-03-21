@@ -13,14 +13,10 @@ namespace DrugWarehouseManagement.Repository.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int LotTransferDetailId { get; set; }
-        public DateOnly ExpiryDate { get; set; }
         public int Quantity { get; set; }
-        public int ProductId { get; set; }
         public int LotId { get; set; }
         public int LotTransferId { get; set; }
-
         public virtual Lot Lot { get; set; } = null!;
-        public virtual Product Product { get; set; } = null!;
         public virtual LotTransfer LotTransfer { get; set; } = null!;
     }
 }

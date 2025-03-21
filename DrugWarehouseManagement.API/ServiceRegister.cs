@@ -210,7 +210,7 @@ namespace DrugWarehouseManagement.API
 
             TypeAdapterConfig<LotTransferDetail, ViewLotTransferDetail>
                 .NewConfig()
-                .Map(dest => dest.ProductName, src => src.Product.ProductName)
+
                 .Map(dest => dest.LotNumber, src => src.Lot.LotNumber)
                 .IgnoreNullValues(true);
 
