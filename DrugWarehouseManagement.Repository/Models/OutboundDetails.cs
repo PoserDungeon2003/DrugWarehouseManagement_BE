@@ -12,7 +12,6 @@ namespace DrugWarehouseManagement.Repository.Models
         public string LotNumber { get; set; } = null!;
         public DateOnly ExpiryDate { get; set; }
         public int Quantity { get; set; }
-        public string UnitType { get; set; } = null!;
         public decimal UnitPrice { get; set; }
         public decimal TotalPrice { get; set; }
         public float Discount { get; set; }

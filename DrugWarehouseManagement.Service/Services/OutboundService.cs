@@ -127,7 +127,6 @@ namespace DrugWarehouseManagement.Service.Services
                     LotId = detailRequest.LotId,
                     Quantity = detailRequest.Quantity,
                     UnitPrice = detailRequest.UnitPrice,
-                    UnitType = detailRequest.UnitType,
                     LotNumber = lot.LotNumber,       // Lấy từ Lot entity
                     ExpiryDate = lot.ExpiryDate,
                     TotalPrice = detailRequest.Quantity * detailRequest.UnitPrice,

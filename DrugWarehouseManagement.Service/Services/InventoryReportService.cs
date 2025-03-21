@@ -71,7 +71,7 @@ namespace DrugWarehouseManagement.Service.Services
                             && d.LotTransfer.CreatedAt >= startDate
                             && d.LotTransfer.CreatedAt <= endDate
                             && d.LotTransfer.LotTransferStatus == LotTransferStatus.Completed)
-                .GroupBy(d => d.ProductId)
+                .GroupBy(d => d.Lot.ProductId)
                 .Select(g => new { ProductId = g.Key, Qty = g.Sum(x => x.Quantity) })
                 .ToList();
 
