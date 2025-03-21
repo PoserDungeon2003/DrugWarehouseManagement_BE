@@ -46,7 +46,6 @@ namespace DrugWarehouseManagement.Service.Services
                 .Select(g => new
                 {
                     ProductId = g.Key,
-                    // Get the OpeningStock from the inbound detail with the maximum inbound date.
                     OpeningStock = g.OrderByDescending(x => x.Inbound.InboundDate)
                                     .FirstOrDefault().OpeningStock
                 })
