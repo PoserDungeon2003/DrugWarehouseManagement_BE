@@ -19,7 +19,6 @@ namespace DrugWarehouseManagement.Repository.Models
         public int? OpeningStock { get; set; }
         public decimal TotalPrice { get; set; }
         public int InboundId { get; set; }
-        public InboundDetailStatus Status { get; set; } = InboundDetailStatus.Pending;
         public virtual Inbound Inbound { get; set; } = null!;
         public virtual Product Product { get; set; } = null!;
     }
