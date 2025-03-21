@@ -18,9 +18,6 @@ namespace DrugWarehouseManagement.Service.DTO.Request
         [Range(1, int.MaxValue, ErrorMessage = "Quantity must be at least 1.")]
         public int Quantity { get; set; }
 
-        [Range(0, int.MaxValue, ErrorMessage = "TemporaryWarehouse must be a non-negative number.")]
-        public int TemporaryWarehouse { get; set; }
-
         [Required]
         [Range(1, int.MaxValue, ErrorMessage = "WarehouseId must be greater than 0.")]
         public int WarehouseId { get; set; } // Permanent Warehouse

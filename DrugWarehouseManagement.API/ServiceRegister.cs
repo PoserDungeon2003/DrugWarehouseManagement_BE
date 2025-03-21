@@ -24,6 +24,8 @@ using System.Text;
 using System.Text.Json.Serialization;
 using Minio;
 using Minio.DataModel.Args;
+using System;
+using NodaTime;
 
 namespace DrugWarehouseManagement.API
 {
@@ -226,6 +228,26 @@ namespace DrugWarehouseManagement.API
                 .IgnoreNullValues(true)
                 .Map(dest => dest.ParentCategoryId, src => src.ParentCategoryId);
 
+            // Set up time zone (example: UTC+7 for Vietnam)
+            DateTimeZone timeZone = DateTimeZoneProviders.Tzdb["Asia/Ho_Chi_Minh"];
+
+            TypeAdapterConfig<Inbound, ViewInbound>
+                .NewConfig()
+                .Map(dest => dest.ProviderName, src => src.Provider.ProviderName)
+                .Map(dest => dest.CreateBy, src => src.Account.FullName)
+                .Map(dest => dest.InboundDate, src => src.InboundDate.HasValue
+                        ? src.InboundDate.Value.InZone(timeZone).ToString("dd/MM/yyyy HH:mm", null)
+                        : "N/A");
+
+            TypeAdapterConfig<InboundDetails, InboundDetailResponse>
+                .NewConfig()
+                .Map(dest => dest.ProductName, src => src.Product.ProductName);
+
+            TypeAdapterConfig<Lot, ViewLot>
+                .NewConfig()
+                .Map(dest => dest.ProviderName, src => src.Provider.ProviderName)
+                .Map(dest => dest.ProductName, src => src.Product.ProductName)
+                .Map(dest => dest.WarehouseName, src => src.Warehouse.WarehouseName);
         }
 
         private static void AddEnum(IServiceCollection services)
