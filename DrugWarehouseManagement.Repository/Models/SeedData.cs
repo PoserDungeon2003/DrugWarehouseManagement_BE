@@ -95,29 +95,20 @@ namespace DrugWarehouseManagement.Repository.Models
                 new Product { ProductId = 10, ProductName = "Herbal Tea X", ProductCode = "P010", SKU = "Tea", MadeFrom = "Herbal" }
     );
             // 6. Seed Lots (10 dòng)
-            // modelBuilder.Entity<Lot>().HasData(
-            //     new Lot { LotId = 1, LotNumber = "L001", Quantity = 100, ManufacturingDate = new DateOnly(2023, 1, 1), ExpiryDate = new DateOnly(2025, 12, 31), WarehouseId = 1, ProductId = 1, ProviderId = 1 },
-            //     new Lot { LotId = 2, LotNumber = "L002", Quantity = 200, ManufacturingDate = new DateOnly(2023, 3, 15), ExpiryDate = new DateOnly(2026, 10, 20), WarehouseId = 2, ProductId = 2, ProviderId = 2 },
-            //     new Lot { LotId = 3, LotNumber = "L003", Quantity = 150, ManufacturingDate = new DateOnly(2023, 5, 10), ExpiryDate = new DateOnly(2026, 3, 25), WarehouseId = 3, ProductId = 3, ProviderId = 3 },
-            //     new Lot { LotId = 4, LotNumber = "L004", Quantity = 250, ManufacturingDate = new DateOnly(2022, 12, 5), ExpiryDate = new DateOnly(2025, 11, 30), WarehouseId = 4, ProductId = 4, ProviderId = 4 },
-            //     new Lot { LotId = 5, LotNumber = "L005", Quantity = 300, ManufacturingDate = new DateOnly(2024, 2, 20), ExpiryDate = new DateOnly(2026, 9, 15), WarehouseId = 5, ProductId = 5, ProviderId = 5 },
-            //     new Lot { LotId = 6, LotNumber = "L006", Quantity = 50, ManufacturingDate = new DateOnly(2024, 3, 1), ExpiryDate = new DateOnly(2025, 12, 31), WarehouseId = 1, ProductId = 6, ProviderId = 1 },
-            //     new Lot { LotId = 7, LotNumber = "L007", Quantity = 8, ManufacturingDate = new DateOnly(2023, 2, 10), ExpiryDate = new DateOnly(2024, 8, 10), WarehouseId = 2, ProductId = 7, ProviderId = 2 },
-            //     new Lot { LotId = 8, LotNumber = "L008", Quantity = 95, ManufacturingDate = new DateOnly(2023, 7, 1), ExpiryDate = new DateOnly(2025, 7, 1), WarehouseId = 3, ProductId = 8, ProviderId = 3 },
-            //     new Lot { LotId = 9, LotNumber = "L009", Quantity = 4, ManufacturingDate = new DateOnly(2024, 1, 20), ExpiryDate = new DateOnly(2025, 2, 15), WarehouseId = 4, ProductId = 9, ProviderId = 4 },
-            //     new Lot { LotId = 10, LotNumber = "L010", Quantity = 12, ManufacturingDate = new DateOnly(2024, 5, 1), ExpiryDate = new DateOnly(2025, 5, 15), WarehouseId = 5, ProductId = 10, ProviderId = 5 },
-            //     new Lot { LotId = 11, LotNumber = "L011", Quantity = 60, ManufacturingDate = new DateOnly(2024, 1, 1), ExpiryDate = new DateOnly(2026, 1, 1), WarehouseId = 1, ProductId = 1, ProviderId = 1 },
-            //     new Lot { LotId = 12, LotNumber = "L012", Quantity = 40, ManufacturingDate = new DateOnly(2024, 2, 1), ExpiryDate = new DateOnly(2026, 2, 1), WarehouseId = 1, ProductId = 1, ProviderId = 1 }
-            //     );
-
-            
             modelBuilder.Entity<Lot>().HasData(
-                new Lot { LotId = 1, LotNumber = "LOT-001", ProductId = 1, ExpiryDate = DateOnly.FromDateTime(new DateTime(2026, 03, 01)), Quantity = 500, ProviderId = 1, WarehouseId = 1 },
-                new Lot { LotId = 2, LotNumber = "LOT-002", ProductId = 2, ExpiryDate = DateOnly.FromDateTime(new DateTime(2026, 03, 05)), Quantity = 300, ProviderId = 2, WarehouseId = 2 },
-                new Lot { LotId = 3, LotNumber = "LOT-003", ProductId = 3, ExpiryDate = DateOnly.FromDateTime(new DateTime(2026, 03, 10)), Quantity = 200, ProviderId = 3, WarehouseId = 3 },
-                new Lot { LotId = 4, LotNumber = "LOT-004", ProductId = 4, ExpiryDate = DateOnly.FromDateTime(new DateTime(2026, 03, 15)), Quantity = 400, ProviderId = 4, WarehouseId = 4 },
-                new Lot { LotId = 5, LotNumber = "LOT-005", ProductId = 5, ExpiryDate = DateOnly.FromDateTime(new DateTime(2026, 03, 20)), Quantity = 250, ProviderId = 5, WarehouseId = 5 }
-            );
+                new Lot { LotId = 1, LotNumber = "L001", Quantity = 100, ManufacturingDate = new DateOnly(2023, 1, 1), ExpiryDate = new DateOnly(2025, 12, 31), WarehouseId = 1, ProductId = 1, ProviderId = 1 },
+                new Lot { LotId = 2, LotNumber = "L002", Quantity = 200, ManufacturingDate = new DateOnly(2023, 3, 15), ExpiryDate = new DateOnly(2026, 10, 20), WarehouseId = 2, ProductId = 2, ProviderId = 2 },
+                new Lot { LotId = 3, LotNumber = "L003", Quantity = 150, ManufacturingDate = new DateOnly(2023, 5, 10), ExpiryDate = new DateOnly(2026, 3, 25), WarehouseId = 3, ProductId = 3, ProviderId = 3 },
+                new Lot { LotId = 4, LotNumber = "L004", Quantity = 250, ManufacturingDate = new DateOnly(2022, 12, 5), ExpiryDate = new DateOnly(2025, 11, 30), WarehouseId = 4, ProductId = 4, ProviderId = 4 },
+                new Lot { LotId = 5, LotNumber = "L005", Quantity = 300, ManufacturingDate = new DateOnly(2024, 2, 20), ExpiryDate = new DateOnly(2026, 9, 15), WarehouseId = 5, ProductId = 5, ProviderId = 5 },
+                new Lot { LotId = 6, LotNumber = "L006", Quantity = 50, ManufacturingDate = new DateOnly(2024, 3, 1), ExpiryDate = new DateOnly(2025, 12, 31), WarehouseId = 1, ProductId = 6, ProviderId = 1 },
+                new Lot { LotId = 7, LotNumber = "L007", Quantity = 8, ManufacturingDate = new DateOnly(2023, 2, 10), ExpiryDate = new DateOnly(2024, 8, 10), WarehouseId = 2, ProductId = 7, ProviderId = 2 },
+                new Lot { LotId = 8, LotNumber = "L008", Quantity = 95, ManufacturingDate = new DateOnly(2023, 7, 1), ExpiryDate = new DateOnly(2025, 7, 1), WarehouseId = 3, ProductId = 8, ProviderId = 3 },
+                new Lot { LotId = 9, LotNumber = "L009", Quantity = 4, ManufacturingDate = new DateOnly(2024, 1, 20), ExpiryDate = new DateOnly(2025, 2, 15), WarehouseId = 4, ProductId = 9, ProviderId = 4 },
+                new Lot { LotId = 10, LotNumber = "L010", Quantity = 12, ManufacturingDate = new DateOnly(2024, 5, 1), ExpiryDate = new DateOnly(2025, 5, 15), WarehouseId = 5, ProductId = 10, ProviderId = 5 },
+                new Lot { LotId = 11, LotNumber = "L011", Quantity = 60, ManufacturingDate = new DateOnly(2024, 1, 1), ExpiryDate = new DateOnly(2026, 1, 1), WarehouseId = 1, ProductId = 1, ProviderId = 1 },
+                new Lot { LotId = 12, LotNumber = "L012", Quantity = 40, ManufacturingDate = new DateOnly(2024, 2, 1), ExpiryDate = new DateOnly(2026, 2, 1), WarehouseId = 1, ProductId = 1, ProviderId = 1 }
+                );
 
             modelBuilder.Entity<Customer>().HasData(
                 new Customer { CustomerId = 1, CustomerName = "John Doe", Address = "123 Main St", PhoneNumber = "555-1234", Email = "john.doe@example.com", IsLoyal = true, Status = CustomerStatus.Active, DocumentNumber = "GH12240001" },
@@ -152,28 +143,29 @@ namespace DrugWarehouseManagement.Repository.Models
                 new OutboundDetails { OutboundDetailsId = 2, LotNumber = "L002", ExpiryDate = new DateOnly(2026, 10, 20), Quantity = 30, UnitType = "Bottle", UnitPrice = 20m, TotalPrice = 600m, OutboundId = 2, LotId = 2 },
                 new OutboundDetails { OutboundDetailsId = 3, LotNumber = "L003", ExpiryDate = new DateOnly(2026, 3, 25), Quantity = 40, UnitType = "Pack", UnitPrice = 8m, TotalPrice = 320m, OutboundId = 3, LotId = 3 },
                 new OutboundDetails { OutboundDetailsId = 4, LotNumber = "L004", ExpiryDate = new DateOnly(2025, 11, 30), Quantity = 20, UnitType = "Vial", UnitPrice = 50m, TotalPrice = 1000m, OutboundId = 4, LotId = 4 },
-                new OutboundDetails { OutboundDetailsId = 5, LotNumber = "L005", ExpiryDate = new DateOnly(2026, 9, 15), Quantity = 25, UnitType = "Tube", UnitPrice = 15m, TotalPrice = 375m, OutboundId = 5, LotId = 5 }
-                // new OutboundDetails { OutboundDetailsId = 6, LotNumber = "L006", ExpiryDate = new DateOnly(2025, 12, 31), Quantity = 15, UnitType = "Box", UnitPrice = 10m, TotalPrice = 150m, OutboundId = 6, LotId = 6 },
-                // new OutboundDetails { OutboundDetailsId = 7, LotNumber = "L007", ExpiryDate = new DateOnly(2024, 8, 10), Quantity = 8, UnitType = "Bottle", UnitPrice = 9m, TotalPrice = 72m, OutboundId = 7, LotId = 7 }, // điều chỉnh 10 -> 8
-                // new OutboundDetails { OutboundDetailsId = 8, LotNumber = "L008", ExpiryDate = new DateOnly(2025, 7, 1), Quantity = 5, UnitType = "Pack", UnitPrice = 8.5m, TotalPrice = 42.5m, OutboundId = 8, LotId = 8 },
-                // new OutboundDetails { OutboundDetailsId = 9, LotNumber = "L009", ExpiryDate = new DateOnly(2025, 2, 15), Quantity = 4, UnitType = "Vial", UnitPrice = 7m, TotalPrice = 28m, OutboundId = 9, LotId = 9 },  // điều chỉnh 28 -> 4
-                // new OutboundDetails { OutboundDetailsId = 10, LotNumber = "L010", ExpiryDate = new DateOnly(2025, 5, 15), Quantity = 12, UnitType = "Tube", UnitPrice = 6.5m, TotalPrice = 78m, OutboundId = 10, LotId = 10 } // điều chỉnh 33 -> 12
+                new OutboundDetails { OutboundDetailsId = 5, LotNumber = "L005", ExpiryDate = new DateOnly(2026, 9, 15), Quantity = 25, UnitType = "Tube", UnitPrice = 15m, TotalPrice = 375m, OutboundId = 5, LotId = 5 },
+                new OutboundDetails { OutboundDetailsId = 6, LotNumber = "L006", ExpiryDate = new DateOnly(2025, 12, 31), Quantity = 15, UnitType = "Box", UnitPrice = 10m, TotalPrice = 150m, OutboundId = 6, LotId = 6 },
+                new OutboundDetails { OutboundDetailsId = 7, LotNumber = "L007", ExpiryDate = new DateOnly(2024, 8, 10), Quantity = 8, UnitType = "Bottle", UnitPrice = 9m, TotalPrice = 72m, OutboundId = 7, LotId = 7 }, // điều chỉnh 10 -> 8
+                new OutboundDetails { OutboundDetailsId = 8, LotNumber = "L008", ExpiryDate = new DateOnly(2025, 7, 1), Quantity = 5, UnitType = "Pack", UnitPrice = 8.5m, TotalPrice = 42.5m, OutboundId = 8, LotId = 8 },
+                new OutboundDetails { OutboundDetailsId = 9, LotNumber = "L009", ExpiryDate = new DateOnly(2025, 2, 15), Quantity = 4, UnitType = "Vial", UnitPrice = 7m, TotalPrice = 28m, OutboundId = 9, LotId = 9 },  // điều chỉnh 28 -> 4
+                new OutboundDetails { OutboundDetailsId = 10, LotNumber = "L010", ExpiryDate = new DateOnly(2025, 5, 15), Quantity = 12, UnitType = "Tube", UnitPrice = 6.5m, TotalPrice = 78m, OutboundId = 10, LotId = 10 } // điều chỉnh 33 -> 12
             );
             // ================== LotTransfer (10 dòng) ==================
             modelBuilder.Entity<LotTransfer>().HasData(
-                new LotTransfer { LotTransferId = 1, LotTransferCode = "LT-001", LotTransferStatus = LotTransferStatus.Completed, FromWareHouseId = 1, ToWareHouseId = 2, AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555"), CreatedAt = Instant.FromDateTimeOffset(new DateTimeOffset(new DateTime(2025, 03, 01))) },
-                new LotTransfer { LotTransferId = 2, LotTransferCode = "LT-002", LotTransferStatus = LotTransferStatus.Completed, FromWareHouseId = 2, ToWareHouseId = 3, AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555"), CreatedAt = Instant.FromDateTimeOffset(new DateTimeOffset(new DateTime(2025, 03, 05))) },
-                new LotTransfer { LotTransferId = 3, LotTransferCode = "LT-003", LotTransferStatus = LotTransferStatus.Completed, FromWareHouseId = 1, ToWareHouseId = 3, AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555"), CreatedAt = Instant.FromDateTimeOffset(new DateTimeOffset(new DateTime(2025, 03, 10))) },
-                new LotTransfer { LotTransferId = 4, LotTransferCode = "LT-004", LotTransferStatus = LotTransferStatus.Completed, FromWareHouseId = 3, ToWareHouseId = 4, AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555"), CreatedAt = Instant.FromDateTimeOffset(new DateTimeOffset(new DateTime(2025, 03, 15))) },
-                new LotTransfer { LotTransferId = 5, LotTransferCode = "LT-005", LotTransferStatus = LotTransferStatus.Completed, FromWareHouseId = 2, ToWareHouseId = 1, AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555"), CreatedAt = Instant.FromDateTimeOffset(new DateTimeOffset(new DateTime(2025, 03, 20))) }
+                new LotTransfer { LotTransferId = 1, LotTransferCode = "LT-001", LotTransferStatus = LotTransferStatus.Completed, FromWareHouseId = 1, ToWareHouseId = 2, AccountId = Guid.Parse("a1b2c3d4-e5f6-7890-1234-56789abcdef1"), CreatedAt = Instant.FromDateTimeOffset(new DateTimeOffset(new DateTime(2025, 03, 01))) },
+                new LotTransfer { LotTransferId = 2, LotTransferCode = "LT-002", LotTransferStatus = LotTransferStatus.Completed, FromWareHouseId = 2, ToWareHouseId = 3, AccountId = Guid.Parse("b2c3d4e5-f678-9012-3456-789abcdef234"), CreatedAt = Instant.FromDateTimeOffset(new DateTimeOffset(new DateTime(2025, 03, 05))) },
+                new LotTransfer { LotTransferId = 3, LotTransferCode = "LT-003", LotTransferStatus = LotTransferStatus.Completed, FromWareHouseId = 1, ToWareHouseId = 3, AccountId = Guid.Parse("c3d4e5f6-7890-1234-5678-9abcdef34567"), CreatedAt = Instant.FromDateTimeOffset(new DateTimeOffset(new DateTime(2025, 03, 10))) },
+                new LotTransfer { LotTransferId = 4, LotTransferCode = "LT-004", LotTransferStatus = LotTransferStatus.Completed, FromWareHouseId = 3, ToWareHouseId = 4, AccountId = Guid.Parse("d4e5f678-9012-3456-789a-bcdef4567890"), CreatedAt = Instant.FromDateTimeOffset(new DateTimeOffset(new DateTime(2025, 03, 15))) },
+                new LotTransfer { LotTransferId = 5, LotTransferCode = "LT-005", LotTransferStatus = LotTransferStatus.Completed, FromWareHouseId = 2, ToWareHouseId = 1, AccountId = Guid.Parse("e5f67890-1234-5678-9abc-def567890123"), CreatedAt = Instant.FromDateTimeOffset(new DateTimeOffset(new DateTime(2025, 03, 20))) }
             );
             // ================== LotTransferDetail (10 dòng) ==================
             modelBuilder.Entity<LotTransferDetail>().HasData(
-                new LotTransferDetail { LotTransferDetailId = 1, LotTransferId = 1, LotId = 1, Quantity = 50 },
-                new LotTransferDetail { LotTransferDetailId = 2, LotTransferId = 1, LotId = 2, Quantity = 30 },
-                new LotTransferDetail { LotTransferDetailId = 3, LotTransferId = 2, LotId = 3, Quantity = 20 },
-                new LotTransferDetail { LotTransferDetailId = 4, LotTransferId = 3, LotId = 4, Quantity = 40 },
-                new LotTransferDetail { LotTransferDetailId = 5, LotTransferId = 4, LotId = 5, Quantity = 25 }
+                new LotTransferDetail { LotTransferDetailId = 1, LotTransferId = 1, LotId = 101, Quantity = 50 },
+                new LotTransferDetail { LotTransferDetailId = 2, LotTransferId = 1, LotId = 102, Quantity = 30 },
+                new LotTransferDetail { LotTransferDetailId = 3, LotTransferId = 2, LotId = 103, Quantity = 20 },
+                new LotTransferDetail { LotTransferDetailId = 4, LotTransferId = 3, LotId = 104, Quantity = 40 },
+                new LotTransferDetail { LotTransferDetailId = 5, LotTransferId = 4, LotId = 105, Quantity = 25 },
+                new LotTransferDetail { LotTransferDetailId = 6, LotTransferId = 5, LotId = 106, Quantity = 60 }
             );
             modelBuilder.Entity<InboundRequest>().HasData(
                 new InboundRequest { InboundRequestId = 1, InboundRequestCode = "REQ-001", AccountId = Guid.Parse("ec57b9d9-680d-4caf-8122-9325352a1e9b"), CreatedAt = Instant.FromDateTimeOffset(new DateTimeOffset(new DateTime(2025, 03, 01))), Status = InboundRequestStatus.Completed },
@@ -184,28 +176,35 @@ namespace DrugWarehouseManagement.Repository.Models
             );
 
             modelBuilder.Entity<InboundRequestDetails>().HasData(
-                new InboundRequestDetails { InboundRequestDetailsId = 1, InboundRequestId = 1, ProductId = 1, Quantity = 500 },
-                new InboundRequestDetails { InboundRequestDetailsId = 2, InboundRequestId = 2, ProductId = 2, Quantity = 300 },
-                new InboundRequestDetails { InboundRequestDetailsId = 3, InboundRequestId = 3, ProductId = 3, Quantity = 200 },
-                new InboundRequestDetails { InboundRequestDetailsId = 4, InboundRequestId = 4, ProductId = 4, Quantity = 400 },
-                new InboundRequestDetails { InboundRequestDetailsId = 5, InboundRequestId = 5, ProductId = 5, Quantity = 250 }
+                new InboundRequestDetails { InboundRequestId = 1, ProductId = 101, Quantity = 500 },
+                new InboundRequestDetails { InboundRequestId = 1, ProductId = 102, Quantity = 300 },
+                new InboundRequestDetails { InboundRequestId = 2, ProductId = 103, Quantity = 200 },
+                new InboundRequestDetails { InboundRequestId = 3, ProductId = 104, Quantity = 400 },
+                new InboundRequestDetails { InboundRequestId = 4, ProductId = 105, Quantity = 250 }
             );
             modelBuilder.Entity<Inbound>().HasData(
-                new Inbound { InboundId = 1, InboundCode = "INB-001", InboundRequestId = 1, WarehouseId = 1, ProviderId = 1, AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555"), CreatedAt = Instant.FromDateTimeOffset(new DateTimeOffset(new DateTime(2025, 03, 02))), Status = InboundStatus.Completed },
-                new Inbound { InboundId = 2, InboundCode = "INB-002", InboundRequestId = 2, WarehouseId = 2, ProviderId = 2, AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555"), CreatedAt = Instant.FromDateTimeOffset(new DateTimeOffset(new DateTime(2025, 03, 06))), Status = InboundStatus.Completed },
-                new Inbound { InboundId = 3, InboundCode = "INB-003", InboundRequestId = 3, WarehouseId = 1, ProviderId = 3, AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555"), CreatedAt = Instant.FromDateTimeOffset(new DateTimeOffset(new DateTime(2025, 03, 11))), Status = InboundStatus.Completed },
-                new Inbound { InboundId = 4, InboundCode = "INB-004", InboundRequestId = 4, WarehouseId = 3, ProviderId = 4, AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555"), CreatedAt = Instant.FromDateTimeOffset(new DateTimeOffset(new DateTime(2025, 03, 16))), Status = InboundStatus.Completed },
-                new Inbound { InboundId = 5, InboundCode = "INB-005", InboundRequestId = 5, WarehouseId = 2, ProviderId = 5, AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555"), CreatedAt = Instant.FromDateTimeOffset(new DateTimeOffset(new DateTime(2025, 03, 21))), Status = InboundStatus.Completed }
+                new Inbound { InboundId = 1, InboundCode = "INB-001", InboundRequestId = 1, WarehouseId = 1, CreatedAt = Instant.FromDateTimeOffset(new DateTimeOffset(new DateTime(2025, 03, 02))), Status = InboundStatus.Completed },
+                new Inbound { InboundId = 2, InboundCode = "INB-002", InboundRequestId = 2, WarehouseId = 2, CreatedAt = Instant.FromDateTimeOffset(new DateTimeOffset(new DateTime(2025, 03, 06))), Status = InboundStatus.Completed },
+                new Inbound { InboundId = 3, InboundCode = "INB-003", InboundRequestId = 3, WarehouseId = 1, CreatedAt = Instant.FromDateTimeOffset(new DateTimeOffset(new DateTime(2025, 03, 11))), Status = InboundStatus.Completed },
+                new Inbound { InboundId = 4, InboundCode = "INB-004", InboundRequestId = 4, WarehouseId = 3, CreatedAt = Instant.FromDateTimeOffset(new DateTimeOffset(new DateTime(2025, 03, 16))), Status = InboundStatus.Completed },
+                new Inbound { InboundId = 5, InboundCode = "INB-005", InboundRequestId = 5, WarehouseId = 2, CreatedAt = Instant.FromDateTimeOffset(new DateTimeOffset(new DateTime(2025, 03, 21))), Status = InboundStatus.Completed }
             );
 
             modelBuilder.Entity<InboundDetails>().HasData(
-                new InboundDetails { InboundDetailsId = 1, InboundId = 1, ProductId = 1, Quantity = 500, LotNumber = "LOT-001" },
-                new InboundDetails { InboundDetailsId = 2, InboundId = 1, ProductId = 2, Quantity = 300, LotNumber = "LOT-002" },
-                new InboundDetails { InboundDetailsId = 3, InboundId = 2, ProductId = 3, Quantity = 200, LotNumber = "LOT-003" },
-                new InboundDetails { InboundDetailsId = 4, InboundId = 3, ProductId = 4, Quantity = 400, LotNumber = "LOT-004" },
-                new InboundDetails { InboundDetailsId = 5, InboundId = 4, ProductId = 5, Quantity = 250, LotNumber = "LOT-005" }
+                new InboundDetails { InboundDetailsId = 1, InboundId = 1, ProductId = 101, Quantity = 500, LotNumber = "LOT-001" },
+                new InboundDetails { InboundDetailsId = 2, InboundId = 1, ProductId = 102, Quantity = 300, LotNumber = "LOT-002" },
+                new InboundDetails { InboundDetailsId = 3, InboundId = 2, ProductId = 103, Quantity = 200, LotNumber = "LOT-003" },
+                new InboundDetails { InboundDetailsId = 4, InboundId = 3, ProductId = 104, Quantity = 400, LotNumber = "LOT-004" },
+                new InboundDetails { InboundDetailsId = 5, InboundId = 4, ProductId = 105, Quantity = 250, LotNumber = "LOT-005" }
             );
 
+            modelBuilder.Entity<Lot>().HasData(
+                new Lot { LotId = 1, LotNumber = "LOT-001", ProductId = 101, ExpiryDate = DateOnly.FromDateTime(new DateTime(2026, 03, 01)), Quantity = 500 },
+                new Lot { LotId = 2, LotNumber = "LOT-002", ProductId = 102, ExpiryDate = DateOnly.FromDateTime(new DateTime(2026, 03, 05)), Quantity = 300 },
+                new Lot { LotId = 3, LotNumber = "LOT-003", ProductId = 103, ExpiryDate = DateOnly.FromDateTime(new DateTime(2026, 03, 10)), Quantity = 200 },
+                new Lot { LotId = 4, LotNumber = "LOT-004", ProductId = 104, ExpiryDate = DateOnly.FromDateTime(new DateTime(2026, 03, 15)), Quantity = 400 },
+                new Lot { LotId = 5, LotNumber = "LOT-005", ProductId = 105, ExpiryDate = DateOnly.FromDateTime(new DateTime(2026, 03, 20)), Quantity = 250 }
+            );
         }
         private string HashPassword(string password)
         {
