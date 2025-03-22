@@ -13,7 +13,7 @@ namespace DrugWarehouseManagement.Repository.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int LotTransferDetailId { get; set; }
-        public int Quantity { get; set; }
+        public int Quantity { get; set; } 
         public int LotId { get; set; }
         public int LotTransferId { get; set; }
         public virtual Lot Lot { get; set; } = null!;

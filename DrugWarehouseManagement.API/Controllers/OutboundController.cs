@@ -155,9 +155,9 @@ namespace DrugWarehouseManagement.API.Controllers
                 {
                     worksheet.Cells[currentRow, 1].Value = stt;
                     worksheet.Cells[currentRow, 2].Value = detail.Lot.Product.ProductName ?? "N/A";
-                    worksheet.Cells[currentRow, 3].Value = detail.LotNumber;
+                    worksheet.Cells[currentRow, 3].Value = detail.Lot.LotNumber;
                     worksheet.Cells[currentRow, 4].Value = detail.ExpiryDate.ToString("dd/MM/yyyy");
-                    worksheet.Cells[currentRow, 5].Value = detail.UnitType;
+                    worksheet.Cells[currentRow, 5].Value = detail.Lot.Product.SKU;
                     worksheet.Cells[currentRow, 6].Value = detail.Quantity;
                     worksheet.Cells[currentRow, 7].Value = detail.UnitPrice;
                     worksheet.Cells[currentRow, 8].Value = detail.TotalPrice;

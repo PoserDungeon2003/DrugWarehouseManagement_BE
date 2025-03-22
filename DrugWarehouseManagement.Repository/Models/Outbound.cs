@@ -12,6 +12,10 @@ namespace DrugWarehouseManagement.Repository.Models
         public int OutboundId { get; set; }
         public string OutboundCode { get; set; } = null!;
         public int CustomerId { get; set; }
+        public string? RecivierName { get; set; }
+        public string? RecivierPhone { get; set; }
+        public string? RecivierAddress { get; set; }
+
         public string? OutboundOrderCode { get; set; }
         public string? Note { get; set; }
         public Instant? OutboundDate { get; set; } = SystemClock.Instance.GetCurrentInstant();

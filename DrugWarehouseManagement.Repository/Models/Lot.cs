@@ -9,9 +9,8 @@ namespace DrugWarehouseManagement.Repository.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int LotId { get; set; }
-        public string LotNumber { get; set; } = null!;
         public int Quantity { get; set; }
-        //TODO: Add ExpiryDate
+        public string LotNumber { get; set; } = null!;  
         public DateOnly? ManufacturingDate { get; set; }
         public DateOnly ExpiryDate { get; set; }
         public int WarehouseId { get; set; } // Permanent Warehouse
