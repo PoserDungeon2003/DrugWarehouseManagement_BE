@@ -26,8 +26,12 @@ namespace DrugWarehouseManagement.Service.DTO.Request
         [Required(ErrorMessage = "LotNumber is required.")]
         [StringLength(50, ErrorMessage = "LotNumber must be at most 50 characters.")]
         public string LotNumber { get; set; } = null!;
+        [Required]
+        [Range(1, int.MaxValue, ErrorMessage = "ProductId must be greater than 0.")]
+        public int ProductId { get; set; }
         public DateOnly? ManufacturingDate { get; set; }
         public DateOnly? ExpiryDate { get; set; }
+
 
         [Required(ErrorMessage = "Quantity is required.")]
         [Range(1, int.MaxValue, ErrorMessage = "Quantity must be at least 1.")]

@@ -18,7 +18,6 @@ namespace DrugWarehouseManagement.API.Controllers
         }
 
         [HttpPost]
-        [Authorize]
         public async Task<IActionResult> CreateLot([FromBody] CreateLotRequest request)
         {
             try
@@ -90,14 +89,14 @@ namespace DrugWarehouseManagement.API.Controllers
             }
         }
 
-        [HttpGet("search")]
+        [HttpGet]
         public async Task<IActionResult> GetLotsPaginated([FromQuery] QueryPaging request)
         {
             try
             {
                 var result = await _lotService.GetLotsPaginatedAsync(request);
                 return Ok(result);
-            }
+            }   
             catch (Exception ex)
             {
                 return BadRequest(new BaseResponse

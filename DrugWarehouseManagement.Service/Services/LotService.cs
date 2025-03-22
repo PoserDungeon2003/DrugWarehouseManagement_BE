@@ -6,6 +6,9 @@ using DrugWarehouseManagement.Service.Extenstions;
 using DrugWarehouseManagement.Service.Interface;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
+using NodaTime.Text;
+using NodaTime;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace DrugWarehouseManagement.Service.Services
 {
@@ -31,18 +34,7 @@ namespace DrugWarehouseManagement.Service.Services
                 if (provider == null) return new BaseResponse { Code = 404, Message = "Provider not found" };
             }
 
-            var lot = new Lot
-            {
-                LotNumber = request.LotNumber,
-                Quantity = request.Quantity,
-                WarehouseId = request.WarehouseId,
-                ManufacturingDate = request.ManufacturingDate ?? default,
-                ExpiryDate = request.ExpiryDate,
-                ProductId = request.ProductId,
-                ProviderId = request.ProviderId
-            };
-
-
+            var lot = request.Adapt<Lot>();
 
             await _unitOfWork.LotRepository.CreateAsync(lot);
             await _unitOfWork.SaveChangesAsync();
@@ -59,13 +51,7 @@ namespace DrugWarehouseManagement.Service.Services
                 return new BaseResponse { Code = 404, Message = "Lot not found" };
             }
 
-            lot.LotNumber = string.IsNullOrWhiteSpace(request.LotNumber) ? lot.LotNumber : request.LotNumber;
-            lot.Quantity = request.Quantity ?? lot.Quantity;
-            lot.WarehouseId = request.WarehouseId ?? lot.WarehouseId;
-            lot.ProductId = request.ProductId ?? lot.ProductId;
-            lot.ProviderId = request.ProviderId ?? lot.ProviderId;
-            lot.ManufacturingDate = request.ManufacturingDate ?? lot.ManufacturingDate;
-            lot.ExpiryDate = request.ExpiryDate ?? lot.ExpiryDate;
+            lot = request.Adapt<Lot>();
 
             await _unitOfWork.LotRepository.UpdateAsync(lot);
             await _unitOfWork.SaveChangesAsync();
@@ -94,27 +80,66 @@ namespace DrugWarehouseManagement.Service.Services
             {
                 throw new Exception("Lot not found");
             }
-            return new ViewLot
-            {
-                LotId = lot.LotId,
-                LotNumber = lot.LotNumber,
-                WarehouseName = lot.Warehouse.WarehouseName,
-                ProductName = lot.Product.ProductName,
-                ProviderName = lot.Provider.ProviderName,
-                ExpiryDate = lot.ExpiryDate,
-                ManufacturingDate = lot.ManufacturingDate
-            };
+
+            var result = lot.Adapt<ViewLot>();  
+
+            return result;
         }
 
         public async Task<PaginatedResult<ViewLot>> GetLotsPaginatedAsync(QueryPaging request)
         {
-            request.Search = request.Search?.ToLower().Trim() ?? "";
-            var query = await _unitOfWork.LotRepository.GetAll()
-                            .Include(x => x.Warehouse)
-                            .Include(x => x.Provider)
-                            .Where(x => x.LotNumber.Contains(request.Search) || x.WarehouseId.Equals(request.Search))
-                            .ToPaginatedResultAsync(request.Page, request.PageSize);
-            return query.Adapt<PaginatedResult<ViewLot>>();
+            request.Search = request.Search?.Trim().ToLower() ?? "";
+            var query = _unitOfWork.LotRepository
+                        .GetAll()
+                        .Include(x => x.Warehouse)
+                        .Include(x => x.Provider)
+                        .Include(x => x.Product)
+                        .AsQueryable();
+
+            if (!string.IsNullOrEmpty(request.Search))
+            {
+                query = query.Where(x =>
+                    EF.Functions.Like(x.LotNumber.ToLower(), $"%{request.Search}%") ||
+                    EF.Functions.Like(x.LotId.ToString(), $"%{request.Search}%"));
+            }
+
+            var pattern = InstantPattern.ExtendedIso;
+            DateOnly? dateFrom = null, dateTo = null;
+
+            if (!string.IsNullOrEmpty(request.DateFrom))
+            {
+                var parseResult = pattern.Parse(request.DateFrom);
+                if (parseResult.Success)
+                {
+                    dateFrom = DateOnly.FromDateTime(parseResult.Value.ToDateTimeUtc());
+                    query = query.Where(x => x.ExpiryDate >= dateFrom);
+                }
+            }
+
+            if (!string.IsNullOrEmpty(request.DateTo))
+            {
+                var parseResult = pattern.Parse(request.DateTo);
+                if (parseResult.Success)
+                {
+                    dateTo = DateOnly.FromDateTime(parseResult.Value.ToDateTimeUtc());
+                    query = query.Where(x => x.ExpiryDate <= dateTo);
+                }
+            }
+
+            // Sắp xếp theo ngày tạo mới nhất
+            query = query.OrderBy(x => x.ExpiryDate);
+
+            // Phân trang kết quả
+            var paginatedLots = await query.ToPaginatedResultAsync(request.Page, request.PageSize);
+
+            var viewLots = paginatedLots.Items.Adapt<List<ViewLot>>();
+            return new PaginatedResult<ViewLot>
+            {
+                Items = viewLots,
+                TotalCount = paginatedLots.TotalCount,
+                PageSize = paginatedLots.PageSize,
+                CurrentPage = paginatedLots.CurrentPage
+            };
         }
 
 
