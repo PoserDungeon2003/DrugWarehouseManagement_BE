@@ -12,7 +12,7 @@ namespace DrugWarehouseManagement.Service.DTO.Request
         [Required]
         public string DeviceName { get; set; } = null!;
         [Required]
-        public string DeviceCode { get; set; } = null!;
+        public string SerialNumber { get; set; } = null!;
         [Required]
         public string DeviceType { get; set; } = null!;
         public DateTime? ExpiryDate { get; set; }

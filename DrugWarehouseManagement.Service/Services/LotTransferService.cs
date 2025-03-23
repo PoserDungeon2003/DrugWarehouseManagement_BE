@@ -51,7 +51,7 @@ namespace DrugWarehouseManagement.Service.Services
 
             if (lotTransfer.LotTransferStatus != LotTransferStatus.Pending)
             {
-                throw new Exception("Can't cancel lot with status Pending");
+                throw new Exception("Can't cancel lot with status not Pending");
             }
 
             foreach (var detail in lotTransfer.LotTransferDetails)
