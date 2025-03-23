@@ -199,8 +199,6 @@ namespace DrugWarehouseManagement.Repository.Models
                 new LotTransferDetail { LotTransferDetailId = 3, LotTransferId = 2, LotId = 3, Quantity = 75 },
                 new LotTransferDetail { LotTransferDetailId = 4, LotTransferId = 3, LotId = 4, Quantity = 150 },
                 new LotTransferDetail { LotTransferDetailId = 6, LotTransferId = 6, LotId = 16, Quantity = 250 }
-
-
                 );
 
         }

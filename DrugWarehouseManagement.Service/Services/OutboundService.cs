@@ -84,7 +84,7 @@ namespace DrugWarehouseManagement.Service.Services
             outbound.OutboundDate = SystemClock.Instance.GetCurrentInstant();
             outbound.Status = OutboundStatus.Pending;
             outbound.AccountId = accountId;
-
+         
             // Lấy danh sách Lot dựa trên các LotId được gửi từ request
             var lotIds = request.OutboundDetails.Select(d => d.LotId).ToList();
             var lots = await _unitOfWork.LotRepository
@@ -254,14 +254,6 @@ namespace DrugWarehouseManagement.Service.Services
                         throw new Exception("Chỉ được phép chuyển từ InProgress sang Completed.");
                     }
                     outbound.Status = OutboundStatus.Completed;
-                }
-                else if (newStatus == OutboundStatus.Returned)
-                {
-                    if (outbound.Status != OutboundStatus.Completed)
-                    {
-                        throw new Exception("Chỉ được phép chuyển từ Completed sang Returned.");
-                    }
-                    outbound.Status = OutboundStatus.Returned;
                 }
                 else
                 {
