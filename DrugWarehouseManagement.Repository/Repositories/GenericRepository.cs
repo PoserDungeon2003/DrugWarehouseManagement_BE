@@ -115,6 +115,11 @@ namespace DrugWarehouseManagement.Repository.Repositories
                               .AsNoTracking()
                               .ToListAsync();
         }
+
+        public async Task CreateRangeAsync(IEnumerable<TEntity> entities)
+        {
+            await _context.Set<TEntity>().AddRangeAsync(entities);
+        }
     }
 
 }

@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+﻿using DrugWarehouseManagement.Repository.Models;
+using System.Linq.Expressions;
 
 namespace DrugWarehouseManagement.Repository.Interface
 {
@@ -14,7 +15,7 @@ namespace DrugWarehouseManagement.Repository.Interface
         Task CreateAsync(TEntity entity);
 
         Task UpdateAsync(TEntity entity);
-
+        Task CreateRangeAsync(IEnumerable<TEntity> entities);
         Task DeleteAsync(TEntity entity);
 
         Task AddRangeAsync(IEnumerable<TEntity> entities);
