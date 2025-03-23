@@ -62,7 +62,6 @@ namespace DrugWarehouseManagement.Service.Services
                 return new BaseResponse { Code = 404, Message = "Inbound not found" };
             }
 
-            inbound = request.Adapt<Inbound>();
             // Update inbound details
             inbound.Status = request.InboundStatus;
             inbound.AccountId = accountId;
@@ -89,9 +88,10 @@ namespace DrugWarehouseManagement.Service.Services
                 return new BaseResponse { Code = 404, Message = "Inbound not found" };
             }
 
-            inbound = request.Adapt<Inbound>();
+            
             inbound.AccountId = accountId;
             inbound.UpdatedAt = SystemClock.Instance.GetCurrentInstant();
+            request.Adapt(inbound);
 
             await _unitOfWork.InboundRepository.UpdateAsync(inbound);
             await _unitOfWork.SaveChangesAsync();
@@ -108,7 +108,7 @@ namespace DrugWarehouseManagement.Service.Services
             }
 
             var inbound = await _unitOfWork.InboundRepository.GetByIdAsync(inboundId);
-            if (inbound == null)
+            if (inbound == null || inbound.Status.Equals(InboundStatus.Cancelled))
             {
                 return new BaseResponse { Code = 404, Message = "Inbound not found" };
             }
@@ -131,9 +131,10 @@ namespace DrugWarehouseManagement.Service.Services
                 throw new Exception("Inbound not found");
             }
 
-            var inboundDetails = await _unitOfWork.InboundDetailRepository.GetAllByInboundIdAsync(inboundId);
-
-            var result = inbound.Adapt<ViewInbound>(); 
+            var result = inbound.Adapt<ViewInbound>();
+            var timeZone = DateTimeZoneProviders.Tzdb["Asia/Ho_Chi_Minh"];
+            result.InboundDate = InstantPattern.ExtendedIso.Parse(result.InboundDate)
+                .Value.InZone(timeZone).ToString("dd/MM/yyyy HH:mm", null);
 
             return result;
         }
@@ -143,9 +144,10 @@ namespace DrugWarehouseManagement.Service.Services
             var query = _unitOfWork.InboundRepository
                         .GetAll()
                         .Include(i => i.InboundDetails)
+                        .ThenInclude(i => i.Product)
                         .Include(i => i.Provider)
                         .Include(i => i.Account)
-                        .Include(i => i.Provider)
+                        .Include(i => i.Warehouse)
                         .Where(i => i.Status != InboundStatus.Cancelled)
                         .AsQueryable();
 
@@ -162,7 +164,7 @@ namespace DrugWarehouseManagement.Service.Services
                 else
                 {
                     query = query.Where(i =>
-                        EF.Functions.Like(i.InboundCode.ToLower(), $"%{searchTerm}%"));
+                        EF.Functions.Like(i.InboundId.ToString(), $"%{searchTerm}%"));
                 }
             }
 
@@ -188,12 +190,23 @@ namespace DrugWarehouseManagement.Service.Services
                 }
             }
 
-            query = query.OrderByDescending(i => i.CreatedAt);
+            query = query.OrderByDescending(i => i.InboundDate);
 
             // Paginate the result
             var paginatedInbounds = await query.ToPaginatedResultAsync(request.Page, request.PageSize);
 
+            // Ensure proper formatting of InboundDate
+            var timeZone = DateTimeZoneProviders.Tzdb["Asia/Ho_Chi_Minh"];
             var viewInbounds = paginatedInbounds.Items.Adapt<List<ViewInbound>>();
+
+            foreach (var viewInbound in viewInbounds)
+            {
+                if (viewInbound.InboundDate != null)
+                {
+                    viewInbound.InboundDate = InstantPattern.ExtendedIso.Parse(viewInbound.InboundDate)
+                        .Value.InZone(timeZone).ToString("dd/MM/yyyy HH:mm", null);
+                }
+            }
             return new PaginatedResult<ViewInbound>
             {
                 Items = viewInbounds,
