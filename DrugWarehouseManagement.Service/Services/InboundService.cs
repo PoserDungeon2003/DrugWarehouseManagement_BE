@@ -184,30 +184,6 @@ namespace DrugWarehouseManagement.Service.Services
             return new BaseResponse { Code = 200, Message = "Inbound updated successfully" };
         }
 
-        public async Task<BaseResponse> DeleteInbound(Guid accountId, int inboundId)
-        {
-            var account = await _unitOfWork.AccountRepository.GetByIdAsync(accountId);
-            if (account == null)
-            {
-                return new BaseResponse { Code = 404, Message = "Account not found" };
-            }
-
-            var inbound = await _unitOfWork.InboundRepository.GetByIdAsync(inboundId);
-            if (inbound == null || inbound.Status.Equals(InboundStatus.Cancelled))
-            {
-                return new BaseResponse { Code = 404, Message = "Inbound not found" };
-            }
-
-            inbound.Status = InboundStatus.Cancelled;
-            inbound.AccountId = accountId;
-            inbound.UpdatedAt = SystemClock.Instance.GetCurrentInstant();
-            // Delete inbound record
-            await _unitOfWork.InboundRepository.UpdateAsync(inbound);
-            await _unitOfWork.SaveChangesAsync();
-
-            return new BaseResponse { Code = 200, Message = "Inbound deleted successfully" };
-        }
-
         public async Task<ViewInbound> GetInboundById(int inboundId)
         {
             var inbound = await _unitOfWork.InboundRepository.GetByIdAsync(inboundId);
