@@ -100,7 +100,8 @@ namespace DrugWarehouseManagement.Service.Services
             {
                 query = query.Where(x =>
                     EF.Functions.Like(x.LotNumber.ToLower(), $"%{request.Search}%") ||
-                    EF.Functions.Like(x.LotId.ToString(), $"%{request.Search}%"));
+                    EF.Functions.Like(x.LotId.ToString(), $"%{request.Search}%") ||
+                    EF.Functions.Like(x.Product.ProductName, $"%{request.Search}%"));
             }
 
             var pattern = InstantPattern.ExtendedIso;

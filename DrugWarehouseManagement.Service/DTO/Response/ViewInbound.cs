@@ -16,9 +16,10 @@ namespace DrugWarehouseManagement.Service.DTO.Response
         public string? InboundCode { get; set; }
         public string? ProviderOrderCode { get; set; }
         public string? ProviderName { get; set; }
+        public string? WarehouseName { get; set; }
         public string? CreateBy { get; set; }
         public string? Note { get; set; }
-        public Instant InboundDate { get; set; } // Ngày nhập kho
+        public string? InboundDate { get; set; } // Ngày nhập kho
         public InboundStatus Status { get; set; }
         public List<InboundDetailResponse> InboundDetails { get; set; }
     }
@@ -32,6 +33,5 @@ namespace DrugWarehouseManagement.Service.DTO.Response
         public int Quantity { get; set; }
         public decimal UnitPrice { get; set; }
         public decimal TotalPrice { get; set; }
-        public InboundDetailStatus Status { get; set; }
     }
 }
