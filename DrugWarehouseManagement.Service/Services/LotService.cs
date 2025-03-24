@@ -128,7 +128,7 @@ namespace DrugWarehouseManagement.Service.Services
             }
 
             // Sắp xếp theo ngày tạo mới nhất
-            query = query.OrderBy(x => x.ExpiryDate);
+            query = query.OrderByDescending(x => x.LotId);
 
             // Phân trang kết quả
             var paginatedLots = await query.ToPaginatedResultAsync(request.Page, request.PageSize);
