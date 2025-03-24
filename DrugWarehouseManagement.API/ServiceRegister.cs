@@ -104,6 +104,7 @@ namespace DrugWarehouseManagement.API
             services.AddScoped<IMinioService, MinioService>();
             services.AddScoped<IFirebaseService, FirebaseService>();
             services.AddScoped<ICategoriesService, CategoriesService>();
+            services.AddScoped<IInventoryReportService, InventoryReportService>();
             //services.AddScoped<IInventoryReportService, InventoryReportService>();
 
         }

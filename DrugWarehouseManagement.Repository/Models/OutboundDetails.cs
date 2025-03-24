@@ -20,6 +20,8 @@ namespace DrugWarehouseManagement.Repository.Models
 
         public virtual Lot Lot { get; set; } = null!;
         public virtual Outbound Outbound { get; set; } = null!;
+        public virtual ICollection<ReturnOutboundDetails> ReturnOutboundDetails { get; set; }
+       = new List<ReturnOutboundDetails>();
 
     }
 }

@@ -9,6 +9,6 @@ namespace DrugWarehouseManagement.Service.Interface
 {
     public interface IInventoryReportService
     {
-        byte[] ExportInventoryReport(int warehouseId, Instant startDate, Instant endDate);
+        Task<byte[]> ExportInventoryReportPdf(int warehouseId, Instant startDate, Instant endDate);
     }
 }
