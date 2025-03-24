@@ -115,15 +115,19 @@ namespace DrugWarehouseManagement.Service.Services
                 .GetAll()
                 .Include(r => r.OutboundDetails)
                     .ThenInclude(od => od.Outbound)
+                 .Include(od => od.OutboundDetails.Lot)
+                    .ThenInclude(l => l.Product)
                 .Include(r => r.InboundDetail)
                     .ThenInclude(id => id.Inbound)
                 .Where(r => outboundDetailIds.Contains(r.OutboundDetailsId))
+                
                 .ToListAsync();
 
             // Map sang DTO
             var response = returnOutboundDetails.Select(r =>
             {
                 var dto = r.Adapt<ReturnOutboundDetailsResponse>();
+                dto.OutboundDetailId = r.OutboundDetailsId;
                 dto.OutboundCode = r.OutboundDetails.Outbound.OutboundCode;
                 dto.ProductCode = r.OutboundDetails.Lot.Product.ProductCode;
                 dto.ProductName = r.OutboundDetails.Lot.Product.ProductName;

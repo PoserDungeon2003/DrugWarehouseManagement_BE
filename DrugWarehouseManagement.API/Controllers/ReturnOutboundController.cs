@@ -1,5 +1,7 @@
 ﻿using DrugWarehouseManagement.Service.DTO.Request;
+using DrugWarehouseManagement.Service.DTO.Response;
 using DrugWarehouseManagement.Service.Interface;
+using DrugWarehouseManagement.Service.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DrugWarehouseManagement.API.Controllers
@@ -17,8 +19,23 @@ namespace DrugWarehouseManagement.API.Controllers
         [HttpPost("create")]
         public async Task<IActionResult> CreateReturnOutbound([FromBody] CreateReturnOutboundRequest request)
         {
-            await _returnOutboundService.CreateReturnOutboundAsync(request);
-            return Ok(new { message = "Return outbound created successfully" });
+            try
+            {
+                await _returnOutboundService.CreateReturnOutboundAsync(request);
+                return Ok(new BaseResponse
+                {
+                    Code = 200,
+                    Message = "Return Outbound created successfully."
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    Code = 400,
+                    Message = ex.Message
+                });
+            }
         }
 
         [HttpGet("{outboundId}")]
