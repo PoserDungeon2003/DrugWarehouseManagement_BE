@@ -110,7 +110,7 @@ namespace DrugWarehouseManagement.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> SearchCustomers(SearchCustomerRequest request)
+        public async Task<IActionResult> SearchCustomers([FromQuery] SearchCustomerRequest request)
         {
             try
             {
