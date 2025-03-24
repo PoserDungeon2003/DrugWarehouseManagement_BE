@@ -119,7 +119,7 @@ namespace DrugWarehouseManagement.Service.Services
                     }
                 }
             }
-            else if (request.InboundStatus == InboundStatus.Cancelled)
+            else if (request.InboundStatus == InboundStatus.Cancelled && inbound.Status == InboundStatus.Completed)
             {
                 var inboundDetails = await _unitOfWork.InboundDetailRepository.GetAllByInboundIdAsync(inbound.InboundId);
                 if (inboundDetails.Any())
