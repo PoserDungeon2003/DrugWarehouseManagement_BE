@@ -10,6 +10,7 @@ using System.Text.RegularExpressions;
 using DrugWarehouseManagement.Common;
 using NodaTime.Text;
 using Mapster;
+using FirebaseAdmin.Messaging;
 
 namespace DrugWarehouseManagement.Service.Services
 {
@@ -26,7 +27,7 @@ namespace DrugWarehouseManagement.Service.Services
             var account = await _unitOfWork.AccountRepository.GetByIdAsync(accountId);
             if (account == null)
             {
-                throw new Exception("Account not found");
+                return new BaseResponse { Code = 404, Message = "Account not found" };
             }
 
             var inboundCode = GenerateInboundCode();
@@ -53,7 +54,7 @@ namespace DrugWarehouseManagement.Service.Services
             var account = await _unitOfWork.AccountRepository.GetByIdAsync(accountId);
             if (account == null)
             {
-                throw new Exception("Account not found");
+                return new BaseResponse { Code = 404, Message = "Account not found" };
             }
 
             var inbound = await _unitOfWork.InboundRepository.GetByIdAsync(request.InboundId);
@@ -62,13 +63,96 @@ namespace DrugWarehouseManagement.Service.Services
                 return new BaseResponse { Code = 404, Message = "Inbound not found" };
             }
 
-            inbound = request.Adapt<Inbound>();
+            if (!Enum.IsDefined(typeof(InboundStatus), request.InboundStatus))
+            {
+                return new BaseResponse { Code = 404, Message = "Invalid inbound status {Pending, InProgess, Completed, Cancelled" };
+            }
+
             // Update inbound details
             inbound.Status = request.InboundStatus;
             inbound.AccountId = accountId;
             inbound.UpdatedAt= SystemClock.Instance.GetCurrentInstant();
 
             await _unitOfWork.InboundRepository.UpdateAsync(inbound);
+
+            // If status is Completed, create or update Lot entries
+            if (request.InboundStatus == InboundStatus.Completed)
+            {
+                var inboundDetails = await _unitOfWork.InboundDetailRepository.GetAllByInboundIdAsync(inbound.InboundId);
+                if (inboundDetails.Any())
+                {
+                    foreach (var detail in inboundDetails)
+                    {
+                        var existingLot = await _unitOfWork.LotRepository
+                            .GetByWhere(l =>
+                                l.LotNumber == detail.LotNumber &&
+                                l.ManufacturingDate == detail.ManufacturingDate &&
+                                l.ExpiryDate == detail.ExpiryDate &&
+                                l.ProductId == detail.ProductId)
+                            .AsQueryable()
+                            .FirstOrDefaultAsync();
+
+                        if (existingLot != null)
+                        {
+                            existingLot.Quantity += detail.Quantity;
+                            await _unitOfWork.LotRepository.UpdateAsync(existingLot);
+                        }
+                        else
+                        {
+                            var newLot = detail.Adapt<Lot>();
+                            newLot.WarehouseId = inbound.WarehouseId ?? 0;
+                            newLot.ProviderId = inbound.ProviderId;
+
+                            await _unitOfWork.LotRepository.CreateAsync(newLot);
+                        }
+
+                        // Update OpeningStock based on all Lots with the same ProductId
+                        var allLotsForProduct = await _unitOfWork.LotRepository
+                            .GetByWhere(l => l.ProductId == detail.ProductId)
+                            .ToListAsync();
+
+                        var totalStock = allLotsForProduct.Sum(l => l.Quantity) + detail.Quantity;
+
+                        detail.OpeningStock = totalStock;
+                        await _unitOfWork.InboundDetailRepository.UpdateAsync(detail);
+
+                    }
+                }
+            }
+            else if (request.InboundStatus == InboundStatus.Cancelled)
+            {
+                var inboundDetails = await _unitOfWork.InboundDetailRepository.GetAllByInboundIdAsync(inbound.InboundId);
+                if (inboundDetails.Any())
+                {
+                    foreach (var detail in inboundDetails)
+                    {
+                        var existingLot = await _unitOfWork.LotRepository
+                            .GetByWhere(l =>
+                                l.LotNumber == detail.LotNumber &&
+                                l.ManufacturingDate == detail.ManufacturingDate &&
+                                l.ExpiryDate == detail.ExpiryDate &&
+                                l.ProductId == detail.ProductId)
+                            .AsQueryable()
+                            .FirstOrDefaultAsync();
+
+                        if (existingLot != null)
+                        {
+                            existingLot.Quantity -= detail.Quantity;
+
+                            if (existingLot.Quantity <= 0)
+                            {
+                                await _unitOfWork.LotRepository.DeleteAsync(existingLot);
+                            }
+                            else
+                            {
+                                await _unitOfWork.LotRepository.UpdateAsync(existingLot);
+                            }
+                        }
+                    }
+                }
+                    
+            }
+
             await _unitOfWork.SaveChangesAsync();
 
             return new BaseResponse { Code = 200, Message = "Inbound updated status successfully" };
@@ -79,7 +163,7 @@ namespace DrugWarehouseManagement.Service.Services
             var account = await _unitOfWork.AccountRepository.GetByIdAsync(accountId);
             if (account == null)
             {
-                throw new Exception("Account not found");
+                return new BaseResponse { Code = 404, Message = "Account not found" };
             }
 
             // Validate if the inbound exists
@@ -89,9 +173,10 @@ namespace DrugWarehouseManagement.Service.Services
                 return new BaseResponse { Code = 404, Message = "Inbound not found" };
             }
 
-            inbound = request.Adapt<Inbound>();
+            
             inbound.AccountId = accountId;
             inbound.UpdatedAt = SystemClock.Instance.GetCurrentInstant();
+            request.Adapt(inbound);
 
             await _unitOfWork.InboundRepository.UpdateAsync(inbound);
             await _unitOfWork.SaveChangesAsync();
@@ -99,41 +184,18 @@ namespace DrugWarehouseManagement.Service.Services
             return new BaseResponse { Code = 200, Message = "Inbound updated successfully" };
         }
 
-        public async Task<BaseResponse> DeleteInbound(Guid accountId, int inboundId)
-        {
-            var account = await _unitOfWork.AccountRepository.GetByIdAsync(accountId);
-            if (account == null)
-            {
-                throw new Exception("Account not found");
-            }
-
-            var inbound = await _unitOfWork.InboundRepository.GetByIdAsync(inboundId);
-            if (inbound == null)
-            {
-                return new BaseResponse { Code = 404, Message = "Inbound not found" };
-            }
-
-            inbound.Status = InboundStatus.Cancelled;
-            inbound.AccountId = accountId;
-            inbound.UpdatedAt = SystemClock.Instance.GetCurrentInstant();
-            // Delete inbound record
-            await _unitOfWork.InboundRepository.UpdateAsync(inbound);
-            await _unitOfWork.SaveChangesAsync();
-
-            return new BaseResponse { Code = 200, Message = "Inbound deleted successfully" };
-        }
-
         public async Task<ViewInbound> GetInboundById(int inboundId)
         {
             var inbound = await _unitOfWork.InboundRepository.GetByIdAsync(inboundId);
             if (inbound == null)
             {
-                throw new Exception("Inbound not found");
+                return new ViewInbound();
             }
 
-            var inboundDetails = await _unitOfWork.InboundDetailRepository.GetAllByInboundIdAsync(inboundId);
-
-            var result = inbound.Adapt<ViewInbound>(); 
+            var result = inbound.Adapt<ViewInbound>();
+            var timeZone = DateTimeZoneProviders.Tzdb["Asia/Ho_Chi_Minh"];
+            result.InboundDate = InstantPattern.ExtendedIso.Parse(result.InboundDate)
+                .Value.InZone(timeZone).ToString("dd/MM/yyyy HH:mm", null);
 
             return result;
         }
@@ -143,10 +205,10 @@ namespace DrugWarehouseManagement.Service.Services
             var query = _unitOfWork.InboundRepository
                         .GetAll()
                         .Include(i => i.InboundDetails)
+                        .ThenInclude(i => i.Product)
                         .Include(i => i.Provider)
                         .Include(i => i.Account)
-                        .Include(i => i.Provider)
-                        .Where(i => i.Status != InboundStatus.Cancelled)
+                        .Include(i => i.Warehouse)
                         .AsQueryable();
 
             if (!string.IsNullOrEmpty(request.Search))
@@ -162,7 +224,7 @@ namespace DrugWarehouseManagement.Service.Services
                 else
                 {
                     query = query.Where(i =>
-                        EF.Functions.Like(i.InboundCode.ToLower(), $"%{searchTerm}%"));
+                        EF.Functions.Like(i.InboundId.ToString(), $"%{searchTerm}%"));
                 }
             }
 
@@ -188,12 +250,23 @@ namespace DrugWarehouseManagement.Service.Services
                 }
             }
 
-            query = query.OrderByDescending(i => i.CreatedAt);
+            query = query.OrderByDescending(i => i.InboundDate);
 
             // Paginate the result
             var paginatedInbounds = await query.ToPaginatedResultAsync(request.Page, request.PageSize);
 
+            // Ensure proper formatting of InboundDate
+            var timeZone = DateTimeZoneProviders.Tzdb["Asia/Ho_Chi_Minh"];
             var viewInbounds = paginatedInbounds.Items.Adapt<List<ViewInbound>>();
+
+            foreach (var viewInbound in viewInbounds)
+            {
+                if (viewInbound.InboundDate != null)
+                {
+                    viewInbound.InboundDate = InstantPattern.ExtendedIso.Parse(viewInbound.InboundDate)
+                        .Value.InZone(timeZone).ToString("dd/MM/yyyy HH:mm", null);
+                }
+            }
             return new PaginatedResult<ViewInbound>
             {
                 Items = viewInbounds,

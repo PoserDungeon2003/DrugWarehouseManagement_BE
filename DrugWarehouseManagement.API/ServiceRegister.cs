@@ -237,9 +237,7 @@ namespace DrugWarehouseManagement.API
                 .NewConfig()
                 .Map(dest => dest.ProviderName, src => src.Provider.ProviderName)
                 .Map(dest => dest.CreateBy, src => src.Account.FullName)
-                .Map(dest => dest.InboundDate, src => src.InboundDate.HasValue
-                        ? src.InboundDate.Value.InZone(timeZone).ToString("dd/MM/yyyy HH:mm", null)
-                        : "N/A");
+                .Map(dest => dest.WarehouseName, src => src.Warehouse.WarehouseName);
 
             TypeAdapterConfig<InboundDetails, InboundDetailResponse>
                 .NewConfig()
