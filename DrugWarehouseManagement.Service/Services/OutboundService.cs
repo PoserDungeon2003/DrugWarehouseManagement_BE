@@ -128,7 +128,9 @@ namespace DrugWarehouseManagement.Service.Services
                     Quantity = detailRequest.Quantity,
                     UnitPrice = detailRequest.UnitPrice,
                     ExpiryDate = lot.ExpiryDate,
-                    TotalPrice = detailRequest.Quantity * detailRequest.UnitPrice,
+                    Discount = detailRequest.Discount ?? 0,
+                    TotalPrice = (decimal)detailRequest.Quantity * detailRequest.UnitPrice * (1 - ((decimal)(detailRequest.Discount ?? 0) / 100))
+
                 };
 
                 detailsList.Add(detail);
