@@ -105,6 +105,7 @@ namespace DrugWarehouseManagement.API
             services.AddScoped<IFirebaseService, FirebaseService>();
             services.AddScoped<ICategoriesService, CategoriesService>();
             services.AddScoped<IInventoryReportService, InventoryReportService>();
+            services.AddScoped<IReturnOutboundService,ReturnOutboundService >();
             //services.AddScoped<IInventoryReportService, InventoryReportService>();
 
         }
@@ -248,8 +249,14 @@ namespace DrugWarehouseManagement.API
                 .Map(dest => dest.ProviderName, src => src.Provider.ProviderName)
                 .Map(dest => dest.ProductName, src => src.Product.ProductName)
                 .Map(dest => dest.WarehouseName, src => src.Warehouse.WarehouseName);
-        }
 
+            TypeAdapterConfig<ReturnOutboundDetails, ReturnOutboundDetailsResponse>
+                .NewConfig()
+                .Map(dest => dest.OutboundCode, src => src.OutboundDetails.Outbound.OutboundCode)
+                .Map(dest => dest.ProductCode, src => src.OutboundDetails.Lot.Product.ProductCode)
+                .Map(dest => dest.ProductName, src => src.OutboundDetails.Lot.Product.ProductName);
+        }
+            
         private static void AddEnum(IServiceCollection services)
         {
             services.AddControllers().AddJsonOptions(options =>

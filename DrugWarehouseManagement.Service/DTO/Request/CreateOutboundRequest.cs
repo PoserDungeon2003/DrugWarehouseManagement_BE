@@ -29,7 +29,6 @@ namespace DrugWarehouseManagement.Service.DTO.Request
         [Required]
         public decimal UnitPrice { get; set; }
 
-        [Required]
-        public string UnitType { get; set; } = null!;
+        public float? Discount { get; set; } 
     }
 }

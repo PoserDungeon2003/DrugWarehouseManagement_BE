@@ -4,7 +4,7 @@ namespace DrugWarehouseManagement.Service.DTO.Request
 {
     public class UpdateOutboundRequest
     {
-        public string CustomerName { get; set; } = null!;
+        public string? CustomerName { get; set; } = null!;
         public string? Address { get; set; }
         public string? PhoneNumber { get; set; }
         public string? OutboundOrderCode { get; set; }
