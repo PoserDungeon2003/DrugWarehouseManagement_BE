@@ -123,7 +123,6 @@ namespace DrugWarehouseManagement.Service.Services
                 
                 .ToListAsync();
 
-            // Map sang DTO
             var response = returnOutboundDetails.Select(r =>
             {
                 var dto = r.Adapt<ReturnOutboundDetailsResponse>();
