@@ -79,26 +79,6 @@ namespace DrugWarehouseManagement.API.Controllers
             }
         }
 
-        [HttpDelete("{inboundId}")]
-        [Authorize]
-        public async Task<IActionResult> DeleteInboundRequset(int inboundId)
-        {
-            try
-            {
-                var accountId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-                var response = await _inboundRequestService.DeleteInboundRequest(accountId, inboundId);
-                return Ok(response);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new BaseResponse
-                {
-                    Code = 400,
-                    Message = ex.Message,
-                });
-            }
-        }
-
         [HttpGet("{inboundId}")]
         public async Task<IActionResult> GetInboundRequestById(int inboundId)
         {

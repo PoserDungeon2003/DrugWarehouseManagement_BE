@@ -65,7 +65,7 @@ namespace DrugWarehouseManagement.Service.Services
 
             if (!Enum.IsDefined(typeof(InboundStatus), request.InboundStatus))
             {
-                return new BaseResponse { Code = 404, Message = "Invalid inbound status {Pending, InProgess, Completed, Cancelled" };
+                return new BaseResponse { Code = 404, Message = "Invalid inbound status {Pending, InProgess, Completed, Cancelled}" };
             }
 
             // Update inbound details
@@ -186,16 +186,23 @@ namespace DrugWarehouseManagement.Service.Services
 
         public async Task<ViewInbound> GetInboundById(int inboundId)
         {
-            var inbound = await _unitOfWork.InboundRepository.GetByIdAsync(inboundId);
+            var inbound = await _unitOfWork.InboundRepository
+                .GetByWhere(i => i.InboundId == inboundId)
+                .Include(i => i.InboundDetails)
+                        .ThenInclude(i => i.Product)
+                .Include(i => i.Provider)
+                .Include(i => i.Account)
+                .Include(i => i.Warehouse)
+                .AsQueryable()
+                .FirstOrDefaultAsync();
             if (inbound == null)
             {
                 return new ViewInbound();
             }
 
             var result = inbound.Adapt<ViewInbound>();
-            var timeZone = DateTimeZoneProviders.Tzdb["Asia/Ho_Chi_Minh"];
             result.InboundDate = InstantPattern.ExtendedIso.Parse(result.InboundDate)
-                .Value.InZone(timeZone).ToString("dd/MM/yyyy HH:mm", null);
+                .Value.ToString("dd/MM/yyyy HH:mm", null);
 
             return result;
         }
@@ -256,7 +263,6 @@ namespace DrugWarehouseManagement.Service.Services
             var paginatedInbounds = await query.ToPaginatedResultAsync(request.Page, request.PageSize);
 
             // Ensure proper formatting of InboundDate
-            var timeZone = DateTimeZoneProviders.Tzdb["Asia/Ho_Chi_Minh"];
             var viewInbounds = paginatedInbounds.Items.Adapt<List<ViewInbound>>();
 
             foreach (var viewInbound in viewInbounds)
@@ -264,7 +270,7 @@ namespace DrugWarehouseManagement.Service.Services
                 if (viewInbound.InboundDate != null)
                 {
                     viewInbound.InboundDate = InstantPattern.ExtendedIso.Parse(viewInbound.InboundDate)
-                        .Value.InZone(timeZone).ToString("dd/MM/yyyy HH:mm", null);
+                        .Value.ToString("dd/MM/yyyy HH:mm", null);
                 }
             }
             return new PaginatedResult<ViewInbound>
@@ -278,18 +284,9 @@ namespace DrugWarehouseManagement.Service.Services
 
         private string GenerateInboundCode()
         {
-            Random random = new Random();
-            string randomDigits = random.Next(1000, 9999).ToString(); // Generate 4 random digits
-            string dateDigits = DateTime.Now.ToString("MMdd"); // Get 4-digit based on current date (MMDD)
-
-            string inboundCode = $"IC{randomDigits}{dateDigits}";
-
-            if (!Regex.IsMatch(inboundCode, "^IC\\d{4}\\d{4}$"))
-            {
-                throw new InvalidOperationException("Generated InboundCode does not match the required pattern.");
-            }
-
-            return inboundCode;
+            var uniqueId = Guid.NewGuid().ToString("N").Substring(0, 4).ToUpper();
+            string dateDigits = DateTime.Now.ToString("MMdd");
+            return $"IC{uniqueId}{dateDigits}";
         }
     }
 }

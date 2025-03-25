@@ -9,7 +9,6 @@ namespace DrugWarehouseManagement.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [AllowAnonymous]
     public class InboundController : ControllerBase
     {
         private readonly IInboundService _inboundService;
@@ -25,7 +24,7 @@ namespace DrugWarehouseManagement.API.Controllers
         {
             try
             {
-                var accountId = /*Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier))*/Guid.Parse("ec57b9d9-680d-4caf-8122-9325352a1e9b");
+                var accountId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
                 var response = await _inboundService.CreateInbound(accountId, request);
                 return Ok(response);
             }
@@ -45,7 +44,7 @@ namespace DrugWarehouseManagement.API.Controllers
         {
             try
             {
-                var accountId = /*Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier))*/Guid.Parse("ec57b9d9-680d-4caf-8122-9325352a1e9b");
+                var accountId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
                 var response = await _inboundService.UpdateInbound(accountId, request);
                 return Ok(response);
             }
@@ -65,7 +64,7 @@ namespace DrugWarehouseManagement.API.Controllers
         {
             try
             {
-                var accountId = /*Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier))*/Guid.Parse("ec57b9d9-680d-4caf-8122-9325352a1e9b");
+                var accountId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
                 var response = await _inboundService.UpdateInboundStatus(accountId, request);
                 return Ok(response);
             }

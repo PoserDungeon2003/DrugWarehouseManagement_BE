@@ -5,6 +5,7 @@ using DrugWarehouseManagement.Service.DTO.Request;
 using DrugWarehouseManagement.Service.DTO.Response;
 using DrugWarehouseManagement.Service.Extenstions;
 using DrugWarehouseManagement.Service.Interface;
+using FirebaseAdmin.Messaging;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 using NodaTime;
@@ -31,7 +32,7 @@ namespace DrugWarehouseManagement.Service.Services
             var account = await _unitOfWork.AccountRepository.GetByIdAsync(accountId);
             if (account == null)
             {
-                throw new Exception("Account not found");
+                return new BaseResponse { Code = 404, Message = "Account not found" };
             }
 
             var inboundRequestCode = GenerateInboundRequestCode();
@@ -51,36 +52,21 @@ namespace DrugWarehouseManagement.Service.Services
             };
         }
 
-        public async Task<BaseResponse> DeleteInboundRequest(Guid accountId, int inboundRequestId)
-        {
-            var account = await _unitOfWork.AccountRepository.GetByIdAsync(accountId);
-            if (account == null)
-            {
-                throw new Exception("Account not found");
-            }
-
-            var inboundRequest = await _unitOfWork.InboundRequestRepository.GetByIdAsync(inboundRequestId);
-            if (inboundRequest == null)
-            {
-                return new BaseResponse { Code = 404, Message = "Inbound Request not found" };
-            }
-
-            inboundRequest.Status = InboundRequestStatus.Cancelled;
-            // Delete inbound record
-            await _unitOfWork.InboundRequestRepository.UpdateAsync(inboundRequest);
-            await _unitOfWork.SaveChangesAsync();
-
-            return new BaseResponse { Code = 200, Message = "Inbound Request deleted successfully" };
-        }
-
         public async Task<ViewInboundRequest> GetInboundRequestById(int inboundRequestId)
         {
-            var inboundRequest = await _unitOfWork.InboundRequestRepository.GetByIdAsync(inboundRequestId);
-            if (inboundRequest == null)
+            var inboundRequest = await _unitOfWork.InboundRequestRepository
+                    .GetByWhere(i => i.InboundRequestId == inboundRequestId)
+                    .Include(i => i.InboundRequestDetails)
+                    .ThenInclude(i => i.Product)
+                    .AsQueryable()
+                    .FirstOrDefaultAsync();
+            if (inboundRequest == null )
             {
                 throw new Exception("Inbound not found");
             }
             var result = inboundRequest.Adapt<ViewInboundRequest>();
+            result.CreateDate = InstantPattern.ExtendedIso.Parse(result.CreateDate)
+                .Value.ToString("dd/MM/yyyy HH:mm", null);
 
             return result;
         }
@@ -90,7 +76,7 @@ namespace DrugWarehouseManagement.Service.Services
             var query = _unitOfWork.InboundRequestRepository
                         .GetAll()
                         .Include(i => i.InboundRequestDetails)
-                        .Where(i => i.Status != InboundRequestStatus.Cancelled)
+                        .ThenInclude(i => i.Product)
                         .AsQueryable();
 
             if (!string.IsNullOrEmpty(request.Search))
@@ -138,6 +124,15 @@ namespace DrugWarehouseManagement.Service.Services
             var paginatedInbounds = await query.ToPaginatedResultAsync(request.Page, request.PageSize);
 
             var viewInboundRequests = paginatedInbounds.Items.Adapt<List<ViewInboundRequest>>();
+
+            foreach (var viewInbound in viewInboundRequests)
+            {
+                if (viewInbound.CreateDate != null)
+                {
+                    viewInbound.CreateDate = InstantPattern.ExtendedIso.Parse(viewInbound.CreateDate)
+                        .Value.ToString("dd/MM/yyyy HH:mm", null);
+                }
+            }
             return new PaginatedResult<ViewInboundRequest>
             {
                 Items = viewInboundRequests,
@@ -152,7 +147,7 @@ namespace DrugWarehouseManagement.Service.Services
             var account = await _unitOfWork.AccountRepository.GetByIdAsync(accountId);
             if (account == null)
             {
-                throw new Exception("Account not found");
+                return new BaseResponse { Code = 404, Message = "Account not found" };
             }
 
             // Validate if the inbound exists
@@ -162,7 +157,7 @@ namespace DrugWarehouseManagement.Service.Services
                 return new BaseResponse { Code = 404, Message = "Inbound not found" };
             }
 
-            inboundRequest = request.Adapt<InboundRequest>();
+            request.Adapt(inboundRequest);
             inboundRequest.AccountId = accountId;
             inboundRequest.UpdatedAt = SystemClock.Instance.GetCurrentInstant();
 
@@ -177,13 +172,18 @@ namespace DrugWarehouseManagement.Service.Services
             var account = await _unitOfWork.AccountRepository.GetByIdAsync(accountId);
             if (account == null)
             {
-                throw new Exception("Account not found");
+                return new BaseResponse { Code = 404, Message = "Account not found" };
             }
 
             var inboundRequest = await _unitOfWork.InboundRequestRepository.GetByIdAsync(request.InboundId);
             if (inboundRequest == null)
             {
-                return new BaseResponse { Code = 404, Message = "Inbound not found" };
+                return new BaseResponse { Code = 404, Message = "Inbound Request not found" };
+            }
+
+            if (!Enum.IsDefined(typeof(InboundRequestStatus), request.InboundOrderStatus))
+            {
+                return new BaseResponse { Code = 404, Message = "Invalid inbound request status {WaitingForAccountantApproval, WaitingForDirectorApproval, WaitingForSaleAdminApproval, InProgress, WaitingForImport, Completed, Cancelled}" };
             }
 
             // Update inbound request
@@ -199,18 +199,9 @@ namespace DrugWarehouseManagement.Service.Services
 
         private string GenerateInboundRequestCode()
         {
-            Random random = new Random();
-            string randomDigits = random.Next(1000, 9999).ToString(); // Generate 4 random digits
-            string dateDigits = DateTime.Now.ToString("MMdd"); // Get 4-digit based on current date (MMDD)
-
-            string inboundRequestCode = $"IRC{randomDigits}{dateDigits}";
-
-            if (!Regex.IsMatch(inboundRequestCode, "^IRC\\d{4}\\d{4}$"))
-            {
-                throw new InvalidOperationException("Generated InboundCode does not match the required pattern.");
-            }
-
-            return inboundRequestCode;
+            var dateDigits = DateTime.Now.ToString("MMdd");
+            var uniqueId = Guid.NewGuid().ToString("N").Substring(0, 4).ToUpper();
+            return $"IRC{uniqueId}{dateDigits}";
         }
     }
 }
