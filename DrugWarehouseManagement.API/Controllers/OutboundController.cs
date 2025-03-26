@@ -39,6 +39,30 @@ namespace DrugWarehouseManagement.API.Controllers
                 });
             }
         }
+
+        [HttpPost("sample-export")]
+        [Authorize]
+        public async Task<IActionResult> CreateSampleOutbound([FromBody] CreateOutboundRequest request)
+        {
+            try
+            {
+                foreach (var detail in request.OutboundDetails)
+                {
+                    detail.UnitPrice = 0;
+                }
+                var accountId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+                var response = await _outboundService.CreateOutbound(accountId, request);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    Code = 400,
+                    Message = ex.Message,
+                });
+            }
+        }
         [HttpPut]
         public async Task<IActionResult> UpdateOutbound(int id, [FromBody] UpdateOutboundRequest request)
         {
