@@ -45,7 +45,7 @@ namespace DrugWarehouseManagement.API.Controllers
         {
             try
             {
-                var accountId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+                var accountId = /*Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier))*/Guid.Parse("ec57b9d9-680d-4caf-8122-9325352a1e9b");
                 var response = await _inboundService.UpdateInbound(accountId, request);
                 return Ok(response);
             }
@@ -65,28 +65,8 @@ namespace DrugWarehouseManagement.API.Controllers
         {
             try
             {
-                var accountId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+                var accountId = /*Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier))*/Guid.Parse("ec57b9d9-680d-4caf-8122-9325352a1e9b");
                 var response = await _inboundService.UpdateInboundStatus(accountId, request);
-                return Ok(response);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new BaseResponse
-                {
-                    Code = 400,
-                    Message = ex.Message,
-                });
-            }
-        }
-
-        [HttpDelete("{inboundId}")]
-        [Authorize]
-        public async Task<IActionResult> DeleteInbound(int inboundId)
-        {
-            try
-            {
-                var accountId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-                var response = await _inboundService.DeleteInbound(accountId, inboundId);
                 return Ok(response);
             }
             catch (Exception ex)

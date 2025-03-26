@@ -16,7 +16,7 @@ namespace DrugWarehouseManagement.API.Controllers
             _reportService = reportService;
         }
         [HttpGet("export")]
-        public IActionResult ExportInventoryReport(
+        public async Task <IActionResult> ExportInventoryReportPdf(
            [FromQuery] int warehouseId,
            [FromQuery] string from,
            [FromQuery] string to)
@@ -36,11 +36,8 @@ namespace DrugWarehouseManagement.API.Controllers
                 }
                 var startDate = parseFrom.Value;
                 var endDate = parseTo.Value;
-                var fileBytes = _reportService.ExportInventoryReport(warehouseId, startDate, endDate);
-                return File(
-                    fileBytes,
-                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                    "InventoryReport.xlsx");
+                var pdfBytes = await _reportService.ExportInventoryReportPdf(warehouseId, startDate, endDate);
+                return File(pdfBytes, "application/pdf", $"BaoCaoNhapXuatTon_{DateTime.UtcNow:yyyyMMddHHmmss}.pdf");
             }
             catch (Exception ex)
             {

@@ -26,6 +26,7 @@ namespace DrugWarehouseManagement.Repository
         ILotTransferRepository LotTransferRepository { get; }
         ILotTransferDetailRepository LotTransferDetailsRepository { get; }
         ICategoriesRepository CategoriesRepository { get; }
+        IReturnOutboundDetailsRepository ReturnOutboundDetailsRepository { get; }
         IDeviceRepository DeviceRepository { get; }
     }
 }

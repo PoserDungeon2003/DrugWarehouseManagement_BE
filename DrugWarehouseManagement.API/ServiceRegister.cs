@@ -104,6 +104,8 @@ namespace DrugWarehouseManagement.API
             services.AddScoped<IMinioService, MinioService>();
             services.AddScoped<IFirebaseService, FirebaseService>();
             services.AddScoped<ICategoriesService, CategoriesService>();
+            services.AddScoped<IInventoryReportService, InventoryReportService>();
+            services.AddScoped<IReturnOutboundService,ReturnOutboundService >();
             //services.AddScoped<IInventoryReportService, InventoryReportService>();
             services.AddScoped<IDeviceService, DeviceService>();
         }
@@ -236,9 +238,7 @@ namespace DrugWarehouseManagement.API
                 .NewConfig()
                 .Map(dest => dest.ProviderName, src => src.Provider.ProviderName)
                 .Map(dest => dest.CreateBy, src => src.Account.FullName)
-                .Map(dest => dest.InboundDate, src => src.InboundDate.HasValue
-                        ? src.InboundDate.Value.InZone(timeZone).ToString("dd/MM/yyyy HH:mm", null)
-                        : "N/A");
+                .Map(dest => dest.WarehouseName, src => src.Warehouse.WarehouseName);
 
             TypeAdapterConfig<InboundDetails, InboundDetailResponse>
                 .NewConfig()
@@ -249,8 +249,14 @@ namespace DrugWarehouseManagement.API
                 .Map(dest => dest.ProviderName, src => src.Provider.ProviderName)
                 .Map(dest => dest.ProductName, src => src.Product.ProductName)
                 .Map(dest => dest.WarehouseName, src => src.Warehouse.WarehouseName);
-        }
 
+            TypeAdapterConfig<ReturnOutboundDetails, ReturnOutboundDetailsResponse>
+                .NewConfig()
+                .Map(dest => dest.OutboundCode, src => src.OutboundDetails.Outbound.OutboundCode)
+                .Map(dest => dest.ProductCode, src => src.OutboundDetails.Lot.Product.ProductCode)
+                .Map(dest => dest.ProductName, src => src.OutboundDetails.Lot.Product.ProductName);
+        }
+            
         private static void AddEnum(IServiceCollection services)
         {
             services.AddControllers().AddJsonOptions(options =>
@@ -272,14 +278,14 @@ namespace DrugWarehouseManagement.API
 
         private static void InitializeFirebase()
         {
-            if (FirebaseApp.DefaultInstance == null)
-            {
-                FirebaseApp.Create(new AppOptions()
-                {
-                    Credential = GoogleCredential.FromFile("firebase-credentials.json")
-                });
+            //if (FirebaseApp.DefaultInstance == null)
+            //{
+            //    FirebaseApp.Create(new AppOptions()
+            //    {
+            //        Credential = GoogleCredential.FromFile("firebase-credentials.json")
+            //    });
 
-            }
+            //}
         }
 
         private static void InitializeMinio(IServiceCollection services, string accessKey, string secretKey, string endpoint, bool ssl = false)

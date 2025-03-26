@@ -7,9 +7,9 @@ namespace DrugWarehouseManagement.Service.DTO.Request
 
         [Required]    
         public int CustomerId { get; set; }     
-        public string? RecivierName { get; set; }
-        public string? RecivierPhone { get; set; }
-        public string? RecivierAddress { get; set; }
+        public string? ReceiverName { get; set; }
+        public string? ReceiverPhone { get; set; }
+        public string? ReceiverAddress { get; set; }
         public string? OutboundOrderCode { get; set; }
         public string? Note { get; set; }
 
@@ -29,7 +29,6 @@ namespace DrugWarehouseManagement.Service.DTO.Request
         [Required]
         public decimal UnitPrice { get; set; }
 
-        [Required]
-        public string UnitType { get; set; } = null!;
+        public float? Discount { get; set; } 
     }
 }

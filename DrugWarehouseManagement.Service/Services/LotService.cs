@@ -100,7 +100,8 @@ namespace DrugWarehouseManagement.Service.Services
             {
                 query = query.Where(x =>
                     EF.Functions.Like(x.LotNumber.ToLower(), $"%{request.Search}%") ||
-                    EF.Functions.Like(x.LotId.ToString(), $"%{request.Search}%"));
+                    EF.Functions.Like(x.LotId.ToString(), $"%{request.Search}%") ||
+                    EF.Functions.Like(x.Product.ProductName, $"%{request.Search}%"));
             }
 
             var pattern = InstantPattern.ExtendedIso;
@@ -127,7 +128,7 @@ namespace DrugWarehouseManagement.Service.Services
             }
 
             // Sắp xếp theo ngày tạo mới nhất
-            query = query.OrderBy(x => x.ExpiryDate);
+            query = query.OrderByDescending(x => x.LotId);
 
             // Phân trang kết quả
             var paginatedLots = await query.ToPaginatedResultAsync(request.Page, request.PageSize);
