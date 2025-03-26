@@ -278,14 +278,14 @@ namespace DrugWarehouseManagement.API
 
         private static void InitializeFirebase()
         {
-            //if (FirebaseApp.DefaultInstance == null)
-            //{
-            //    FirebaseApp.Create(new AppOptions()
-            //    {
-            //        Credential = GoogleCredential.FromFile("firebase-credentials.json")
-            //    });
+            if (FirebaseApp.DefaultInstance == null)
+            {
+               FirebaseApp.Create(new AppOptions()
+               {
+                   Credential = GoogleCredential.FromFile("firebase-credentials.json")
+               });
 
-            //}
+            }
         }
 
         private static void InitializeMinio(IServiceCollection services, string accessKey, string secretKey, string endpoint, bool ssl = false)

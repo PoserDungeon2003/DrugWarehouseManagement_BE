@@ -61,5 +61,35 @@ namespace DrugWarehouseManagement.Service.Services
                 }
             };
         }
+
+        public async Task<BaseResponse> UpdateTrackingNumber(string apiKey, UpdateTrackingNumberRequest request)
+        {
+            var device = await _unitOfWork.DeviceRepository
+                .GetByWhere(d => d.ApiKey == apiKey)
+                .FirstOrDefaultAsync();
+
+            if (device == null)
+            {
+                throw new Exception("Device not found");
+            }
+
+            var outbound = await _unitOfWork.OutboundRepository
+                .GetByWhere(o => o.OutboundCode == request.OutboundCode)
+                .FirstOrDefaultAsync();
+
+            if (outbound == null)
+            {
+                throw new Exception("Outbound not found");
+            }
+            
+            outbound.TrackingNumber = request.TrackingNumber;
+
+            await _unitOfWork.SaveChangesAsync();
+            return new BaseResponse
+            {
+                Code = 200,
+                Message = "Tracking number updated successfully"
+            };
+        }
     }
 }

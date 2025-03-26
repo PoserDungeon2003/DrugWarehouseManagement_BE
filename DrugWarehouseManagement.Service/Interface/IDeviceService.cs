@@ -12,5 +12,6 @@ namespace DrugWarehouseManagement.Service.Interface
     {
         public Task<BaseResponse> RegisterDevice(Guid accountId, RegisterDeviceRequest request);
         public Task<BaseResponse> Ping(string apiKey);
+        public Task<BaseResponse> UpdateTrackingNumber(string apiKey, UpdateTrackingNumberRequest request);
     }
 }

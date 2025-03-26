@@ -66,6 +66,33 @@ namespace DrugWarehouseManagement.API.Controllers
             }
         }
 
+        [HttpPatch("updateTrackingNumber")]
+        public async Task<IActionResult> UpdateTrackingNumber([FromBody] UpdateTrackingNumberRequest request)
+        {
+            try
+            {
+                var apiKey = GetApiKey();
+                if (apiKey == null)
+                {
+                    return Unauthorized(new BaseResponse
+                    {
+                        Code = 401,
+                        Message = "API Key is missing."
+                    });
+                }
+                var response = await _deviceService.UpdateTrackingNumber(apiKey, request);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    Code = 400,
+                    Message = ex.Message,
+                });
+            }
+        }
+
         private string GetApiKey()
         {
             if (!Request.Headers.TryGetValue("X-Api-Key", out var apiKey))
