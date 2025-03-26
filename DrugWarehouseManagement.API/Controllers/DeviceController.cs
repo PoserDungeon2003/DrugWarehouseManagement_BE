@@ -93,6 +93,25 @@ namespace DrugWarehouseManagement.API.Controllers
             }
         }
 
+        [HttpGet]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetDevices([FromQuery] QueryPaging queryPaging)
+        {
+            try
+            {
+                var response = await _deviceService.GetDevices(queryPaging);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    Code = 400,
+                    Message = ex.Message,
+                });
+            }
+        }
+
         private string GetApiKey()
         {
             if (!Request.Headers.TryGetValue("X-Api-Key", out var apiKey))

@@ -255,6 +255,11 @@ namespace DrugWarehouseManagement.API
                 .Map(dest => dest.OutboundCode, src => src.OutboundDetails.Outbound.OutboundCode)
                 .Map(dest => dest.ProductCode, src => src.OutboundDetails.Lot.Product.ProductCode)
                 .Map(dest => dest.ProductName, src => src.OutboundDetails.Lot.Product.ProductName);
+
+            TypeAdapterConfig<Device, ViewDevices>
+                .NewConfig()
+                .Map(dest => dest.ExpiryDate, src => src.ExpiryDate.HasValue ? src.ExpiryDate.Value.ToString("o") : null)
+                .Map(dest => dest.CreatedBy, src => src.Account.FullName);
         }
             
         private static void AddEnum(IServiceCollection services)

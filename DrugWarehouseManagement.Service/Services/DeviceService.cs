@@ -3,9 +3,11 @@ using DrugWarehouseManagement.Repository;
 using DrugWarehouseManagement.Repository.Models;
 using DrugWarehouseManagement.Service.DTO.Request;
 using DrugWarehouseManagement.Service.DTO.Response;
+using DrugWarehouseManagement.Service.Extenstions;
 using DrugWarehouseManagement.Service.Interface;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
+using NodaTime.Text;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,6 +23,39 @@ namespace DrugWarehouseManagement.Service.Services
         public DeviceService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
+        }
+
+        public async Task<PaginatedResult<ViewDevices>> GetDevices(QueryPaging queryPaging)
+        {
+            queryPaging.Search = queryPaging.Search?.ToLower().Trim() ?? "";
+            var query = _unitOfWork.DeviceRepository.GetAll()
+                        .Include(x => x.Account)
+                        .OrderByDescending(x => x.UpdatedAt)
+                        .ThenByDescending(x => x.CreatedAt)
+                        .Where(x => x.DeviceId.ToString().Contains(queryPaging.Search) || x.DeviceName.Contains(queryPaging.Search) || x.DeviceType.Contains(queryPaging.Search))
+                        .AsQueryable();
+
+            if (queryPaging.DateFrom != null)
+            {
+                var dateFrom = InstantPattern.ExtendedIso.Parse(queryPaging.DateFrom);
+                if (!dateFrom.Success)
+                {
+                    throw new Exception("DateFrom is invalid ISO format");
+                }
+                query = query.Where(o => o.CreatedAt >= dateFrom.Value);
+            }
+            if (queryPaging.DateTo != null)
+            {
+                var dateTo = InstantPattern.ExtendedIso.Parse(queryPaging.DateTo);
+                if (!dateTo.Success)
+                {
+                    throw new Exception("DateTo is invalid ISO format");
+                }
+                query = query.Where(o => o.CreatedAt <= dateTo.Value);
+            }
+
+            var result = await query.ToPaginatedResultAsync(queryPaging.Page, queryPaging.PageSize);
+            return result.Adapt<PaginatedResult<ViewDevices>>();
         }
 
         public async Task<BaseResponse> Ping(string apiKey)
@@ -81,7 +116,7 @@ namespace DrugWarehouseManagement.Service.Services
             {
                 throw new Exception("Outbound not found");
             }
-            
+
             outbound.TrackingNumber = request.TrackingNumber;
 
             await _unitOfWork.SaveChangesAsync();
