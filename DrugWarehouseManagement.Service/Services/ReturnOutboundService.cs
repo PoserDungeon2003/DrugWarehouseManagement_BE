@@ -6,6 +6,7 @@ using DrugWarehouseManagement.Service.DTO.Response;
 using DrugWarehouseManagement.Service.Interface;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
+using NodaTime;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -80,8 +81,9 @@ namespace DrugWarehouseManagement.Service.Services
                     OutboundDetailsId = detailItem.OutboundDetailId,
                     InboundDetailId = detailItem.InboundDetailId,
                     ReturnedQuantity = detailItem.ReturnedQuantity,
-                    Note = detailItem.Note
+                    Note = detailItem.Note              
                 };
+                rod.CreatedAt = SystemClock.Instance.GetCurrentInstant();
                 returnDetailsList.Add(rod);
             }
 

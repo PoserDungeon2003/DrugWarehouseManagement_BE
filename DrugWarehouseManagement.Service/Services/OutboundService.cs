@@ -136,6 +136,7 @@ namespace DrugWarehouseManagement.Service.Services
                 detailsList.Add(detail);
             }
             outbound.OutboundDetails = detailsList;
+            outbound.CreatedAt = SystemClock.Instance.GetCurrentInstant();
             await _unitOfWork.OutboundRepository.CreateAsync(outbound);
             await _unitOfWork.SaveChangesAsync();
             await UpdateCustomerLoyaltyStatusAsync(request.CustomerId);

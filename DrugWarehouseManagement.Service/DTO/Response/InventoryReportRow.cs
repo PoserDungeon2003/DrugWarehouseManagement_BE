@@ -19,5 +19,6 @@ namespace DrugWarehouseManagement.Service.DTO.Response
         public int TransferOutQty { get; set; }   // Chuyển (xuất)
         public int ReturnOutQty { get; set; }     // Trả về (xuất)
         public int Remain { get; set; }           // Tồn
+        public int SampleExportQty { get; set; }
     }
 }
