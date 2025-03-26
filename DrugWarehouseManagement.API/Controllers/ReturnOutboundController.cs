@@ -3,6 +3,7 @@ using DrugWarehouseManagement.Service.DTO.Response;
 using DrugWarehouseManagement.Service.Interface;
 using DrugWarehouseManagement.Service.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Client;
 
 namespace DrugWarehouseManagement.API.Controllers
 {
@@ -41,8 +42,16 @@ namespace DrugWarehouseManagement.API.Controllers
         [HttpGet("{outboundId}")]
         public async Task<IActionResult> GetReturnOutbound(int outboundId)
         {
-            var result = await _returnOutboundService.GetReturnOutboundByOutboundIdAsync(outboundId);
-            return Ok(result);
+            var returnOutbound = await _returnOutboundService.GetReturnOutboundByOutboundIdAsync(outboundId);
+            if (returnOutbound == null)
+            {
+                return NotFound(new BaseResponse
+                {
+                    Code = 404,
+                    Message = "Return Outbound not found."
+                });
+            }
+            return Ok(returnOutbound);
         }
     }
 }

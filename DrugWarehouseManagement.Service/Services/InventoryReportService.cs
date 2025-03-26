@@ -111,6 +111,7 @@ namespace DrugWarehouseManagement.Service.Services
                 .Where(od => od.Lot.WarehouseId == warehouseId
                              && od.Outbound.OutboundDate >= startDate
                              && od.Outbound.OutboundDate <= endDate
+                             && od.TotalPrice > 0
                              && od.Outbound.Status == OutboundStatus.Completed)
                 .GroupBy(od => od.Lot.ProductId)
                 .Select(g => new { ProductId = g.Key, Qty = g.Sum(x => x.Quantity) })
@@ -129,13 +130,29 @@ namespace DrugWarehouseManagement.Service.Services
                 .Select(g => new { ProductId = g.Key, Qty = g.Sum(x => x.Quantity) })
                 .ToListAsync();
 
+            // (d3) Xuất mẫu (Outbound có TotalPrice = 0)
+            var sampleExport = await _unitOfWork.OutboundDetailsRepository
+                .GetAll()
+                .Include(od => od.Outbound)
+                .Include(od => od.Lot)
+                .Where(od => od.Lot.WarehouseId == warehouseId
+                             && od.Outbound.OutboundDate >= startDate
+                             && od.Outbound.OutboundDate <= endDate
+                             && od.Outbound.Status == OutboundStatus.Completed
+                             && od.TotalPrice == 0) // Điều kiện xuất mẫu
+                .GroupBy(od => od.Lot.ProductId)
+                .Select(g => new { ProductId = g.Key, Qty = g.Sum(x => x.Quantity) })
+                .ToListAsync();
+
+
             // ------------------------ Tạo dictionary ------------------------
+            
             var buyDict = inboundBuy.ToDictionary(x => x.ProductId, x => x.Qty);
             var transferInDict = transferIn.ToDictionary(x => x.ProductId, x => x.Qty);
             var inboundReturnDict = inboundReturn.ToDictionary(x => x.ProductId, x => x.Qty);
-
             var sellDict = outboundSell.ToDictionary(x => x.ProductId, x => x.Qty);
             var transferOutDict = transferOut.ToDictionary(x => x.ProductId, x => x.Qty);
+            var sampleExportDict = sampleExport.ToDictionary(x => x.ProductId, x => x.Qty);
 
             // ------------------------ Build list<InventoryReportRow> ------------------------
             var reportData = new List<InventoryReportRow>();
@@ -147,11 +164,10 @@ namespace DrugWarehouseManagement.Service.Services
                 int beginning = openingStockDict.ContainsKey(pid) ? (openingStockDict[pid] ?? 0) : 0;
                 int buyQty = buyDict.ContainsKey(pid) ? buyDict[pid] : 0;
                 int inTransQty = transferInDict.ContainsKey(pid) ? transferInDict[pid] : 0;
-                int inReturnQty = inboundReturnDict.ContainsKey(pid) ? inboundReturnDict[pid] : 0;
-
+                int inReturnQty = inboundReturnDict.ContainsKey(pid) ? inboundReturnDict[pid] : 0;              
                 int sellQty = sellDict.ContainsKey(pid) ? sellDict[pid] : 0;
                 int outTransQty = transferOutDict.ContainsKey(pid) ? transferOutDict[pid] : 0;
-
+                int sampleQty = sampleExportDict.ContainsKey(pid) ? sampleExportDict[pid] : 0;
                 int remain = beginning
                              + (buyQty + inTransQty + inReturnQty)
                              - (sellQty + outTransQty);
@@ -166,8 +182,9 @@ namespace DrugWarehouseManagement.Service.Services
                     TransferInQty = inTransQty,
                     ReturnInQty = inReturnQty,
                     SellQty = sellQty,
-                    TransferOutQty = outTransQty,                 
-                    Remain = remain
+                    TransferOutQty = outTransQty,
+                    SampleExportQty = sampleQty,
+                    Remain = remain - sampleQty
                 });
             }
 
@@ -223,6 +240,7 @@ namespace DrugWarehouseManagement.Service.Services
                                 columns.RelativeColumn(1);  // Bán
                                 columns.RelativeColumn(1);  // Chuyển (Xuất)
                                 columns.RelativeColumn(1);  // Tồn
+                                columns.RelativeColumn(1); // xuất mẫu 
                             });
 
                             // Header
@@ -239,6 +257,7 @@ namespace DrugWarehouseManagement.Service.Services
                                 header.Cell().Border(1).AlignCenter().Text("Bán").Bold();
                                 header.Cell().Border(1).AlignCenter().Text("Chuyển\n(Xuất)").Bold();
                                 header.Cell().Border(1).AlignCenter().Text("Tồn").Bold();
+                                header.Cell().Border(1).AlignCenter().Text("Xuất mẫu").Bold();
                             });
 
                             int stt = 1;
@@ -255,7 +274,7 @@ namespace DrugWarehouseManagement.Service.Services
                                 table.Cell().Border(1).AlignRight().Text(r.SellQty.ToString("N0"));
                                 table.Cell().Border(1).AlignRight().Text(r.TransferOutQty.ToString("N0"));
                                 table.Cell().Border(1).AlignRight().Text(r.Remain.ToString("N0"));
-
+                                table.Cell().Border(1).AlignRight().Text(r.SampleExportQty.ToString("N0"));
                                 stt++;
                             }
                         });
