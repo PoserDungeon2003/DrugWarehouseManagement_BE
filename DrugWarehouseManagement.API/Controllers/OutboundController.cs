@@ -46,10 +46,6 @@ namespace DrugWarehouseManagement.API.Controllers
         {
             try
             {
-                foreach (var detail in request.OutboundDetails)
-                {
-                    detail.UnitPrice = 0;
-                }
                 var accountId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
                 var response = await _outboundService.CreateOutbound(accountId, request);
                 return Ok(response);
