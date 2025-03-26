@@ -1,0 +1,78 @@
+﻿using DrugWarehouseManagement.Service.DTO.Request;
+using DrugWarehouseManagement.Service.DTO.Response;
+using DrugWarehouseManagement.Service.Interface;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+
+namespace DrugWarehouseManagement.API.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class DeviceController : ControllerBase
+    {
+        private readonly IDeviceService _deviceService;
+
+        public DeviceController(IDeviceService deviceService)
+        {
+            _deviceService = deviceService;
+        }
+
+        [HttpPost("registerDevice")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> RegisterDevice([FromBody] RegisterDeviceRequest request)
+        {
+            try
+            {
+                var accountId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var response = await _deviceService.RegisterDevice(Guid.Parse(accountId), request);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    Code = 400,
+                    Message = ex.Message,
+                });
+            }
+        }
+
+        [HttpGet("ping")]
+        public async Task<IActionResult> Ping()
+        {
+            try
+            {
+                var apiKey = GetApiKey();
+                if (apiKey == null)
+                {
+                    return Unauthorized(new BaseResponse
+                    {
+                        Code = 401,
+                        Message = "API Key is missing."
+                    });
+                }
+                var response = await _deviceService.Ping(apiKey);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    Code = 400,
+                    Message = ex.Message,
+                });
+            }
+        }
+
+        private string GetApiKey()
+        {
+            if (!Request.Headers.TryGetValue("X-Api-Key", out var apiKey))
+            {
+                return null;
+            }
+            return apiKey;
+        }
+    }
+}
