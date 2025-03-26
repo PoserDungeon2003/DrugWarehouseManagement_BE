@@ -11,8 +11,11 @@ namespace DrugWarehouseManagement.Service.DTO.Request
 {
     public class LotTransferRequest
     {
+        [Required]
         public string LotTransferCode { get; set; } = null!;
+        [Required]
         public int FromWareHouseId { get; set; }
+        [Required]
         public int ToWareHouseId { get; set; }  
         [Required]
         public List<LotTransferDetailRequest> LotTransferDetails { get; set; } = null!;
@@ -20,12 +23,9 @@ namespace DrugWarehouseManagement.Service.DTO.Request
 
     public class LotTransferDetailRequest
     {
-        public DateOnly ExpiryDate { get; set; }
-        public string UnitType { get; set; } = null!;
+        [Required]
         public int Quantity { get; set; }
-        public int ProductId { get; set; }
-        public string LotNumber { get; set; } = null!;
-        [JsonIgnore]
+        [Required]
         public int LotId { get; set; }
     }
 }

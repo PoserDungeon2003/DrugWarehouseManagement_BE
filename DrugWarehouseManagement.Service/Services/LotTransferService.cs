@@ -93,39 +93,22 @@ namespace DrugWarehouseManagement.Service.Services
             }
 
             var groupedDetails = request.LotTransferDetails
-                .GroupBy(l => new { l.LotNumber, l.ExpiryDate, l.ProductId })
+                .GroupBy(l => new { l.LotId })
                 .Select(l => new LotTransferDetailRequest
                 {
-                    LotNumber = l.Key.LotNumber,
-                    ExpiryDate = l.Key.ExpiryDate,
-                    ProductId = l.Key.ProductId,
                     Quantity = l.Sum(d => d.Quantity),
-                    UnitType = l.First().UnitType,
                 }).ToList();
 
             foreach (var detail in groupedDetails)
             {
                 var lot = await _unitOfWork.LotRepository
-                            .GetByWhere(l => l.LotNumber.Equals(detail.LotNumber) && l.ExpiryDate == detail.ExpiryDate && l.WarehouseId == request.FromWareHouseId)
-                            .FirstOrDefaultAsync();
+                            .GetByIdAsync(detail.LotId);
 
                 if (lot == null)
                 {
                     throw new Exception("Lot not found");
                 }
                 detail.LotId = lot.LotId;
-
-                var product = await _unitOfWork.ProductRepository.GetByIdAsync(detail.ProductId);
-
-                if (product == null)
-                {
-                    throw new Exception("Product not found");
-                }
-
-                if (detail.ProductId != lot.ProductId)
-                {
-                    throw new Exception("Product not match with lot");
-                }
 
                 if (detail.Quantity <= 0)
                 {
@@ -147,7 +130,7 @@ namespace DrugWarehouseManagement.Service.Services
 
                 // Kiểm tra có lô hàng nào trong kho tới trùng thông tin không
                 var lotInWarehouseTo = await _unitOfWork.LotRepository
-                                    .GetByWhere(l => l.LotNumber == detail.LotNumber && l.ExpiryDate == detail.ExpiryDate && l.WarehouseId == request.ToWareHouseId)
+                                    .GetByWhere(l => l.LotId == detail.LotId && l.WarehouseId == request.ToWareHouseId)
                                     .FirstOrDefaultAsync();
 
                 // Kiểm tra mã lô mới có expiry date đã tồn tại chưa
@@ -167,7 +150,7 @@ namespace DrugWarehouseManagement.Service.Services
                 // Tạo lô mới ứng với toWareHouseId
                 var newLot = new Lot
                 {
-                    ProductId = detail.ProductId,
+                    ProductId = lot.ProductId,
                     Quantity = detail.Quantity,
                     ExpiryDate = lot.ExpiryDate,
                     WarehouseId = request.ToWareHouseId,
@@ -229,7 +212,7 @@ namespace DrugWarehouseManagement.Service.Services
                     page.Content().Column(col =>
                     {
                         col.Item().Text("PHIẾU CHUYỂN KHO").Bold().FontSize(16).AlignCenter();
-                        col.Item().Text($"Mã CT: TR02250014      Ngày CT: {lotTransfer.CreatedAt.ToString("dd/MM/yyyy", null)}");
+                        col.Item().Text($"Mã CT: {lotTransfer.LotTransferCode}      Ngày CT: {lotTransfer.CreatedAt.ToString("dd/MM/yyyy", null)}");
                         col.Item().Text($"Từ kho: {lotTransfer.FromWareHouse.WarehouseName}      Đến kho: {lotTransfer.ToWareHouse.WarehouseName}");
 
                         col.Item().Table(table =>
