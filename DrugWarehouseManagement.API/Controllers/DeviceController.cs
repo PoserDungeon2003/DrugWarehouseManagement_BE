@@ -112,6 +112,26 @@ namespace DrugWarehouseManagement.API.Controllers
             }
         }
 
+        [HttpPut]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdateDevice([FromBody] UpdateDeviceRequest request)
+        {
+            try
+            {
+                var accountId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var response = await _deviceService.UpdateDevice(Guid.Parse(accountId), request);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    Code = 400,
+                    Message = ex.Message,
+                });
+            }
+        }
+
         private string GetApiKey()
         {
             if (!Request.Headers.TryGetValue("X-Api-Key", out var apiKey))

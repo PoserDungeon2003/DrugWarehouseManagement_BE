@@ -259,7 +259,12 @@ namespace DrugWarehouseManagement.API
             TypeAdapterConfig<Device, ViewDevices>
                 .NewConfig()
                 .Map(dest => dest.ExpiryDate, src => src.ExpiryDate.HasValue ? src.ExpiryDate.Value.ToString("o") : null)
-                .Map(dest => dest.CreatedBy, src => src.Account.FullName);
+                .Map(dest => dest.CreatedBy, src => src.Account.FullName)
+                .Map(dest => dest.Status, src => src.Status.ToString());
+
+            TypeAdapterConfig<UpdateDeviceRequest, Device>
+                .NewConfig()
+                .IgnoreNullValues(true);
         }
             
         private static void AddEnum(IServiceCollection services)

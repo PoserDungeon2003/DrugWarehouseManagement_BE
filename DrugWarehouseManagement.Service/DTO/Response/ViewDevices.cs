@@ -19,6 +19,7 @@ namespace DrugWarehouseManagement.Service.DTO.Response
     public string? ExpiryDate { get; set; }
     public bool IsRevoked { get; set; }
     public string CreatedBy { get; set; } = null!;
+    public string Status { get; set; } = null!;
     public Instant CreatedAt { get; set; }
     public Instant? UpdatedAt { get; set; }
 

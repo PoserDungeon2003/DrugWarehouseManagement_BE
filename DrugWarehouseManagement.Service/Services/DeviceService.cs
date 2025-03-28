@@ -7,6 +7,7 @@ using DrugWarehouseManagement.Service.Extenstions;
 using DrugWarehouseManagement.Service.Interface;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
+using NodaTime;
 using NodaTime.Text;
 using System;
 using System.Collections.Generic;
@@ -30,7 +31,8 @@ namespace DrugWarehouseManagement.Service.Services
             queryPaging.Search = queryPaging.Search?.ToLower().Trim() ?? "";
             var query = _unitOfWork.DeviceRepository.GetAll()
                         .Include(x => x.Account)
-                        .OrderByDescending(x => x.UpdatedAt)
+                        .OrderByDescending(x => x.UpdatedAt.HasValue)
+                        .ThenByDescending(x => x.UpdatedAt)
                         .ThenByDescending(x => x.CreatedAt)
                         .Where(x => x.DeviceId.ToString().Contains(queryPaging.Search) || x.DeviceName.Contains(queryPaging.Search) || x.DeviceType.Contains(queryPaging.Search))
                         .AsQueryable();
@@ -94,6 +96,35 @@ namespace DrugWarehouseManagement.Service.Services
                 {
                     device.ApiKey
                 }
+            };
+        }
+
+        public async Task<BaseResponse> UpdateDevice(Guid accountId, UpdateDeviceRequest request)
+        {
+            var account = await _unitOfWork.AccountRepository.GetByIdAsync(accountId);
+            if (account == null)
+            {
+                throw new Exception("Account not found");
+            }
+            
+            var device = await _unitOfWork.DeviceRepository
+                  .GetByIdAsync(request.DeviceId);
+
+            if (device == null)
+            {
+                throw new Exception("Device not found");
+            }
+
+            request.Adapt(device);
+            device.UpdatedAt = SystemClock.Instance.GetCurrentInstant();
+
+            await _unitOfWork.DeviceRepository.UpdateAsync(device);
+            await _unitOfWork.SaveChangesAsync();
+
+            return new BaseResponse
+            {
+                Code = 200,
+                Message = "Device updated successfully"
             };
         }
 

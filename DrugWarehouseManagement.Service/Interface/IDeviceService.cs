@@ -15,5 +15,6 @@ namespace DrugWarehouseManagement.Service.Interface
         public Task<PaginatedResult<ViewDevices>> GetDevices(QueryPaging queryPaging);
         public Task<BaseResponse> Ping(string apiKey);
         public Task<BaseResponse> UpdateTrackingNumber(string apiKey, UpdateTrackingNumberRequest request);
+        public Task<BaseResponse> UpdateDevice(Guid accountId, UpdateDeviceRequest request);
     }
 }

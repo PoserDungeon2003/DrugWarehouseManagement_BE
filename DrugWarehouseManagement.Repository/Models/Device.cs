@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using DrugWarehouseManagement.Common;
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -21,6 +22,7 @@ namespace DrugWarehouseManagement.Repository.Models
         public string ApiKey { get; set; } = string.Empty;
         public DateTime? ExpiryDate { get; set; }
         public bool IsRevoked { get; set; } = false;
+        public DeviceStatus Status { get; set; } = DeviceStatus.Active;
         public Guid AccountId { get; set; }
 
         public virtual Account Account { get; set; } = null!;
