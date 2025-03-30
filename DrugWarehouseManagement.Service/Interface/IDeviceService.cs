@@ -16,5 +16,6 @@ namespace DrugWarehouseManagement.Service.Interface
         public Task<BaseResponse> Ping(string apiKey);
         public Task<BaseResponse> UpdateTrackingNumber(string apiKey, UpdateTrackingNumberRequest request);
         public Task<BaseResponse> UpdateDevice(Guid accountId, UpdateDeviceRequest request);
+        public Task<BaseResponse> DeleteDevice(Guid accountId, int deviceId);
     }
 }

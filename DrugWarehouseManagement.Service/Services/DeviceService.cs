@@ -1,4 +1,5 @@
-﻿using DrugWarehouseManagement.Common;
+﻿using Azure.Core;
+using DrugWarehouseManagement.Common;
 using DrugWarehouseManagement.Repository;
 using DrugWarehouseManagement.Repository.Models;
 using DrugWarehouseManagement.Service.DTO.Request;
@@ -24,6 +25,39 @@ namespace DrugWarehouseManagement.Service.Services
         public DeviceService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
+        }
+
+        public async Task<BaseResponse> DeleteDevice(Guid accountId, int deviceId)
+        {
+            var account = await _unitOfWork.AccountRepository.GetByIdAsync(accountId);
+            if (account == null)
+            {
+                throw new Exception("Account not found");
+            }
+
+            var device = await _unitOfWork.DeviceRepository
+                  .GetByIdAsync(deviceId);
+
+            if (device == null)
+            {
+                throw new Exception("Device not found");
+            }
+
+            if (device.Status == DeviceStatus.Inactive)
+            {
+                throw new Exception("Device is already inactive");
+            }
+
+            device.Status = DeviceStatus.Inactive;
+            device.UpdatedAt = SystemClock.Instance.GetCurrentInstant();
+            await _unitOfWork.DeviceRepository.UpdateAsync(device);
+            await _unitOfWork.SaveChangesAsync();
+
+            return new BaseResponse
+            {
+                Code = 200,
+                Message = "Device deleted successfully"
+            };
         }
 
         public async Task<PaginatedResult<ViewDevices>> GetDevices(QueryPaging queryPaging)
@@ -131,12 +165,17 @@ namespace DrugWarehouseManagement.Service.Services
         public async Task<BaseResponse> UpdateTrackingNumber(string apiKey, UpdateTrackingNumberRequest request)
         {
             var device = await _unitOfWork.DeviceRepository
-                .GetByWhere(d => d.ApiKey == apiKey)
+                .GetByWhere(d => d.ApiKey == apiKey && d.Status == DeviceStatus.Active && d.IsRevoked == false)
                 .FirstOrDefaultAsync();
 
             if (device == null)
             {
                 throw new Exception("Device not found");
+            }
+
+            if (device.ExpiryDate != null && device.ExpiryDate < DateTime.UtcNow)
+            {
+                throw new Exception("Device is expired");
             }
 
             var outbound = await _unitOfWork.OutboundRepository

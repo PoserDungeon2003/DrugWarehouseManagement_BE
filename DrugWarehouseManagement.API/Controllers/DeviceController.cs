@@ -132,6 +132,26 @@ namespace DrugWarehouseManagement.API.Controllers
             }
         }
 
+        [HttpDelete("{deviceId}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeleteDevice(int deviceId)
+        {
+            try
+            {
+                var accountId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var response = await _deviceService.DeleteDevice(Guid.Parse(accountId), deviceId);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    Code = 400,
+                    Message = ex.Message,
+                });
+            }
+        }
+
         private string GetApiKey()
         {
             if (!Request.Headers.TryGetValue("X-Api-Key", out var apiKey))
