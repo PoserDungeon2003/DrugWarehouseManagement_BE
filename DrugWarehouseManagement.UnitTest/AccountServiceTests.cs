@@ -26,7 +26,7 @@ namespace DrugWarehouseManagement.UnitTest
         private readonly Mock<IEmailService> _emailServiceMock;
         private readonly Mock<IPasswordWrapper> _passwordHelperMock;
         private readonly IPasswordHasher<Account> _passwordHasher;
-        private readonly AccountService _accountService;
+        private readonly IAccountService _accountService;
 
         public AccountServiceTests()
         {

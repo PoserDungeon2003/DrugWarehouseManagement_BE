@@ -120,6 +120,8 @@ namespace DrugWarehouseManagement.Service.Services
             product.Status = ProductStatus.Inactive;
 
             await _unitOfWork.ProductRepository.UpdateAsync(product);
+            await _unitOfWork.SaveChangesAsync();
+
             return new BaseResponse
             {
                 Code = (int)HttpStatusCode.OK,

@@ -1,11 +1,15 @@
-﻿using DrugWarehouseManagement.Common;
+﻿using Azure.Core;
+using DrugWarehouseManagement.Common;
 using DrugWarehouseManagement.Repository;
 using DrugWarehouseManagement.Repository.Models;
 using DrugWarehouseManagement.Service.DTO.Request;
 using DrugWarehouseManagement.Service.DTO.Response;
+using DrugWarehouseManagement.Service.Extenstions;
 using DrugWarehouseManagement.Service.Interface;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
+using NodaTime;
+using NodaTime.Text;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,6 +25,73 @@ namespace DrugWarehouseManagement.Service.Services
         public DeviceService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
+        }
+
+        public async Task<BaseResponse> DeleteDevice(Guid accountId, int deviceId)
+        {
+            var account = await _unitOfWork.AccountRepository.GetByIdAsync(accountId);
+            if (account == null)
+            {
+                throw new Exception("Account not found");
+            }
+
+            var device = await _unitOfWork.DeviceRepository
+                  .GetByIdAsync(deviceId);
+
+            if (device == null)
+            {
+                throw new Exception("Device not found");
+            }
+
+            if (device.Status == DeviceStatus.Inactive)
+            {
+                throw new Exception("Device is already inactive");
+            }
+
+            device.Status = DeviceStatus.Inactive;
+            device.UpdatedAt = SystemClock.Instance.GetCurrentInstant();
+            await _unitOfWork.DeviceRepository.UpdateAsync(device);
+            await _unitOfWork.SaveChangesAsync();
+
+            return new BaseResponse
+            {
+                Code = 200,
+                Message = "Device deleted successfully"
+            };
+        }
+
+        public async Task<PaginatedResult<ViewDevices>> GetDevices(QueryPaging queryPaging)
+        {
+            queryPaging.Search = queryPaging.Search?.ToLower().Trim() ?? "";
+            var query = _unitOfWork.DeviceRepository.GetAll()
+                        .Include(x => x.Account)
+                        .OrderByDescending(x => x.UpdatedAt.HasValue)
+                        .ThenByDescending(x => x.UpdatedAt)
+                        .ThenByDescending(x => x.CreatedAt)
+                        .Where(x => x.DeviceId.ToString().Contains(queryPaging.Search) || x.DeviceName.Contains(queryPaging.Search) || x.DeviceType.Contains(queryPaging.Search))
+                        .AsQueryable();
+
+            if (queryPaging.DateFrom != null)
+            {
+                var dateFrom = InstantPattern.ExtendedIso.Parse(queryPaging.DateFrom);
+                if (!dateFrom.Success)
+                {
+                    throw new Exception("DateFrom is invalid ISO format");
+                }
+                query = query.Where(o => o.CreatedAt >= dateFrom.Value);
+            }
+            if (queryPaging.DateTo != null)
+            {
+                var dateTo = InstantPattern.ExtendedIso.Parse(queryPaging.DateTo);
+                if (!dateTo.Success)
+                {
+                    throw new Exception("DateTo is invalid ISO format");
+                }
+                query = query.Where(o => o.CreatedAt <= dateTo.Value);
+            }
+
+            var result = await query.ToPaginatedResultAsync(queryPaging.Page, queryPaging.PageSize);
+            return result.Adapt<PaginatedResult<ViewDevices>>();
         }
 
         public async Task<BaseResponse> Ping(string apiKey)
@@ -62,15 +133,49 @@ namespace DrugWarehouseManagement.Service.Services
             };
         }
 
+        public async Task<BaseResponse> UpdateDevice(Guid accountId, UpdateDeviceRequest request)
+        {
+            var account = await _unitOfWork.AccountRepository.GetByIdAsync(accountId);
+            if (account == null)
+            {
+                throw new Exception("Account not found");
+            }
+            
+            var device = await _unitOfWork.DeviceRepository
+                  .GetByIdAsync(request.DeviceId);
+
+            if (device == null)
+            {
+                throw new Exception("Device not found");
+            }
+
+            request.Adapt(device);
+            device.UpdatedAt = SystemClock.Instance.GetCurrentInstant();
+
+            await _unitOfWork.DeviceRepository.UpdateAsync(device);
+            await _unitOfWork.SaveChangesAsync();
+
+            return new BaseResponse
+            {
+                Code = 200,
+                Message = "Device updated successfully"
+            };
+        }
+
         public async Task<BaseResponse> UpdateTrackingNumber(string apiKey, UpdateTrackingNumberRequest request)
         {
             var device = await _unitOfWork.DeviceRepository
-                .GetByWhere(d => d.ApiKey == apiKey)
+                .GetByWhere(d => d.ApiKey == apiKey && d.Status == DeviceStatus.Active && d.IsRevoked == false)
                 .FirstOrDefaultAsync();
 
             if (device == null)
             {
                 throw new Exception("Device not found");
+            }
+
+            if (device.ExpiryDate != null && device.ExpiryDate < DateTime.UtcNow)
+            {
+                throw new Exception("Device is expired");
             }
 
             var outbound = await _unitOfWork.OutboundRepository
@@ -81,7 +186,7 @@ namespace DrugWarehouseManagement.Service.Services
             {
                 throw new Exception("Outbound not found");
             }
-            
+
             outbound.TrackingNumber = request.TrackingNumber;
 
             await _unitOfWork.SaveChangesAsync();

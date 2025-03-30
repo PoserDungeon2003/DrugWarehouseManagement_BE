@@ -93,6 +93,65 @@ namespace DrugWarehouseManagement.API.Controllers
             }
         }
 
+        [HttpGet]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetDevices([FromQuery] QueryPaging queryPaging)
+        {
+            try
+            {
+                var response = await _deviceService.GetDevices(queryPaging);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    Code = 400,
+                    Message = ex.Message,
+                });
+            }
+        }
+
+        [HttpPut]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdateDevice([FromBody] UpdateDeviceRequest request)
+        {
+            try
+            {
+                var accountId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var response = await _deviceService.UpdateDevice(Guid.Parse(accountId), request);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    Code = 400,
+                    Message = ex.Message,
+                });
+            }
+        }
+
+        [HttpDelete("{deviceId}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeleteDevice(int deviceId)
+        {
+            try
+            {
+                var accountId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var response = await _deviceService.DeleteDevice(Guid.Parse(accountId), deviceId);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    Code = 400,
+                    Message = ex.Message,
+                });
+            }
+        }
+
         private string GetApiKey()
         {
             if (!Request.Headers.TryGetValue("X-Api-Key", out var apiKey))
