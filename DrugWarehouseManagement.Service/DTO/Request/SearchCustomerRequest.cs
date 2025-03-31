@@ -8,6 +8,5 @@ namespace DrugWarehouseManagement.Service.DTO.Request
 {
     public class SearchCustomerRequest : QueryPaging
     {
-        public string? Search { get; set; }
     }
 }
