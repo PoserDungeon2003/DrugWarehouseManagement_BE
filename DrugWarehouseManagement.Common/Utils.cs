@@ -84,5 +84,29 @@ namespace DrugWarehouseManagement.Common
         {
             return date?.ToString("dd/MM/yyyy") ?? "N/A";
         }
+
+        public static string GenerateApiKey()
+        {
+            return Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
+        }
+
+        public static async Task SendTelegramMessageAsync(string botToken, string chatId, string message)
+        {
+            // Endpoint gửi tin nhắn của Telegram
+            var url = $"https://api.telegram.org/bot{botToken}/sendMessage";
+
+            // Tạo HttpClient để gọi API
+            using var client = new HttpClient();
+
+            // Body dạng FormUrlEncoded (chat_id, text)
+            var content = new FormUrlEncodedContent(new[]
+            {
+              new KeyValuePair<string, string>("chat_id", chatId),
+              new KeyValuePair<string, string>("text", message)
+             });
+            var response = await client.PostAsync(url, content);
+            response.EnsureSuccessStatusCode();
+        }
+
     }
 }

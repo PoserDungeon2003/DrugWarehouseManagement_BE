@@ -17,6 +17,7 @@ namespace DrugWarehouseManagement.Repository.Models
         public string? ReceiverAddress { get; set; }
 
         public string? OutboundOrderCode { get; set; }
+        public string? TrackingNumber { get; set; }
         public string? Note { get; set; }
         public Instant? OutboundDate { get; set; } = SystemClock.Instance.GetCurrentInstant();
         public OutboundStatus Status { get; set; } = OutboundStatus.Pending;
