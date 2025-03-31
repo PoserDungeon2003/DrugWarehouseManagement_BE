@@ -13,7 +13,7 @@ namespace DrugWarehouseManagement.Repository.Models
         public string WarehouseName { get; set; } = null!;
         public string Address { get; set; } = null!;
         public WarehouseStatus Status { get; set; } = WarehouseStatus.Active;
-        
+        public string DocumentNumber { get; set; } = null!; 
         public virtual List<Lot> Lots { get; set; } = null!;
         public virtual List<Inbound> Inbounds { get; set; } = null!;
         public virtual List<LotTransfer> LotTransfers { get; set; } = null!;

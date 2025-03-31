@@ -48,6 +48,40 @@ namespace DrugWarehouseManagement.API.Controllers
                 });
             }
         }
+
+        [HttpGet("export-stockcard")]
+        public async Task<IActionResult> ExportStockCardPdf(
+            [FromQuery] int warehouseId,
+            [FromQuery] int productId,
+            [FromQuery] string from,
+            [FromQuery] string to)
+        {
+            try
+            {
+                // Parse 'from' và 'to' thành Instant theo định dạng ISO-8601
+                var parseFrom = InstantPattern.ExtendedIso.Parse(from);
+                var parseTo = InstantPattern.ExtendedIso.Parse(to);
+                if (!parseFrom.Success || !parseTo.Success)
+                {
+                    return BadRequest(new BaseResponse
+                    {
+                        Message = "Invalid date format. Please use ISO-8601 strings, e.g. 2025-01-01T00:00:00Z"
+                    });
+                }
+                var startDate = parseFrom.Value;
+                var endDate = parseTo.Value;
+                var pdfBytes = await _reportService.ExportStockCardPdf(warehouseId, productId, startDate, endDate);
+                return File(pdfBytes, "application/pdf", $"StockCard_{DateTime.UtcNow:yyyyMMddHHmmss}.pdf");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    Code = 400,
+                    Message = ex.Message,
+                });
+            }
+        }
     }
 
 }
