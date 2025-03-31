@@ -73,6 +73,14 @@ namespace DrugWarehouseManagement.Repository.Models
                 new Categories { CategoriesId = 19, CategoryName = "Prenatal Vitamins", ParentCategoryId = 10, Description = "Vitamins designed for pregnant women.", Status = CategoriesStatus.Active },
                 new Categories { CategoriesId = 20, CategoryName = "Thermometers", ParentCategoryId = 8, Description = "Devices used to measure body temperature.", Status = CategoriesStatus.Active }
             );
+
+            modelBuilder.Entity<ProductCategories>().HasData(
+                new ProductCategories { CategoriesId = 3, ProductId = 1 },
+                new ProductCategories { CategoriesId = 3, ProductId = 2 },
+                new ProductCategories { CategoriesId = 4, ProductId = 3 },
+                new ProductCategories { CategoriesId = 4, ProductId = 4 },
+                new ProductCategories { CategoriesId = 1, ProductId = 5 }
+            );
             // 4. Seed Warehouses
             modelBuilder.Entity<Warehouse>().HasData(
                 new Warehouse { WarehouseId = 1, WarehouseCode = "CW-1", WarehouseName = "Central Warehouse", Address = "123 Main St", Status = WarehouseStatus.Active , DocumentNumber = "WH12346"},

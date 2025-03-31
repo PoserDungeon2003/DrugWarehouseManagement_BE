@@ -166,6 +166,12 @@ namespace DrugWarehouseManagement.Repository.Models
                     .IsUnique();
             });
 
+            modelBuilder.Entity<ProductCategories>(entity =>
+            {
+                entity.HasIndex(entity => new { entity.ProductId, entity.CategoriesId }, "IX_ProductCategories_ProductId_CategoriesId")
+                    .IsUnique();
+            });
+
         }
 
 
