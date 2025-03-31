@@ -24,8 +24,8 @@ namespace DrugWarehouseManagement.Service.Services
             var response = new BaseResponse();
             // Check if the provider exists
             var provider = await _unitOfWork.ProviderRepository
-                                        .GetAll()
-                                        .FirstOrDefaultAsync(p => p.ProviderId == request.ProviderId);
+                                        .GetByIdAsync(request.ProviderId);
+
             if (provider == null)
             {
                 throw new Exception("Provider not found.");
@@ -44,11 +44,12 @@ namespace DrugWarehouseManagement.Service.Services
             };
         }
 
-        public async Task<PaginatedResult<ProductResponse>> SearchProductsAsync(SearchProductRequest request)
+        public async Task<PaginatedResult<ProductResponse>> GetProductsAsync(GetProductRequest request)
         {
             var query = _unitOfWork.ProductRepository
                         .GetAll()
                         .Where(p => p.Status == ProductStatus.Active)
+                        .Include(pc => pc.Categories)
                         .AsQueryable();
             if (request.CategoryId.HasValue)
             {
@@ -78,15 +79,9 @@ namespace DrugWarehouseManagement.Service.Services
 
             query = query.OrderByDescending(p => p.ProductId);
             var paginatedProducts = await query.ToPaginatedResultAsync(request.Page, request.PageSize);
-            var response = paginatedProducts.Items.Adapt<List<ProductResponse>>();
+            var response = paginatedProducts.Adapt<PaginatedResult<ProductResponse>>();
 
-            return new PaginatedResult<ProductResponse>
-            {
-                Items = response,
-                TotalCount = paginatedProducts.TotalCount,
-                PageSize = paginatedProducts.PageSize,
-                CurrentPage = paginatedProducts.CurrentPage
-            };
+            return response;
         }
 
         public async Task<BaseResponse> UpdateProductAsync(int productId, UpdateProductRequest request)

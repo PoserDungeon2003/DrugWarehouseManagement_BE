@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DrugWarehouseManagement.Service.DTO.Request
 {
-    public class SearchProductRequest : QueryPaging
+    public class GetProductRequest : QueryPaging
     {
         public int? CategoryId { get; set; }
         public string? Status { get; set; }
