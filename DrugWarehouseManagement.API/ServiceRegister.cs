@@ -108,6 +108,7 @@ namespace DrugWarehouseManagement.API
             services.AddScoped<IReturnOutboundService,ReturnOutboundService >();
             //services.AddScoped<IInventoryReportService, InventoryReportService>();
             services.AddScoped<IDeviceService, DeviceService>();
+            services.AddScoped<IInboundRequestService, InboundRequestService>();
         }
 
         public static IServiceCollection AddAuthorizeService(this IServiceCollection services, IConfiguration configuration)
