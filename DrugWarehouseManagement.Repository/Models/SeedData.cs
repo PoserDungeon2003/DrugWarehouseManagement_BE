@@ -165,7 +165,7 @@ namespace DrugWarehouseManagement.Repository.Models
 
 
             modelBuilder.Entity<Outbound>().HasData(
-                new Outbound { OutboundId = 1, OutboundCode = "OUT-001", CustomerId = 1, OutboundDate = Instant.FromDateTimeUtc(new DateTime(2025, 03, 03, 0, 0, 0, DateTimeKind.Utc)), Status = OutboundStatus.Completed, AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555") },
+                new Outbound { OutboundId = 1, OutboundCode = "OUT-001", CustomerId = 1, OutboundDate = Instant.FromDateTimeUtc(new DateTime(2025, 03, 03, 0, 0, 0, DateTimeKind.Utc)), Status = OutboundStatus.Completed, AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555") ,Note = "abcxyz"},
                 new Outbound { OutboundId = 2, OutboundCode = "OUT-002", CustomerId = 2, OutboundDate = Instant.FromDateTimeUtc(new DateTime(2025, 03, 07, 0, 0, 0, DateTimeKind.Utc)), Status = OutboundStatus.Completed , AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555") },
                 new Outbound { OutboundId = 3, OutboundCode = "OUT-003", CustomerId = 3, OutboundDate = Instant.FromDateTimeUtc(new DateTime(2025, 03, 12, 0, 0, 0, DateTimeKind.Utc)), Status = OutboundStatus.Completed, AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555") },
                 new Outbound { OutboundId = 4, OutboundCode = "OUT-004", CustomerId = 4, OutboundDate = Instant.FromDateTimeUtc(new DateTime(2025, 03, 17, 0, 0, 0, DateTimeKind.Utc)), Status = OutboundStatus.Completed, AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555") },

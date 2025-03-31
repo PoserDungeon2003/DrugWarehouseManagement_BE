@@ -9,7 +9,6 @@ namespace DrugWarehouseManagement.Service.DTO.Request
     public class SearchProductRequest : QueryPaging
     {
         public int? CategoryId { get; set; }
-        public string? Search { get; set; }
         public string? Status { get; set; }
     }
 }
