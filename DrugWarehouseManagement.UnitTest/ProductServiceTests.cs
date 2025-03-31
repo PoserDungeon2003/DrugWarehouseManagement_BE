@@ -27,26 +27,12 @@ namespace DrugWarehouseManagement.UnitTest
         }
 
         [Fact]
-        public async Task CreateProductAsync_ProviderNotFound_ThrowsException()
-        {
-            // Arrange
-            var request = new CreateProductRequest { ProviderId = 1 };
-            _unitOfWorkMock.Setup(uow => uow.ProviderRepository.GetAll())
-                .Returns(new List<Provider>().AsQueryable().BuildMock());
-
-            // Act & Assert
-            await Assert.ThrowsAsync<Exception>(() => _productService.CreateProductAsync(request));
-        }
-
-        [Fact]
         public async Task CreateProductAsync_CreatesProductSuccessfully()
         {
             // Arrange
-            var request = new CreateProductRequest { ProviderId = 1, ProductName = "Product1" };
+            var request = new CreateProductRequest { ProductName = "Product1" };
             var provider = new Provider { ProviderId = 1 };
 
-            _unitOfWorkMock.Setup(uow => uow.ProviderRepository.GetAll())
-                .Returns(new List<Provider> { provider }.AsQueryable().BuildMock());
             _unitOfWorkMock.Setup(uow => uow.ProductRepository.CreateAsync(It.IsAny<Product>()))
                 .Returns(Task.CompletedTask);
             _unitOfWorkMock.Setup(uow => uow.SaveChangesAsync())
