@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using QuestPDF.Fluent;
 using DrugWarehouseManagement.Service.DTO.Response;
 using QuestPDF.Helpers;
+using DrugWarehouseManagement.Repository.Models;
 
 namespace DrugWarehouseManagement.Service.Services
 {
@@ -78,7 +79,7 @@ namespace DrugWarehouseManagement.Service.Services
             var transferIn = await _unitOfWork.LotTransferDetailsRepository
                 .GetAll()
                 .Include(d => d.LotTransfer)
-                .Include(d => d.Lot) // cần Include(d => d.Lot.ProductId) => tuỳ
+                .Include(d => d.Lot) 
                 .Where(d => d.LotTransfer.ToWareHouseId == warehouseId
                             && d.LotTransfer.CreatedAt >= startDate
                             && d.LotTransfer.CreatedAt <= endDate
@@ -88,7 +89,7 @@ namespace DrugWarehouseManagement.Service.Services
                 .ToListAsync();
 
             // (c3) Nhập trả về  -inbound không có InboundRequestId
-          
+
             var inboundReturn = await _unitOfWork.InboundDetailRepository
                 .GetAll()
                 .Include(d => d.Inbound)
@@ -146,7 +147,7 @@ namespace DrugWarehouseManagement.Service.Services
 
 
             // ------------------------ Tạo dictionary ------------------------
-            
+
             var buyDict = inboundBuy.ToDictionary(x => x.ProductId, x => x.Qty);
             var transferInDict = transferIn.ToDictionary(x => x.ProductId, x => x.Qty);
             var inboundReturnDict = inboundReturn.ToDictionary(x => x.ProductId, x => x.Qty);
@@ -164,7 +165,7 @@ namespace DrugWarehouseManagement.Service.Services
                 int beginning = openingStockDict.ContainsKey(pid) ? (openingStockDict[pid] ?? 0) : 0;
                 int buyQty = buyDict.ContainsKey(pid) ? buyDict[pid] : 0;
                 int inTransQty = transferInDict.ContainsKey(pid) ? transferInDict[pid] : 0;
-                int inReturnQty = inboundReturnDict.ContainsKey(pid) ? inboundReturnDict[pid] : 0;              
+                int inReturnQty = inboundReturnDict.ContainsKey(pid) ? inboundReturnDict[pid] : 0;
                 int sellQty = sellDict.ContainsKey(pid) ? sellDict[pid] : 0;
                 int outTransQty = transferOutDict.ContainsKey(pid) ? transferOutDict[pid] : 0;
                 int sampleQty = sampleExportDict.ContainsKey(pid) ? sampleExportDict[pid] : 0;
@@ -278,12 +279,336 @@ namespace DrugWarehouseManagement.Service.Services
                                 stt++;
                             }
                         });
-                    });            
+                    });
                 });
             }).GeneratePdf();
 
             // Trả về mảng byte PDF
             return pdfBytes;
         }
+
+        public async Task<byte[]> ExportStockCardPdf(int warehouseId, int productId, Instant startDate, Instant endDate)
+        {
+            // 1. Tính tồn đầu kỳ          
+            // Lấy OpeningStock từ InboundDetails mới nhất (trước startDate)
+            var beginningBalance = await _unitOfWork.InboundDetailRepository
+                 .GetAll()
+                 .Include(d => d.Inbound)
+                 .Where(d => d.ProductId == productId
+                             && d.Inbound.WarehouseId == warehouseId
+                             && d.Inbound.Status == InboundStatus.Completed
+                             && d.Inbound.InboundDate < startDate)
+                 .OrderByDescending(d => d.Inbound.InboundDate)
+                 .Select(d => d.OpeningStock)
+                 .FirstOrDefaultAsync() ?? 0;
+
+            // =========================
+            // 2. Lấy danh sách Inbound (Nhập)
+            // =========================
+            // Gồm: Nhập mua (InboundRequestId != null), Nhập trả về (InboundRequestId == null)
+            // Mỗi phiếu inbound -> 1 dòng. DocumentNumber = Warehouse.DocumentNumber, Tên khách hàng = WarehouseName
+            // Số lượng = tổng quantity InboundDetails => ta gộp theo InboundId
+            var inboundList = await _unitOfWork.InboundDetailRepository
+                .GetAll()
+                .Include(d => d.Inbound)
+                    .ThenInclude(i => i.Warehouse)
+                .Where(d => d.ProductId == productId
+                            && d.Inbound.WarehouseId == warehouseId
+                            && d.Inbound.Status == InboundStatus.Completed
+                            && d.Inbound.InboundDate >= startDate
+                            && d.Inbound.InboundDate <= endDate)
+                .GroupBy(d => d.InboundId)
+                .Select(g => new
+                {
+                    // Mỗi inboundId -> 1 record
+                    InboundId = g.Key,
+                    InboundDate = g.First().Inbound.InboundDate,  // Tất cả inboundDetail chung 1 inboundDate
+                    WarehouseDocNumber = g.First().Inbound.Warehouse.DocumentNumber, // Số chứng từ -> Warehouse
+                    WarehouseName = g.First().Inbound.Warehouse.WarehouseName,       // Tên khách hàng => Tên kho
+                    Note = g.First().Inbound.Note ?? "",
+                    Qty = g.Sum(x => x.Quantity) // Tổng quantity
+                })
+                .ToListAsync();
+
+            // =========================
+            // 3. Lấy danh sách LotTransfer (Nhập chuyển vào)
+            // =========================
+            // Mỗi lot transfer -> 1 dòng inbound
+            var transferInList = await _unitOfWork.LotTransferDetailsRepository
+                .GetAll()
+                .Include(d => d.LotTransfer)
+                    .ThenInclude(lt => lt.ToWareHouse)
+                .Include(d => d.Lot)
+                .Where(d => d.Lot.ProductId == productId
+                            && d.LotTransfer.ToWareHouseId == warehouseId
+                            && d.LotTransfer.LotTransferStatus == LotTransferStatus.Completed
+                            && d.LotTransfer.CreatedAt >= startDate
+                            && d.LotTransfer.CreatedAt <= endDate)
+                .GroupBy(d => d.LotTransferId)
+                .Select(g => new
+                {
+                    // Mỗi lotTransfer -> 1 record
+                    TransferId = g.Key,
+                    TransferDate = g.First().LotTransfer.CreatedAt,
+                    WarehouseDocNumber = g.First().LotTransfer.ToWareHouse.DocumentNumber, // Số chứng từ -> toWarehouse
+                    WarehouseName = g.First().LotTransfer.ToWareHouse.WarehouseName,
+                    Note = "Chuyển kho vào",
+                    Qty = g.Sum(x => x.Quantity)
+                })
+                .ToListAsync();
+
+
+
+            // Gộp inbound + transferIn => inboundTransactions
+            var inboundTransactions = new List<StockCardLine>();
+            // Chuyển inbound -> StockCardLine
+            foreach (var i in inboundList)
+            {
+                inboundTransactions.Add(new StockCardLine
+                {
+                    Date = i.InboundDate?.ToDateTimeUtc() ?? DateTime.MinValue,
+                    DocumentNumber = i.WarehouseDocNumber ?? "",
+                    PartnerName = i.WarehouseName,
+                    Note = i.Note,
+                    InQty = i.Qty,
+                    OutQty = 0
+                });
+            }
+            // Chuyển transferIn -> StockCardLine
+            foreach (var t in transferInList)
+            {
+                inboundTransactions.Add(new StockCardLine
+                {
+                    Date = t.TransferDate.ToDateTimeUtc(),
+                    DocumentNumber = t.WarehouseDocNumber ?? "",
+                    PartnerName = t.WarehouseName,
+                    Note = t.Note,
+                    InQty = t.Qty,
+                    OutQty = 0
+                });
+            }
+
+          // =========================
+            // 4. Lấy danh sách Outbound (Xuất)
+            // =========================
+            // Gồm: Xuất bán, Xuất mẫu (TotalPrice=0), Mỗi Outbound => 1 dòng
+            var outboundList = await _unitOfWork.OutboundDetailsRepository
+                .GetAll()
+                .Include(d => d.Outbound)
+                    .ThenInclude(o => o.Customer)
+                .Include(d => d.Lot)
+                .Where(d => d.Lot.ProductId == productId
+                            && d.Outbound.Status == OutboundStatus.Completed
+                            && d.Outbound.OutboundDate >= startDate
+                            && d.Outbound.OutboundDate <= endDate)
+                .GroupBy(d => d.OutboundId)
+                .Select(g => new
+                {
+                    OutboundId = g.Key,
+                    OutboundDate = g.First().Outbound.OutboundDate,
+                    CustomerDocNumber = g.First().Outbound.Customer.DocumentNumber,
+                    CustomerName = g.First().Outbound.Customer.CustomerName,
+                    Note = g.First().Outbound.Note ?? "",
+                    Qty = g.Sum(x => x.Quantity)
+                })
+                .ToListAsync();
+
+            // =========================
+            // 5. Lấy danh sách LotTransfer (Xuất chuyển ra)
+            // =========================
+            // Mỗi lot transfer -> 1 dòng outbound
+            var transferOutList = await _unitOfWork.LotTransferDetailsRepository
+                .GetAll()
+                .Include(d => d.LotTransfer)
+                    .ThenInclude(lt => lt.FromWareHouse)
+                .Include(d => d.Lot)
+                .Where(d => d.Lot.ProductId == productId
+                            && d.LotTransfer.FromWareHouseId == warehouseId
+                            && d.LotTransfer.LotTransferStatus == LotTransferStatus.Completed
+                            && d.LotTransfer.CreatedAt >= startDate
+                            && d.LotTransfer.CreatedAt <= endDate)
+                .GroupBy(d => d.LotTransferId)
+                .Select(g => new
+                {
+                    TransferId = g.Key,
+                    TransferDate = g.First().LotTransfer.CreatedAt,
+                    CustomerDocNumber = g.First().LotTransfer.FromWareHouse.DocumentNumber,
+                    CustomerName = g.First().LotTransfer.FromWareHouse.WarehouseName,
+                    Note = "Chuyển kho ra",
+                    Qty = g.Sum(x => x.Quantity)
+                })
+                .ToListAsync();
+            // Gộp outbound + transferOut => outboundTransactions
+            var outboundTransactions = new List<StockCardLine>();
+            // Chuyển outbound -> StockCardLine
+            foreach (var o in outboundList)
+            {
+                outboundTransactions.Add(new StockCardLine
+                {
+                    Date = o.OutboundDate.HasValue ? o.OutboundDate.Value.ToDateTimeUtc() : DateTime.MinValue,
+                    DocumentNumber = o.CustomerDocNumber ?? "",
+                    PartnerName = o.CustomerName,
+                    Note = o.Note,
+                    InQty = 0,
+                    OutQty = o.Qty
+                });
+            }
+            // Chuyển transferOut -> StockCardLine
+            foreach (var t in transferOutList)
+            {
+                outboundTransactions.Add(new StockCardLine
+                {
+                    Date = t.TransferDate.ToDateTimeUtc(),
+                    DocumentNumber = t.CustomerDocNumber ?? "",
+                    PartnerName = t.CustomerName,
+                    Note = t.Note,
+                    InQty = 0,
+                    OutQty = t.Qty
+                });
+            }
+
+            // =========================
+            // 6. Gộp inboundTransactions + outboundTransactions
+            // =========================
+            var allTransactions = inboundTransactions
+                .Concat(outboundTransactions)
+                .OrderBy(t => t.Date)
+                .ToList();
+
+            // =========================
+            // 7. Tính luỹ kế: Tồn cuối
+            // =========================
+            var stockCardLines = new List<StockCardDto>();
+
+            // Dòng đầu tiên: tồn đầu kỳ
+            stockCardLines.Add(new StockCardDto
+            {
+                TransactionDate = DateTime.MinValue,
+                DocumentNumber = "",
+                PartnerName = "",
+                Note = "Tồn đầu kỳ",
+                QuantityIn = 0,
+                QuantityOut = 0,
+                BeginningBalance = beginningBalance,
+                EndingBalance = beginningBalance
+            });
+
+            int running = beginningBalance;
+            foreach (var t in allTransactions)
+            {
+                var beginBal = running;
+                var endBal = beginBal + t.InQty - t.OutQty;
+                stockCardLines.Add(new StockCardDto
+                {
+                    TransactionDate = t.Date,
+                    DocumentNumber = t.DocumentNumber,
+                    PartnerName = t.PartnerName,
+                    Note = t.Note,
+                    QuantityIn = t.InQty,
+                    QuantityOut = t.OutQty,
+                    BeginningBalance = beginBal,
+                    EndingBalance = endBal
+                });
+                running = endBal;
+            }
+            // =========================
+            // 8. Xuất PDF bằng QuestPDF
+            // =========================
+            // Lấy thông tin kho, format ngày
+            var warehouseEntity = await _unitOfWork.WarehouseRepository
+                .GetByWhere(w => w.WarehouseId == warehouseId)
+                .FirstOrDefaultAsync();
+            string warehouseName = warehouseEntity?.WarehouseName ?? "N/A";
+
+            string startDateStr = startDate.ToDateTimeUtc().ToString("dd/MM/yyyy", CultureInfo.InvariantCulture);
+            string endDateStr = endDate.ToDateTimeUtc().ToString("dd/MM/yyyy", CultureInfo.InvariantCulture);
+
+            Settings.License = LicenseType.Community;
+            var pdfBytes = Document.Create(container =>
+            {
+                container.Page(page =>
+                {
+                    page.Size(PageSizes.A4);
+                    page.Margin(15);
+                    page.DefaultTextStyle(x => x.FontSize(9));
+
+                    // Header
+                    page.Header().Column(col =>
+                    {
+                        col.Item().Text("CÔNG TY TNHH DƯỢC PHẨM TRUNG HẠNH").Bold().FontSize(12).AlignCenter();
+                        col.Item().Text("THẺ KHO").Bold().FontSize(14).AlignCenter();
+                        col.Item().Text($"Kho: {warehouseName}").AlignCenter();
+                        col.Item().Text($"Từ ngày {startDateStr} đến ngày {endDateStr}").AlignCenter();
+                        col.Item().Text($"Mã SP: {productId}").AlignCenter(); // Hoặc tên SP
+                    });
+
+                    // Content
+                    page.Content().Column(col =>
+                    {
+                        col.Item().Table(table =>
+                        {
+                            table.ColumnsDefinition(columns =>
+                            {
+                                columns.ConstantColumn(25); // STT
+                                columns.RelativeColumn(2);  // Chứng từ số
+                                columns.RelativeColumn(2);  // Ngày
+                                columns.RelativeColumn(3);  // Đối tác
+                                columns.RelativeColumn(2);  // Đầu kỳ
+                                columns.RelativeColumn(2);  // Nhập trong kỳ
+                                columns.RelativeColumn(2);  // Xuất trong kỳ
+                                columns.RelativeColumn(2);  // Tồn cuối
+                                columns.RelativeColumn(3);  // Ghi chú
+                            });
+
+                            // Header
+                            table.Header(header =>
+                            {
+                                header.Cell().Border(1).AlignCenter().Text("STT").Bold();
+                                header.Cell().Border(1).AlignCenter().Text("Chứng từ số").Bold();
+                                header.Cell().Border(1).AlignCenter().Text("Ngày").Bold();
+                                header.Cell().Border(1).AlignCenter().Text("Đối tác").Bold();
+                                header.Cell().Border(1).AlignCenter().Text("Đầu kỳ").Bold();
+                                header.Cell().Border(1).AlignCenter().Text("Nhập trong kỳ").Bold();
+                                header.Cell().Border(1).AlignCenter().Text("Xuất trong kỳ").Bold();
+                                header.Cell().Border(1).AlignCenter().Text("Tồn cuối").Bold();
+                                header.Cell().Border(1).AlignCenter().Text("Ghi chú").Bold();
+                            });
+
+                            int idx = 1;
+                            foreach (var line in stockCardLines)
+                            {
+                                table.Cell().Border(1).AlignCenter().Text(idx);
+                                table.Cell().Border(1).Text(line.DocumentNumber);
+                                // Nếu TransactionDate == DateTime.MinValue => dòng tồn đầu kỳ => rỗng
+                                table.Cell().Border(1).AlignCenter().Text(
+                                    line.TransactionDate == DateTime.MinValue
+                                        ? ""
+                                        : line.TransactionDate.ToString("dd/MM/yyyy"));
+                                table.Cell().Border(1).Text(line.PartnerName);
+
+                                table.Cell().Border(1).AlignRight().Text(line.QuantityIn.ToString("N0"));
+                                table.Cell().Border(1).AlignRight().Text(line.QuantityOut.ToString("N0"));
+                                table.Cell().Border(1).AlignRight().Text(line.EndingBalance.ToString("N0"));
+                                table.Cell().Border(1).Text(line.Note);
+
+                                idx++;
+                            }
+                        });
+                    });
+
+                    // Footer (ký tên)
+                    page.Footer().Row(row =>
+                    {
+                        row.RelativeItem().Text("Người lập\n\n(Ký, họ tên)").AlignCenter();
+                        row.RelativeItem().Text("Thủ kho\n\n(Ký, họ tên)").AlignCenter();
+                        row.RelativeItem().Text("Kế toán\n\n(Ký, họ tên)").AlignCenter();
+                        row.RelativeItem().Text("Giám đốc\n\n(Ký, họ tên)").AlignCenter();
+                    });
+                });
+            }).GeneratePdf();
+
+            return pdfBytes;
+        }
     }
 }
+
