@@ -20,6 +20,7 @@ namespace DrugWarehouseManagement.Service.DTO.Response
         public int OutboundId { get; set; }
         public string OutboundCode { get; set; } = null!;
         public string CustomerName { get; set; } = null!;
+        public string? Note { get; set; }   
         public string? Address { get; set; }
         public string? PhoneNumber { get; set; }
         public string? OutboundOrderCode { get; set; }
