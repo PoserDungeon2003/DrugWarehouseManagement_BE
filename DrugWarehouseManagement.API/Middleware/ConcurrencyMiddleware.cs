@@ -60,17 +60,7 @@ namespace DrugWarehouseManagement.API.Middleware
             if (user.ConcurrencyStamp != tokenConcurrencyStamp)
             {
                 _logger.LogInformation($"Concurrency conflict detected for user {userId}.");
-                context.Response.StatusCode = StatusCodes.Status409Conflict;
-                context.Response.ContentType = "application/json";
-
-                var response = new BaseResponse
-                {
-                    Code = StatusCodes.Status409Conflict,
-                    Message = "Concurrency conflict detected. Please logout and try again.",
-                };
-
-                var responseText = System.Text.Json.JsonSerializer.Serialize(response);
-                await context.Response.WriteAsync(responseText);
+                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                 return;
             }
 

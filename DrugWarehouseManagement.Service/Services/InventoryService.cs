@@ -1,4 +1,5 @@
-﻿using DrugWarehouseManagement.Repository;
+﻿using DrugWarehouseManagement.Common;
+using DrugWarehouseManagement.Repository;
 using DrugWarehouseManagement.Service.DTO.Response;
 using DrugWarehouseManagement.Service.Interface;
 using Microsoft.EntityFrameworkCore;
@@ -106,24 +107,7 @@ namespace DrugWarehouseManagement.Service.Services
             string botToken = _configuration["Telegram:BotToken"];
             string chatId = _configuration["Telegram:ChatId"];
 
-            await SendTelegramMessageAsync(botToken, chatId, messageBuilder.ToString());
-        }
-        private async Task SendTelegramMessageAsync(string botToken, string chatId, string message)
-        {
-            // Endpoint gửi tin nhắn của Telegram
-            var url = $"https://api.telegram.org/bot{botToken}/sendMessage";
-
-            // Tạo HttpClient để gọi API
-            using var client = new HttpClient();
-
-            // Body dạng FormUrlEncoded (chat_id, text)
-            var content = new FormUrlEncodedContent(new[]
-            {
-              new KeyValuePair<string, string>("chat_id", chatId),
-              new KeyValuePair<string, string>("text", message)
-             });
-            var response = await client.PostAsync(url, content);
-            response.EnsureSuccessStatusCode();
+            await Utils.SendTelegramMessageAsync(botToken, chatId, messageBuilder.ToString());
         }
     }
 }

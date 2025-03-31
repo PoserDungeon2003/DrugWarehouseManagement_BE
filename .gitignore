@@ -404,3 +404,4 @@ appsettings.Docker.json
 Migrations/
 .env
 *-credential[s].json
+.vscode

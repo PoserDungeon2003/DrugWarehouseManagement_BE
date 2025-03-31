@@ -138,4 +138,10 @@
         Inactive = 2,
     }
 
+    public enum DeviceStatus
+    {
+        Active = 1,
+        Inactive = 2,
+    }
+
 }
