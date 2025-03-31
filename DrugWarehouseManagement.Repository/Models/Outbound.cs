@@ -12,7 +12,7 @@ namespace DrugWarehouseManagement.Repository.Models
         public int OutboundId { get; set; }
         public string OutboundCode { get; set; } = null!;
         public int CustomerId { get; set; }
-        public string? ReceiverName { get; set; }
+        public string? RecivierName { get; set; }
         public string? ReceiverPhone { get; set; }
         public string? ReceiverAddress { get; set; }
 

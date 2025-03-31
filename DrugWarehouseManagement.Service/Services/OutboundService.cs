@@ -274,6 +274,9 @@ namespace DrugWarehouseManagement.Service.Services
                     throw new Exception("Trạng thái cập nhật không hợp lệ.");
                 }
             }
+            outbound.ReceiverAddress = request.Address;
+            outbound.ReceiverPhone = request.PhoneNumber;
+            outbound.RecivierName = request.CustomerName;
             outbound.OutboundOrderCode = request.OutboundOrderCode;
             outbound.Note = request.Note;
             outbound.UpdatedAt = SystemClock.Instance.GetCurrentInstant();

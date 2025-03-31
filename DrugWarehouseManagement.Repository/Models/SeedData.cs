@@ -143,9 +143,7 @@ namespace DrugWarehouseManagement.Repository.Models
                     new Inbound { InboundId = 4, InboundCode = "INB-004", InboundRequestId = 4, WarehouseId = 3, InboundDate = Instant.FromDateTimeUtc(new DateTime(2025, 03, 16, 0, 0, 0, DateTimeKind.Utc)), AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555"), Status = InboundStatus.Completed , ProviderId = 4 },
                     new Inbound { InboundId = 5, InboundCode = "INB-005", InboundRequestId = 5, WarehouseId = 2, InboundDate = Instant.FromDateTimeUtc(new DateTime(2025, 03, 21, 0, 0, 0, DateTimeKind.Utc)), AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555"), Status = InboundStatus.Completed , ProviderId = 5 },
                     new Inbound { InboundId = 6, InboundCode = "INB-006", WarehouseId = 1, InboundDate = Instant.FromDateTimeUtc(new DateTime(2025, 03, 26, 0, 0, 0, DateTimeKind.Utc)), AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555"), Status = InboundStatus.Completed, ProviderId =1 },
-                    new Inbound { InboundId = 10, InboundCode = "INB-P9", WarehouseId = 1, InboundDate = Instant.FromDateTimeUtc(new DateTime(2025, 03, 10, 0, 0, 0, DateTimeKind.Utc)), AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555"), Status = InboundStatus.Completed, ProviderId = 1, InboundRequestId = null }
-                    
-                    
+                    new Inbound { InboundId = 10, InboundCode = "INB-P9", WarehouseId = 1, InboundDate = Instant.FromDateTimeUtc(new DateTime(2025, 03, 10, 0, 0, 0, DateTimeKind.Utc)), AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555"), Status = InboundStatus.Completed, ProviderId = 1, InboundRequestId = null }                
                     );
             modelBuilder.Entity<InboundDetails>().HasData(
                 new InboundDetails { InboundDetailsId = 1, InboundId = 1, ProductId = 1, Quantity = 100, LotNumber = "LOT-001", OpeningStock = 80, UnitPrice = 25, TotalPrice = 2500, ExpiryDate = DateOnly.FromDateTime(new DateTime(2026, 03, 01)), ManufacturingDate = DateOnly.FromDateTime(new DateTime(2025, 03, 01)) },
@@ -155,8 +153,6 @@ namespace DrugWarehouseManagement.Repository.Models
                 new InboundDetails { InboundDetailsId = 5, InboundId = 4, ProductId = 5, Quantity = 250, LotNumber = "LOT-005", OpeningStock = 30, UnitPrice = 47.5M, TotalPrice = 11875, ExpiryDate = DateOnly.FromDateTime(new DateTime(2027, 02, 05)), ManufacturingDate = DateOnly.FromDateTime(new DateTime(2026, 02, 05)) },
                 new InboundDetails { InboundDetailsId = 6, InboundId = 6, ProductId = 1, Quantity = 30, LotNumber = "LOT-001", OpeningStock = 80, UnitPrice = 25, TotalPrice = 1250, ExpiryDate = DateOnly.FromDateTime(new DateTime(2026, 03, 01)), ManufacturingDate = DateOnly.FromDateTime(new DateTime(2025, 03, 01)) },
                 new InboundDetails { InboundDetailsId = 18, InboundId = 10, ProductId = 9, Quantity = 50, LotNumber = "LOT-P9-NHAP", OpeningStock = 0, UnitPrice = 15, TotalPrice = 750, ExpiryDate = DateOnly.FromDateTime(new DateTime(2027, 02, 01)), ManufacturingDate = DateOnly.FromDateTime(new DateTime(2025, 02, 01)) }
-
-
                 );
 
             //Lot
