@@ -172,7 +172,6 @@ namespace DrugWarehouseManagement.API
             TypeAdapterConfig<Outbound, OutboundResponse>
             .NewConfig()
             .Map(dest => dest.CustomerName, src => src.Customer.CustomerName)
-            .Map(dest => dest.Address, src => src.Customer.Address)
             .Map(dest => dest.PhoneNumber, src => src.Customer.PhoneNumber)
             .Map(dest => dest.OutboundDetails, src => src.OutboundDetails);
             TypeAdapterConfig<Account, ViewAccount>

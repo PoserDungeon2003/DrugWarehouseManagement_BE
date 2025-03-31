@@ -13,8 +13,8 @@ namespace DrugWarehouseManagement.Repository.Models
         public string OutboundCode { get; set; } = null!;
         public int CustomerId { get; set; }
         public string? RecivierName { get; set; }
-        public string? RecivierPhone { get; set; }
-        public string? RecivierAddress { get; set; }
+        public string? ReceiverPhone { get; set; }
+        public string? ReceiverAddress { get; set; }
 
         public string? OutboundOrderCode { get; set; }
         public string? Note { get; set; }
