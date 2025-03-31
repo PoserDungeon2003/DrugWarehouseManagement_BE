@@ -44,23 +44,40 @@ namespace DrugWarehouseManagement.Service.Services
             };
         }
 
-        public async Task<PaginatedResult<ProductResponse>> SearchProductsAsync(QueryPaging queryPaging)
+        public async Task<PaginatedResult<ProductResponse>> SearchProductsAsync(SearchProductRequest request)
         {
             var query = _unitOfWork.ProductRepository
                         .GetAll()
                         .Where(p => p.Status == ProductStatus.Active)
                         .AsQueryable();
-            if (!string.IsNullOrEmpty(queryPaging.Search))
+            if (request.CategoryId.HasValue)
             {
-                var searchTerm = queryPaging.Search.Trim().ToLower();
+                query = query.Where(p => p.Categories.Any(c => c.CategoriesId == request.CategoryId.Value));
+            }
+            if (!string.IsNullOrEmpty(request.Status))
+            {
+                if (Enum.TryParse<ProductStatus>(request.Status, true, out var parsedStatus))
+                {
+                    query = query.Where(o => o.Status == parsedStatus);
+                }
+                else
+                {
+                    throw new Exception("Status is invalid.");
+                }
+            }
+
+            if (!string.IsNullOrEmpty(request.Search))
+            {
+                var searchTerm = request.Search.Trim().ToLower();
                 query = query.Where(p =>
                     EF.Functions.Like(p.ProductName.ToLower(), $"%{searchTerm}%") ||
                     EF.Functions.Like(p.ProductCode.ToLower(), $"%{searchTerm}%") ||
                     EF.Functions.Like(p.SKU.ToLower(), $"%{searchTerm}%")
                 );
             }
+
             query = query.OrderByDescending(p => p.ProductId);
-            var paginatedProducts = await query.ToPaginatedResultAsync(queryPaging.Page, queryPaging.PageSize);
+            var paginatedProducts = await query.ToPaginatedResultAsync(request.Page, request.PageSize);
             var response = paginatedProducts.Items.Adapt<List<ProductResponse>>();
 
             return new PaginatedResult<ProductResponse>
@@ -92,11 +109,8 @@ namespace DrugWarehouseManagement.Service.Services
                 throw new Exception("Provider not found.");
             }
 
-            // Update fields
-            product.ProductName = request.ProductName;
-            product.ProductCode = request.ProductCode;
-            product.SKU = request.Type;
-            product.MadeFrom = request.MadeFrom;
+
+            request.Adapt(product);
 
             await _unitOfWork.ProductRepository.UpdateAsync(product);
             await _unitOfWork.SaveChangesAsync();

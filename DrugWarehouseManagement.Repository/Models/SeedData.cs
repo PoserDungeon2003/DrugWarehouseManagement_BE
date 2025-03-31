@@ -75,11 +75,11 @@ namespace DrugWarehouseManagement.Repository.Models
             );
             // 4. Seed Warehouses
             modelBuilder.Entity<Warehouse>().HasData(
-                new Warehouse { WarehouseId = 1, WarehouseCode = "CW-1", WarehouseName = "Central Warehouse", Address = "123 Main St", Status = WarehouseStatus.Active },
-                new Warehouse { WarehouseId = 2, WarehouseCode = "EW-1", WarehouseName = "East Warehouse", Address = "456 East St", Status = WarehouseStatus.Active },
-                new Warehouse { WarehouseId = 3, WarehouseCode = "WW-1", WarehouseName = "West Warehouse", Address = "789 West St", Status = WarehouseStatus.Active },
-                new Warehouse { WarehouseId = 4, WarehouseCode = "NW-1", WarehouseName = "North Warehouse", Address = "321 North St", Status = WarehouseStatus.Active },
-                new Warehouse { WarehouseId = 5, WarehouseCode = "SW-1", WarehouseName = "South Warehouse", Address = "654 South St", Status = WarehouseStatus.Active }
+                new Warehouse { WarehouseId = 1, WarehouseCode = "CW-1", WarehouseName = "Central Warehouse", Address = "123 Main St", Status = WarehouseStatus.Active , DocumentNumber = "WH12346"},
+                new Warehouse { WarehouseId = 2, WarehouseCode = "EW-1", WarehouseName = "East Warehouse", Address = "456 East St", Status = WarehouseStatus.Active, DocumentNumber ="WH654321" },
+                new Warehouse { WarehouseId = 3, WarehouseCode = "WW-1", WarehouseName = "West Warehouse", Address = "789 West St", Status = WarehouseStatus.Active, DocumentNumber = "WH11234" },
+                new Warehouse { WarehouseId = 4, WarehouseCode = "NW-1", WarehouseName = "North Warehouse", Address = "321 North St", Status = WarehouseStatus.Active,DocumentNumber = "WH12346" },
+                new Warehouse { WarehouseId = 5, WarehouseCode = "SW-1", WarehouseName = "South Warehouse", Address = "654 South St", Status = WarehouseStatus.Active, DocumentNumber = "WH123367"}
             );
             // 5. Seed Products
             modelBuilder.Entity<Product>().HasData(
@@ -102,11 +102,11 @@ namespace DrugWarehouseManagement.Repository.Models
                 new Customer { CustomerId = 3, CustomerName = "Alice Johnson", Address = "789 Oak St", PhoneNumber = "555-8765", Email = "alice.johnson@example.com", IsLoyal = true, Status = CustomerStatus.Active, DocumentNumber = "GH12240003" },
                 new Customer { CustomerId = 4, CustomerName = "Bob Brown", Address = "321 Pine St", PhoneNumber = "555-4321", Email = "bob.brown@example.com", IsLoyal = false, Status = CustomerStatus.Active, DocumentNumber = "GH12240004" },
                 new Customer { CustomerId = 5, CustomerName = "Charlie Davis", Address = "654 Maple St", PhoneNumber = "555-6789", Email = "charlie.davis@example.com", IsLoyal = true, Status = CustomerStatus.Active, DocumentNumber = "GH12240005" },
-                new Customer { CustomerId = 6, CustomerName = "Diana Evans", Address = "987 Birch St", PhoneNumber = "555-9876", Email = "diana.evans@example.com", IsLoyal = false, Status = CustomerStatus.Inactive, DocumentNumber = "GH12240006" },
-                new Customer { CustomerId = 7, CustomerName = "Eve Foster", Address = "159 Cedar St", PhoneNumber = "555-1597", Email = "eve.foster@example.com", IsLoyal = true, Status = CustomerStatus.Inactive, DocumentNumber = "GH12240007" },
-                new Customer { CustomerId = 8, CustomerName = "Frank Green", Address = "753 Spruce St", PhoneNumber = "555-7531", Email = "frank.green@example.com", IsLoyal = false, Status = CustomerStatus.Inactive, DocumentNumber = "GH12240008" },
-                new Customer { CustomerId = 9, CustomerName = "Grace Harris", Address = "852 Willow St", PhoneNumber = "555-8524", Email = "grace.harris@example.com", IsLoyal = true, Status = CustomerStatus.Inactive, DocumentNumber = "GH12240009" },
-                new Customer { CustomerId = 10, CustomerName = "Henry Irving", Address = "951 Poplar St", PhoneNumber = "555-9513", Email = "henry.irving@example.com", IsLoyal = false, Status = CustomerStatus.Inactive, DocumentNumber = "GH122400010" }
+                new Customer { CustomerId = 6, CustomerName = "Diana Evans", Address = "987 Birch St", PhoneNumber = "555-9876", Email = "diana.evans@example.com", IsLoyal = false, Status = CustomerStatus.Active, DocumentNumber = "GH12240006" },
+                new Customer { CustomerId = 7, CustomerName = "Eve Foster", Address = "159 Cedar St", PhoneNumber = "555-1597", Email = "eve.foster@example.com", IsLoyal = true, Status = CustomerStatus.Active, DocumentNumber = "GH12240007" },
+                new Customer { CustomerId = 8, CustomerName = "Frank Green", Address = "753 Spruce St", PhoneNumber = "555-7531", Email = "frank.green@example.com", IsLoyal = false, Status = CustomerStatus.Active, DocumentNumber = "GH12240008" },
+                new Customer { CustomerId = 9, CustomerName = "Grace Harris", Address = "852 Willow St", PhoneNumber = "555-8524", Email = "grace.harris@example.com", IsLoyal = true, Status = CustomerStatus.Active, DocumentNumber = "GH12240009" },
+                new Customer { CustomerId = 10, CustomerName = "Henry Irving", Address = "951 Poplar St", PhoneNumber = "555-9513", Email = "henry.irving@example.com", IsLoyal = false, Status = CustomerStatus.Active, DocumentNumber = "GH122400010" }
             );
 
 

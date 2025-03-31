@@ -40,11 +40,11 @@ namespace DrugWarehouseManagement.API.Controllers
 
         // GET: api/Product/search?page=1&pageSize=10&search=...
         [HttpGet("search")]
-        public async Task<IActionResult> SearchProducts([FromQuery] QueryPaging queryPaging)
+        public async Task<IActionResult> SearchProducts([FromQuery] SearchProductRequest request)
         {
             try
             {
-                var result = await _productService.SearchProductsAsync(queryPaging);
+                var result = await _productService.SearchProductsAsync(request);
                 return Ok(result);
             }
             catch (Exception ex)

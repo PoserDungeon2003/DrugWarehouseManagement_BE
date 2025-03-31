@@ -79,7 +79,7 @@ namespace DrugWarehouseManagement.Service.Services
             var transferIn = await _unitOfWork.LotTransferDetailsRepository
                 .GetAll()
                 .Include(d => d.LotTransfer)
-                .Include(d => d.Lot) 
+                .Include(d => d.Lot)
                 .Where(d => d.LotTransfer.ToWareHouseId == warehouseId
                             && d.LotTransfer.CreatedAt >= startDate
                             && d.LotTransfer.CreatedAt <= endDate
@@ -302,6 +302,12 @@ namespace DrugWarehouseManagement.Service.Services
                  .Select(d => d.OpeningStock)
                  .FirstOrDefaultAsync() ?? 0;
 
+            var productEntity = await _unitOfWork.ProductRepository
+                 .GetByWhere(p => p.ProductId == productId)
+                 .FirstOrDefaultAsync();
+            string productName = productEntity?.ProductName ?? productId.ToString();
+            string unitType = productEntity?.SKU ?? "";
+
             // =========================
             // 2. Lấy danh sách Inbound (Nhập)
             // =========================
@@ -388,7 +394,7 @@ namespace DrugWarehouseManagement.Service.Services
                 });
             }
 
-          // =========================
+            // =========================
             // 4. Lấy danh sách Outbound (Xuất)
             // =========================
             // Gồm: Xuất bán, Xuất mẫu (TotalPrice=0), Mỗi Outbound => 1 dòng
@@ -480,19 +486,7 @@ namespace DrugWarehouseManagement.Service.Services
             // =========================
             var stockCardLines = new List<StockCardDto>();
 
-            // Dòng đầu tiên: tồn đầu kỳ
-            stockCardLines.Add(new StockCardDto
-            {
-                TransactionDate = DateTime.MinValue,
-                DocumentNumber = "",
-                PartnerName = "",
-                Note = "Tồn đầu kỳ",
-                QuantityIn = 0,
-                QuantityOut = 0,
-                BeginningBalance = beginningBalance,
-                EndingBalance = beginningBalance
-            });
-
+      
             int running = beginningBalance;
             foreach (var t in allTransactions)
             {
@@ -511,6 +505,7 @@ namespace DrugWarehouseManagement.Service.Services
                 });
                 running = endBal;
             }
+
             // =========================
             // 8. Xuất PDF bằng QuestPDF
             // =========================
@@ -539,7 +534,8 @@ namespace DrugWarehouseManagement.Service.Services
                         col.Item().Text("THẺ KHO").Bold().FontSize(14).AlignCenter();
                         col.Item().Text($"Kho: {warehouseName}").AlignCenter();
                         col.Item().Text($"Từ ngày {startDateStr} đến ngày {endDateStr}").AlignCenter();
-                        col.Item().Text($"Mã SP: {productId}").AlignCenter(); // Hoặc tên SP
+                        col.Item().Text($"Sản phẩm: {productName}").AlignCenter();
+                        col.Item().Text($"Đơn vị tính: {unitType}").AlignCenter();
                     });
 
                     // Content
@@ -577,32 +573,18 @@ namespace DrugWarehouseManagement.Service.Services
                             int idx = 1;
                             foreach (var line in stockCardLines)
                             {
-                                table.Cell().Border(1).AlignCenter().Text(idx);
+                                table.Cell().Border(1).AlignCenter().Text(idx.ToString());
                                 table.Cell().Border(1).Text(line.DocumentNumber);
-                                // Nếu TransactionDate == DateTime.MinValue => dòng tồn đầu kỳ => rỗng
-                                table.Cell().Border(1).AlignCenter().Text(
-                                    line.TransactionDate == DateTime.MinValue
-                                        ? ""
-                                        : line.TransactionDate.ToString("dd/MM/yyyy"));
+                                table.Cell().Border(1).AlignCenter().Text(line.TransactionDate == DateTime.MinValue ? "" : line.TransactionDate.ToString("dd/MM/yyyy"));
                                 table.Cell().Border(1).Text(line.PartnerName);
-
+                                table.Cell().Border(1).AlignRight().Text(line.BeginningBalance.ToString("N0"));
                                 table.Cell().Border(1).AlignRight().Text(line.QuantityIn.ToString("N0"));
                                 table.Cell().Border(1).AlignRight().Text(line.QuantityOut.ToString("N0"));
                                 table.Cell().Border(1).AlignRight().Text(line.EndingBalance.ToString("N0"));
                                 table.Cell().Border(1).Text(line.Note);
-
                                 idx++;
                             }
                         });
-                    });
-
-                    // Footer (ký tên)
-                    page.Footer().Row(row =>
-                    {
-                        row.RelativeItem().Text("Người lập\n\n(Ký, họ tên)").AlignCenter();
-                        row.RelativeItem().Text("Thủ kho\n\n(Ký, họ tên)").AlignCenter();
-                        row.RelativeItem().Text("Kế toán\n\n(Ký, họ tên)").AlignCenter();
-                        row.RelativeItem().Text("Giám đốc\n\n(Ký, họ tên)").AlignCenter();
                     });
                 });
             }).GeneratePdf();
