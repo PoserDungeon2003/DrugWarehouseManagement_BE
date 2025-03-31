@@ -28,5 +28,6 @@ namespace DrugWarehouseManagement.Repository
         ICategoriesRepository CategoriesRepository { get; }
         IReturnOutboundDetailsRepository ReturnOutboundDetailsRepository { get; }
         IDeviceRepository DeviceRepository { get; }
+        IProductCategoriesRepository ProductCategoriesRepository { get; }
     }
 }

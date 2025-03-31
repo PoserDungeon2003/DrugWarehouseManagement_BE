@@ -7,6 +7,7 @@ using DrugWarehouseManagement.Service.Extenstions;
 using DrugWarehouseManagement.Service.Interface;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
+using Minio.DataModel;
 using System.Net;
 
 namespace DrugWarehouseManagement.Service.Services
@@ -21,22 +22,27 @@ namespace DrugWarehouseManagement.Service.Services
 
         public async Task<BaseResponse> CreateProductAsync(CreateProductRequest request)
         {
-            var response = new BaseResponse();
-            // Check if the provider exists
-            var provider = await _unitOfWork.ProviderRepository
-                                        .GetByIdAsync(request.ProviderId);
-
-            if (provider == null)
-            {
-                throw new Exception("Provider not found.");
-            }
 
             // Map the DTO to the Product entity
             var product = request.Adapt<Product>();
-
             // Add the product via the repository
             await _unitOfWork.ProductRepository.CreateAsync(product);
             await _unitOfWork.SaveChangesAsync();
+
+            if (request.CategoriesIds != null)
+            {
+                var productCategories = request.CategoriesIds
+                    .Distinct()
+                    .Select(categoryId => new ProductCategories
+                    {
+                        ProductId = product.ProductId,
+                        CategoriesId = categoryId
+                    });
+
+                await _unitOfWork.ProductCategoriesRepository.AddRangeAsync(productCategories);
+                await _unitOfWork.SaveChangesAsync();
+            }
+
             return new BaseResponse
             {
                 Code = (int)HttpStatusCode.OK,
