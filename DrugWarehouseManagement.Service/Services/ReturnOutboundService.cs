@@ -58,17 +58,6 @@ namespace DrugWarehouseManagement.Service.Services
                 {
                     throw new Exception($"OutboundDetailId={detailItem.OutboundDetailId} not found in this outbound.");
                 }
-
-                // Kiểm tra InboundDetail
-                var inboundDetail = await _unitOfWork.InboundDetailRepository
-                    .GetByWhere(i => i.InboundDetailsId == detailItem.InboundDetailId)
-                    .FirstOrDefaultAsync();
-
-                if (inboundDetail == null)
-                {
-                    throw new Exception($"InboundDetailId={detailItem.InboundDetailId} not found.");
-                }
-
                 // Kiểm tra logic returnedQuantity <= outboundDetail.Quantity
                 // (nếu bạn giới hạn không trả quá số đã xuất)
                 if (detailItem.ReturnedQuantity > outboundDetail.Quantity)
@@ -80,7 +69,6 @@ namespace DrugWarehouseManagement.Service.Services
                 var rod = new ReturnOutboundDetails
                 {
                     OutboundDetailsId = detailItem.OutboundDetailId,
-                    InboundDetailId = detailItem.InboundDetailId,
                     ReturnedQuantity = detailItem.ReturnedQuantity,
                     Note = detailItem.Note              
                 };
@@ -120,8 +108,6 @@ namespace DrugWarehouseManagement.Service.Services
                     .ThenInclude(od => od.Outbound)
                  .Include(od => od.OutboundDetails.Lot)
                     .ThenInclude(l => l.Product)
-                .Include(r => r.InboundDetail)
-                    .ThenInclude(id => id.Inbound)
                 .Where(r => outboundDetailIds.Contains(r.OutboundDetailsId))
 
                 .ToListAsync();
