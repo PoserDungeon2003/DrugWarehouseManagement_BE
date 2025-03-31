@@ -70,13 +70,13 @@ namespace DrugWarehouseManagement.UnitTest
             {
                 new Product { ProductId = 1, ProductName = "Product1", Status = ProductStatus.Active }
             };
-            var queryPaging = new QueryPaging { Page = 1, PageSize = 10 };
+            var queryPaging = new GetProductRequest { Page = 1, PageSize = 10 };
 
             _unitOfWorkMock.Setup(uow => uow.ProductRepository.GetAll())
                 .Returns(products.AsQueryable().BuildMock());
 
             // Act
-            var response = await _productService.SearchProductsAsync(queryPaging);
+            var response = await _productService.GetProductsAsync(queryPaging);
 
             // Assert
             Assert.Single(response.Items);
