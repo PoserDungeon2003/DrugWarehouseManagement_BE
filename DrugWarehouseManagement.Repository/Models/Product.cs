@@ -19,5 +19,6 @@ namespace DrugWarehouseManagement.Repository.Models
         public virtual List<InboundRequestDetails> InboundRequestDetails { get; set; } = null!;
         public virtual List<InboundDetails> InboundDetails { get; set; } = null!;
         public List<Categories> Categories { get; set; } = null!;
+        public List<ProductCategories> ProductCategories { get; set; } = null!;
     }
 }

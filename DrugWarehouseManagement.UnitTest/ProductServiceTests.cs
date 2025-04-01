@@ -74,7 +74,7 @@ namespace DrugWarehouseManagement.UnitTest
         {
             // Arrange
             var productId = 1;
-            var request = new UpdateProductRequest { ProviderId = 1 };
+            var request = new UpdateProductRequest { };
 
             _unitOfWorkMock.Setup(uow => uow.ProductRepository.GetAll())
                 .Returns(new List<Product>().AsQueryable().BuildMock());
@@ -89,7 +89,7 @@ namespace DrugWarehouseManagement.UnitTest
             // Arrange
             var productId = 1;
             var product = new Product { ProductId = productId };
-            var request = new UpdateProductRequest { ProviderId = 1 };
+            var request = new UpdateProductRequest { };
 
             _unitOfWorkMock.Setup(uow => uow.ProductRepository.GetAll())
                 .Returns(new List<Product> { product }.AsQueryable().BuildMock());
@@ -107,7 +107,7 @@ namespace DrugWarehouseManagement.UnitTest
             var productId = 1;
             var product = new Product { ProductId = productId };
             var provider = new Provider { ProviderId = 1 };
-            var request = new UpdateProductRequest { ProviderId = 1, ProductName = "UpdatedProduct" };
+            var request = new UpdateProductRequest { ProductName = "UpdatedProduct" };
 
             _unitOfWorkMock.Setup(uow => uow.ProductRepository.GetAll())
                 .Returns(new List<Product> { product }.AsQueryable().BuildMock());
