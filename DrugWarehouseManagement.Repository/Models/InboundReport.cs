@@ -24,5 +24,6 @@ namespace DrugWarehouseManagement.Repository.Models
         public List<Asset> Assets { get; set; } = null!;
         public virtual Account Account { get; set; } = null!;
         public virtual Inbound Inbound { get; set; } = null!;
+        public virtual List<InboundReportAssets> InboundReportAssets { get; set; } = null!;
     }
 }

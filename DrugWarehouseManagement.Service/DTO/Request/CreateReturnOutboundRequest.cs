@@ -17,7 +17,6 @@ namespace DrugWarehouseManagement.Service.DTO.Request
     public class ReturnOutboundDetailItem
     {
         public int OutboundDetailId { get; set; }
-        public int InboundDetailId { get; set; }
         public int ReturnedQuantity { get; set; }
         public string? Note { get; set; }
     }

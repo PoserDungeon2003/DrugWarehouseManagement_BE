@@ -10,5 +10,6 @@ namespace DrugWarehouseManagement.Service.Interface
     public interface IInventoryReportService
     {
         Task<byte[]> ExportInventoryReportPdf(int warehouseId, Instant startDate, Instant endDate);
+        Task<byte[]> ExportStockCardPdf(int warehouseId, int productId, Instant startDate, Instant endDate);
     }
 }

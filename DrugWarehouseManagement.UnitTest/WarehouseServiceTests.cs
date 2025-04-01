@@ -52,7 +52,7 @@ namespace DrugWarehouseManagement.UnitTest
             {
                 new Warehouse { WarehouseId = 1, WarehouseName = "Warehouse1", Address = "Address1", Status = WarehouseStatus.Active }
             };
-            var queryPaging = new QueryPaging { Page = 1, PageSize = 10 };
+            var queryPaging = new SearchWarehouseRequest { Page = 1, PageSize = 10 };
 
             _unitOfWorkMock.Setup(uow => uow.WarehouseRepository.GetAll())
                 .Returns(warehouses.AsQueryable().BuildMock());

@@ -1,4 +1,5 @@
-﻿using DrugWarehouseManagement.Common;
+﻿using Azure.Core;
+using DrugWarehouseManagement.Common;
 using DrugWarehouseManagement.Repository;
 using DrugWarehouseManagement.Repository.Models;
 using DrugWarehouseManagement.Service.DTO.Request;
@@ -147,7 +148,7 @@ namespace DrugWarehouseManagement.Service.Services
             };
         }
 
-        public async Task<PaginatedResult<OutboundResponse>> SearchOutboundsAsync(QueryPaging queryPaging)
+        public async Task<PaginatedResult<OutboundResponse>> SearchOutboundsAsync(SearchOutboundRequest request)
         {
             var query = _unitOfWork.OutboundRepository
                         .GetAll()
@@ -156,34 +157,44 @@ namespace DrugWarehouseManagement.Service.Services
                         .ThenInclude(od => od.Lot)
                          .ThenInclude(l => l.Product)
                         .AsQueryable();
-            if (!string.IsNullOrEmpty(queryPaging.Search))
+            if (request.CustomerId.HasValue)
             {
-                var searchTerm = queryPaging.Search.Trim().ToLower();
-
-                if (int.TryParse(searchTerm, out int outboundId))
+                query = query.Where(o => o.CustomerId == request.CustomerId.Value);
+            }
+            if (!string.IsNullOrEmpty(request.Status))
+            {
+                if (Enum.TryParse<OutboundStatus>(request.Status, true, out var parsedStatus))
                 {
-                    query = query.Where(o =>
-                        o.OutboundId == outboundId ||
-                        EF.Functions.Like(o.OutboundCode.ToLower(), $"%{searchTerm}%"));
+                    query = query.Where(o => o.Status == parsedStatus);
                 }
                 else
                 {
-                    query = query.Where(o =>
-                        EF.Functions.Like(o.OutboundCode.ToLower(), $"%{searchTerm}%"));
+                    throw new Exception("Status is invalid.");
                 }
             }
-            if (queryPaging.DateFrom != null)
+            if (!string.IsNullOrEmpty(request.Search))
             {
-                var dateFrom = InstantPattern.ExtendedIso.Parse(queryPaging.DateFrom);
+                var searchTerm = request.Search.Trim().ToLower();
+
+                query = query.Where(o =>
+                    EF.Functions.Like(o.OutboundCode.ToLower(), $"%{searchTerm}%") ||
+                    EF.Functions.Like(o.Customer.CustomerName.ToLower(), $"%{searchTerm}%") ||
+                    EF.Functions.Like(o.Customer.PhoneNumber.ToLower(), $"%{searchTerm}%") ||
+                    EF.Functions.Like(o.OutboundOrderCode.ToLower(), $"%{searchTerm}%")               
+                );
+            }
+            if (request.DateFrom != null)
+            {
+                var dateFrom = InstantPattern.ExtendedIso.Parse(request.DateFrom);
                 if (!dateFrom.Success)
                 {
                     throw new Exception("DateFrom is invalid ISO format");
                 }
                 query = query.Where(o => o.OutboundDate >= dateFrom.Value);
             }
-            if (queryPaging.DateTo != null)
+            if (request.DateTo != null)
             {
-                var dateTo = InstantPattern.ExtendedIso.Parse(queryPaging.DateTo);
+                var dateTo = InstantPattern.ExtendedIso.Parse(request.DateTo);
                 if (!dateTo.Success)
                 {
                     throw new Exception("DateTo is invalid ISO format");
@@ -191,7 +202,7 @@ namespace DrugWarehouseManagement.Service.Services
                 query = query.Where(o => o.OutboundDate <= dateTo.Value);
             }
             query = query.OrderByDescending(o => o.OutboundDate);
-            var paginatedOutbounds = await query.ToPaginatedResultAsync(queryPaging.Page, queryPaging.PageSize);
+            var paginatedOutbounds = await query.ToPaginatedResultAsync(request.Page, request.PageSize);
             var outboundResponses = paginatedOutbounds.Items.Adapt<List<OutboundResponse>>();
             // Create a new PaginatedResult with mapped DTOs.
             return new PaginatedResult<OutboundResponse>
@@ -263,6 +274,9 @@ namespace DrugWarehouseManagement.Service.Services
                     throw new Exception("Trạng thái cập nhật không hợp lệ.");
                 }
             }
+            outbound.ReceiverAddress = request.Address;
+            outbound.ReceiverPhone = request.PhoneNumber;
+            outbound.RecivierName = request.CustomerName;
             outbound.OutboundOrderCode = request.OutboundOrderCode;
             outbound.Note = request.Note;
             outbound.UpdatedAt = SystemClock.Instance.GetCurrentInstant();

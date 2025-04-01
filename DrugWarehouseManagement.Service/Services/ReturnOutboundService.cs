@@ -26,6 +26,7 @@ namespace DrugWarehouseManagement.Service.Services
         /// <summary>
         /// Tạo các bản ghi ReturnOutboundDetails khi có hàng trả về
         /// </summary>
+        /// 
         public async Task CreateReturnOutboundAsync(CreateReturnOutboundRequest request)
         {
             // 1) Kiểm tra Outbound có tồn tại, status = Completed hay chưa
@@ -57,17 +58,6 @@ namespace DrugWarehouseManagement.Service.Services
                 {
                     throw new Exception($"OutboundDetailId={detailItem.OutboundDetailId} not found in this outbound.");
                 }
-
-                // Kiểm tra InboundDetail
-                var inboundDetail = await _unitOfWork.InboundDetailRepository
-                    .GetByWhere(i => i.InboundDetailsId == detailItem.InboundDetailId)
-                    .FirstOrDefaultAsync();
-
-                if (inboundDetail == null)
-                {
-                    throw new Exception($"InboundDetailId={detailItem.InboundDetailId} not found.");
-                }
-
                 // Kiểm tra logic returnedQuantity <= outboundDetail.Quantity
                 // (nếu bạn giới hạn không trả quá số đã xuất)
                 if (detailItem.ReturnedQuantity > outboundDetail.Quantity)
@@ -79,7 +69,6 @@ namespace DrugWarehouseManagement.Service.Services
                 var rod = new ReturnOutboundDetails
                 {
                     OutboundDetailsId = detailItem.OutboundDetailId,
-                    InboundDetailId = detailItem.InboundDetailId,
                     ReturnedQuantity = detailItem.ReturnedQuantity,
                     Note = detailItem.Note              
                 };
@@ -88,7 +77,7 @@ namespace DrugWarehouseManagement.Service.Services
             }
 
             // 3) Lưu DB
-            await _unitOfWork.ReturnOutboundDetailsRepository.CreateRangeAsync(returnDetailsList);
+            await _unitOfWork.ReturnOutboundDetailsRepository.AddRangeAsync(returnDetailsList);
             await _unitOfWork.SaveChangesAsync();
 
             //  Cập nhật Outbound.Status = Returned 
@@ -119,10 +108,8 @@ namespace DrugWarehouseManagement.Service.Services
                     .ThenInclude(od => od.Outbound)
                  .Include(od => od.OutboundDetails.Lot)
                     .ThenInclude(l => l.Product)
-                .Include(r => r.InboundDetail)
-                    .ThenInclude(id => id.Inbound)
                 .Where(r => outboundDetailIds.Contains(r.OutboundDetailsId))
-                
+
                 .ToListAsync();
 
             var response = returnOutboundDetails.Select(r =>
@@ -137,5 +124,28 @@ namespace DrugWarehouseManagement.Service.Services
 
             return response;
         }
+        public async Task<List<ReturnOutboundDetailsResponse>> GetAllReturnOutboundDetailsAsync()
+        {
+            var returnOutboundDetails = await _unitOfWork.ReturnOutboundDetailsRepository
+                .GetAll()
+                .Include(r => r.OutboundDetails)
+                    .ThenInclude(od => od.Outbound)
+                .Include(r => r.OutboundDetails.Lot)
+                    .ThenInclude(l => l.Product)
+                .ToListAsync();
+
+            var response = returnOutboundDetails.Select(r =>
+            {
+                var dto = r.Adapt<ReturnOutboundDetailsResponse>();
+                dto.OutboundDetailId = r.OutboundDetailsId;
+                dto.OutboundCode = r.OutboundDetails.Outbound.OutboundCode;
+                dto.ProductCode = r.OutboundDetails.Lot.Product.ProductCode;
+                dto.ProductName = r.OutboundDetails.Lot.Product.ProductName;
+                return dto;
+            }).ToList();
+
+            return response;
+        }
+
     }
 }

@@ -26,28 +26,40 @@ namespace DrugWarehouseManagement.Service.Services
             await _unitOfWork.SaveChangesAsync();
         }
 
-        public async Task<PaginatedResult<WarehouseResponse>> SearchWarehousesAsync(QueryPaging queryPaging)
+        public async Task<PaginatedResult<WarehouseResponse>> SearchWarehousesAsync(SearchWarehouseRequest request)
         {
             // Only include warehouses with Active status
             var query = _unitOfWork.WarehouseRepository
                         .GetAll()
                         .AsQueryable();
 
-            // If a search term is provided, filter by WarehouseName or Address
-            if (!string.IsNullOrEmpty(queryPaging.Search))
+            if (!string.IsNullOrEmpty(request.Status))
             {
-                var searchTerm = queryPaging.Search.Trim().ToLower();
-                query = query.Where(w =>
-                    EF.Functions.Like(w.WarehouseName.ToLower(), $"%{searchTerm}%") ||
-                    EF.Functions.Like(w.Address.ToLower(), $"%{searchTerm}%")
-                );
+                if (Enum.TryParse<WarehouseStatus>(request.Status, true, out var parsedStatus))
+                {
+                    query = query.Where(o => o.Status == parsedStatus);
+                }
+                else
+                {
+                    throw new Exception("Status is invalid.");
+                }
+                // If a search term is provided, filter by WarehouseName or Address
+                if (!string.IsNullOrEmpty(request.Search))
+                {
+                    var searchTerm = request.Search.Trim().ToLower();
+                    query = query.Where(w =>
+                        EF.Functions.Like(w.WarehouseName.ToLower(), $"%{searchTerm}%") ||
+                        EF.Functions.Like(w.Address.ToLower(), $"%{searchTerm}%") ||
+                        EF.Functions.Like(w.WarehouseCode.ToString(), $"%{searchTerm}%")
+                    );
+                }
             }
 
             // Optionally, add additional filtering by dates if the Warehouse model had such fields.
             // Order by WarehouseId descending (or any other order)
             query = query.OrderByDescending(w => w.WarehouseId);
 
-            var paginatedResult = await query.ToPaginatedResultAsync(queryPaging.Page, queryPaging.PageSize);
+            var paginatedResult = await query.ToPaginatedResultAsync(request.Page, request.PageSize);
 
             var response = paginatedResult.Items.Adapt<List<WarehouseResponse>>();
             return new PaginatedResult<WarehouseResponse>

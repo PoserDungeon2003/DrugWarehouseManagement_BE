@@ -82,25 +82,50 @@ namespace DrugWarehouseManagement.API.Controllers
         /// Example: GET api/outbounds/search?page=1&pageSize=10&search=OUTB-1234
         /// </summary>
         [HttpGet]
-        public async Task<IActionResult> SearchOutbounds([FromQuery] QueryPaging queryPaging)
+        public async Task<IActionResult> SearchOutbounds([FromQuery] SearchOutboundRequest request)
         {
-            var result = await _outboundService.SearchOutboundsAsync(queryPaging);
-            return Ok(result);
+            try
+            {
+                var result = await _outboundService.SearchOutboundsAsync(request);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    Code = 400,
+                    Message = ex.Message,
+                });
+            }
+          
         }
         
         [HttpGet("{id}")]
         public async Task<IActionResult> GetOutboundById(int id)
         {
-            var outbound = await _outboundService.GetOutboundByIdAsync(id);
-            if (outbound == null)
+            try
             {
-                return NotFound(new BaseResponse
+                var outbound = await _outboundService.GetOutboundByIdAsync(id);
+                if (outbound == null)
                 {
-                    Code = 404,
-                    Message = "Outbound not found."
+                    return NotFound(new BaseResponse
+                    {
+                        Code = 404,
+                        Message = "Outbound not found."
+                    });
+                }
+                return Ok(outbound);
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    Code = 400,
+                    Message = ex.Message,
                 });
             }
-            return Ok(outbound);
+           
         }
         [HttpGet("export/{id}")]
         public async Task<IActionResult> ExportOutboundInvoice(int id)

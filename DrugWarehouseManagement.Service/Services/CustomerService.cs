@@ -75,19 +75,15 @@ namespace DrugWarehouseManagement.Service.Services
                .GetAll()
                .Where(c => c.Status == CustomerStatus.Active) // ẩn khách hàng inactive
                .AsQueryable();
-            if (request.CustomerId.HasValue)
+            if (!string.IsNullOrEmpty(request.Search))
             {
-                query = query.Where(c => c.CustomerId == request.CustomerId.Value);
-            }
-            if (!string.IsNullOrEmpty(request.Name))
-            {
-                var nameSearch = request.Name.Trim().ToLower();
-                query = query.Where(c => c.CustomerName.ToLower().Contains(nameSearch));
-            }
-            if (!string.IsNullOrEmpty(request.PhoneNumber))
-            {
-                var phoneNumberSearch = request.PhoneNumber.Trim().ToLower();
-                query = query.Where(c => c.PhoneNumber.ToLower().Contains(phoneNumberSearch));
+                var searchLower = request.Search.Trim().ToLower();
+
+                query = query.Where(c =>
+                    c.CustomerName.ToLower().Contains(searchLower) ||
+                    c.PhoneNumber.ToLower().Contains(searchLower) ||
+                    c.Email.ToLower().Contains(searchLower)
+                );
             }
             query = query.OrderBy(c => c.CustomerId);
             var paginatedCustomers = await query.ToPaginatedResultAsync(request.Page, request.PageSize);

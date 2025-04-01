@@ -10,7 +10,6 @@ namespace DrugWarehouseManagement.Service.DTO.Response
     {
         public int ReturnOutboundDetailsId { get; set; }
         public int OutboundDetailId { get; set; }
-        public int InboundDetailId { get; set; }
         public int ReturnedQuantity { get; set; }
         public string? Note { get; set; }
         public string? ProductCode { get; set; }
