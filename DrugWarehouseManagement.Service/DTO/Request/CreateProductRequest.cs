@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using DrugWarehouseManagement.Repository.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace DrugWarehouseManagement.Service.DTO.Request
 {
@@ -12,6 +13,11 @@ namespace DrugWarehouseManagement.Service.DTO.Request
         public string SKU { get; set; } = null!;
         [Required]
         public string MadeFrom { get; set; } = null!;
-        public int[]? CategoriesIds { get; set; }
+        public List<ProductCategoriesRequest>? ProductCategories { get; set; }
+    }
+
+    public class ProductCategoriesRequest
+    {
+        public int CategoriesId { get; set; }
     }
 }

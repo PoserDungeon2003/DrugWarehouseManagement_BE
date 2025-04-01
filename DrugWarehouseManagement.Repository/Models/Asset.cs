@@ -29,5 +29,8 @@ namespace DrugWarehouseManagement.Repository.Models
         public virtual List<Provider> Providers { get; set; } = null!;
         public virtual Account Account { get; set; } = null!;
         public virtual Categories Category { get; set; } = null!;
+        public virtual List<InboundReportAssets> InboundReportAssets { get; set; } = null!;
+        public virtual List<InboundRequestAssets> InboundRequestAssets { get; set; } = null!;
+        public virtual List<ProviderAssets> ProviderAssets { get; set; } = null!;
     }
 }
