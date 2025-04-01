@@ -116,9 +116,9 @@ namespace DrugWarehouseManagement.Repository.Repositories
                               .ToListAsync();
         }
 
-        public async Task CreateRangeAsync(IEnumerable<TEntity> entities)
+        public async Task DeleteRangeAsync(IEnumerable<TEntity> entities)
         {
-            await _context.Set<TEntity>().AddRangeAsync(entities);
+            _context.Set<TEntity>().RemoveRange(entities);
         }
     }
 

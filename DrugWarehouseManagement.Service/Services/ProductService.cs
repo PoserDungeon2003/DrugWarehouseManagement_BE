@@ -7,6 +7,7 @@ using DrugWarehouseManagement.Service.Extenstions;
 using DrugWarehouseManagement.Service.Interface;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Minio.DataModel;
 using System.Net;
 
@@ -21,27 +22,12 @@ namespace DrugWarehouseManagement.Service.Services
         }
 
         public async Task<BaseResponse> CreateProductAsync(CreateProductRequest request)
-        {
-
+        {            
             // Map the DTO to the Product entity
             var product = request.Adapt<Product>();
             // Add the product via the repository
             await _unitOfWork.ProductRepository.CreateAsync(product);
             await _unitOfWork.SaveChangesAsync();
-
-            if (request.CategoriesIds != null)
-            {
-                var productCategories = request.CategoriesIds
-                    .Distinct()
-                    .Select(categoryId => new ProductCategories
-                    {
-                        ProductId = product.ProductId,
-                        CategoriesId = categoryId
-                    });
-
-                await _unitOfWork.ProductCategoriesRepository.AddRangeAsync(productCategories);
-                await _unitOfWork.SaveChangesAsync();
-            }
 
             return new BaseResponse
             {
@@ -93,24 +79,26 @@ namespace DrugWarehouseManagement.Service.Services
         public async Task<BaseResponse> UpdateProductAsync(int productId, UpdateProductRequest request)
         {
             var product = await _unitOfWork.ProductRepository
-                                .GetAll()
-                                .FirstOrDefaultAsync(p => p.ProductId == productId);
+                                .GetByWhere(p => p.ProductId == productId)
+                                .Include(pc => pc.ProductCategories)
+                                .Include(c => c.Categories)
+                                .FirstOrDefaultAsync();
 
             if (product == null)
             {
                 throw new Exception("Product not found.");
             }
 
-            // Check if the provider exists
-            var provider = await _unitOfWork.ProviderRepository
-                                        .GetAll()
-                                        .FirstOrDefaultAsync(p => p.ProviderId == request.ProviderId);
-            if (provider == null)
+            if (request.ProductCategories != null)
             {
-                throw new Exception("Provider not found.");
+                var requestedCategoryIds = new HashSet<int>(request.ProductCategories.Select(pc => pc.CategoriesId));
+
+                var categoriesToDelete = product.ProductCategories
+                    .Where(category => !requestedCategoryIds.Contains(category.CategoriesId))
+                    .ToList();
+
+                await _unitOfWork.ProductCategoriesRepository.DeleteRangeAsync(categoriesToDelete);
             }
-
-
             request.Adapt(product);
 
             await _unitOfWork.ProductRepository.UpdateAsync(product);
@@ -125,8 +113,7 @@ namespace DrugWarehouseManagement.Service.Services
         public async Task<BaseResponse> DeleteProductAsync(int productId)
         {
             var product = await _unitOfWork.ProductRepository
-                                .GetAll()
-                                .FirstOrDefaultAsync(p => p.ProductId == productId);
+                                .GetByIdAsync(productId);
 
             if (product == null)
             {

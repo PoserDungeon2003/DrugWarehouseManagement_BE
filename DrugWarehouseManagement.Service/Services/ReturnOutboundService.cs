@@ -77,7 +77,7 @@ namespace DrugWarehouseManagement.Service.Services
             }
 
             // 3) Lưu DB
-            await _unitOfWork.ReturnOutboundDetailsRepository.CreateRangeAsync(returnDetailsList);
+            await _unitOfWork.ReturnOutboundDetailsRepository.AddRangeAsync(returnDetailsList);
             await _unitOfWork.SaveChangesAsync();
 
             //  Cập nhật Outbound.Status = Returned 

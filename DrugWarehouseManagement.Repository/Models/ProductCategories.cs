@@ -10,5 +10,7 @@ namespace DrugWarehouseManagement.Repository.Models
     {
         public int ProductId { get; set; }
         public int CategoriesId { get; set; }
+        public virtual Product Product { get; set; } = null!;
+        public virtual Categories Categories { get; set; } = null!;
     }
 }
