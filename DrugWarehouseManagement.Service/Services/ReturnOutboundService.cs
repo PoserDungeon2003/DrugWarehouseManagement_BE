@@ -60,16 +60,16 @@ namespace DrugWarehouseManagement.Service.Services
                 }
                 // Kiểm tra logic returnedQuantity <= outboundDetail.Quantity
                 // (nếu bạn giới hạn không trả quá số đã xuất)
-                if (detailItem.ReturnedQuantity > outboundDetail.Quantity)
+                if (detailItem.Quantity > outboundDetail.Quantity)
                 {
-                    throw new Exception($"ReturnedQuantity={detailItem.ReturnedQuantity} > OutboundDetail.Quantity={outboundDetail.Quantity}");
+                    throw new Exception($"ReturnedQuantity={detailItem.Quantity} > OutboundDetail.Quantity={outboundDetail.Quantity}");
                 }
 
                 // Tạo record ReturnOutboundDetails
                 var rod = new ReturnOutboundDetails
                 {
                     OutboundDetailsId = detailItem.OutboundDetailId,
-                    ReturnedQuantity = detailItem.ReturnedQuantity,
+                    ReturnedQuantity = detailItem.Quantity,
                     Note = detailItem.Note              
                 };
                 rod.CreatedAt = SystemClock.Instance.GetCurrentInstant();
