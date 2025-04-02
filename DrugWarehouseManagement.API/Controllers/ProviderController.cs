@@ -66,7 +66,7 @@ namespace DrugWarehouseManagement.API.Controllers
                 });
             }
         }
-        [HttpGet("search")]
+        [HttpGet]
         public async Task<IActionResult> SearchProviders([FromQuery] QueryPaging queryPaging)
         {
             try
