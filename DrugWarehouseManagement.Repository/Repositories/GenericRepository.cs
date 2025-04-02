@@ -115,6 +115,11 @@ namespace DrugWarehouseManagement.Repository.Repositories
                               .AsNoTracking()
                               .ToListAsync();
         }
+
+        public async Task DeleteRangeAsync(IEnumerable<TEntity> entities)
+        {
+            _context.Set<TEntity>().RemoveRange(entities);
+        }
     }
 
 }

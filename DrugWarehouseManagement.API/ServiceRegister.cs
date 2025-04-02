@@ -116,8 +116,11 @@ namespace DrugWarehouseManagement.API
             services.AddScoped<IMinioService, MinioService>();
             services.AddScoped<IFirebaseService, FirebaseService>();
             services.AddScoped<ICategoriesService, CategoriesService>();
+            services.AddScoped<IInventoryReportService, InventoryReportService>();
+            services.AddScoped<IReturnOutboundService,ReturnOutboundService >();
             //services.AddScoped<IInventoryReportService, InventoryReportService>();
-
+            services.AddScoped<IDeviceService, DeviceService>();
+            services.AddScoped<IInboundRequestService, InboundRequestService>();
         }
 
         public static IServiceCollection AddAuthorizeService(this IServiceCollection services, IConfiguration configuration)
@@ -176,11 +179,12 @@ namespace DrugWarehouseManagement.API
         {
             TypeAdapterConfig<OutboundDetails, OutboundDetailRespone>
             .NewConfig()
-            .Map(dest => dest.ProductName, src => src.Lot.Product.ProductName);
+            .Map(dest => dest.ProductName, src => src.Lot.Product.ProductName)
+            .Map(dest => dest.UnitType, src => src.Lot.Product.SKU)
+            .Map(dest => dest.LotNumber, src => src.Lot.LotNumber);  
             TypeAdapterConfig<Outbound, OutboundResponse>
             .NewConfig()
             .Map(dest => dest.CustomerName, src => src.Customer.CustomerName)
-            .Map(dest => dest.Address, src => src.Customer.Address)
             .Map(dest => dest.PhoneNumber, src => src.Customer.PhoneNumber)
             .Map(dest => dest.OutboundDetails, src => src.OutboundDetails);
             TypeAdapterConfig<Account, ViewAccount>
@@ -267,8 +271,24 @@ namespace DrugWarehouseManagement.API
                 .Map(dest => dest.ProviderName, src => src.Provider.ProviderName)
                 .Map(dest => dest.ProductName, src => src.Product.ProductName)
                 .Map(dest => dest.WarehouseName, src => src.Warehouse.WarehouseName);
-        }
 
+            TypeAdapterConfig<ReturnOutboundDetails, ReturnOutboundDetailsResponse>
+                .NewConfig()
+                .Map(dest => dest.OutboundCode, src => src.OutboundDetails.Outbound.OutboundCode)
+                .Map(dest => dest.ProductCode, src => src.OutboundDetails.Lot.Product.ProductCode)
+                .Map(dest => dest.ProductName, src => src.OutboundDetails.Lot.Product.ProductName);
+
+            TypeAdapterConfig<Device, ViewDevices>
+                .NewConfig()
+                .Map(dest => dest.ExpiryDate, src => src.ExpiryDate.HasValue ? src.ExpiryDate.Value.ToString("o") : null)
+                .Map(dest => dest.CreatedBy, src => src.Account.FullName)
+                .Map(dest => dest.Status, src => src.Status.ToString());
+
+            TypeAdapterConfig<UpdateDeviceRequest, Device>
+                .NewConfig()
+                .IgnoreNullValues(true);
+        }
+            
         private static void AddEnum(IServiceCollection services)
         {
             services.AddControllers().AddJsonOptions(options =>
@@ -292,10 +312,10 @@ namespace DrugWarehouseManagement.API
         {
             if (FirebaseApp.DefaultInstance == null)
             {
-                FirebaseApp.Create(new AppOptions()
-                {
-                    Credential = GoogleCredential.FromFile("firebase-credentials.json")
-                });
+               FirebaseApp.Create(new AppOptions()
+               {
+                   Credential = GoogleCredential.FromFile("firebase-credentials.json")
+               });
 
             }
         }

@@ -23,6 +23,6 @@ namespace DrugWarehouseManagement.Repository.Models
         public virtual Account Account { get; set; } = null!;
         public virtual List<InboundRequestDetails> InboundRequestDetails { get; set; } = null!;
         public List<Asset> Assets { get; set; } = null!;
-
+        public virtual List<InboundRequestAssets> InboundRequestAssets { get; set; } = null!;
     }
 }

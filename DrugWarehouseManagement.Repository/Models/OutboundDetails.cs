@@ -9,10 +9,8 @@ namespace DrugWarehouseManagement.Repository.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int OutboundDetailsId { get; set; }
-        public string LotNumber { get; set; } = null!;
         public DateOnly ExpiryDate { get; set; }
         public int Quantity { get; set; }
-        public string UnitType { get; set; } = null!;
         public decimal UnitPrice { get; set; }
         public decimal TotalPrice { get; set; }
         public float Discount { get; set; }
@@ -22,6 +20,8 @@ namespace DrugWarehouseManagement.Repository.Models
 
         public virtual Lot Lot { get; set; } = null!;
         public virtual Outbound Outbound { get; set; } = null!;
+        public virtual ICollection<ReturnOutboundDetails> ReturnOutboundDetails { get; set; }
+       = new List<ReturnOutboundDetails>();
 
     }
 }

@@ -31,5 +31,6 @@ namespace DrugWarehouseManagement.Repository.Models
         public virtual List<InboundRequest> InboundRequests { get; set; } = null!;
         public virtual List<InboundReport> InboundReports { get; set; } = null!;
         public virtual List<Asset> Assets { get; set; } = null!;
+        public virtual List<Device> Devices { get; set; } = null!;
     }
 }

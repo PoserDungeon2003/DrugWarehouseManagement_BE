@@ -20,6 +20,7 @@ namespace DrugWarehouseManagement.Repository.Models
         public int? WarehouseId { get; set; } // Warehouse
         public int? InboundRequestId { get; set; }
 
+
         public virtual List<InboundDetails> InboundDetails { get; set; } = null!;
         public virtual Account Account { get; set; } = null!;
         public virtual Provider Provider { get; set; } = null!;

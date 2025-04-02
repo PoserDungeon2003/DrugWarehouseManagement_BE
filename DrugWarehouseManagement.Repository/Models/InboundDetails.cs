@@ -21,5 +21,7 @@ namespace DrugWarehouseManagement.Repository.Models
         public int InboundId { get; set; }
         public virtual Inbound Inbound { get; set; } = null!;
         public virtual Product Product { get; set; } = null!;
+        public virtual ICollection<ReturnOutboundDetails> ReturnOutboundDetails { get; set; }
+       = new List<ReturnOutboundDetails>();
     }
 }

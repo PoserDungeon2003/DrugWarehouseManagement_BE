@@ -39,6 +39,26 @@ namespace DrugWarehouseManagement.API.Controllers
                 });
             }
         }
+
+        [HttpPost("sample-export")]
+        [Authorize]
+        public async Task<IActionResult> CreateSampleOutbound([FromBody] CreateOutboundRequest request)
+        {
+            try
+            {
+                var accountId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+                var response = await _outboundService.CreateOutbound(accountId, request);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    Code = 400,
+                    Message = ex.Message,
+                });
+            }
+        }
         [HttpPut]
         public async Task<IActionResult> UpdateOutbound(int id, [FromBody] UpdateOutboundRequest request)
         {
@@ -62,25 +82,50 @@ namespace DrugWarehouseManagement.API.Controllers
         /// Example: GET api/outbounds/search?page=1&pageSize=10&search=OUTB-1234
         /// </summary>
         [HttpGet]
-        public async Task<IActionResult> SearchOutbounds([FromQuery] QueryPaging queryPaging)
+        public async Task<IActionResult> SearchOutbounds([FromQuery] SearchOutboundRequest request)
         {
-            var result = await _outboundService.SearchOutboundsAsync(queryPaging);
-            return Ok(result);
+            try
+            {
+                var result = await _outboundService.SearchOutboundsAsync(request);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    Code = 400,
+                    Message = ex.Message,
+                });
+            }
+          
         }
         
         [HttpGet("{id}")]
         public async Task<IActionResult> GetOutboundById(int id)
         {
-            var outbound = await _outboundService.GetOutboundByIdAsync(id);
-            if (outbound == null)
+            try
             {
-                return NotFound(new BaseResponse
+                var outbound = await _outboundService.GetOutboundByIdAsync(id);
+                if (outbound == null)
                 {
-                    Code = 404,
-                    Message = "Outbound not found."
+                    return NotFound(new BaseResponse
+                    {
+                        Code = 404,
+                        Message = "Outbound not found."
+                    });
+                }
+                return Ok(outbound);
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    Code = 400,
+                    Message = ex.Message,
                 });
             }
-            return Ok(outbound);
+           
         }
         [HttpGet("export/{id}")]
         public async Task<IActionResult> ExportOutboundInvoice(int id)
@@ -155,9 +200,9 @@ namespace DrugWarehouseManagement.API.Controllers
                 {
                     worksheet.Cells[currentRow, 1].Value = stt;
                     worksheet.Cells[currentRow, 2].Value = detail.Lot.Product.ProductName ?? "N/A";
-                    worksheet.Cells[currentRow, 3].Value = detail.LotNumber;
+                    worksheet.Cells[currentRow, 3].Value = detail.Lot.LotNumber;
                     worksheet.Cells[currentRow, 4].Value = detail.ExpiryDate.ToString("dd/MM/yyyy");
-                    worksheet.Cells[currentRow, 5].Value = detail.UnitType;
+                    worksheet.Cells[currentRow, 5].Value = detail.Lot.Product.SKU;
                     worksheet.Cells[currentRow, 6].Value = detail.Quantity;
                     worksheet.Cells[currentRow, 7].Value = detail.UnitPrice;
                     worksheet.Cells[currentRow, 8].Value = detail.TotalPrice;
