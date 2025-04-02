@@ -22,7 +22,7 @@ namespace DrugWarehouseManagement.Repository.Models
         public Categories? ParentCategory { get; set; }
         public List<Categories>? SubCategories { get; set; }
         public List<Product> Products { get; set; } = null!;
-        public List<Asset> Assets { get; set; } = null!;
+        public List<Asset>? Assets { get; set; }
         public List<ProductCategories> ProductCategories { get; set; } = null!;
     }
 }
