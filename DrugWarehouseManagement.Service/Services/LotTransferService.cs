@@ -282,8 +282,21 @@ namespace DrugWarehouseManagement.Service.Services
                     });
                 });
             }).GeneratePdf();
-            
+
             // string fileName = $"lot-transfer/{lotTransfer.LotTransferCode}.pdf";
+            // var asset = new Asset
+            // {
+            //     FileUrl = Utils.BuildDownloadAssetUrl("lot-transfer", lotTransfer.LotTransferId.ToString(), fileName),
+            //     FileName = $"{lotTransfer.LotTransferCode}.pdf",
+            //     FileExtension = "pdf",
+            //     FileSize = pdfBytes.Length,
+            //     AccountId = accountId,
+            //     LotTransfer = lotTransfer,
+            // };
+
+            // await _unitOfWork.AssetRepository.CreateAsync(asset);
+            // await _unitOfWork.SaveChangesAsync();
+
             // using (var stream = new MemoryStream(pdfBytes))
             // {
             //     var formFile = new FormFile(
