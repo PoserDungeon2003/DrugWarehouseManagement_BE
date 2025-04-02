@@ -1,7 +1,6 @@
 ﻿using DrugWarehouseManagement.Service.DTO.Request;
 using DrugWarehouseManagement.Service.DTO.Response;
 using DrugWarehouseManagement.Service.Interface;
-using Emgu.CV.Features2D;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;

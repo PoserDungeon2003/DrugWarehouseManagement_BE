@@ -51,6 +51,17 @@ namespace DrugWarehouseManagement.API
                 });
             });
 
+            // Lấy modelPath từ appsettings.json
+            string modelPath = configuration.GetValue<string>("YoloModel:ModelPath");
+
+            if (string.IsNullOrEmpty(modelPath))
+            {
+                throw new InvalidOperationException("YOLO model path is not configured in appsettings.json.");
+            }
+
+            services.AddSingleton<VideoDetectionService>(provider => new VideoDetectionService(modelPath));
+
+
             services.AddHangfire((provider, config) =>
             {
                 config.UseSimpleAssemblyNameTypeSerializer();
