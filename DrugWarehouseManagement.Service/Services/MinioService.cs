@@ -25,7 +25,7 @@ namespace DrugWarehouseManagement.Service.Services
             _logger = logger;
         }
 
-        public async Task<FileUploadResponse> FileUpload(string bucketName, IFormFile file, string fileName)
+        public async Task<FileUploadResponse> FileUpload(string bucketName, IFormFile file, string fileName, string? contentType = null)
         {
             // Make a bucket on the server, if not already present.
             var beArgs = new BucketExistsArgs()
@@ -44,14 +44,14 @@ namespace DrugWarehouseManagement.Service.Services
                 .WithObject(fileName)
                 .WithObjectSize(file.Length)
                 .WithStreamData(stream)
-                .WithContentType(file.ContentType);
+                .WithContentType(contentType ?? file.ContentType);
 
             var response = await _minioClient.PutObjectAsync(putObjectArgs).ConfigureAwait(false);
             _logger.LogInformation("Successfully uploaded " + file.FileName);
             return new FileUploadResponse
             {
                 PutObjectResponse = response,
-                ContentType = file.ContentType,
+                ContentType = contentType ?? file.ContentType,
                 Extension = file.FileName.Split('.').Last()
             };
         }

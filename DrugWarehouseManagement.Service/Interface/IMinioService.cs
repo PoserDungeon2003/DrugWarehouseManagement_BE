@@ -11,7 +11,7 @@ namespace DrugWarehouseManagement.Service.Interface
 {
     public interface IMinioService
     {
-        public Task<FileUploadResponse> FileUpload(string bucketName, IFormFile file, string fileName);
+        public Task<FileUploadResponse> FileUpload(string bucketName, IFormFile file, string fileName, string? contentType = null);
         public Task<MemoryStream?> GetFileAsync(string bucketName, string objectName);
     }
 }

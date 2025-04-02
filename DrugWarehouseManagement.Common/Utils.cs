@@ -71,13 +71,13 @@ namespace DrugWarehouseManagement.Common
             return result.ToString();
         }
 
-        public static string BuildDownloadAssetUrl(string prefix, string id, string type, string fileName)
+        public static string BuildDownloadAssetUrl(string prefix, string id, string fileName)
         {
             // prefix: inbound, outbound, etc...
             // type: report, request, image, etc...
             // file name can be mapped to folder. Ex: folder/file.pdf
             // Ex: inbound/1/report/[folder-name]/1.pdf
-            return $"{prefix}/{id}/{type}/{fileName}";
+            return $"{prefix}/{id}/{fileName}";
         }
 
         public static string FormatDateOnly(DateOnly? date)
