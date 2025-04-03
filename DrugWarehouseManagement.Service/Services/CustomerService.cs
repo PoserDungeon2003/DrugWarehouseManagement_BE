@@ -123,6 +123,10 @@ namespace DrugWarehouseManagement.Service.Services
             {
                 customer.Email = request.Email;
             }
+            if(!string.IsNullOrEmpty(request.DocumentNumber))
+            {
+                customer.DocumentNumber = request.DocumentNumber;
+            }
             await _unitOfWork.CustomerRepository.UpdateAsync(customer);
             await _unitOfWork.SaveChangesAsync();
         }
