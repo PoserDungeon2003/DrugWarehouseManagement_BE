@@ -13,5 +13,6 @@ namespace DrugWarehouseManagement.Service.DTO.Request
         public string? PhoneNumber { get; set; }
         public string? Email { get; set; }
         public string? DocumentNumber { get; set; } // Số chứng từ của khách hàng   
+        public string? Status { get; set; } // Trạng thái của khách hàng
     }
 }
