@@ -35,5 +35,24 @@ namespace DrugWarehouseManagement.API.Controllers
                 });
             }
         }
+
+        [HttpGet("inbound-request/{filename}")]
+        [Authorize]
+        public async Task<IActionResult> GetInboundRequestAsset(string filename)
+        {
+            try
+            {
+                var response = await _minioService.GetFileAsync($"inbound-request", $"{filename}");
+                return File(response.ToArray(), "application/octet-stream", filename);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    Code = 400,
+                    Message = ex.Message,
+                });
+            }
+        }
     }
 }

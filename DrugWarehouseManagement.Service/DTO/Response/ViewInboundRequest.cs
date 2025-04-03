@@ -1,4 +1,5 @@
 ﻿using DrugWarehouseManagement.Common;
+using DrugWarehouseManagement.Repository.Models;
 using NodaTime;
 using System;
 using System.Collections.Generic;
@@ -17,6 +18,7 @@ namespace DrugWarehouseManagement.Service.DTO.Response
         public string Status { get; set; }
         public string CreateDate { get; set; }
         public List<InboundRequestDetailResponse> InboundRequestDetails { get; set; }
+        public List<AssetResponse> Assets { get; set; }
     }
 
     public class InboundRequestDetailResponse
@@ -25,5 +27,18 @@ namespace DrugWarehouseManagement.Service.DTO.Response
         public int Quantity { get; set; }
         public decimal UnitPrice { get; set; }
         public decimal TotalPrice { get; set; }
+    }
+
+    public class AssetResponse
+    {
+        public int AssetId { get; set; }
+        public string FileUrl { get; set; } = null!;
+        public string FileName { get; set; } = null!;
+        public string FileExtension { get; set; } = null!;
+        public long FileSize { get; set; }
+        public string UploadedAt { get; set; } = null!;
+        public string Status { get; set; } = null!;
+        public Guid AccountId { get; set; }
+        public int CategoryId { get; set; }
     }
 }

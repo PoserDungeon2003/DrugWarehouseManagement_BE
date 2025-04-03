@@ -266,6 +266,11 @@ namespace DrugWarehouseManagement.API
                 .NewConfig()
                 .Map(dest => dest.ProductName, src => src.Product.ProductName);
 
+            TypeAdapterConfig<Asset, AssetResponse>
+                .NewConfig()
+                .Map(dest => dest.FileUrl, src => src.FileUrl)
+                .Map(dest => dest.FileName, src => src.FileName);
+
             TypeAdapterConfig<Lot, ViewLot>
                 .NewConfig()
                 .Map(dest => dest.ProviderName, src => src.Provider.ProviderName)

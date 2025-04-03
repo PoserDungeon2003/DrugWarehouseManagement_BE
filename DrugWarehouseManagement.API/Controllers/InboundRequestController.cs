@@ -20,11 +20,17 @@ namespace DrugWarehouseManagement.API.Controllers
 
         [HttpPost]
         [Authorize]
-        public async Task<IActionResult> CreateInboundRequest([FromBody] CreateInboundOrderRequest request)
+        public async Task<IActionResult> CreateInboundRequest([FromForm] CreateInboundOrderRequest request)
         {
             try
             {
                 var accountId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+
+                if (request.InboundRequestDetails == null || !request.InboundRequestDetails.Any())
+                {
+                    return BadRequest(new { Code = 400, Message = "InboundRequestDetails cannot be empty." });
+                }
+
                 var response = await _inboundRequestService.CreateInboundRequest(accountId, request);
                 return Ok(response);
             }

@@ -7,7 +7,9 @@ using DrugWarehouseManagement.Service.Extenstions;
 using DrugWarehouseManagement.Service.Interface;
 using FirebaseAdmin.Messaging;
 using Mapster;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using NodaTime;
 using NodaTime.Text;
 using System;
@@ -22,9 +24,14 @@ namespace DrugWarehouseManagement.Service.Services
     public class InboundRequestService : IInboundRequestService
     {
         private readonly IUnitOfWork _unitOfWork;
-        public InboundRequestService(IUnitOfWork unitOfWork)
+        private readonly IMinioService _minioService;
+        private readonly string BucketName = "inbound-request";
+        private readonly ILogger<InboundRequestService> _logger;
+        public InboundRequestService(IUnitOfWork unitOfWork, IMinioService minioService, ILogger<InboundRequestService> logger)
         {
             _unitOfWork = unitOfWork;
+            _minioService = minioService;
+            _logger = logger;
         }
 
         public async Task<BaseResponse> CreateInboundRequest(Guid accountId, CreateInboundOrderRequest request)
@@ -41,6 +48,27 @@ namespace DrugWarehouseManagement.Service.Services
             inboundRequest.InboundRequestCode = inboundRequestCode;
             inboundRequest.AccountId = accountId;
             inboundRequest.UpdatedAt = SystemClock.Instance.GetCurrentInstant();
+
+            inboundRequest.Assets = new List<Asset>();
+
+
+            // Handle image uploads if present
+            if (request.Images != null && request.Images.Any())
+            {
+                try
+                {
+                    var uploadedAssets = await UploadFiles(request.Images, accountId);
+                    inboundRequest.Assets.AddRange(uploadedAssets);
+                }
+                catch (Exception ex)
+                {
+                    return new BaseResponse
+                    {
+                        Code = 500,
+                        Message = "Error uploading files: " + ex.Message
+                    };
+                }
+            }
 
             await _unitOfWork.InboundRequestRepository.CreateAsync(inboundRequest);
             await _unitOfWork.SaveChangesAsync();
@@ -75,6 +103,7 @@ namespace DrugWarehouseManagement.Service.Services
         {
             var query = _unitOfWork.InboundRequestRepository
                         .GetAll()
+                        .Include(i => i.Assets)
                         .Include(i => i.InboundRequestDetails)
                         .ThenInclude(i => i.Product)
                         .AsQueryable();
@@ -202,6 +231,36 @@ namespace DrugWarehouseManagement.Service.Services
             var dateDigits = DateTime.Now.ToString("MMdd");
             var uniqueId = Guid.NewGuid().ToString("N").Substring(0, 4).ToUpper();
             return $"IRC{uniqueId}{dateDigits}";
+        }
+
+        private async Task<List<Asset>> UploadFiles(List<IFormFile> files, Guid accountId)
+        {
+            var uploadedAssets = new List<Asset>();
+            // Upload each file using MinioService
+            foreach (var file in files)
+            {
+                if (file.Length > 0)
+                {
+                    string fileName = $"{Guid.NewGuid()}_{file.FileName}";
+                    var uploadResponse = await _minioService.FileUpload(BucketName, file, fileName);
+
+                    var asset = new Asset
+                    {
+                        FileUrl = $"{BucketName}/{fileName}",
+                        FileName = file.FileName,
+                        FileExtension = uploadResponse.Extension,
+                        FileSize = file.Length,
+                        UploadedAt = SystemClock.Instance.GetCurrentInstant(),
+                        Status = AssetStatus.Active,
+                        AccountId = accountId,
+                        CategoryId = 1 // Adjust as needed
+                    };
+
+                    uploadedAssets.Add(asset);
+                }
+            }
+
+            return uploadedAssets;
         }
     }
 }

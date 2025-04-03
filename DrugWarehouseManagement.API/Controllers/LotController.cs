@@ -90,7 +90,7 @@ namespace DrugWarehouseManagement.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetLotsPaginated([FromQuery] QueryPaging request)
+        public async Task<IActionResult> GetLotsPaginated([FromQuery] LotQueryPaging request)
         {
             try
             {
