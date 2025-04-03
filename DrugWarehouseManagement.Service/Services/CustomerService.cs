@@ -107,7 +107,6 @@ namespace DrugWarehouseManagement.Service.Services
             {
                 throw new Exception("Không tìm thấy khách hàng.");
             }
-            request.Adapt(customer);
             if (!string.IsNullOrEmpty(request.Status))
             {
                 if (Enum.TryParse<CustomerStatus>(request.Status, true, out var parsedStatus))
@@ -119,6 +118,8 @@ namespace DrugWarehouseManagement.Service.Services
                     throw new Exception("Status is invalid.");
                 }
             }
+            request.Adapt(customer);
+           
             await _unitOfWork.CustomerRepository.UpdateAsync(customer);
             await _unitOfWork.SaveChangesAsync();
         }

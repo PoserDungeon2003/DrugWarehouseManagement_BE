@@ -13,5 +13,6 @@ namespace DrugWarehouseManagement.Service.DTO.Request
         public string? Email { get; set; }
         public string? DocumentNumber { get; set; }
         public DateOnly? DocumentIssueDate { get; set; }
+        public string? Status { get; set; } // Trạng thái của nhà cung cấp
     }
 }
