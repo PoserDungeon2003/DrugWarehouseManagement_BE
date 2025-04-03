@@ -10,6 +10,7 @@ namespace DrugWarehouseManagement.Service.DTO.Response
         public string SKU { get; set; } = null!;
         public string MadeFrom { get; set; } = null!;
         //public int ProviderId { get; set; }
+        public string Status { get; set; } = null!;
         public List<ProductCategoriesResponse>? Categories { get; set; }
     }
 

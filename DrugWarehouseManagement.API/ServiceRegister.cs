@@ -216,6 +216,7 @@ namespace DrugWarehouseManagement.API
                 .NewConfig()
 
                 .Map(dest => dest.LotNumber, src => src.Lot.LotNumber)
+                .Map(dest => dest.ProductName, src => src.Lot.Product.ProductName)
                 .IgnoreNullValues(true);
 
             TypeAdapterConfig<UpdateLotTransferRequest, LotTransfer>
