@@ -103,29 +103,21 @@ namespace DrugWarehouseManagement.Service.Services
                  .GetAll()
                  .FirstOrDefaultAsync(c => c.CustomerId == customerId);
 
-            if (customer == null || customer.Status == CustomerStatus.Inactive)
+            if (customer == null)
             {
-                throw new Exception("Customer not found or inactive.");
+                throw new Exception("Không tìm thấy khách hàng.");
             }
-            if (!string.IsNullOrEmpty(request.CustomerName))
+            request.Adapt(customer);
+            if (!string.IsNullOrEmpty(request.Status))
             {
-                customer.CustomerName = request.CustomerName;
-            }
-            if (!string.IsNullOrEmpty(request.Address))
-            {
-                customer.Address = request.Address;
-            }
-            if (!string.IsNullOrEmpty(request.PhoneNumber))
-            {
-                customer.PhoneNumber = request.PhoneNumber;
-            }
-            if (!string.IsNullOrEmpty(request.Email))
-            {
-                customer.Email = request.Email;
-            }
-            if(!string.IsNullOrEmpty(request.DocumentNumber))
-            {
-                customer.DocumentNumber = request.DocumentNumber;
+                if (Enum.TryParse<CustomerStatus>(request.Status, true, out var parsedStatus))
+                {
+                    customer.Status = parsedStatus;
+                }
+                else
+                {
+                    throw new Exception("Status is invalid.");
+                }
             }
             await _unitOfWork.CustomerRepository.UpdateAsync(customer);
             await _unitOfWork.SaveChangesAsync();
