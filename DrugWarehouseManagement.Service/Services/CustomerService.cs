@@ -107,17 +107,7 @@ namespace DrugWarehouseManagement.Service.Services
             {
                 throw new Exception("Không tìm thấy khách hàng.");
             }
-            if (!string.IsNullOrEmpty(request.Status))
-            {
-                if (Enum.TryParse<CustomerStatus>(request.Status, true, out var parsedStatus))
-                {
-                    customer.Status = parsedStatus;
-                }
-                else
-                {
-                    throw new Exception("Status is invalid.");
-                }
-            }
+
             request.Adapt(customer);
            
             await _unitOfWork.CustomerRepository.UpdateAsync(customer);
