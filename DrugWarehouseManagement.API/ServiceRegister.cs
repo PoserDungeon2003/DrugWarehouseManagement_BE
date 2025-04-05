@@ -51,6 +51,17 @@ namespace DrugWarehouseManagement.API
                 });
             });
 
+            // Lấy modelPath từ appsettings.json
+            string modelPath = configuration.GetValue<string>("YoloModel:ModelPath");
+
+            if (string.IsNullOrEmpty(modelPath))
+            {
+                throw new InvalidOperationException("YOLO model path is not configured in appsettings.json.");
+            }
+
+            services.AddSingleton<VideoDetectionService>(provider => new VideoDetectionService(modelPath));
+
+
             services.AddHangfire((provider, config) =>
             {
                 config.UseSimpleAssemblyNameTypeSerializer();
@@ -91,6 +102,8 @@ namespace DrugWarehouseManagement.API
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<IInboundService, InboundService>();
+            services.AddScoped<IInboundRequestService, InboundRequestService>();
+            services.AddScoped<IInboundReportService, InboundReportService>();
             services.AddScoped<ILotService, LotService>();
             services.AddScoped<IOutboundService, OutboundService>();
             services.AddScoped<IAuditLogsRepository, AuditLogsRepository>();
@@ -249,11 +262,26 @@ namespace DrugWarehouseManagement.API
                 .NewConfig()
                 .Map(dest => dest.ProviderName, src => src.Provider.ProviderName)
                 .Map(dest => dest.CreateBy, src => src.Account.FullName)
+                .Map(dest => dest.Status, src => src.Status.ToString())
                 .Map(dest => dest.WarehouseName, src => src.Warehouse.WarehouseName);
 
             TypeAdapterConfig<InboundDetails, InboundDetailResponse>
                 .NewConfig()
                 .Map(dest => dest.ProductName, src => src.Product.ProductName);
+
+            TypeAdapterConfig<InboundRequest, ViewInboundRequest>
+                .NewConfig()
+                .Map(dest => dest.CreateDate, src => src.CreatedAt)
+                .Map(dest => dest.Status, src => src.Status.ToString());
+
+            TypeAdapterConfig<InboundRequestDetails, InboundRequestDetailResponse>
+                .NewConfig()
+                .Map(dest => dest.ProductName, src => src.Product.ProductName);
+
+            TypeAdapterConfig<Asset, AssetResponse>
+                .NewConfig()
+                .Map(dest => dest.FileUrl, src => src.FileUrl)
+                .Map(dest => dest.FileName, src => src.FileName);
 
             TypeAdapterConfig<Lot, ViewLot>
                 .NewConfig()

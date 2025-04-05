@@ -1,7 +1,6 @@
 ﻿using DrugWarehouseManagement.Service.DTO.Request;
 using DrugWarehouseManagement.Service.DTO.Response;
 using DrugWarehouseManagement.Service.Interface;
-using Emgu.CV.Features2D;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -21,11 +20,17 @@ namespace DrugWarehouseManagement.API.Controllers
 
         [HttpPost]
         [Authorize]
-        public async Task<IActionResult> CreateInboundRequest([FromBody] CreateInboundOrderRequest request)
+        public async Task<IActionResult> CreateInboundRequest([FromForm] CreateInboundOrderRequest request)
         {
             try
             {
                 var accountId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+
+                if (request.InboundRequestDetails == null || !request.InboundRequestDetails.Any())
+                {
+                    return BadRequest(new { Code = 400, Message = "InboundRequestDetails cannot be empty." });
+                }
+
                 var response = await _inboundRequestService.CreateInboundRequest(accountId, request);
                 return Ok(response);
             }
@@ -41,7 +46,7 @@ namespace DrugWarehouseManagement.API.Controllers
 
         [HttpPut]
         [Authorize]
-        public async Task<IActionResult> UpdateInboundRequest([FromBody] UpdateInboundOrderRequest request)
+        public async Task<IActionResult> UpdateInboundRequest([FromForm] UpdateInboundOrderRequest request)
         {
             try
             {
@@ -67,26 +72,6 @@ namespace DrugWarehouseManagement.API.Controllers
             {
                 var accountId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
                 var response = await _inboundRequestService.UpdateInboundRequestStatus(accountId, request);
-                return Ok(response);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new BaseResponse
-                {
-                    Code = 400,
-                    Message = ex.Message,
-                });
-            }
-        }
-
-        [HttpDelete("{inboundId}")]
-        [Authorize]
-        public async Task<IActionResult> DeleteInboundRequset(int inboundId)
-        {
-            try
-            {
-                var accountId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-                var response = await _inboundRequestService.DeleteInboundRequest(accountId, inboundId);
                 return Ok(response);
             }
             catch (Exception ex)

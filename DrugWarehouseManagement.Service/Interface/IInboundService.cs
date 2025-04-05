@@ -15,6 +15,7 @@ namespace DrugWarehouseManagement.Service.Interface
         public Task<BaseResponse> UpdateInbound(Guid accountId, UpdateInboundRequest request);
         public Task<BaseResponse> UpdateInboundStatus(Guid accountId, UpdateInboundStatusRequest request);
         public Task<ViewInbound> GetInboundById(int inboundId);
+        public Task<byte[]> GenerateInboundPdfAsync(int inboundId);
         public Task<PaginatedResult<ViewInbound>> GetInboundsPaginatedAsync(QueryPaging request);
     }
 }

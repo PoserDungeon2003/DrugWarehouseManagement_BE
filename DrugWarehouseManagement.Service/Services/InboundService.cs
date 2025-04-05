@@ -11,6 +11,10 @@ using DrugWarehouseManagement.Common;
 using NodaTime.Text;
 using Mapster;
 using FirebaseAdmin.Messaging;
+using QuestPDF;
+using QuestPDF.Fluent;
+using QuestPDF.Helpers;
+using QuestPDF.Infrastructure;
 
 namespace DrugWarehouseManagement.Service.Services
 {
@@ -38,7 +42,7 @@ namespace DrugWarehouseManagement.Service.Services
             inbound.InboundDate = SystemClock.Instance.GetCurrentInstant();
             inbound.Status = InboundStatus.Pending;
             inbound.UpdatedAt = SystemClock.Instance.GetCurrentInstant();
-            
+
             await _unitOfWork.InboundRepository.CreateAsync(inbound);
             await _unitOfWork.SaveChangesAsync();
 
@@ -65,13 +69,13 @@ namespace DrugWarehouseManagement.Service.Services
 
             if (!Enum.IsDefined(typeof(InboundStatus), request.InboundStatus))
             {
-                return new BaseResponse { Code = 404, Message = "Invalid inbound status {Pending, InProgess, Completed, Cancelled" };
+                return new BaseResponse { Code = 404, Message = "Invalid inbound status {Pending, InProgess, Completed, Cancelled}" };
             }
 
             // Update inbound details
             inbound.Status = request.InboundStatus;
             inbound.AccountId = accountId;
-            inbound.UpdatedAt= SystemClock.Instance.GetCurrentInstant();
+            inbound.UpdatedAt = SystemClock.Instance.GetCurrentInstant();
 
             await _unitOfWork.InboundRepository.UpdateAsync(inbound);
 
@@ -119,7 +123,7 @@ namespace DrugWarehouseManagement.Service.Services
                     }
                 }
             }
-            else if (request.InboundStatus == InboundStatus.Cancelled)
+            else if (request.InboundStatus == InboundStatus.Cancelled && inbound.Status == InboundStatus.Completed)
             {
                 var inboundDetails = await _unitOfWork.InboundDetailRepository.GetAllByInboundIdAsync(inbound.InboundId);
                 if (inboundDetails.Any())
@@ -150,7 +154,7 @@ namespace DrugWarehouseManagement.Service.Services
                         }
                     }
                 }
-                    
+
             }
 
             await _unitOfWork.SaveChangesAsync();
@@ -173,10 +177,24 @@ namespace DrugWarehouseManagement.Service.Services
                 return new BaseResponse { Code = 404, Message = "Inbound not found" };
             }
 
-            
+            if (inbound.Status == InboundStatus.Completed)
+            {
+                return new BaseResponse { Code = 200, Message = "Inbound is completed and can't be update" };
+            }
+
             inbound.AccountId = accountId;
             inbound.UpdatedAt = SystemClock.Instance.GetCurrentInstant();
             request.Adapt(inbound);
+
+            if (request.InboundDetails != null)
+            {
+                // Step 1: Remove all existing details
+                var existingDetails = _unitOfWork.InboundDetailRepository.GetByWhere(x => x.InboundId == inbound.InboundId);
+                foreach (var detail in existingDetails)
+                {
+                    await _unitOfWork.InboundDetailRepository.DeleteAsync(detail);
+                }
+            }
 
             await _unitOfWork.InboundRepository.UpdateAsync(inbound);
             await _unitOfWork.SaveChangesAsync();
@@ -186,16 +204,23 @@ namespace DrugWarehouseManagement.Service.Services
 
         public async Task<ViewInbound> GetInboundById(int inboundId)
         {
-            var inbound = await _unitOfWork.InboundRepository.GetByIdAsync(inboundId);
+            var inbound = await _unitOfWork.InboundRepository
+                .GetByWhere(i => i.InboundId == inboundId)
+                .Include(i => i.InboundDetails)
+                        .ThenInclude(i => i.Product)
+                .Include(i => i.Provider)
+                .Include(i => i.Account)
+                .Include(i => i.Warehouse)
+                .AsQueryable()
+                .FirstOrDefaultAsync();
             if (inbound == null)
             {
                 return new ViewInbound();
             }
 
             var result = inbound.Adapt<ViewInbound>();
-            var timeZone = DateTimeZoneProviders.Tzdb["Asia/Ho_Chi_Minh"];
             result.InboundDate = InstantPattern.ExtendedIso.Parse(result.InboundDate)
-                .Value.InZone(timeZone).ToString("dd/MM/yyyy HH:mm", null);
+                .Value.ToString("dd/MM/yyyy HH:mm", null);
 
             return result;
         }
@@ -256,7 +281,6 @@ namespace DrugWarehouseManagement.Service.Services
             var paginatedInbounds = await query.ToPaginatedResultAsync(request.Page, request.PageSize);
 
             // Ensure proper formatting of InboundDate
-            var timeZone = DateTimeZoneProviders.Tzdb["Asia/Ho_Chi_Minh"];
             var viewInbounds = paginatedInbounds.Items.Adapt<List<ViewInbound>>();
 
             foreach (var viewInbound in viewInbounds)
@@ -264,7 +288,7 @@ namespace DrugWarehouseManagement.Service.Services
                 if (viewInbound.InboundDate != null)
                 {
                     viewInbound.InboundDate = InstantPattern.ExtendedIso.Parse(viewInbound.InboundDate)
-                        .Value.InZone(timeZone).ToString("dd/MM/yyyy HH:mm", null);
+                        .Value.ToString("dd/MM/yyyy HH:mm", null);
                 }
             }
             return new PaginatedResult<ViewInbound>
@@ -278,18 +302,242 @@ namespace DrugWarehouseManagement.Service.Services
 
         private string GenerateInboundCode()
         {
-            Random random = new Random();
-            string randomDigits = random.Next(1000, 9999).ToString(); // Generate 4 random digits
-            string dateDigits = DateTime.Now.ToString("MMdd"); // Get 4-digit based on current date (MMDD)
+            var uniqueId = Guid.NewGuid().ToString("N").Substring(0, 4).ToUpper();
+            string dateDigits = DateTime.Now.ToString("MMdd");
+            return $"IC{uniqueId}{dateDigits}";
+        }
 
-            string inboundCode = $"IC{randomDigits}{dateDigits}";
+        public async Task<byte[]> GenerateInboundPdfAsync(int inboundId)
+        {
+            // Lấy thông tin inbound
+            var inbound = await _unitOfWork.InboundRepository
+                .GetByWhere(i => i.InboundId == inboundId)
+                .Include(i => i.InboundDetails)
+                    .ThenInclude(i => i.Product)
+                .Include(i => i.Provider)
+                .Include(i => i.Warehouse)
+                .AsQueryable()
+                .FirstOrDefaultAsync();
 
-            if (!Regex.IsMatch(inboundCode, "^IC\\d{4}\\d{4}$"))
+            if (inbound == null)
             {
-                throw new InvalidOperationException("Generated InboundCode does not match the required pattern.");
+                throw new Exception("Inbound not found");
             }
 
-            return inboundCode;
+            Settings.License = LicenseType.Community;
+
+            // Tạo PDF document sử dụng QuestPDF
+            var document = Document.Create(container =>
+            {
+                container.Page(page =>
+                {
+                    page.Size(PageSizes.A4);
+                    page.Margin(1, Unit.Centimetre);
+                    page.PageColor(Colors.White);
+                    page.DefaultTextStyle(x => x.FontSize(12).FontFamily("Times New Roman"));
+
+                    // Header
+                    page.Header()
+                        .Column(column =>
+                        {
+                            // Thông tin công ty
+                            column.Item()
+                                .AlignLeft()
+                                .Text("CÔNG TY TNHH DƯỢC PHẨM TRUNG HÀNH")
+                                .FontSize(14)
+                                .Bold();
+
+                            column.Item()
+                                .AlignLeft()
+                                .Text("ĐC: 2/35 Chấn Hưng, Phường 6, Quận Tân Bình, Tp Hồ Chí Minh")
+                                .FontSize(10);
+
+                            column.Item()
+                                .AlignLeft()
+                                .Text("ĐT: 0983 139 320 - 028 62 65 2500")
+                                .FontSize(10);
+
+                            // Số phiếu và ngày
+                            column.Item()
+                                .AlignRight()
+                                .Text($"SỐ: {inbound.InboundCode}")
+                                .FontSize(10);
+
+                            column.Item()
+                                .AlignRight()
+                                .Text($"Ngày: {inbound.InboundDate.Value.ToString("dd/MM/yyyy HH:mm", null)}")
+                                .FontSize(10);
+
+                            // Tiêu đề
+                            column.Item()
+                                .AlignCenter()
+                                .PaddingTop(10)
+                                .Text("PHIẾU GIAO NHẬN")
+                                .FontSize(16)
+                                .Bold();
+
+                            // Khách hàng và địa chỉ
+                            column.Item()
+                                .PaddingTop(10)
+                                .Text($"Khách hàng: {inbound.Provider?.ProviderName ?? "N/A"}")
+                                .FontSize(12);
+
+                            column.Item()
+                                .Text($"Địa chỉ: {inbound.Provider?.Address ?? "N/A"}")
+                                .FontSize(12);
+
+                            column.Item()
+                                .Text($"Điện thoại: {inbound.Provider?.PhoneNumber ?? "N/A"}")
+                                .FontSize(12);
+
+                            // Số biên nhận và mã vận đơn
+                            column.Item()
+                                .PaddingTop(5)
+                                .Row(row =>
+                                {
+                                    row.RelativeItem()
+                                        .Text($"SỐ BN: {inbound.InboundCode}")
+                                        .FontSize(12);
+
+                                    row.RelativeItem()
+                                        .AlignRight()
+                                        .Text($"Mã vận đơn: {inbound.InboundCode}")
+                                        .FontSize(12);
+                                });
+
+                            // Ghi chú
+                            column.Item()
+                                .PaddingTop(5)
+                                .Text($"Ghi chú: TỔI GẦN NHÀ A TRUNG GỌI SỐ 09136993663 GIAO CHO A HOÀNG")
+                                .FontSize(12);
+                        });
+
+                    // Content (Bảng chi tiết hàng hóa)
+                    page.Content()
+                        .PaddingVertical(10)
+                        .Table(table =>
+                        {
+                            table.ColumnsDefinition(columns =>
+                            {
+                                columns.RelativeColumn(1);  // STT
+                                columns.RelativeColumn(3);  // Tên hàng
+                                columns.RelativeColumn(2);  // Số lô
+                                columns.RelativeColumn(2);  // Hạn dùng
+                                columns.RelativeColumn(1);  // ĐVT
+                                columns.RelativeColumn(1);  // Số lượng
+                                columns.RelativeColumn(2);  // Đơn giá
+                                columns.RelativeColumn(2);  // Thành tiền
+                            });
+
+                            // Định nghĩa CellStyle một lần duy nhất
+                            IContainer CellStyle(IContainer container)
+                            {
+                                return container
+                                    .Border(1)
+                                    .BorderColor(Colors.Black)
+                                    .Padding(5);
+                            }
+
+                            // Table Header
+                            table.Header(header =>
+                            {
+                                header.Cell().Element(CellStyle).Text("STT").AlignCenter();
+                                header.Cell().Element(CellStyle).Text("TÊN HÀNG").AlignCenter();
+                                header.Cell().Element(CellStyle).Text("SỐ LÔ").AlignCenter();
+                                header.Cell().Element(CellStyle).Text("HẠN DÙNG").AlignCenter();
+                                header.Cell().Element(CellStyle).Text("ĐVT").AlignCenter();
+                                header.Cell().Element(CellStyle).Text("SL").AlignCenter();
+                                header.Cell().Element(CellStyle).Text("ĐƠN GIÁ").AlignCenter();
+                                header.Cell().Element(CellStyle).Text("THÀNH TIỀN").AlignCenter();
+                            });
+
+                            // Table Content
+                            int index = 1;
+                            decimal totalAmount = 0;
+                            foreach (var detail in inbound.InboundDetails)
+                            {
+                                decimal unitPrice = detail.UnitPrice; // Giả sử có field UnitPrice trong InboundDetail
+                                decimal amount = unitPrice * detail.Quantity;
+                                totalAmount += amount;
+
+                                table.Cell().Element(CellStyle).Text($"{index++}").AlignCenter();
+                                table.Cell().Element(CellStyle).Text(detail.Product?.ProductName ?? "N/A");
+                                table.Cell().Element(CellStyle).Text(detail.LotNumber);
+                                table.Cell().Element(CellStyle).Text(detail.ExpiryDate?.ToString("dd/MM/yyyy") ?? "N/A");
+                                table.Cell().Element(CellStyle).Text("HỘP").AlignCenter(); // Đơn vị tính
+                                table.Cell().Element(CellStyle).Text(detail.Quantity.ToString()).AlignCenter();
+                                table.Cell().Element(CellStyle).Text($"{unitPrice:N0}").AlignRight();
+                                table.Cell().Element(CellStyle).Text($"{amount:N0}").AlignRight();
+                            }
+
+                            // VAT và Tổng cộng
+                            decimal vat = 0; // Giả sử VAT 0% như trong mẫu
+                                             // Dòng VAT
+                            table.Cell().Element(CellStyle).Text("VAT 0%").AlignLeft();
+                            table.Cell().ColumnSpan(6).Element(CellStyle).Text("");
+                            table.Cell().Element(CellStyle).Text($"{vat:N0}").AlignRight();
+
+                            // Dòng Cộng
+                            table.Cell().Element(CellStyle).Text("CỘNG").AlignLeft();
+                            table.Cell().ColumnSpan(6).Element(CellStyle).Text("");
+                            table.Cell().Element(CellStyle).Text($"{totalAmount:N0}").AlignRight();
+
+                            // Dòng Chiết khấu
+                            table.Cell().Element(CellStyle).Text("CHIẾT KHẤU").AlignLeft();
+                            table.Cell().ColumnSpan(6).Element(CellStyle).Text("");
+                            table.Cell().Element(CellStyle).Text("0").AlignRight();
+
+                            // Dòng Tổng cộng
+                            table.Cell().Element(CellStyle).Text("TỔNG CỘNG").AlignLeft();
+                            table.Cell().ColumnSpan(6).Element(CellStyle).Text("");
+                            table.Cell().Element(CellStyle).Text($"{totalAmount:N0}").AlignRight();
+                        });
+
+                    // Footer (Phần ký tên)
+                    page.Footer()
+                        .AlignCenter()
+                        .Column(column =>
+                        {
+                            column.Item()
+                                .PaddingTop(20)
+                                .Row(row =>
+                                {
+                                    row.RelativeItem().Column(col =>
+                                    {
+                                        col.Item().Text("Khách hàng").Bold().AlignCenter();
+                                        col.Item().Text("(Ký, họ tên)").AlignCenter();
+                                    });
+
+                                    row.RelativeItem().Column(col =>
+                                    {
+                                        col.Item().Text("Người giao hàng").Bold().AlignCenter();
+                                        col.Item().Text("(Ký, họ tên)").AlignCenter();
+                                    });
+
+                                    row.RelativeItem().Column(col =>
+                                    {
+                                        col.Item().Text("Thủ kho").Bold().AlignCenter();
+                                        col.Item().Text("(Ký, họ tên)").AlignCenter();
+                                    });
+
+                                    row.RelativeItem().Column(col =>
+                                    {
+                                        col.Item().Text("Kế toán").Bold().AlignCenter();
+                                        col.Item().Text("(Ký, họ tên)").AlignCenter();
+                                    });
+                                });
+
+                            column.Item()
+                                .PaddingTop(10)
+                                .Text("phiếu bàn hàng gửi thủ kho bổc đơn")
+                                .FontSize(10)
+                                .Italic();
+                        });
+                });
+            });
+
+            // Generate PDF và trả về byte array
+            return document.GeneratePdf();
         }
     }
 }

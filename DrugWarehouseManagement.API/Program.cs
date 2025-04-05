@@ -5,6 +5,7 @@ using Google;
 using DrugWarehouseManagement.Service.Services;
 using Hangfire;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 namespace DrugWarehouseManagement.API
 {
@@ -15,7 +16,7 @@ namespace DrugWarehouseManagement.API
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
-            
+
             builder.Configuration
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
@@ -33,16 +34,18 @@ namespace DrugWarehouseManagement.API
                 options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
             );
 
-            // Test Video Detection
-            builder.Services.AddSingleton<VideoDetectionService>(provider =>
+            builder.Services.Configure<IISServerOptions>(options =>
             {
-                string modelPath = @"D:\DoAn-FPT\real\DrugWarehouseManagement_BE\yolov8n.onnx";
-                return new VideoDetectionService(modelPath);
+                options.MaxRequestBodySize = 100 * 1024 * 1024; // 100MB
+            });
+            builder.Services.Configure<KestrelServerOptions>(options =>
+            {
+                options.Limits.MaxRequestBodySize = 100 * 1024 * 1024; // 100MB
             });
 
             ServiceRegister.RegisterServices(builder.Services, builder.Configuration);
 
-            var app = builder.Build();     
+            var app = builder.Build();
             if (!app.Environment.IsProduction())
             {
                 app.UseSwagger();
