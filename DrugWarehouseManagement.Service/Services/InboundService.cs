@@ -177,10 +177,24 @@ namespace DrugWarehouseManagement.Service.Services
                 return new BaseResponse { Code = 404, Message = "Inbound not found" };
             }
 
+            if (inbound.Status == InboundStatus.Completed)
+            {
+                return new BaseResponse { Code = 200, Message = "Inbound is completed and can't be update" };
+            }
 
             inbound.AccountId = accountId;
             inbound.UpdatedAt = SystemClock.Instance.GetCurrentInstant();
             request.Adapt(inbound);
+
+            if (request.InboundDetails != null)
+            {
+                // Step 1: Remove all existing details
+                var existingDetails = _unitOfWork.InboundDetailRepository.GetByWhere(x => x.InboundId == inbound.InboundId);
+                foreach (var detail in existingDetails)
+                {
+                    await _unitOfWork.InboundDetailRepository.DeleteAsync(detail);
+                }
+            }
 
             await _unitOfWork.InboundRepository.UpdateAsync(inbound);
             await _unitOfWork.SaveChangesAsync();

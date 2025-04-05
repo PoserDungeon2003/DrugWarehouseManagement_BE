@@ -16,6 +16,6 @@ namespace DrugWarehouseManagement.Service.DTO.Request
         public int ProductId { get; set; }
         public int ProviderId { get; set; }
         public int WarehouseId { get; set; }
-        public bool OutOfStock { get; set; } = false;
+        public bool Availablle { get; set; } = false;
     }
 }

@@ -119,6 +119,11 @@ namespace DrugWarehouseManagement.Service.Services
                 query = query.Where(x => x.WarehouseId == request.WarehouseId);
             }
 
+            if (request.Availablle)
+            {
+                query = query.Where(x => x.Quantity > 0);
+            }
+
             var pattern = InstantPattern.ExtendedIso;
             DateOnly? dateFrom = null, dateTo = null;
 

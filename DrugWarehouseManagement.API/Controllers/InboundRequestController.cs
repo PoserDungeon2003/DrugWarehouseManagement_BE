@@ -46,7 +46,7 @@ namespace DrugWarehouseManagement.API.Controllers
 
         [HttpPut]
         [Authorize]
-        public async Task<IActionResult> UpdateInboundRequest([FromBody] UpdateInboundOrderRequest request)
+        public async Task<IActionResult> UpdateInboundRequest([FromForm] UpdateInboundOrderRequest request)
         {
             try
             {

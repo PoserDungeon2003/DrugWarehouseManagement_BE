@@ -42,7 +42,25 @@ namespace DrugWarehouseManagement.API.Controllers
         {
             try
             {
-                var response = await _minioService.GetFileAsync($"inbound-request", $"{filename}");
+                var response = await _minioService.GetFileAsync($"inboundrequest", $"/{filename}");
+                return File(response.ToArray(), "application/octet-stream", filename);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    Code = 400,
+                    Message = ex.Message,
+                });
+            }
+        }
+        [HttpGet("inbound-report/{filename}")]
+        [Authorize]
+        public async Task<IActionResult> GetInboundReportAsset(string filename)
+        {
+            try
+            {
+                var response = await _minioService.GetFileAsync($"inboundreport", $"/{filename}");
                 return File(response.ToArray(), "application/octet-stream", filename);
             }
             catch (Exception ex)

@@ -17,6 +17,6 @@ namespace DrugWarehouseManagement.Service.DTO.Request
         [Required(ErrorMessage = "ProblemDescription is required.")]
         [MaxLength(1000, ErrorMessage = "ProblemDescription must be at most 1000 characters.")]
         public string ProblemDescription { get; set; } = null!;
-        public IFormFileCollection AssetFiles { get; set; }
+        public List<IFormFile>? Images { get; set; }
     }
 }

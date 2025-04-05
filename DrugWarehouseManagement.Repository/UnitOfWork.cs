@@ -14,6 +14,7 @@ namespace DrugWarehouseManagement.Repository
         public IInboundDetailRepository InboundDetailRepository { get; private set; }
         public IInboundRequestRepository InboundRequestRepository { get; private set; }
         public IInboundRequestDetailsRepository InboundRequestDetailsRepository { get; private set; }
+        public IInboundRequestAssetsRepository InboundRequestAssetsRepository { get; private set; }
         public IInboundReportRepository InboundReportRepository { get; private set; }
         public IInboundReportAssetsRepository InboundReportAssetsRepository { get; private set; }
         public IOutboundDetailsRepository OutboundDetailsRepository { get; private set; }
@@ -38,6 +39,7 @@ namespace DrugWarehouseManagement.Repository
             InboundDetailRepository ??= new InboundDetailRepository(_context);
             InboundRequestRepository ??= new InboundRequestRepository(_context);
             InboundRequestDetailsRepository ??= new InboundRequestDetailsRepository(_context);
+            InboundRequestAssetsRepository ??= new InboundRequestAssetsRepository(_context);
             InboundReportRepository ??= new InboundReportRepository(_context);
             InboundReportAssetsRepository ??= new InboundReportAssetsRepository(_context);
             OutboundRepository ??= new OutboundRepository(_context);

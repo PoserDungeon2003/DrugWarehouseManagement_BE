@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NodaTime;
 using NodaTime.Text;
+using OpenCvSharp.Detail;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,8 +26,8 @@ namespace DrugWarehouseManagement.Service.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMinioService _minioService;
-        private readonly string BucketName = "inbound-request";
-        private readonly ILogger<InboundRequestService> _logger;
+        private readonly string BucketName = "inboundrequest";
+        private readonly ILogger<InboundRequestService> _logger; 
         public InboundRequestService(IUnitOfWork unitOfWork, IMinioService minioService, ILogger<InboundRequestService> logger)
         {
             _unitOfWork = unitOfWork;
@@ -180,15 +181,58 @@ namespace DrugWarehouseManagement.Service.Services
             }
 
             // Validate if the inbound exists
-            var inboundRequest = await _unitOfWork.InboundRequestRepository.GetByIdAsync(request.InboundOrderId);
+            var inboundRequest = await _unitOfWork.InboundRequestRepository
+                .GetByWhere(ir => ir.InboundRequestId == request.InboundOrderId)
+                .Include(ir => ir.Assets)
+                .FirstOrDefaultAsync();
             if (inboundRequest == null)
             {
                 return new BaseResponse { Code = 404, Message = "Inbound not found" };
             }
 
-            request.Adapt(inboundRequest);
+            if (inboundRequest.Status == InboundRequestStatus.Completed || inboundRequest.Status == InboundRequestStatus.Cancelled)
+            {
+                return new BaseResponse { Code = 200, Message = "Inbound Request is Completed or Cancelled that can not update" };
+            }
+
             inboundRequest.AccountId = accountId;
             inboundRequest.UpdatedAt = SystemClock.Instance.GetCurrentInstant();
+            request.Adapt(inboundRequest);
+
+            if (request.InboundRequestDetails != null)
+            {
+                // Remove all existing details
+                var existingDetails = _unitOfWork.InboundRequestDetailsRepository.GetByWhere(x => x.InboundRequestId == inboundRequest.InboundRequestId);
+                foreach (var detail in existingDetails)
+                {
+                    await _unitOfWork.InboundRequestDetailsRepository.DeleteAsync(detail);
+                }
+            }
+
+            if (request.Images != null && request.Images.Any())
+            {
+                try
+                {
+                    // Remove all existing assets associated with this inbound report
+                    var existingAssets = _unitOfWork.InboundRequestAssetsRepository.GetByWhere(x => x.InboundRequestId == inboundRequest.InboundRequestId);
+                    foreach (var asset in existingAssets)
+                    {
+                        await _unitOfWork.InboundRequestAssetsRepository.DeleteAsync(asset);
+                    }
+
+                    // Upload new files and associate them with the inbound report
+                    var uploadedAssets = await UploadFiles(request.Images, accountId);
+                    inboundRequest.Assets.AddRange(uploadedAssets);
+                }
+                catch (Exception ex)
+                {
+                    return new BaseResponse
+                    {
+                        Code = 500,
+                        Message = "Error uploading files: " + ex.Message
+                    };
+                }
+            }
 
             await _unitOfWork.InboundRequestRepository.UpdateAsync(inboundRequest);
             await _unitOfWork.SaveChangesAsync();
@@ -247,7 +291,7 @@ namespace DrugWarehouseManagement.Service.Services
                     var asset = new Asset
                     {
                         FileUrl = $"{BucketName}/{fileName}",
-                        FileName = file.FileName,
+                        FileName = fileName,
                         FileExtension = uploadResponse.Extension,
                         FileSize = file.Length,
                         UploadedAt = SystemClock.Instance.GetCurrentInstant(),

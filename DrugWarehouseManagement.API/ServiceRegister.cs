@@ -103,6 +103,7 @@ namespace DrugWarehouseManagement.API
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<IInboundService, InboundService>();
             services.AddScoped<IInboundRequestService, InboundRequestService>();
+            services.AddScoped<IInboundReportService, InboundReportService>();
             services.AddScoped<ILotService, LotService>();
             services.AddScoped<IOutboundService, OutboundService>();
             services.AddScoped<IAuditLogsRepository, AuditLogsRepository>();

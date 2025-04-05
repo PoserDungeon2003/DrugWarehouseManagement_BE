@@ -12,10 +12,12 @@ namespace DrugWarehouseManagement.API.Controllers
     public class InboundController : ControllerBase
     {
         private readonly IInboundService _inboundService;
+        private readonly IInboundReportService _inboundReportService;
 
-        public InboundController(IInboundService inboundService)
+        public InboundController(IInboundService inboundService, IInboundReportService inboundReportService)
         {
             _inboundService = inboundService;
+            _inboundReportService = inboundReportService;
         }
 
         [HttpPost]
@@ -132,6 +134,24 @@ namespace DrugWarehouseManagement.API.Controllers
                 {
                     Code = 404,
                     Message = ex.Message ?? "Inbound not found or failed to generate PDF"
+                });
+            }
+        }
+
+        [HttpGet("{inboundId}/inbound-report")]
+        public async Task<IActionResult> GetInboundReportById(int inboundId)
+        {
+            try
+            {
+                var response = await _inboundReportService.GetInboundReportByInboundId(inboundId);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return NotFound(new BaseResponse
+                {
+                    Code = 404,
+                    Message = ex.Message,
                 });
             }
         }
