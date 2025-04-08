@@ -23,11 +23,13 @@ namespace DrugWarehouseManagement.Service.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMinioService _minioService;
+        private readonly IInboundService _inboundService;
         private readonly string BucketName = "inboundreport";
-        public InboundReportService(IUnitOfWork unitOfWork, IMinioService minioService)
+        public InboundReportService(IUnitOfWork unitOfWork, IMinioService minioService, IInboundService inboundService)
         {
             _unitOfWork = unitOfWork;
             _minioService = minioService;
+            _inboundService = inboundService;
         }
         public async Task<BaseResponse> CreateInboundReport(Guid accountId, CreateInboundReportRequest request)
         {
@@ -110,6 +112,11 @@ namespace DrugWarehouseManagement.Service.Services
 
             request.Adapt(inboundReport);
             inboundReport.UpdatedAt = SystemClock.Instance.GetCurrentInstant();
+
+            if (request.InboundReportStatus == InboundReportStatus.Completed)
+            {
+                await _inboundService.UpdateInboundStatus(accountId, new UpdateInboundStatusRequest { InboundId = inboundReport.InboundId, InboundStatus = InboundStatus.Completed });
+            }
 
             // Handle image uploads if present
             if (request.Images != null && request.Images.Any())

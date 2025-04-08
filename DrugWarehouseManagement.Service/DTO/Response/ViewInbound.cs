@@ -15,13 +15,13 @@ namespace DrugWarehouseManagement.Service.DTO.Response
         public int InboundId { get; set; }
         public string? InboundCode { get; set; }
         public string? ProviderOrderCode { get; set; }
-        public string? ProviderName { get; set; }
         public string? WarehouseName { get; set; }
         public string? CreateBy { get; set; }
         public string? Note { get; set; }
         public string? InboundDate { get; set; } // Ngày nhập kho
         public string Status { get; set; }
         public List<InboundDetailResponse> InboundDetails { get; set; }
+        public ProviderResponse ProviderDetails { get; set; }
     }
 
     public class InboundDetailResponse

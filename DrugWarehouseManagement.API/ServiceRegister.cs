@@ -260,10 +260,10 @@ namespace DrugWarehouseManagement.API
 
             TypeAdapterConfig<Inbound, ViewInbound>
                 .NewConfig()
-                .Map(dest => dest.ProviderName, src => src.Provider.ProviderName)
                 .Map(dest => dest.CreateBy, src => src.Account.FullName)
                 .Map(dest => dest.Status, src => src.Status.ToString())
-                .Map(dest => dest.WarehouseName, src => src.Warehouse.WarehouseName);
+                .Map(dest => dest.WarehouseName, src => src.Warehouse.WarehouseName)
+                .Map(dest => dest.ProviderDetails, src => src.Provider);
 
             TypeAdapterConfig<InboundDetails, InboundDetailResponse>
                 .NewConfig()
