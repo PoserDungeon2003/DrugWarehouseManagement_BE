@@ -54,12 +54,7 @@ namespace DrugWarehouseManagement.Service.Services
 
             if (request.InboundRequestDetails != null && request.InboundRequestDetails.Any())
             {
-                decimal totalPrice = 0;
-                foreach (var detailRequest in request.InboundRequestDetails)
-                {
-                    totalPrice += detailRequest.TotalPrice; // Sum the TotalPrice
-                }
-                inboundRequest.Price = totalPrice; // Set the Price field
+                inboundRequest.Price = request.InboundRequestDetails.Sum(x => x.TotalPrice); // Set the Price field
             }
             else
             {
@@ -219,17 +214,9 @@ namespace DrugWarehouseManagement.Service.Services
             {
                 // Remove all existing details
                 var existingDetails = _unitOfWork.InboundRequestDetailsRepository.GetByWhere(x => x.InboundRequestId == inboundRequest.InboundRequestId);
-                foreach (var detail in existingDetails)
-                {
-                    await _unitOfWork.InboundRequestDetailsRepository.DeleteAsync(detail);
-                }
+                await _unitOfWork.InboundRequestDetailsRepository.DeleteRangeAsync(existingDetails);
 
-                decimal totalPrice = 0;
-                foreach (var detailRequest in request.InboundRequestDetails)
-                {
-                    totalPrice += detailRequest.TotalPrice; // Sum the TotalPrice
-                }
-                inboundRequest.Price = totalPrice; // Set the Price field
+                inboundRequest.Price = inboundRequest.InboundRequestDetails.Sum(x => x.TotalPrice); // Set the Price field
             }
             else
             {
@@ -242,10 +229,7 @@ namespace DrugWarehouseManagement.Service.Services
                 {
                     // Remove all existing assets associated with this inbound report
                     var existingAssets = _unitOfWork.InboundRequestAssetsRepository.GetByWhere(x => x.InboundRequestId == inboundRequest.InboundRequestId);
-                    foreach (var asset in existingAssets)
-                    {
-                        await _unitOfWork.InboundRequestAssetsRepository.DeleteAsync(asset);
-                    }
+                    await _unitOfWork.InboundRequestAssetsRepository.DeleteRangeAsync(existingAssets);
 
                     // Upload new files and associate them with the inbound report
                     var uploadedAssets = await UploadFiles(request.Images, accountId);
