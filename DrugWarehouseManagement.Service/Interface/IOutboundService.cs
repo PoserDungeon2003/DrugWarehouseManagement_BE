@@ -12,6 +12,7 @@ namespace DrugWarehouseManagement.Service.Interface
         Task<PaginatedResult<OutboundResponse>> SearchOutboundsAsync(SearchOutboundRequest request);
         Task<Outbound?> GetOutboundByIdWithDetailsAsync(int outboundId);
         Task<OutboundResponse> GetOutboundByIdAsync(int id);
+        Task<byte[]> GenerateOutboundInvoicePdfAsync(int outboundId);
 
     }
 }
