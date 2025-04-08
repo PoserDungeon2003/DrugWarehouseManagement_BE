@@ -11,6 +11,10 @@ using Microsoft.EntityFrameworkCore;
 using NodaTime;
 using NodaTime.Calendars;
 using NodaTime.Text;
+using QuestPDF;
+using QuestPDF.Fluent;
+using QuestPDF.Helpers;
+using QuestPDF.Infrastructure;
 using System.Net;
 using System.Net.Sockets;
 
@@ -301,6 +305,137 @@ namespace DrugWarehouseManagement.Service.Services
                 .ThenInclude(l => l.Product)
                 .FirstOrDefaultAsync(o => o.OutboundId == outboundId);
             return outbound;
+        }
+        public async Task<byte[]> GenerateOutboundInvoicePdfAsync(int outboundId)
+        {
+            // 1) Load the outbound with details
+            var outbound = await GetOutboundByIdWithDetailsAsync(outboundId);
+            if (outbound == null)
+                throw new Exception("Outbound not found.");
+            Settings.License = LicenseType.Community;
+            // 2) Build the PDF document
+            var document = Document.Create(container =>
+            {
+                container.Page(page =>
+                {
+                    page.Size(PageSizes.A4);
+                    page.Margin(40);
+                    page.DefaultTextStyle(x => x.FontFamily("Times New Roman").FontSize(11));
+
+                    // Header
+                    page.Header().Column(col =>
+                    {
+                        col.Spacing(2);
+                        col.Item().Text("CÔNG TY TNHH DƯỢC PHẨM TRUNG HẠNH")
+                                     .FontSize(14).SemiBold();
+                        col.Item().Text("Đ/c: 2/35 Châu Hưng, P.6, Quận Tân Bình, Tp.Hồ Chí Minh");
+                        col.Item().Text("ĐT: 0993 129 300");
+                    });
+
+                    // Content
+                    page.Content().Column(col =>
+                    {
+                        col.Spacing(10);
+
+                        // Title
+                        col.Item().AlignCenter()
+                                 .Text("PHIẾU GIAO NHẬN / PHIẾU BÁN HÀNG")
+                                 .FontSize(16).Bold();
+
+                        // Customer & Invoice info
+                        col.Item().Row(row =>
+                        {
+                            row.RelativeItem().Column(c =>
+                            {
+                                c.Item().Text($"Tên khách hàng: {outbound.RecivierName}");
+                                c.Item().Text($"Địa chỉ: {outbound.ReceiverAddress}");
+                                c.Item().Text($"SĐT: {outbound.ReceiverPhone}");
+                            });
+                            row.ConstantItem(200).Column(c =>
+                            {
+                                c.Item().Text($"Mã phiếu: {outbound.OutboundCode}");
+                                c.Item().Text($"Ngày: {outbound.OutboundDate?.ToDateTimeUtc():dd/MM/yyyy}");
+                            });
+                        });
+
+                        // Details table
+                        col.Item().Table(table =>
+                        {
+                            // Define columns
+                            table.ColumnsDefinition(def =>
+                            {
+                                def.ConstantColumn(30);   // STT
+                                def.RelativeColumn();     // Tên hàng
+                                def.RelativeColumn();     // Số lô
+                                def.RelativeColumn();     // Hạn dùng
+                                def.RelativeColumn();     // ĐVT
+                                def.RelativeColumn();     // Số lượng
+                                def.RelativeColumn();     // Đơn giá
+                                def.RelativeColumn();     // Thành tiền
+                            });
+
+                            // Header row
+                            table.Header(header =>
+                            {
+                                string[] headers = { "STT", "Tên hàng", "Số lô", "Hạn dùng", "ĐVT", "Số lượng", "Đơn giá", "Thành tiền" };
+                                foreach (var text in headers)
+                                    header.Cell().Element(CellStyle).Text(text);
+
+                                static IContainer CellStyle(IContainer c) =>
+                                    c.Border(1).BorderColor(Colors.Grey.Lighten2)
+                                     .Padding(5).AlignCenter().DefaultTextStyle(x => x.Bold());
+                            });
+
+                            // Data rows
+                            int stt = 1;
+                            foreach (var d in outbound.OutboundDetails)
+                            {
+                                table.Cell().Element(CellStyle).Text(stt.ToString());
+                                table.Cell().Element(CellStyle).Text(d.Lot.Product.ProductName ?? "N/A");
+                                table.Cell().Element(CellStyle).Text(d.Lot.LotNumber);
+                                table.Cell().Element(CellStyle).Text(d.ExpiryDate.ToString("dd/MM/yyyy"));
+                                table.Cell().Element(CellStyle).Text(d.Lot.Product.SKU);
+                                table.Cell().Element(CellStyle).Text(d.Quantity.ToString());
+                                table.Cell().Element(CellStyle).Text(d.UnitPrice.ToString("N2"));
+                                table.Cell().Element(CellStyle).Text(d.TotalPrice.ToString("N2"));
+                                stt++;
+
+                                static IContainer CellStyle(IContainer c) =>
+                                    c.Border(1).BorderColor(Colors.Grey.Lighten2)
+                                     .Padding(5).AlignCenter();
+                            }
+
+                            // Footer (total)
+                            table.Footer(footer =>
+                            {
+                                footer.Cell().ColumnSpan(6)
+                                      .AlignRight()
+                                      .Text("Tổng cộng:")
+                                      .Bold();
+                                footer.Cell().Element(CellStyle).Text("");
+                                footer.Cell().Element(CellStyle)
+                                      .Text(outbound.OutboundDetails.Sum(x => x.TotalPrice).ToString("N2"));
+
+                                static IContainer CellStyle(IContainer c) =>
+                                    c.Border(1).BorderColor(Colors.Grey.Lighten2)
+                                     .Padding(5).AlignCenter().DefaultTextStyle(x => x.Bold());
+                            });
+                        });
+                    });
+
+                    // Footer with page numbers
+                    page.Footer().AlignCenter().Text(txt =>
+                    {
+                        txt.Span("Trang ");
+                        txt.CurrentPageNumber();
+                        txt.Span(" / ");
+                        txt.TotalPages();
+                    });
+                });
+            });
+
+            // 3) Render to PDF bytes
+            return document.GeneratePdf();
         }
     }
 }

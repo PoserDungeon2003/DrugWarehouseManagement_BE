@@ -39,7 +39,7 @@ namespace DrugWarehouseManagement.API.Controllers
         }
 
         // GET: api/Warehouse/search?page=1&pageSize=10&search=...
-        [HttpGet("search")]
+        [HttpGet]
         public async Task<IActionResult> SearchWarehouse([FromQuery] SearchWarehouseRequest request)
         {
             try

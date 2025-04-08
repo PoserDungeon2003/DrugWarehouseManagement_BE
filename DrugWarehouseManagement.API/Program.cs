@@ -38,8 +38,7 @@ namespace DrugWarehouseManagement.API
             {
                 string modelPath = @"D:\DoAn-FPT\real\DrugWarehouseManagement_BE\yolov8n.onnx";
                 return new VideoDetectionService(modelPath);
-            });
-
+            });      
             ServiceRegister.RegisterServices(builder.Services, builder.Configuration);
 
             var app = builder.Build();     

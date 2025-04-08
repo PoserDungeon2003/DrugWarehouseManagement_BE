@@ -8,6 +8,7 @@ namespace DrugWarehouseManagement.Service.DTO.Request
         [Required]    
         public int CustomerId { get; set; }     
         public string? ReceiverName { get; set; }
+        [RegularExpression(@"^\d{10}$", ErrorMessage = "Không đúng format số điện thoại.")]
         public string? ReceiverPhone { get; set; }
         public string? ReceiverAddress { get; set; }
         public string? OutboundOrderCode { get; set; }

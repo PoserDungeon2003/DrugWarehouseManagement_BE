@@ -14,8 +14,11 @@ namespace DrugWarehouseManagement.Service.DTO.Request
         [Required]
         public string Address { get; set; } = null!;
         [Required]
+        [EmailAddress(ErrorMessage = "Invalid email address.")]
         public string Email { get; set; } = null!;
         [Required]
+        [RegularExpression(@"^\d{10}$", ErrorMessage = "Phone number must be exactly 10 digits and contain only numbers.")]
+
         public string PhoneNumber { get; set; } = null!;
         public string? TaxCode { get; set; }
         public string? Nationality { get; set; }
