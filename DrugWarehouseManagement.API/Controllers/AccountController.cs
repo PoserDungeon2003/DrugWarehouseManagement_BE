@@ -3,6 +3,7 @@ using DrugWarehouseManagement.Service.DTO.Response;
 using DrugWarehouseManagement.Service.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -173,6 +174,24 @@ namespace DrugWarehouseManagement.API.Controllers
                     Code = 401,
                     Message = ex.Message,
                 });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    Code = 400,
+                    Message = ex.Message,
+                });
+            }
+        }
+
+        [HttpPost("resetPassword/{email}")]
+        public async Task<IActionResult> ResetPassword([FromRoute][Required][EmailAddress] string email)
+        {
+            try
+            {
+                var response = await _accountService.ResetPassword(email);
+                return Ok(response);
             }
             catch (Exception ex)
             {
