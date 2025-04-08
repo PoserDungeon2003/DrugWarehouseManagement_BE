@@ -7,28 +7,48 @@ namespace DrugWarehouseManagement.API.Controllers
     [Route("api/[controller]")]
     public class VideoDetectionController : ControllerBase
     {
-        private readonly VideoDetectionService _detectionService;
+        private readonly VideoDetectionService _videoDetectionService;
 
-        public VideoDetectionController(VideoDetectionService detectionService)
+        public VideoDetectionController(VideoDetectionService videoDetectionService)
         {
-            _detectionService = detectionService;
+            _videoDetectionService = videoDetectionService;
         }
 
-        [HttpPost("/detect")]
-        public IActionResult DetectObjects([FromBody] string videoPath)
+        [HttpPost("detect")]
+        public async Task<IActionResult> DetectProductsInVideo(IFormFile videoFile)
         {
+            if (videoFile == null || videoFile.Length == 0)
+            {
+                return BadRequest("No video file uploaded.");
+            }
+
             try
             {
-                var result = _detectionService.ProcessVideo(videoPath);
-                return Ok(result);
-            }
-            catch (FileNotFoundException ex)
-            {
-                return NotFound(ex.Message);
+                using (var stream = videoFile.OpenReadStream())
+                {
+                    // Chạy ProcessVideo trong một task riêng
+                    var result = await Task.Run(() => _videoDetectionService.ProcessVideo(stream));
+                    return Ok(new
+                    {
+                        TotalCount = result.TotalCount,
+                        Detections = result.Detections.Take(10).Select(d => new
+                        {
+                            BoundingBox = new
+                            {
+                                X = d.BoundingBox.X,
+                                Y = d.BoundingBox.Y,
+                                Width = d.BoundingBox.Width,
+                                Height = d.BoundingBox.Height
+                            },
+                            Label = d.Label,
+                            Confidence = d.Confidence
+                        }).ToList()
+                    });
+                }
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                return StatusCode(500, $"An error occurred: {ex.Message}");
             }
         }
     }

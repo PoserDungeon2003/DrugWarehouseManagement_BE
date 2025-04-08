@@ -15,6 +15,7 @@ namespace DrugWarehouseManagement.Repository
         IInboundDetailRepository InboundDetailRepository { get; }
         IInboundRequestRepository InboundRequestRepository { get; }
         IInboundRequestDetailsRepository InboundRequestDetailsRepository { get; }
+        IInboundRequestAssetsRepository InboundRequestAssetsRepository { get; }
         IInboundReportRepository InboundReportRepository { get; }
         IInboundReportAssetsRepository InboundReportAssetsRepository { get; }
         IOutboundRepository OutboundRepository { get; }

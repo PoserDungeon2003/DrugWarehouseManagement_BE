@@ -31,7 +31,7 @@ namespace DrugWarehouseManagement.Service.Services
             ITokenHandlerService tokenHandler,
             ILogger<IAccountService> logger,
             IEmailService emailService,
-            ITwoFactorAuthenticatorWrapper twoFactorAuthenticatorWrapper, 
+            ITwoFactorAuthenticatorWrapper twoFactorAuthenticatorWrapper,
             IPasswordWrapper passwordHelper)
         {
             _unitOfWork = unitOfWork;
@@ -121,7 +121,7 @@ namespace DrugWarehouseManagement.Service.Services
 
             if (account.TwoFactorAuthenticatorStatus == TwoFactorAuthenticatorSetupStatus.Completed)
             {
-               throw new Exception("Two factor authenticator is already confirmed");
+                throw new Exception("Two factor authenticator is already confirmed");
             }
 
             var verifyCode = VerifyTwoFactorCode(account.tOTPSecretKey, request.OTPCode.Trim());
@@ -170,8 +170,6 @@ namespace DrugWarehouseManagement.Service.Services
             account.PasswordHash = hashedPassword;
             account.AccountSettings = new AccountSettings();
 
-            await _unitOfWork.AccountRepository.CreateAsync(account);
-            await _unitOfWork.SaveChangesAsync();
 
             var htmlTemplate = Consts.htmlCreateAccountTemplate;
 
@@ -179,6 +177,9 @@ namespace DrugWarehouseManagement.Service.Services
                                        .Replace("{{Password}}", randomPassword);
 
             await _emailService.SendEmailAsync(account.Email, "Account Created", htmlTemplate);
+            
+            await _unitOfWork.AccountRepository.CreateAsync(account);
+            await _unitOfWork.SaveChangesAsync();
 
             //_logger.LogWarning($"Account created with username: {account.Username} and password: {randomPassword}"); // For development purpose, should using email to send password to user
 

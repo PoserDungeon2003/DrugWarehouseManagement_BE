@@ -14,7 +14,6 @@ namespace DrugWarehouseManagement.Service.Interface
         public Task<BaseResponse> CreateInboundRequest(Guid accountId, CreateInboundOrderRequest request);
         public Task<BaseResponse> UpdateInboundRequest(Guid accountId, UpdateInboundOrderRequest request);
         public Task<BaseResponse> UpdateInboundRequestStatus(Guid accountId, UpdateInboundOrderStatusRequest request);
-        public Task<BaseResponse> DeleteInboundRequest(Guid accountId, int inboundRequestId);
         public Task<ViewInboundRequest> GetInboundRequestById(int inboundRequestId);
         public Task<PaginatedResult<ViewInboundRequest>> GetInboundRequestsPaginatedAsync(QueryPaging request);
     }

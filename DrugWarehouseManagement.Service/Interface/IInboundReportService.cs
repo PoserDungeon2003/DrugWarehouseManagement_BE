@@ -11,10 +11,8 @@ namespace DrugWarehouseManagement.Service.Interface
 {
     public interface IInboundReportService
     {
-        public Task<BaseResponse> CreateInboundReport(CreateInboundReportRequest request);
-        public Task<BaseResponse> UpdateInboundReport(UpdateInboundReportRequest request);
-        public Task<BaseResponse> DeleteInboundReport(int inboundReporttId);
-        public Task<ViewInbound> GetInboundReportById(int inboundReporttId);
-        public Task<PaginatedResult<ViewInbound>> GetInboundReportsPaginatedAsync(QueryPaging request);
+        public Task<BaseResponse> CreateInboundReport(Guid accountid, CreateInboundReportRequest request);
+        public Task<BaseResponse> UpdateInboundReport(Guid accountid, UpdateInboundReportRequest request);
+        public Task<List<ViewInboundReport>> GetInboundReportByInboundId(int inboundReporttId);
     }
 }

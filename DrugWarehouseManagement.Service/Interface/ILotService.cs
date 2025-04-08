@@ -15,6 +15,6 @@ namespace DrugWarehouseManagement.Service.Interface
         public Task<BaseResponse> UpdateLot(UpdateLotRequest request);
         public Task<BaseResponse> DeleteLot(int lotId);
         public Task<ViewLot> GetLotById(int lotId);
-        public Task<PaginatedResult<ViewLot>> GetLotsPaginatedAsync(QueryPaging request);
+        public Task<PaginatedResult<ViewLot>> GetLotsPaginatedAsync(LotQueryPaging request);
     }
 }

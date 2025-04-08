@@ -86,7 +86,7 @@ namespace DrugWarehouseManagement.Service.Services
             return result;
         }
 
-        public async Task<PaginatedResult<ViewLot>> GetLotsPaginatedAsync(QueryPaging request)
+        public async Task<PaginatedResult<ViewLot>> GetLotsPaginatedAsync(LotQueryPaging request)
         {
             request.Search = request.Search?.Trim().ToLower() ?? "";
             var query = _unitOfWork.LotRepository
@@ -102,6 +102,26 @@ namespace DrugWarehouseManagement.Service.Services
                     EF.Functions.Like(x.LotNumber.ToLower(), $"%{request.Search}%") ||
                     EF.Functions.Like(x.LotId.ToString(), $"%{request.Search}%") ||
                     EF.Functions.Like(x.Product.ProductName, $"%{request.Search}%"));
+            }
+
+            if (request.ProductId != 0)
+            {
+                query = query.Where(x => x.ProductId == request.ProductId);
+            }
+
+            if (request.ProviderId != 0)
+            {
+                query = query.Where(x => x.ProviderId == request.ProviderId);
+            }
+
+            if (request.WarehouseId != 0)
+            {
+                query = query.Where(x => x.WarehouseId == request.WarehouseId);
+            }
+
+            if (request.Availablle)
+            {
+                query = query.Where(x => x.Quantity > 0);
             }
 
             var pattern = InstantPattern.ExtendedIso;
