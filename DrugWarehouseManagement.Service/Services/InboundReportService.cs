@@ -110,11 +110,6 @@ namespace DrugWarehouseManagement.Service.Services
                 return new BaseResponse { Code = 200, Message = "Inbound report is completed and can't be update" };
             }
 
-            if (!Enum.IsDefined(typeof(InboundReportStatus), request.InboundReportStatus))
-            {
-                return new BaseResponse { Code = 404, Message = "Invalid inbound request status {Pending, Completed, Cancelled}" };
-            }
-
             request.Adapt(inboundReport);
             inboundReport.UpdatedAt = SystemClock.Instance.GetCurrentInstant();
 
