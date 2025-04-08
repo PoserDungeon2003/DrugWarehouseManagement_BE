@@ -16,7 +16,6 @@ namespace DrugWarehouseManagement.Service.DTO.Request
         public int InboundOrderId { get; set; }
         [MaxLength(1000, ErrorMessage = "Note must be at most 1000 characters.")]
         public string? Note { get; set; }
-        public decimal? Price { get; set; }
         public List<InboundOrderDetailRequest>? InboundRequestDetails { get; set; }
         public List<IFormFile>? Images { get; set; }
     }
