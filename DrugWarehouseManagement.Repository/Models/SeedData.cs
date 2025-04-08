@@ -31,102 +31,162 @@ namespace DrugWarehouseManagement.Repository.Models
 
             // 2. Seed Accounts
             modelBuilder.Entity<Account>().HasData(
-                new Account { Id = Guid.Parse("ec57b9d9-680d-4caf-8122-9325352a1e9b"), UserName = "admin1", Email = "admin1@example.com", FullName = "Admin One", PhoneNumber = "1234567890", PasswordHash = HashPassword("SecurePassword1!"), Status = AccountStatus.Active, RoleId = 1 },
-                new Account { Id = Guid.Parse("1c4b98f1-e040-42d9-9887-f65011400dd7"), UserName = "admin2", Email = "admin2@example.com", FullName = "Admin Two", PhoneNumber = "0987654321", PasswordHash = HashPassword("SecurePassword2!"), Status = AccountStatus.Active, RoleId = 1 },
-                new Account { Id = Guid.Parse("7e006221-9a70-498d-a0b2-ae587c0cd1e8"), UserName = "manager1", Email = "manager1@example.com", FullName = "Manager One", PhoneNumber = "1122334455", PasswordHash = HashPassword("SecurePassword3!"), Status = AccountStatus.Active, RoleId = 2 },
-                new Account { Id = Guid.Parse("4cab1ddc-9ebf-4488-aa28-c472393623ac"), UserName = "manager2", Email = "manager2@example.com", FullName = "Manager Two", PhoneNumber = "5566778899", PasswordHash = HashPassword("SecurePassword4!"), Status = AccountStatus.Active, RoleId = 2 },
-                new Account { Id = Guid.Parse("88376119-6a82-489f-97d4-8b2ad19b7d67"), UserName = "manager3", Email = "manager3@example.com", FullName = "Manager Three", PhoneNumber = "6677889900", PasswordHash = HashPassword("SecurePassword5!"), Status = AccountStatus.Active, RoleId = 2 },
-                new Account { Id = Guid.Parse("11111111-1111-1111-1111-111111111111"), UserName = "staff1", Email = "staff1@example.com", FullName = "Staff One", PhoneNumber = "7788990011", PasswordHash = HashPassword("SecurePassword7!"), Status = AccountStatus.Active, RoleId = 3 },
-                new Account { Id = Guid.Parse("22222222-2222-2222-2222-222222222222"), UserName = "staff2", Email = "staff2@example.com", FullName = "Staff Two", PhoneNumber = "9900112233", PasswordHash = HashPassword("SecurePassword8!"), Status = AccountStatus.Active, RoleId = 3 },
-                new Account { Id = Guid.Parse("33333333-3333-3333-3333-333333333333"), UserName = "staff3", Email = "staff3@example.com", FullName = "Staff Three", PhoneNumber = "2233445566", PasswordHash = HashPassword("SecurePassword9!"), Status = AccountStatus.Active, RoleId = 3 },
-                new Account { Id = Guid.Parse("44444444-4444-4444-4444-444444444444"), UserName = "staff4", Email = "staff4@example.com", FullName = "Staff Four", PhoneNumber = "4455667788", PasswordHash = HashPassword("SecurePassword10!"), Status = AccountStatus.Active, RoleId = 3 },
-                new Account { Id = Guid.Parse("55555555-5555-5555-5555-555555555555"), UserName = "saleadmin1", Email = "saleadmin1@example.com", FullName = "Sale Admin 1", PhoneNumber = "938443122", PasswordHash = HashPassword("SecurePassword11!"), Status = AccountStatus.Active, RoleId = 4 },
-                new Account { Id = Guid.Parse("66666666-6666-6666-6666-666666666666"), UserName = "ceo1", Email = "ceo1@example.com", FullName = "CEO 1", PhoneNumber = "5673434392", PasswordHash = HashPassword("SecurePassword12!"), Status = AccountStatus.Active, RoleId = 5 }
+                // Quản trị viên (RoleId = 1)
+                new Account { Id = Guid.Parse("11111111-1111-1111-1111-111111111111"), UserName = "admin1", Email = "tranvana@example.com", FullName = "Trần Văn An", PhoneNumber = "0901234567", PasswordHash = HashPassword("SecurePassword1!"), ConcurrencyStamp = "11111111-1111-1111-1111-111111111111", Status = AccountStatus.Active, RoleId = 1 },
+                new Account { Id = Guid.Parse("11111111-1111-1111-1111-111111111112"), UserName = "admin2", Email = "levanbinh@example.com", FullName = "Lê Văn Bình", PhoneNumber = "0908765432", PasswordHash = HashPassword("SecurePassword2!"), ConcurrencyStamp = "11111111-1111-1111-1111-111111111112", Status = AccountStatus.Active, RoleId = 1 },
+                new Account { Id = Guid.Parse("11111111-1111-1111-1111-111111111113"), UserName = "admin3", Email = "nguyenthucc@example.com", FullName = "Nguyễn Thúc Cường", PhoneNumber = "0912345678", PasswordHash = HashPassword("SecurePassword3!"), ConcurrencyStamp = "11111111-1111-1111-1111-111111111113", Status = AccountStatus.Active, RoleId = 1 },
+                new Account { Id = Guid.Parse("11111111-1111-1111-1111-111111111114"), UserName = "admin4", Email = "phamthid@example.com", FullName = "Phạm Thị Diệu", PhoneNumber = "0934567890", PasswordHash = HashPassword("SecurePassword4!"), ConcurrencyStamp = "11111111-1111-1111-1111-111111111114", Status = AccountStatus.Active, RoleId = 1 },
+                new Account { Id = Guid.Parse("11111111-1111-1111-1111-111111111115"), UserName = "admin5", Email = "hovanoe@example.com", FullName = "Hồ Văn Em", PhoneNumber = "0978901234", PasswordHash = HashPassword("SecurePassword5!"), ConcurrencyStamp = "11111111-1111-1111-1111-111111111115", Status = AccountStatus.Active, RoleId = 1 },
+
+                // Quản lý kho (RoleId = 2)
+                new Account { Id = Guid.Parse("22222222-2222-2222-2222-222222222221"), UserName = "manager1", Email = "vuongthif@example.com", FullName = "Vương Thị Phượng", PhoneNumber = "0909876543", PasswordHash = HashPassword("SecurePassword6!"), ConcurrencyStamp = "22222222-2222-2222-2222-222222222221", Status = AccountStatus.Active, RoleId = 2 },
+                new Account { Id = Guid.Parse("22222222-2222-2222-2222-222222222222"), UserName = "manager2", Email = "dinhvangg@example.com", FullName = "Đinh Văn Giang", PhoneNumber = "0911223344", PasswordHash = HashPassword("SecurePassword7!"), ConcurrencyStamp = "22222222-2222-2222-2222-222222222222", Status = AccountStatus.Active, RoleId = 2 },
+                new Account { Id = Guid.Parse("22222222-2222-2222-2222-222222222223"), UserName = "manager3", Email = "tranthanhh@example.com", FullName = "Trần Thanh Hải", PhoneNumber = "0933445566", PasswordHash = HashPassword("SecurePassword8!"), ConcurrencyStamp = "22222222-2222-2222-2222-222222222223", Status = AccountStatus.Active, RoleId = 2 },
+                new Account { Id = Guid.Parse("22222222-2222-2222-2222-222222222224"), UserName = "manager4", Email = "leminhi@example.com", FullName = "Lê Minh Hoàng", PhoneNumber = "0977889900", PasswordHash = HashPassword("SecurePassword9!"), ConcurrencyStamp = "22222222-2222-2222-2222-222222222224", Status = AccountStatus.Active, RoleId = 2 },
+                new Account { Id = Guid.Parse("22222222-2222-2222-2222-222222222225"), UserName = "manager5", Email = "phambaoj@example.com", FullName = "Phạm Bảo Châu", PhoneNumber = "0906543210", PasswordHash = HashPassword("SecurePassword10!"), ConcurrencyStamp = "22222222-2222-2222-2222-222222222225", Status = AccountStatus.Active, RoleId = 2 },
+
+                // Kế toán (RoleId = 3)
+                new Account { Id = Guid.Parse("33333333-3333-3333-3333-333333333331"), UserName = "accountant1", Email = "nguyenmaik@example.com", FullName = "Nguyễn Mai Khanh", PhoneNumber = "0919283746", PasswordHash = HashPassword("SecurePassword11!"), ConcurrencyStamp = "33333333-3333-3333-3333-333333333331", Status = AccountStatus.Active, RoleId = 3 },
+                new Account { Id = Guid.Parse("33333333-3333-3333-3333-333333333332"), UserName = "accountant2", Email = "dovietl@example.com", FullName = "Đỗ Việt Long", PhoneNumber = "0935791324", PasswordHash = HashPassword("SecurePassword12!"), ConcurrencyStamp = "33333333-3333-3333-3333-333333333332", Status = AccountStatus.Active, RoleId = 3 },
+                new Account { Id = Guid.Parse("33333333-3333-3333-3333-333333333333"), UserName = "accountant3", Email = "lethim@example.com", FullName = "Lê Thị Minh", PhoneNumber = "0971357924", PasswordHash = HashPassword("SecurePassword13!"), ConcurrencyStamp = "33333333-3333-3333-3333-333333333333", Status = AccountStatus.Active, RoleId = 3 },
+                new Account { Id = Guid.Parse("33333333-3333-3333-3333-333333333334"), UserName = "accountant4", Email = "hoangvann@example.com", FullName = "Hoàng Văn Nam", PhoneNumber = "0902468135", PasswordHash = HashPassword("SecurePassword14!"), ConcurrencyStamp = "33333333-3333-3333-3333-333333333334", Status = AccountStatus.Active, RoleId = 3 },
+                new Account { Id = Guid.Parse("33333333-3333-3333-3333-333333333335"), UserName = "accountant5", Email = "trantoan@example.com", FullName = "Trần Toàn", PhoneNumber = "0938527419", PasswordHash = HashPassword("SecurePassword15!"), ConcurrencyStamp = "33333333-3333-3333-3333-333333333335", Status = AccountStatus.Active, RoleId = 3 },
+
+                // Quản lý bán hàng (RoleId = 4)
+                new Account { Id = Guid.Parse("44444444-4444-4444-4444-444444444441"), UserName = "saleadmin1", Email = "nguyenphuongp@example.com", FullName = "Nguyễn Phương Anh", PhoneNumber = "0914725836", PasswordHash = HashPassword("SecurePassword16!"), ConcurrencyStamp = "44444444-4444-4444-4444-444444444441", Status = AccountStatus.Active, RoleId = 4 },
+                new Account { Id = Guid.Parse("44444444-4444-4444-4444-444444444442"), UserName = "saleadmin2", Email = "lehoangq@example.com", FullName = "Lê Hoàng Quân", PhoneNumber = "0936987412", PasswordHash = HashPassword("SecurePassword17!"), ConcurrencyStamp = "44444444-4444-4444-4444-444444444442", Status = AccountStatus.Active, RoleId = 4 },
+                new Account { Id = Guid.Parse("44444444-4444-4444-4444-444444444443"), UserName = "saleadmin3", Email = "phamthir@example.com", FullName = "Phạm Thị Hồng", PhoneNumber = "0978521496", PasswordHash = HashPassword("SecurePassword18!"), ConcurrencyStamp = "44444444-4444-4444-4444-444444444443", Status = AccountStatus.Active, RoleId = 4 },
+                new Account { Id = Guid.Parse("44444444-4444-4444-4444-444444444444"), UserName = "saleadmin4", Email = "dinhvans@example.com", FullName = "Đinh Văn Sơn", PhoneNumber = "0905123678", PasswordHash = HashPassword("SecurePassword19!"), ConcurrencyStamp = "44444444-4444-4444-4444-444444444444", Status = AccountStatus.Active, RoleId = 4 },
+                new Account { Id = Guid.Parse("44444444-4444-4444-4444-444444444445"), UserName = "saleadmin5", Email = "nguyentuant@example.com", FullName = "Nguyễn Tuấn Tú", PhoneNumber = "0939876541", PasswordHash = HashPassword("SecurePassword20!"), ConcurrencyStamp = "44444444-4444-4444-4444-444444444445", Status = AccountStatus.Active, RoleId = 4 },
+
+                // Giám đốc (RoleId = 5)
+                new Account { Id = Guid.Parse("55555555-5555-5555-5555-555555555551"), UserName = "director1", Email = "levanu@example.com", FullName = "Lê Văn Út", PhoneNumber = "0916357892", PasswordHash = HashPassword("SecurePassword21!"), ConcurrencyStamp = "55555555-5555-5555-5555-555555555551", Status = AccountStatus.Active, RoleId = 5 },
+                new Account { Id = Guid.Parse("55555555-5555-5555-5555-555555555552"), UserName = "director2", Email = "phamthiv@example.com", FullName = "Phạm Thị Vân", PhoneNumber = "0937485961", PasswordHash = HashPassword("SecurePassword22!"), ConcurrencyStamp = "55555555-5555-5555-5555-555555555552", Status = AccountStatus.Active, RoleId = 5 },
+                new Account { Id = Guid.Parse("55555555-5555-5555-5555-555555555553"), UserName = "director3", Email = "trinhvanx@example.com", FullName = "Trịnh Văn Xuân", PhoneNumber = "0979632581", PasswordHash = HashPassword("SecurePassword23!"), ConcurrencyStamp = "55555555-5555-5555-5555-555555555553", Status = AccountStatus.Active, RoleId = 5 },
+                new Account { Id = Guid.Parse("55555555-5555-5555-5555-555555555554"), UserName = "director4", Email = "dohongy@example.com", FullName = "Đỗ Hồng Yến", PhoneNumber = "0908254796", PasswordHash = HashPassword("SecurePassword24!"), ConcurrencyStamp = "55555555-5555-5555-5555-555555555554", Status = AccountStatus.Active, RoleId = 5 },
+                new Account { Id = Guid.Parse("55555555-5555-5555-5555-555555555555"), UserName = "director5", Email = "nguyenhoangz@example.com", FullName = "Nguyễn Hoàng Duy", PhoneNumber = "0931598742", PasswordHash = HashPassword("SecurePassword25!"), ConcurrencyStamp = "55555555-5555-5555-5555-555555555555", Status = AccountStatus.Active, RoleId = 5 }
             );
             // 3. Seed Providers
             modelBuilder.Entity<Provider>().HasData(
-                new Provider { ProviderId = 1, ProviderName = "ABC Pharma", Address = "12 Pharma St", PhoneNumber = "123456789", TaxCode = "TX123", Email = "abc@pharma.com", Status = ProviderStatus.Active, DocumentNumber = "GH12240001" },
-                new Provider { ProviderId = 2, ProviderName = "XYZ Drugs", Address = "34 Medicine Rd", PhoneNumber = "987654321", TaxCode = "TX456", Email = "xyz@drugs.com", Status = ProviderStatus.Active, DocumentNumber = "GH12240002" },
-                new Provider { ProviderId = 3, ProviderName = "MediCorp", Address = "56 Health Ave", PhoneNumber = "555555555", TaxCode = "TX789", Email = "contact@medicorp.com", Status = ProviderStatus.Active, DocumentNumber = "GH12240003" },
-                new Provider { ProviderId = 4, ProviderName = "Wellness Inc", Address = "78 Wellness Ln", PhoneNumber = "111111111", TaxCode = "TX101", Email = "info@wellness.com", Status = ProviderStatus.Inactive, DocumentNumber = "GH12240004" },
-                new Provider { ProviderId = 5, ProviderName = "SafeMeds", Address = "90 Secure Blvd", PhoneNumber = "222222222", TaxCode = "TX202", Email = "help@safemeds.com", Status = ProviderStatus.Active, DocumentNumber = "GH12240005" }
+                new Provider { ProviderId = 11, ProviderName = "Công ty CP Dược phẩm OPC", Address = "1017 Hồng Bàng, Phường 12, Quận 6, TP.HCM", PhoneNumber = "02837517111", TaxCode = "0300369857", Email = "info@opcpharma.com", Status = ProviderStatus.Active, DocumentNumber = "OPC-HCM-250409-001" },
+                new Provider { ProviderId = 12, ProviderName = "Công ty CP Dược phẩm Imexpharm - Chi nhánh TP.HCM", Address = "Số 4 Nguyễn Thị Minh Khai, Phường Đa Kao, Quận 1, TP.HCM", PhoneNumber = "02838223637", TaxCode = "1400113776-001", Email = "hcm.branch@imexpharm.com", Status = ProviderStatus.Active, DocumentNumber = "IMP-HCM-090425-002" },
+                new Provider { ProviderId = 13, ProviderName = "Công ty TNHH MTV Dược phẩm DHG - Chi nhánh TP.HCM", Address = "288 Bis Nguyễn Văn Trỗi, Phường 15, Quận Phú Nhuận, TP.HCM", PhoneNumber = "02838443114", TaxCode = "1800154789-002", Email = "dhghcm@dhgpharma.com.vn", Status = ProviderStatus.Active, DocumentNumber = "DHG-HCM-2025-003" },
+                new Provider { ProviderId = 14, ProviderName = "Công ty CP Pymepharco - Chi nhánh TP.HCM", Address = "Tầng 5, Tòa nhà Pearl Plaza, 561A Điện Biên Phủ, Phường 25, Quận Bình Thạnh, TP.HCM", PhoneNumber = "02839708789", TaxCode = "4400236473-003", Email = "hcm.sales@pymepharco.com", Status = ProviderStatus.Active, DocumentNumber = "PYM-HCM-040925-004" },
+                new Provider { ProviderId = 15, ProviderName = "Công ty CP Dược phẩm Savi", Address = "Lô J2-J3-J4, Đường D3, KCN Tây Bắc Củ Chi, TP.HCM", PhoneNumber = "02837260288", TaxCode = "0302589901", Email = "info@savipharm.com", Status = ProviderStatus.Active, DocumentNumber = "SAVI-HCM-250409-005" }
             );
             modelBuilder.Entity<Categories>().HasData(
-                new Categories { CategoriesId = 1, CategoryName = "Prescription Drugs", ParentCategoryId = null, Description = "Medications that require a prescription from a doctor.", Status = CategoriesStatus.Active },
-                new Categories { CategoriesId = 2, CategoryName = "Over-the-Counter Drugs", ParentCategoryId = null, Description = "Medications that can be bought without a prescription.", Status = CategoriesStatus.Active },
-                new Categories { CategoriesId = 3, CategoryName = "Medical Devices", ParentCategoryId = null, Description = "Equipment used for medical purposes.", Status = CategoriesStatus.Active },
-                new Categories { CategoriesId = 4, CategoryName = "Skincare Products", ParentCategoryId = null, Description = "Cosmetic and therapeutic products for skincare.", Status = CategoriesStatus.Active },
-                new Categories { CategoriesId = 5, CategoryName = "Vitamins & Supplements", ParentCategoryId = null, Description = "Products that provide essential nutrients.", Status = CategoriesStatus.Active },
-                new Categories { CategoriesId = 6, CategoryName = "Pain Relievers", ParentCategoryId = 2, Description = "Medications to relieve pain.", Status = CategoriesStatus.Active },
-                new Categories { CategoriesId = 7, CategoryName = "Antibiotics", ParentCategoryId = 1, Description = "Drugs used to treat bacterial infections.", Status = CategoriesStatus.Active },
-                new Categories { CategoriesId = 8, CategoryName = "Diagnostic Tools", ParentCategoryId = 3, Description = "Devices used for medical diagnosis.", Status = CategoriesStatus.Active },
-                new Categories { CategoriesId = 9, CategoryName = "Eye Care Products", ParentCategoryId = null, Description = "Products for maintaining eye health.", Status = CategoriesStatus.Active },
-                new Categories { CategoriesId = 10, CategoryName = "Baby & Maternity Products", ParentCategoryId = null, Description = "Healthcare products for mothers and babies.", Status = CategoriesStatus.Active },
-                new Categories { CategoriesId = 11, CategoryName = "Cold & Flu Medicine", ParentCategoryId = 2, Description = "Medications for treating cold and flu symptoms.", Status = CategoriesStatus.Active },
-                new Categories { CategoriesId = 12, CategoryName = "First Aid Supplies", ParentCategoryId = 3, Description = "Basic medical supplies for first aid.", Status = CategoriesStatus.Active },
-                new Categories { CategoriesId = 13, CategoryName = "Anti-aging Products", ParentCategoryId = 4, Description = "Skincare products designed for anti-aging.", Status = CategoriesStatus.Active },
-                new Categories { CategoriesId = 14, CategoryName = "Probiotics", ParentCategoryId = 5, Description = "Supplements containing beneficial bacteria.", Status = CategoriesStatus.Active },
-                new Categories { CategoriesId = 15, CategoryName = "Topical Pain Relievers", ParentCategoryId = 6, Description = "Pain relief creams and gels.", Status = CategoriesStatus.Active },
-                new Categories { CategoriesId = 16, CategoryName = "Broad-Spectrum Antibiotics", ParentCategoryId = 7, Description = "Antibiotics effective against a wide range of bacteria.", Status = CategoriesStatus.Active },
-                new Categories { CategoriesId = 17, CategoryName = "Blood Pressure Monitors", ParentCategoryId = 8, Description = "Devices for monitoring blood pressure.", Status = CategoriesStatus.Active },
-                new Categories { CategoriesId = 18, CategoryName = "Contact Lens Solutions", ParentCategoryId = 9, Description = "Solutions for cleaning and storing contact lenses.", Status = CategoriesStatus.Active },
-                new Categories { CategoriesId = 19, CategoryName = "Prenatal Vitamins", ParentCategoryId = 10, Description = "Vitamins designed for pregnant women.", Status = CategoriesStatus.Active },
-                new Categories { CategoriesId = 20, CategoryName = "Thermometers", ParentCategoryId = 8, Description = "Devices used to measure body temperature.", Status = CategoriesStatus.Active }
-            );
+                // Nhóm chính: Báo cáo
+                new Categories { CategoriesId = 100, CategoryName = "Báo cáo", ParentCategoryId = null, Description = "Các loại báo cáo thống kê và phân tích.", Status = CategoriesStatus.Active },
+                    new Categories { CategoriesId = 101, CategoryName = "Báo cáo Doanh thu", ParentCategoryId = 100, Description = "Báo cáo về doanh thu bán hàng.", Status = CategoriesStatus.Active },
+                    new Categories { CategoriesId = 102, CategoryName = "Báo cáo Kho", ParentCategoryId = 100, Description = "Báo cáo về tình trạng và số lượng hàng tồn kho.", Status = CategoriesStatus.Active },
+                    new Categories { CategoriesId = 103, CategoryName = "Báo cáo Bán hàng", ParentCategoryId = 100, Description = "Báo cáo chi tiết về các giao dịch bán hàng.", Status = CategoriesStatus.Active },
+                    new Categories { CategoriesId = 104, CategoryName = "Báo cáo Lợi nhuận", ParentCategoryId = 100, Description = "Báo cáo về lợi nhuận thu được.", Status = CategoriesStatus.Active },
 
+                // Nhóm chính: Thuốc & Dược phẩm
+                new Categories { CategoriesId = 200, CategoryName = "Thuốc & Dược phẩm", ParentCategoryId = null, Description = "Các loại thuốc và dược phẩm.", Status = CategoriesStatus.Active },
+                    new Categories { CategoriesId = 201, CategoryName = "Thuốc kê đơn", ParentCategoryId = 200, Description = "Thuốc cần có đơn thuốc của bác sĩ.", Status = CategoriesStatus.Active },
+                        new Categories { CategoriesId = 205, CategoryName = "Kháng sinh", ParentCategoryId = 201, Description = "Thuốc dùng để điều trị nhiễm khuẩn.", Status = CategoriesStatus.Active },
+                            new Categories { CategoriesId = 206, CategoryName = "Kháng sinh phổ rộng", ParentCategoryId = 205, Description = "Kháng sinh có tác dụng trên nhiều loại vi khuẩn.", Status = CategoriesStatus.Active },
+                    new Categories { CategoriesId = 202, CategoryName = "Thuốc không kê đơn", ParentCategoryId = 200, Description = "Thuốc có thể mua tự do không cần đơn thuốc.", Status = CategoriesStatus.Active },
+                        new Categories { CategoriesId = 203, CategoryName = "Thuốc giảm đau, hạ sốt", ParentCategoryId = 202, Description = "Thuốc giúp giảm đau và hạ sốt.", Status = CategoriesStatus.Active },
+                        new Categories { CategoriesId = 204, CategoryName = "Thuốc trị cảm cúm", ParentCategoryId = 202, Description = "Thuốc điều trị các triệu chứng cảm lạnh và cúm.", Status = CategoriesStatus.Active },
+                    new Categories { CategoriesId = 207, CategoryName = "Vitamin & Thực phẩm chức năng", ParentCategoryId = 200, Description = "Các sản phẩm bổ sung vitamin và khoáng chất.", Status = CategoriesStatus.Active },
+                        new Categories { CategoriesId = 208, CategoryName = "Vitamin tổng hợp", ParentCategoryId = 207, Description = "Các loại vitamin chứa nhiều dưỡng chất.", Status = CategoriesStatus.Active },
+                        new Categories { CategoriesId = 209, CategoryName = "Men vi sinh & Hỗ trợ tiêu hóa", ParentCategoryId = 207, Description = "Các sản phẩm chứa lợi khuẩn và hỗ trợ tiêu hóa.", Status = CategoriesStatus.Active },
+
+                // Nhóm chính: Thiết bị Y tế
+                new Categories { CategoriesId = 300, CategoryName = "Thiết bị Y tế", ParentCategoryId = null, Description = "Các thiết bị sử dụng cho mục đích y tế.", Status = CategoriesStatus.Active },
+                    new Categories { CategoriesId = 301, CategoryName = "Dụng cụ Chẩn đoán & Theo dõi", ParentCategoryId = 300, Description = "Thiết bị dùng cho việc chẩn đoán và theo dõi sức khỏe.", Status = CategoriesStatus.Active },
+                        new Categories { CategoriesId = 302, CategoryName = "Máy đo huyết áp", ParentCategoryId = 301, Description = "Thiết bị đo huyết áp.", Status = CategoriesStatus.Active },
+                        new Categories { CategoriesId = 303, CategoryName = "Nhiệt kế điện tử", ParentCategoryId = 301, Description = "Thiết bị đo nhiệt độ cơ thể điện tử.", Status = CategoriesStatus.Active },
+                        new Categories { CategoriesId = 304, CategoryName = "Máy đo đường huyết", ParentCategoryId = 301, Description = "Thiết bị đo lượng đường trong máu.", Status = CategoriesStatus.Active },
+                    new Categories { CategoriesId = 305, CategoryName = "Vật tư Tiêu hao", ParentCategoryId = 300, Description = "Các vật tư sử dụng một lần trong y tế.", Status = CategoriesStatus.Active },
+                        new Categories { CategoriesId = 306, CategoryName = "Băng gạc & Vật liệu băng bó", ParentCategoryId = 305, Description = "Các loại băng, gạc và vật liệu dùng để băng bó vết thương.", Status = CategoriesStatus.Active },
+                        new Categories { CategoriesId = 307, CategoryName = "Kim tiêm & Ống tiêm", ParentCategoryId = 305, Description = "Các loại kim và ống tiêm.", Status = CategoriesStatus.Active },
+                    new Categories { CategoriesId = 308, CategoryName = "Thiết bị Hỗ trợ Vận động", ParentCategoryId = 300, Description = "Các thiết bị hỗ trợ người có vấn đề về vận động.", Status = CategoriesStatus.Active },
+                        new Categories { CategoriesId = 309, CategoryName = "Nạng & Gậy", ParentCategoryId = 308, Description = "Các loại nạng và gậy chống.", Status = CategoriesStatus.Active },
+                        new Categories { CategoriesId = 310, CategoryName = "Xe lăn", ParentCategoryId = 308, Description = "Các loại xe lăn cho người khuyết tật hoặc người già.", Status = CategoriesStatus.Active },
+
+                // Nhóm chính: Chăm sóc Cá nhân & Làm đẹp
+                new Categories { CategoriesId = 400, CategoryName = "Chăm sóc Cá nhân & Làm đẹp", ParentCategoryId = null, Description = "Các sản phẩm chăm sóc cá nhân và làm đẹp.", Status = CategoriesStatus.Active },
+                    new Categories { CategoriesId = 401, CategoryName = "Chăm sóc Da mặt", ParentCategoryId = 400, Description = "Các sản phẩm chăm sóc da mặt.", Status = CategoriesStatus.Active },
+                        new Categories { CategoriesId = 402, CategoryName = "Sữa rửa mặt", ParentCategoryId = 401, Description = "Các loại sữa rửa mặt.", Status = CategoriesStatus.Active },
+                        new Categories { CategoriesId = 403, CategoryName = "Kem dưỡng da", ParentCategoryId = 401, Description = "Các loại kem dưỡng da.", Status = CategoriesStatus.Active },
+                        new Categories { CategoriesId = 404, CategoryName = "Serum & Tinh chất", ParentCategoryId = 401, Description = "Các loại serum và tinh chất dưỡng da.", Status = CategoriesStatus.Active },
+                    new Categories { CategoriesId = 405, CategoryName = "Chăm sóc Cơ thể", ParentCategoryId = 400, Description = "Các sản phẩm chăm sóc cơ thể.", Status = CategoriesStatus.Active },
+                        new Categories { CategoriesId = 406, CategoryName = "Sữa tắm", ParentCategoryId = 405, Description = "Các loại sữa tắm.", Status = CategoriesStatus.Active },
+                        new Categories { CategoriesId = 407, CategoryName = "Kem dưỡng thể", ParentCategoryId = 405, Description = "Các loại kem dưỡng thể.", Status = CategoriesStatus.Active },
+                    new Categories { CategoriesId = 408, CategoryName = "Chăm sóc Tóc", ParentCategoryId = 400, Description = "Các sản phẩm chăm sóc tóc.", Status = CategoriesStatus.Active },
+                        new Categories { CategoriesId = 409, CategoryName = "Dầu gội", ParentCategoryId = 408, Description = "Các loại dầu gội.", Status = CategoriesStatus.Active },
+                        new Categories { CategoriesId = 410, CategoryName = "Dầu xả", ParentCategoryId = 408, Description = "Các loại dầu xả.", Status = CategoriesStatus.Active },
+                    new Categories { CategoriesId = 411, CategoryName = "Sản phẩm Chống nắng", ParentCategoryId = 400, Description = "Các sản phẩm bảo vệ da khỏi tác hại của ánh nắng mặt trời.", Status = CategoriesStatus.Active },
+
+                // Nhóm chính: Sản phẩm cho Mẹ & Bé
+                new Categories { CategoriesId = 500, CategoryName = "Sản phẩm cho Mẹ & Bé", ParentCategoryId = null, Description = "Các sản phẩm dành cho bà mẹ và trẻ em.", Status = CategoriesStatus.Active },
+                    new Categories { CategoriesId = 501, CategoryName = "Sản phẩm cho Mẹ", ParentCategoryId = 500, Description = "Các sản phẩm dành cho phụ nữ mang thai và sau sinh.", Status = CategoriesStatus.Active },
+                        new Categories { CategoriesId = 502, CategoryName = "Vitamin & Thực phẩm chức năng cho mẹ", ParentCategoryId = 501, Description = "Vitamin và thực phẩm chức năng dành cho mẹ.", Status = CategoriesStatus.Active },
+                        new Categories { CategoriesId = 503, CategoryName = "Đồ dùng cho mẹ", ParentCategoryId = 501, Description = "Các đồ dùng cá nhân cho mẹ.", Status = CategoriesStatus.Active },
+                    new Categories { CategoriesId = 504, CategoryName = "Sản phẩm cho Bé", ParentCategoryId = 500, Description = "Các sản phẩm dành cho trẻ em.", Status = CategoriesStatus.Active },
+                        new Categories { CategoriesId = 505, CategoryName = "Sữa & Thực phẩm cho bé", ParentCategoryId = 504, Description = "Các loại sữa và thực phẩm dinh dưỡng cho trẻ em.", Status = CategoriesStatus.Active },
+                        new Categories { CategoriesId = 506, CategoryName = "Đồ dùng cho bé", ParentCategoryId = 504, Description = "Các đồ dùng cá nhân cho trẻ em.", Status = CategoriesStatus.Active },
+
+                // Nhóm chính: Khác
+                new Categories { CategoriesId = 600, CategoryName = "Khác", ParentCategoryId = null, Description = "Các danh mục sản phẩm khác.", Status = CategoriesStatus.Active },
+                    new Categories { CategoriesId = 601, CategoryName = "Vật tư Y tế Gia đình", ParentCategoryId = 600, Description = "Các vật tư y tế sử dụng tại nhà.", Status = CategoriesStatus.Active },
+                    new Categories { CategoriesId = 602, CategoryName = "Sản phẩm Hỗ trợ Sức khỏe", ParentCategoryId = 600, Description = "Các sản phẩm hỗ trợ sức khỏe tổng thể.", Status = CategoriesStatus.Active }
+            );
             modelBuilder.Entity<ProductCategories>().HasData(
-                new ProductCategories { CategoriesId = 3, ProductId = 1 },
-                new ProductCategories { CategoriesId = 3, ProductId = 2 },
-                new ProductCategories { CategoriesId = 4, ProductId = 3 },
-                new ProductCategories { CategoriesId = 4, ProductId = 4 },
-                new ProductCategories { CategoriesId = 1, ProductId = 5 }
+                new ProductCategories { CategoriesId = 201, ProductId = 1 },
+                new ProductCategories { CategoriesId = 201, ProductId = 2 },
+                new ProductCategories { CategoriesId = 201, ProductId = 3 },
+                new ProductCategories { CategoriesId = 207, ProductId = 4 },
+                new ProductCategories { CategoriesId = 201, ProductId = 5 }
             );
             // 4. Seed Warehouses
             modelBuilder.Entity<Warehouse>().HasData(
-                new Warehouse { WarehouseId = 1, WarehouseCode = "CW-1", WarehouseName = "Central Warehouse", Address = "123 Main St", Status = WarehouseStatus.Active , DocumentNumber = "WH12346"},
-                new Warehouse { WarehouseId = 2, WarehouseCode = "EW-1", WarehouseName = "East Warehouse", Address = "456 East St", Status = WarehouseStatus.Active, DocumentNumber ="WH654321" },
-                new Warehouse { WarehouseId = 3, WarehouseCode = "WW-1", WarehouseName = "West Warehouse", Address = "789 West St", Status = WarehouseStatus.Active, DocumentNumber = "WH11234" },
-                new Warehouse { WarehouseId = 4, WarehouseCode = "NW-1", WarehouseName = "North Warehouse", Address = "321 North St", Status = WarehouseStatus.Active,DocumentNumber = "WH12346" },
-                new Warehouse { WarehouseId = 5, WarehouseCode = "SW-1", WarehouseName = "South Warehouse", Address = "654 South St", Status = WarehouseStatus.Active, DocumentNumber = "WH123367"}
+                new Warehouse { WarehouseId = 1, WarehouseCode = "KVN-01", WarehouseName = "Kho Việt Nam", Address = "Số 10 Đường Cộng Hòa, Phường 13, Quận Tân Bình, TP.HCM", Status = WarehouseStatus.Active, DocumentNumber = "K20250409-001" },
+                new Warehouse { WarehouseId = 2, WarehouseCode = "KHUY-01", WarehouseName = "Kho Hủy", Address = "Khu vực xử lý hàng lỗi, Đường Số 7, KCN Vĩnh Lộc, Bình Chánh, TP.HCM", Status = WarehouseStatus.Active, DocumentNumber = "KH20250409-002" },
+                new Warehouse { WarehouseId = 3, WarehouseCode = "KTHU-01", WarehouseName = "Kho Thuốc", Address = "Số 3B Đường Nguyễn Văn Quá, Đông Hưng Thuận, Quận 12, TP.HCM", Status = WarehouseStatus.Active, DocumentNumber = "KT20250409-003" },
+                new Warehouse { WarehouseId = 4, WarehouseCode = "KMP-01", WarehouseName = "Kho Mỹ Phẩm", Address = "Số 1 Lê Duẩn, Bến Nghé, Quận 1, TP.HCM", Status = WarehouseStatus.Active, DocumentNumber = "KMP20250409-004" },
+                new Warehouse { WarehouseId = 5, WarehouseCode = "KTH-01", WarehouseName = "Kho Trung Hạnh", Address = "Số 88 Đường 3 Tháng 2, Phường 11, Quận 10, TP.HCM", Status = WarehouseStatus.Active, DocumentNumber = "KTH20250409-005" }
             );
             // 5. Seed Products
             modelBuilder.Entity<Product>().HasData(
-                new Product { ProductId = 1, ProductName = "Paracetamol", ProductCode = "P001", SKU = "Tablet", MadeFrom = "Chemical" },
-                new Product { ProductId = 2, ProductName = "Aspirin", ProductCode = "P002", SKU = "Capsule", MadeFrom = "Chemical" },
-                new Product { ProductId = 3, ProductName = "Ibuprofen", ProductCode = "P003", SKU = "Gel", MadeFrom = "Chemical" },
-                new Product { ProductId = 4, ProductName = "Vitamin C", ProductCode = "P004", SKU = "Syrup", MadeFrom = "Natural" },
-                new Product { ProductId = 5, ProductName = "Cough Syrup", ProductCode = "P005", SKU = "Liquid", MadeFrom = "Herbal" },
-                new Product { ProductId = 6, ProductName = "Amoxicillin", ProductCode = "P006", SKU = "Antibiotic", MadeFrom = "Chemical" },
-                new Product { ProductId = 7, ProductName = "Cetirizine", ProductCode = "P007", SKU = "Tablet", MadeFrom = "Chemical" },
-                new Product { ProductId = 8, ProductName = "Probiotic A", ProductCode = "P008", SKU = "Capsule", MadeFrom = "Natural" },
-                new Product { ProductId = 9, ProductName = "Skincare B", ProductCode = "P009", SKU = "Cream", MadeFrom = "Natural" },
-                new Product { ProductId = 10, ProductName = "Herbal Tea X", ProductCode = "P010", SKU = "Tea", MadeFrom = "Herbal" }
+                new Product { ProductId = 1, ProductName = "Paracetamol Stella 500mg", ProductCode = "STP001", SKU = "Viên nén", MadeFrom = "Hóa dược" },
+                new Product { ProductId = 2, ProductName = "Aspirin PH8 500mg", ProductCode = "ASP002", SKU = "Viên sủi", MadeFrom = "Hóa dược" },
+                new Product { ProductId = 3, ProductName = "Ibuprofen STADA 400mg", ProductCode = "IBU003", SKU = "Viên nang mềm", MadeFrom = "Hóa dược" },
+                new Product { ProductId = 4, ProductName = "Vitamin C 500mg (Traphaco)", ProductCode = "VITC004", SKU = "Viên nén sủi", MadeFrom = "Tổng hợp" },
+                new Product { ProductId = 5, ProductName = "Thuốc ho Prospan Forte", ProductCode = "TSP005", SKU = "Siro", MadeFrom = "Thảo dược" },
+                new Product { ProductId = 6, ProductName = "Amoxicillin 500mg (Pymepharco)", ProductCode = "AMO006", SKU = "Viên nang", MadeFrom = "Bán tổng hợp" },
+                new Product { ProductId = 7, ProductName = "Cetirizine Stella 10mg", ProductCode = "CET007", SKU = "Viên nén bao phim", MadeFrom = "Hóa dược" },
+                new Product { ProductId = 8, ProductName = "Men vi sinh Biolac Extra", ProductCode = "BIO008", SKU = "Gói bột", MadeFrom = "Vi sinh" },
+                new Product { ProductId = 9, ProductName = "Kem dưỡng da BENEW Snail Repair Cream", ProductCode = "SKB009", SKU = "Kem", MadeFrom = "Thiên nhiên" },
+                new Product { ProductId = 10, ProductName = "Trà Atiso túi lọc (Ladophar)", ProductCode = "TEA010", SKU = "Túi lọc", MadeFrom = "Thảo dược" },
+                new Product { ProductId = 11, ProductName = "Panadol Extra", ProductCode = "PAN011", SKU = "Viên nén sủi", MadeFrom = "Hóa dược" },
+                new Product { ProductId = 12, ProductName = "Efferalgan 500mg", ProductCode = "EFF012", SKU = "Viên sủi", MadeFrom = "Hóa dược" },
+                new Product { ProductId = 13, ProductName = "Nurofen 200mg", ProductCode = "NUR013", SKU = "Viên nén bao phim", MadeFrom = "Hóa dược" },
+                new Product { ProductId = 14, ProductName = "Berocca Performance Cam", ProductCode = "BER014", SKU = "Viên sủi", MadeFrom = "Tổng hợp" },
+                new Product { ProductId = 15, ProductName = "Eugica Forte", ProductCode = "EUG015", SKU = "Viên nang mềm", MadeFrom = "Thảo dược" }
             );
-
-
             modelBuilder.Entity<Customer>().HasData(
-                new Customer { CustomerId = 1, CustomerName = "John Doe", Address = "123 Main St", PhoneNumber = "555-1234", Email = "john.doe@example.com", IsLoyal = true, Status = CustomerStatus.Active, DocumentNumber = "GH12240001" },
-                new Customer { CustomerId = 2, CustomerName = "Jane Smith", Address = "456 Elm St", PhoneNumber = "555-5678", Email = "jane.smith@example.com", IsLoyal = false, Status = CustomerStatus.Active, DocumentNumber = "GH12240002" },
-                new Customer { CustomerId = 3, CustomerName = "Alice Johnson", Address = "789 Oak St", PhoneNumber = "555-8765", Email = "alice.johnson@example.com", IsLoyal = true, Status = CustomerStatus.Active, DocumentNumber = "GH12240003" },
-                new Customer { CustomerId = 4, CustomerName = "Bob Brown", Address = "321 Pine St", PhoneNumber = "555-4321", Email = "bob.brown@example.com", IsLoyal = false, Status = CustomerStatus.Active, DocumentNumber = "GH12240004" },
-                new Customer { CustomerId = 5, CustomerName = "Charlie Davis", Address = "654 Maple St", PhoneNumber = "555-6789", Email = "charlie.davis@example.com", IsLoyal = true, Status = CustomerStatus.Active, DocumentNumber = "GH12240005" },
-                new Customer { CustomerId = 6, CustomerName = "Diana Evans", Address = "987 Birch St", PhoneNumber = "555-9876", Email = "diana.evans@example.com", IsLoyal = false, Status = CustomerStatus.Active, DocumentNumber = "GH12240006" },
-                new Customer { CustomerId = 7, CustomerName = "Eve Foster", Address = "159 Cedar St", PhoneNumber = "555-1597", Email = "eve.foster@example.com", IsLoyal = true, Status = CustomerStatus.Active, DocumentNumber = "GH12240007" },
-                new Customer { CustomerId = 8, CustomerName = "Frank Green", Address = "753 Spruce St", PhoneNumber = "555-7531", Email = "frank.green@example.com", IsLoyal = false, Status = CustomerStatus.Active, DocumentNumber = "GH12240008" },
-                new Customer { CustomerId = 9, CustomerName = "Grace Harris", Address = "852 Willow St", PhoneNumber = "555-8524", Email = "grace.harris@example.com", IsLoyal = true, Status = CustomerStatus.Active, DocumentNumber = "GH12240009" },
-                new Customer { CustomerId = 10, CustomerName = "Henry Irving", Address = "951 Poplar St", PhoneNumber = "555-9513", Email = "henry.irving@example.com", IsLoyal = false, Status = CustomerStatus.Active, DocumentNumber = "GH122400010" }
+                new Customer { CustomerId = 1, CustomerName = "Nguyễn Văn An", Address = "123 Đường Cộng Hòa, Phường 12, Quận Tân Bình, TP. Hồ Chí Minh", PhoneNumber = "0903123456", Email = "nguyen.van.an@gmail.com", IsLoyal = true, Status = CustomerStatus.Active, DocumentNumber = "KH-NVAN-250409-001" },
+                new Customer { CustomerId = 2, CustomerName = "Lê Thị Bình", Address = "456 Đường 3 Tháng 2, Phường 10, Quận 10, TP. Hồ Chí Minh", PhoneNumber = "0938987654", Email = "le.thi.binh79@yahoo.com.vn", IsLoyal = false, Status = CustomerStatus.Active, DocumentNumber = "KH-LTBI-250409-002" },
+                new Customer { CustomerId = 3, CustomerName = "Trần Minh Cường", Address = "789 Đường Nguyễn Trãi, Phường 8, Quận 5, TP. Hồ Chí Minh", PhoneNumber = "0919234567", Email = "minhcuong.tran@fpt.net", IsLoyal = true, Status = CustomerStatus.Active, DocumentNumber = "KH-TMCO-250409-003" },
+                new Customer { CustomerId = 4, CustomerName = "Phạm Thị Diệu Hương", Address = "321 Đường Lê Văn Sỹ, Phường 13, Quận Phú Nhuận, TP. Hồ Chí Minh", PhoneNumber = "0977889900", Email = "dieuhuong.pham@vnn.vn", IsLoyal = false, Status = CustomerStatus.Active, DocumentNumber = "KH-PTDH-250409-004" },
+                new Customer { CustomerId = 5, CustomerName = "Hoàng Quốc Việt", Address = "654 Đường Điện Biên Phủ, Phường 11, Quận 3, TP. Hồ Chí Minh", PhoneNumber = "0908555666", Email = "hoang.viet.quoc@outlook.com", IsLoyal = true, Status = CustomerStatus.Active, DocumentNumber = "KH-HQVI-250409-005" },
+                new Customer { CustomerId = 6, CustomerName = "Vũ Ngọc Ánh", Address = "987 Đường Cách Mạng Tháng 8, Phường 15, Quận 10, TP. Hồ Chí Minh", PhoneNumber = "0935123456", Email = "ngocanh.vu@gmail.com", IsLoyal = false, Status = CustomerStatus.Active, DocumentNumber = "KH-VNAN-250409-006" },
+                new Customer { CustomerId = 7, CustomerName = "Đặng Hoàng Long", Address = "159 Đường Nguyễn Thị Thập, Phường Tân Hưng, Quận 7, TP. Hồ Chí Minh", PhoneNumber = "0917890123", Email = "hoanglong.dang@saigonnet.vn", IsLoyal = true, Status = CustomerStatus.Active, DocumentNumber = "KH-DHLO-250409-007" },
+                new Customer { CustomerId = 8, CustomerName = "Bùi Thị Thủy Tiên", Address = "753 Đường Phan Xích Long, Phường 2, Quận Phú Nhuận, TP. Hồ Chí Minh", PhoneNumber = "0909456789", Email = "thuytien.bui@hcm.fpt.vn", IsLoyal = false, Status = CustomerStatus.Active, DocumentNumber = "KH-BTTH-250409-008" },
+                new Customer { CustomerId = 9, CustomerName = "Lâm Chấn Khang", Address = "852 Đường Kinh Dương Vương, Phường An Lạc, Quận Bình Tân, TP. Hồ Chí Minh", PhoneNumber = "0933224466", Email = "chankhang.lam@vitanet.vn", IsLoyal = true, Status = CustomerStatus.Active, DocumentNumber = "KH-LCKH-250409-009" },
+                new Customer { CustomerId = 10, CustomerName = "Trương Thị Mỹ Linh", Address = "951 Đường Trần Hưng Đạo, Phường 1, Quận 5, TP. Hồ Chí Minh", PhoneNumber = "0976543210", Email = "mylinh.truong@hcmtelecom.vn", IsLoyal = false, Status = CustomerStatus.Active, DocumentNumber = "KH-TTML-250409-010" }
             );
-
-
-
             modelBuilder.Entity<InboundRequest>().HasData(
-                     new InboundRequest { InboundRequestId = 1, InboundRequestCode = "REQ-001", AccountId = Guid.Parse("ec57b9d9-680d-4caf-8122-9325352a1e9b"), CreatedAt = Instant.FromDateTimeUtc(new DateTime(2025, 03, 01, 0, 0, 0, DateTimeKind.Utc)), Status = InboundRequestStatus.Completed },
-                     new InboundRequest { InboundRequestId = 2, InboundRequestCode = "REQ-002", AccountId = Guid.Parse("ec57b9d9-680d-4caf-8122-9325352a1e9b"), CreatedAt = Instant.FromDateTimeUtc(new DateTime(2025, 03, 05, 0, 0, 0, DateTimeKind.Utc)), Status = InboundRequestStatus.Completed },
-                     new InboundRequest { InboundRequestId = 3, InboundRequestCode = "REQ-003", AccountId = Guid.Parse("7e006221-9a70-498d-a0b2-ae587c0cd1e8"), CreatedAt = Instant.FromDateTimeUtc(new DateTime(2025, 03, 10, 0, 0, 0, DateTimeKind.Utc)), Status = InboundRequestStatus.Completed },
-                     new InboundRequest { InboundRequestId = 4, InboundRequestCode = "REQ-004", AccountId = Guid.Parse("ec57b9d9-680d-4caf-8122-9325352a1e9b"), CreatedAt = Instant.FromDateTimeUtc(new DateTime(2025, 03, 15, 0, 0, 0, DateTimeKind.Utc)), Status = InboundRequestStatus.Completed },
-                     new InboundRequest { InboundRequestId = 5, InboundRequestCode = "REQ-005", AccountId = Guid.Parse("11111111-1111-1111-1111-111111111111"), CreatedAt = Instant.FromDateTimeUtc(new DateTime(2025, 03, 20, 0, 0, 0, DateTimeKind.Utc)), Status = InboundRequestStatus.Completed }
+                     new InboundRequest { InboundRequestId = 1, InboundRequestCode = "REQ-001", AccountId = Guid.Parse("44444444-4444-4444-4444-444444444441"), CreatedAt = Instant.FromDateTimeUtc(new DateTime(2025, 03, 01, 0, 0, 0, DateTimeKind.Utc)), Status = InboundRequestStatus.Completed },
+                     new InboundRequest { InboundRequestId = 2, InboundRequestCode = "REQ-002", AccountId = Guid.Parse("44444444-4444-4444-4444-444444444441"), CreatedAt = Instant.FromDateTimeUtc(new DateTime(2025, 03, 05, 0, 0, 0, DateTimeKind.Utc)), Status = InboundRequestStatus.Completed },
+                     new InboundRequest { InboundRequestId = 3, InboundRequestCode = "REQ-003", AccountId = Guid.Parse("44444444-4444-4444-4444-444444444441"), CreatedAt = Instant.FromDateTimeUtc(new DateTime(2025, 03, 10, 0, 0, 0, DateTimeKind.Utc)), Status = InboundRequestStatus.Completed },
+                     new InboundRequest { InboundRequestId = 4, InboundRequestCode = "REQ-004", AccountId = Guid.Parse("44444444-4444-4444-4444-444444444441"), CreatedAt = Instant.FromDateTimeUtc(new DateTime(2025, 03, 15, 0, 0, 0, DateTimeKind.Utc)), Status = InboundRequestStatus.Completed },
+                     new InboundRequest { InboundRequestId = 5, InboundRequestCode = "REQ-005", AccountId = Guid.Parse("44444444-4444-4444-4444-444444444441"), CreatedAt = Instant.FromDateTimeUtc(new DateTime(2025, 03, 20, 0, 0, 0, DateTimeKind.Utc)), Status = InboundRequestStatus.Completed }
             );
-
             modelBuilder.Entity<InboundRequestDetails>().HasData(
                      new InboundRequestDetails { InboundRequestDetailsId = 1, InboundRequestId = 1, ProductId = 1, Quantity = 100, UnitPrice = 25, TotalPrice = 2500 },
                      new InboundRequestDetails { InboundRequestDetailsId = 2, InboundRequestId = 1, ProductId = 2, Quantity = 350, UnitPrice = 30.5M, TotalPrice = 10675 },
@@ -134,17 +194,15 @@ namespace DrugWarehouseManagement.Repository.Models
                      new InboundRequestDetails { InboundRequestDetailsId = 4, InboundRequestId = 3, ProductId = 4, Quantity = 400, UnitPrice = 25.5M, TotalPrice = 10200 },
                      new InboundRequestDetails { InboundRequestDetailsId = 5, InboundRequestId = 4, ProductId = 5, Quantity = 250, UnitPrice = 47.5M, TotalPrice = 11875 }
             );
-
-
             modelBuilder.Entity<Inbound>().HasData(
-                    new Inbound { InboundId = 1, InboundCode = "INB-001", InboundRequestId = 1, WarehouseId = 1, InboundDate = Instant.FromDateTimeUtc(new DateTime(2025, 03, 02, 0, 0, 0, DateTimeKind.Utc)),AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555"), Status = InboundStatus.Completed , ProviderId = 1},
-                    new Inbound { InboundId = 2, InboundCode = "INB-002", InboundRequestId = 2, WarehouseId = 2, InboundDate = Instant.FromDateTimeUtc(new DateTime(2025, 03, 06, 0, 0, 0, DateTimeKind.Utc)), AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555"), Status = InboundStatus.Completed, ProviderId = 2 },
-                    new Inbound { InboundId = 3, InboundCode = "INB-003", InboundRequestId = 3, WarehouseId = 1, InboundDate = Instant.FromDateTimeUtc(new DateTime(2025, 03, 11, 0, 0, 0, DateTimeKind.Utc)), AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555"), Status = InboundStatus.Completed, ProviderId = 3 },
-                    new Inbound { InboundId = 4, InboundCode = "INB-004", InboundRequestId = 4, WarehouseId = 3, InboundDate = Instant.FromDateTimeUtc(new DateTime(2025, 03, 16, 0, 0, 0, DateTimeKind.Utc)), AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555"), Status = InboundStatus.Completed , ProviderId = 4 },
-                    new Inbound { InboundId = 5, InboundCode = "INB-005", InboundRequestId = 5, WarehouseId = 2, InboundDate = Instant.FromDateTimeUtc(new DateTime(2025, 03, 21, 0, 0, 0, DateTimeKind.Utc)), AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555"), Status = InboundStatus.Completed , ProviderId = 5 },
-                    new Inbound { InboundId = 6, InboundCode = "INB-006", WarehouseId = 1, InboundDate = Instant.FromDateTimeUtc(new DateTime(2025, 03, 26, 0, 0, 0, DateTimeKind.Utc)), AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555"), Status = InboundStatus.Completed, ProviderId =1 },
-                    new Inbound { InboundId = 10, InboundCode = "INB-P9", WarehouseId = 1, InboundDate = Instant.FromDateTimeUtc(new DateTime(2025, 03, 10, 0, 0, 0, DateTimeKind.Utc)), AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555"), Status = InboundStatus.Completed, ProviderId = 1, InboundRequestId = null }                
-                    );
+                    new Inbound { InboundId = 1, InboundCode = "INB-001", InboundRequestId = 1, WarehouseId = 1, InboundDate = Instant.FromDateTimeUtc(new DateTime(2025, 03, 02, 0, 0, 0, DateTimeKind.Utc)),AccountId = Guid.Parse("44444444-4444-4444-4444-444444444443"), Status = InboundStatus.Completed , ProviderId = 1},
+                    new Inbound { InboundId = 2, InboundCode = "INB-002", InboundRequestId = 2, WarehouseId = 2, InboundDate = Instant.FromDateTimeUtc(new DateTime(2025, 03, 06, 0, 0, 0, DateTimeKind.Utc)), AccountId = Guid.Parse("44444444-4444-4444-4444-444444444443"), Status = InboundStatus.Completed, ProviderId = 2 },
+                    new Inbound { InboundId = 3, InboundCode = "INB-003", InboundRequestId = 3, WarehouseId = 1, InboundDate = Instant.FromDateTimeUtc(new DateTime(2025, 03, 11, 0, 0, 0, DateTimeKind.Utc)), AccountId = Guid.Parse("44444444-4444-4444-4444-444444444443"), Status = InboundStatus.Completed, ProviderId = 3 },
+                    new Inbound { InboundId = 4, InboundCode = "INB-004", InboundRequestId = 4, WarehouseId = 3, InboundDate = Instant.FromDateTimeUtc(new DateTime(2025, 03, 16, 0, 0, 0, DateTimeKind.Utc)), AccountId = Guid.Parse("44444444-4444-4444-4444-444444444443"), Status = InboundStatus.Completed , ProviderId = 4 },
+                    new Inbound { InboundId = 5, InboundCode = "INB-005", InboundRequestId = 5, WarehouseId = 2, InboundDate = Instant.FromDateTimeUtc(new DateTime(2025, 03, 21, 0, 0, 0, DateTimeKind.Utc)), AccountId = Guid.Parse("44444444-4444-4444-4444-444444444443"), Status = InboundStatus.Completed , ProviderId = 5 },
+                    new Inbound { InboundId = 6, InboundCode = "INB-006", WarehouseId = 1, InboundDate = Instant.FromDateTimeUtc(new DateTime(2025, 03, 26, 0, 0, 0, DateTimeKind.Utc)), AccountId = Guid.Parse("44444444-4444-4444-4444-444444444443"), Status = InboundStatus.Completed, ProviderId =1 },
+                    new Inbound { InboundId = 10, InboundCode = "INB-P9", WarehouseId = 1, InboundDate = Instant.FromDateTimeUtc(new DateTime(2025, 03, 10, 0, 0, 0, DateTimeKind.Utc)), AccountId = Guid.Parse("44444444-4444-4444-4444-444444444443"), Status = InboundStatus.Completed, ProviderId = 1, InboundRequestId = null }                
+            );
             modelBuilder.Entity<InboundDetails>().HasData(
                 new InboundDetails { InboundDetailsId = 1, InboundId = 1, ProductId = 1, Quantity = 100, LotNumber = "LOT-001", OpeningStock = 80, UnitPrice = 25, TotalPrice = 2500, ExpiryDate = DateOnly.FromDateTime(new DateTime(2026, 03, 01)), ManufacturingDate = DateOnly.FromDateTime(new DateTime(2025, 03, 01)) },
                 new InboundDetails { InboundDetailsId = 2, InboundId = 1, ProductId = 2, Quantity = 350, LotNumber = "LOT-002", OpeningStock = 100, UnitPrice = 30.5M, TotalPrice = 10675, ExpiryDate = DateOnly.FromDateTime(new DateTime(2027, 06, 15)), ManufacturingDate = DateOnly.FromDateTime(new DateTime(2025, 06, 15)) },
@@ -169,13 +227,13 @@ namespace DrugWarehouseManagement.Repository.Models
 
 
             modelBuilder.Entity<Outbound>().HasData(
-                new Outbound { OutboundId = 1, OutboundCode = "OUT-001", CustomerId = 1, OutboundDate = Instant.FromDateTimeUtc(new DateTime(2025, 03, 03, 0, 0, 0, DateTimeKind.Utc)), Status = OutboundStatus.Completed, AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555") ,Note = "abcxyz"},
-                new Outbound { OutboundId = 2, OutboundCode = "OUT-002", CustomerId = 2, OutboundDate = Instant.FromDateTimeUtc(new DateTime(2025, 03, 07, 0, 0, 0, DateTimeKind.Utc)), Status = OutboundStatus.Completed , AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555") },
-                new Outbound { OutboundId = 3, OutboundCode = "OUT-003", CustomerId = 3, OutboundDate = Instant.FromDateTimeUtc(new DateTime(2025, 03, 12, 0, 0, 0, DateTimeKind.Utc)), Status = OutboundStatus.Completed, AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555") },
-                new Outbound { OutboundId = 4, OutboundCode = "OUT-004", CustomerId = 4, OutboundDate = Instant.FromDateTimeUtc(new DateTime(2025, 03, 17, 0, 0, 0, DateTimeKind.Utc)), Status = OutboundStatus.Completed, AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555") },
-                new Outbound { OutboundId = 5, OutboundCode = "OUT-005", CustomerId = 5, OutboundDate = Instant.FromDateTimeUtc(new DateTime(2025, 03, 22, 0, 0, 0, DateTimeKind.Utc)), Status = OutboundStatus.Completed , AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555") },
-                new Outbound { OutboundId = 8, OutboundCode = "OUT-P9-SELL", CustomerId = 3, OutboundDate = Instant.FromDateTimeUtc(new DateTime(2025, 03, 12, 0, 0, 0, DateTimeKind.Utc)), Status = OutboundStatus.Completed, AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555") },
-                new Outbound { OutboundId = 9, OutboundCode = "OUT-P9-RETURN", CustomerId = 3, OutboundDate = Instant.FromDateTimeUtc(new DateTime(2025, 03, 13, 0, 0, 0, DateTimeKind.Utc)), Status = OutboundStatus.Returned, AccountId = Guid.Parse("55555555-5555-5555-5555-555555555555") }
+                new Outbound { OutboundId = 1, OutboundCode = "OUT-001", CustomerId = 1, OutboundDate = Instant.FromDateTimeUtc(new DateTime(2025, 03, 03, 0, 0, 0, DateTimeKind.Utc)), Status = OutboundStatus.Completed, AccountId = Guid.Parse("44444444-4444-4444-4444-444444444441") ,Note = "abcxyz"},
+                new Outbound { OutboundId = 2, OutboundCode = "OUT-002", CustomerId = 2, OutboundDate = Instant.FromDateTimeUtc(new DateTime(2025, 03, 07, 0, 0, 0, DateTimeKind.Utc)), Status = OutboundStatus.Completed , AccountId = Guid.Parse("44444444-4444-4444-4444-444444444441") },
+                new Outbound { OutboundId = 3, OutboundCode = "OUT-003", CustomerId = 3, OutboundDate = Instant.FromDateTimeUtc(new DateTime(2025, 03, 12, 0, 0, 0, DateTimeKind.Utc)), Status = OutboundStatus.Completed, AccountId = Guid.Parse("44444444-4444-4444-4444-444444444441") },
+                new Outbound { OutboundId = 4, OutboundCode = "OUT-004", CustomerId = 4, OutboundDate = Instant.FromDateTimeUtc(new DateTime(2025, 03, 17, 0, 0, 0, DateTimeKind.Utc)), Status = OutboundStatus.Completed, AccountId = Guid.Parse("44444444-4444-4444-4444-444444444441") },
+                new Outbound { OutboundId = 5, OutboundCode = "OUT-005", CustomerId = 5, OutboundDate = Instant.FromDateTimeUtc(new DateTime(2025, 03, 22, 0, 0, 0, DateTimeKind.Utc)), Status = OutboundStatus.Completed , AccountId = Guid.Parse("44444444-4444-4444-4444-444444444441") },
+                new Outbound { OutboundId = 8, OutboundCode = "OUT-P9-SELL", CustomerId = 3, OutboundDate = Instant.FromDateTimeUtc(new DateTime(2025, 03, 12, 0, 0, 0, DateTimeKind.Utc)), Status = OutboundStatus.Completed, AccountId = Guid.Parse("44444444-4444-4444-4444-444444444441") },
+                new Outbound { OutboundId = 9, OutboundCode = "OUT-P9-RETURN", CustomerId = 3, OutboundDate = Instant.FromDateTimeUtc(new DateTime(2025, 03, 13, 0, 0, 0, DateTimeKind.Utc)), Status = OutboundStatus.Returned, AccountId = Guid.Parse("44444444-4444-4444-4444-444444444441") }
                 );
 
             modelBuilder.Entity<OutboundDetails>().HasData(
@@ -185,14 +243,14 @@ namespace DrugWarehouseManagement.Repository.Models
                 new OutboundDetails { OutboundDetailsId = 4, OutboundId = 3, LotId = 4, Quantity = 150, UnitPrice = 25.5M, TotalPrice = 3825 },
                 new OutboundDetails { OutboundDetailsId = 5, OutboundId = 4, LotId = 5, Quantity = 100, UnitPrice = 47.5M, TotalPrice = 4750 },
                 new OutboundDetails { OutboundDetailsId = 19, OutboundId = 8, LotId = 15, Quantity = 7, UnitPrice = 15, TotalPrice = 105 }// LOT-P9-NHAP
-                );
+            );
 
             modelBuilder.Entity<LotTransfer>().HasData(
-                new LotTransfer { LotTransferId = 1, LotTransferCode = "LT-001", FromWareHouseId = 1, ToWareHouseId = 2, AccountId = Guid.Parse("1c4b98f1-e040-42d9-9887-f65011400dd7"), CreatedAt = Instant.FromDateTimeUtc(new DateTime(2025, 03, 03, 0, 0, 0, DateTimeKind.Utc)) },
-                new LotTransfer { LotTransferId = 2, LotTransferCode = "LT-002", FromWareHouseId = 1, ToWareHouseId = 3, AccountId = Guid.Parse("1c4b98f1-e040-42d9-9887-f65011400dd7"), CreatedAt = Instant.FromDateTimeUtc(new DateTime(2025, 03, 07, 0, 0, 0, DateTimeKind.Utc)) },
-                new LotTransfer { LotTransferId = 3, LotTransferCode = "LT-003", FromWareHouseId = 2, ToWareHouseId = 1, AccountId = Guid.Parse("1c4b98f1-e040-42d9-9887-f65011400dd7"), CreatedAt = Instant.FromDateTimeUtc(new DateTime(2025, 03, 12, 0, 0, 0, DateTimeKind.Utc)) },
-                new LotTransfer { LotTransferId = 4, LotTransferCode = "LT-004", FromWareHouseId = 3, ToWareHouseId = 1, AccountId = Guid.Parse("1c4b98f1-e040-42d9-9887-f65011400dd7"), CreatedAt = Instant.FromDateTimeUtc(new DateTime(2025, 03, 17, 0, 0, 0, DateTimeKind.Utc)) },
-                new LotTransfer { LotTransferId = 6, LotTransferCode = "LT-P10-IN", FromWareHouseId = 2, ToWareHouseId = 1, AccountId = Guid.Parse("1c4b98f1-e040-42d9-9887-f65011400dd7"), CreatedAt = Instant.FromDateTimeUtc(new DateTime(2025, 03, 08, 0, 0, 0, DateTimeKind.Utc)), LotTransferStatus = LotTransferStatus.Completed }
+                new LotTransfer { LotTransferId = 1, LotTransferCode = "LT-001", FromWareHouseId = 1, ToWareHouseId = 2, AccountId = Guid.Parse("44444444-4444-4444-4444-444444444442"), CreatedAt = Instant.FromDateTimeUtc(new DateTime(2025, 03, 03, 0, 0, 0, DateTimeKind.Utc)) },
+                new LotTransfer { LotTransferId = 2, LotTransferCode = "LT-002", FromWareHouseId = 1, ToWareHouseId = 3, AccountId = Guid.Parse("44444444-4444-4444-4444-444444444442"), CreatedAt = Instant.FromDateTimeUtc(new DateTime(2025, 03, 07, 0, 0, 0, DateTimeKind.Utc)) },
+                new LotTransfer { LotTransferId = 3, LotTransferCode = "LT-003", FromWareHouseId = 2, ToWareHouseId = 1, AccountId = Guid.Parse("44444444-4444-4444-4444-444444444442"), CreatedAt = Instant.FromDateTimeUtc(new DateTime(2025, 03, 12, 0, 0, 0, DateTimeKind.Utc)) },
+                new LotTransfer { LotTransferId = 4, LotTransferCode = "LT-004", FromWareHouseId = 3, ToWareHouseId = 1, AccountId = Guid.Parse("44444444-4444-4444-4444-444444444442"), CreatedAt = Instant.FromDateTimeUtc(new DateTime(2025, 03, 17, 0, 0, 0, DateTimeKind.Utc)) },
+                new LotTransfer { LotTransferId = 6, LotTransferCode = "LT-P10-IN", FromWareHouseId = 2, ToWareHouseId = 1, AccountId = Guid.Parse("44444444-4444-4444-4444-444444444442"), CreatedAt = Instant.FromDateTimeUtc(new DateTime(2025, 03, 08, 0, 0, 0, DateTimeKind.Utc)), LotTransferStatus = LotTransferStatus.Completed }
                 
                 
                 
