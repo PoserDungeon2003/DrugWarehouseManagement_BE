@@ -28,8 +28,9 @@ namespace DrugWarehouseManagement.Service.DTO.Request
         public int Quantity { get; set; }
 
         [Required]
+        [Range(0, double.MaxValue, ErrorMessage = "Unit price must be zero or a positive number.")]
         public decimal UnitPrice { get; set; }
-
+        [Range(0, 100, ErrorMessage = "Discount must be between 0 and 100.")]
         public float? Discount { get; set; } 
     }
 }

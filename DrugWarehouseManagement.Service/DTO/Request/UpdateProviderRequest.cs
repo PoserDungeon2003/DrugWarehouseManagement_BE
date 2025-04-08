@@ -7,9 +7,11 @@ namespace DrugWarehouseManagement.Service.DTO.Request
     {
         public string? ProviderName { get; set; }
         public string? Address { get; set; }
+        [RegularExpression(@"^\d{10}$", ErrorMessage = "Phone number must be exactly 10 digits and contain only numbers.")]
         public string? PhoneNumber { get; set; }
         public string? TaxCode { get; set; }
         public string? Nationality { get; set; }
+        [EmailAddress(ErrorMessage = "Invalid email address.")]
         public string? Email { get; set; }
         public string? DocumentNumber { get; set; }
         public DateOnly? DocumentIssueDate { get; set; }

@@ -280,7 +280,7 @@ namespace DrugWarehouseManagement.Service.Services
             }
             outbound.ReceiverAddress = request.Address;
             outbound.ReceiverPhone = request.PhoneNumber;
-            outbound.RecivierName = request.CustomerName;
+            outbound.ReceiverName = request.CustomerName;
             outbound.OutboundOrderCode = request.OutboundOrderCode;
             outbound.Note = request.Note;
             outbound.UpdatedAt = SystemClock.Instance.GetCurrentInstant();
@@ -347,7 +347,7 @@ namespace DrugWarehouseManagement.Service.Services
                         {
                             row.RelativeItem().Column(c =>
                             {
-                                c.Item().Text($"Tên khách hàng: {outbound.RecivierName}");
+                                c.Item().Text($"Tên khách hàng: {outbound.ReceiverName}");
                                 c.Item().Text($"Địa chỉ: {outbound.ReceiverAddress}");
                                 c.Item().Text($"SĐT: {outbound.ReceiverPhone}");
                             });

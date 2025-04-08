@@ -21,7 +21,7 @@ namespace DrugWarehouseManagement.API.Controllers
         }
 
         [HttpPost]
-        [Authorize]
+        [Authorize(Roles = "Inventory Manager, SaleAdmin")]
         public async Task<IActionResult> CreateOutbound([FromBody] CreateOutboundRequest request)
         {
             try
@@ -41,7 +41,7 @@ namespace DrugWarehouseManagement.API.Controllers
         }
 
         [HttpPost("sample-export")]
-        [Authorize]
+        [Authorize(Roles ="Inventory Manager, SaleAdmin")]
         public async Task<IActionResult> CreateSampleOutbound([FromBody] CreateOutboundRequest request)
         {
             try
@@ -60,10 +60,12 @@ namespace DrugWarehouseManagement.API.Controllers
             }
         }
         [HttpPut]
+        [Authorize(Roles = "Inventory Manager, SaleAdmin")]
         public async Task<IActionResult> UpdateOutbound(int id, [FromBody] UpdateOutboundRequest request)
         {
             try
             {
+                var accountId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
                 var response = await _outboundService.UpdateOutbound(id, request);
                 return Ok(response);
             }
@@ -128,10 +130,12 @@ namespace DrugWarehouseManagement.API.Controllers
            
         }
         [HttpGet("export/{id}")]
+        [Authorize(Roles = "Inventory Manager, SaleAdmin")]
         public async Task<IActionResult> ExportOutboundInvoice(int id)
         {
             try
             {
+                var accountId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
                 var pdfBytes = await _outboundService.GenerateOutboundInvoicePdfAsync(id);
                 // Fetch code again for naming
                 var outbound = await _outboundService.GetOutboundByIdWithDetailsAsync(id);
