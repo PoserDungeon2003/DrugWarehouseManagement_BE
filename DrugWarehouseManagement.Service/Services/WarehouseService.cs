@@ -50,7 +50,7 @@ namespace DrugWarehouseManagement.Service.Services
                     query = query.Where(w =>
                         EF.Functions.Like(w.WarehouseName.ToLower(), $"%{searchTerm}%") ||
                         EF.Functions.Like(w.Address.ToLower(), $"%{searchTerm}%") ||
-                        EF.Functions.Like(w.WarehouseCode.ToString(), $"%{searchTerm}%")
+                        EF.Functions.Like(w.WarehouseCode.ToLower(), $"%{searchTerm}%")
                     );
                 }
             }
