@@ -14,7 +14,7 @@ namespace DrugWarehouseManagement.Service.Interface
         public Task<ViewAccount> GetAccountById(Guid accountId);
         public Task<BaseResponse> DeleteAccount(Guid accountId);
         public Task<BaseResponse> UpdateAccount(Guid accountId, UpdateAccountRequest request);
-        public Task<BaseResponse> ResetPassword(Guid accountId);
+        public Task<BaseResponse> ResetPassword(string email);
         public Task<BaseResponse> DeactiveAccount(Guid accountId);
         public Task<BaseResponse> ActiveAccount(Guid accountId);
         public Task<BaseResponse> ChangePassword(Guid accountId, ChangePasswordRequest request);

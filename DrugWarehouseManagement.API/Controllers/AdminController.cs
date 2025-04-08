@@ -115,25 +115,6 @@ namespace DrugWarehouseManagement.API.Controllers
             }
         }
 
-        [HttpPost("resetPassword/{id}")]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> ResetPassword([FromRoute][Required] Guid id)
-        {
-            try
-            {
-                var response = await _accountService.ResetPassword(id);
-                return Ok(response);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new BaseResponse
-                {
-                    Code = 400,
-                    Message = ex.Message,
-                });
-            }
-        }
-
         [HttpPost("reset2FA/{id}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AdminReset2FA([FromRoute][Required] Guid id)

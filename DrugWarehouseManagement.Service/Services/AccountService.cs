@@ -268,6 +268,11 @@ namespace DrugWarehouseManagement.Service.Services
                 throw new Exception("Account is inactive, please contact your administrator to re-active your account");
             }
 
+            if (account.Status == AccountStatus.Deleted)
+            {
+                throw new Exception("Account is deleted, please contact your administrator to re-active your account");
+            }
+
             if (account.TwoFactorEnabled)
             {
                 if (request.OTPCode == null)
@@ -361,7 +366,7 @@ namespace DrugWarehouseManagement.Service.Services
                 throw new UnauthorizedAccessException("Invalid refresh token");
             }
 
-            var accountId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var accountId = principal.FindFirstValue(ClaimTypes.NameIdentifier);
 
             var account = await _unitOfWork.AccountRepository.GetByWhere(acc => acc.Id == Guid.Parse(accountId))
                                                             .Include(x => x.Role)
@@ -381,9 +386,10 @@ namespace DrugWarehouseManagement.Service.Services
             };
         }
 
-        public async Task<BaseResponse> ResetPassword(Guid accountId)
+        public async Task<BaseResponse> ResetPassword(string email)
         {
-            var account = await _unitOfWork.AccountRepository.GetByIdAsync(accountId);
+            var account = await _unitOfWork.AccountRepository.GetByWhere(acc => acc.Email == email.ToLower().Trim())
+                        .FirstOrDefaultAsync();
 
             if (account == null)
             {
@@ -395,14 +401,14 @@ namespace DrugWarehouseManagement.Service.Services
 
             account.PasswordHash = hashedPassword;
 
-            await _unitOfWork.SaveChangesAsync();
-
             var htmlTemplate = Consts.htmlResetPasswordTemplate;
 
             htmlTemplate = htmlTemplate.Replace("{{Username}}", account.UserName)
                                        .Replace("{{Password}}", randomPassword);
 
             await _emailService.SendEmailAsync(account.Email, "Reset Password", htmlTemplate);
+            await _unitOfWork.SaveChangesAsync();
+
             return new BaseResponse
             {
                 Code = 200,
@@ -437,7 +443,7 @@ namespace DrugWarehouseManagement.Service.Services
             var backupCode = Utils.Generate2FABackupCode(16);
 
             account.tOTPSecretKey = secretKey;
-            account.BackupCode = _passwordHelper.HashValue(backupCode);
+            // account.BackupCode = _passwordHelper.HashValue(backupCode);
             account.TwoFactorAuthenticatorStatus = TwoFactorAuthenticatorSetupStatus.Pending;
 
             await _unitOfWork.AccountRepository.UpdateAsync(account);
