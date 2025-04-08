@@ -28,11 +28,10 @@ namespace DrugWarehouseManagement.Service.Services
 
         public async Task<PaginatedResult<WarehouseResponse>> SearchWarehousesAsync(SearchWarehouseRequest request)
         {
-            // Only include warehouses with Active status
             var query = _unitOfWork.WarehouseRepository
-                        .GetAll()
-                        .Where(w => w.Status == WarehouseStatus.Active) 
-                        .AsQueryable();
+                .GetAll()
+                .Where(w => w.Status == WarehouseStatus.Active)
+                .AsQueryable();
 
             if (!string.IsNullOrEmpty(request.Status))
             {
@@ -44,21 +43,17 @@ namespace DrugWarehouseManagement.Service.Services
                 {
                     throw new Exception("Status is invalid.");
                 }
-                // If a search term is provided, filter by WarehouseName or Address
-                if (!string.IsNullOrEmpty(request.Search))
-                {
-                    var searchTerm = request.Search.Trim().ToLower();
-                    query = query.Where(w =>
-                        EF.Functions.Like(w.WarehouseName.ToLower(), $"%{searchTerm}%") ||
-                        EF.Functions.Like(w.Address.ToLower(), $"%{searchTerm}%") ||
-                        EF.Functions.Like(w.WarehouseCode.ToLower(), $"%{searchTerm}%")||
-                        EF.Functions.Like(w.DocumentNumber.ToLower(), $"%{searchTerm}%")
-                    );
-                }
             }
-
-            // Optionally, add additional filtering by dates if the Warehouse model had such fields.
-            // Order by WarehouseId descending (or any other order)
+            if (!string.IsNullOrEmpty(request.Search))
+            {
+                var searchTerm = request.Search.Trim().ToLower();
+                query = query.Where(w =>
+                    EF.Functions.Like(w.WarehouseName.ToLower(), $"%{searchTerm}%") ||
+                    EF.Functions.Like(w.Address.ToLower(), $"%{searchTerm}%") ||
+                    EF.Functions.Like(w.WarehouseCode.ToLower(), $"%{searchTerm}%") ||
+                    EF.Functions.Like(w.DocumentNumber.ToLower(), $"%{searchTerm}%")
+                );
+            }
             query = query.OrderByDescending(w => w.WarehouseId);
 
             var paginatedResult = await query.ToPaginatedResultAsync(request.Page, request.PageSize);
