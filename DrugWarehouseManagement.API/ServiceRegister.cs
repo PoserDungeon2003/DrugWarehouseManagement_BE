@@ -26,6 +26,7 @@ using Minio;
 using Minio.DataModel.Args;
 using System;
 using NodaTime;
+using StackExchange.Redis;
 
 namespace DrugWarehouseManagement.API
 {
@@ -41,6 +42,13 @@ namespace DrugWarehouseManagement.API
                 dataSourceBuilder.UseJsonNet(); // Use Newtonsoft.Json if preferred
                 return dataSourceBuilder.Build();
             });
+
+            services.AddSingleton<IConnectionMultiplexer>(sp =>
+            {
+                var redisConfiguration = configuration.GetConnectionString("Redis");
+                return ConnectionMultiplexer.Connect(redisConfiguration);
+            });
+
 
             services.AddDbContext<DrugWarehouseContext>((sp, options) =>
             {
