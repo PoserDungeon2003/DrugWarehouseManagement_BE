@@ -21,7 +21,7 @@ namespace DrugWarehouseManagement.API.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Inventory Manager, SaleAdmin")]
+        [Authorize(Roles = "Inventory Manager, Sale Admin")]
         public async Task<IActionResult> CreateOutbound([FromBody] CreateOutboundRequest request)
         {
             try
@@ -41,7 +41,7 @@ namespace DrugWarehouseManagement.API.Controllers
         }
 
         [HttpPost("sample-export")]
-        [Authorize(Roles ="Inventory Manager, SaleAdmin")]
+        [Authorize(Roles ="Inventory Manager, Sale Admin")]
         public async Task<IActionResult> CreateSampleOutbound([FromBody] CreateOutboundRequest request)
         {
             try
@@ -60,7 +60,7 @@ namespace DrugWarehouseManagement.API.Controllers
             }
         }
         [HttpPut]
-        [Authorize(Roles = "Inventory Manager, SaleAdmin")]
+        [Authorize(Roles = "Inventory Manager, Sale Admin")]
         public async Task<IActionResult> UpdateOutbound(int id, [FromBody] UpdateOutboundRequest request)
         {
             try
@@ -130,7 +130,7 @@ namespace DrugWarehouseManagement.API.Controllers
            
         }
         [HttpGet("export/{id}")]
-        [Authorize(Roles = "Inventory Manager, SaleAdmin")]
+        [Authorize(Roles = "Inventory Manager, Sale Admin")]
         public async Task<IActionResult> ExportOutboundInvoice(int id)
         {
             try
