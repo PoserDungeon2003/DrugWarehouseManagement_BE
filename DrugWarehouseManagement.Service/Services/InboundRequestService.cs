@@ -52,6 +52,14 @@ namespace DrugWarehouseManagement.Service.Services
 
             inboundRequest.Assets = new List<Asset>();
 
+            if (request.InboundRequestDetails != null && request.InboundRequestDetails.Any())
+            {
+                inboundRequest.Price = request.InboundRequestDetails.Sum(x => x.TotalPrice); // Set the Price field
+            }
+            else
+            {
+                inboundRequest.Price = 0; // Set Price to 0 if there are no details
+            }
 
             // Handle image uploads if present
             if (request.Images != null && request.Images.Any())
@@ -70,6 +78,8 @@ namespace DrugWarehouseManagement.Service.Services
                     };
                 }
             }
+
+
 
             await _unitOfWork.InboundRequestRepository.CreateAsync(inboundRequest);
             await _unitOfWork.SaveChangesAsync();
@@ -197,16 +207,20 @@ namespace DrugWarehouseManagement.Service.Services
 
             inboundRequest.AccountId = accountId;
             inboundRequest.UpdatedAt = SystemClock.Instance.GetCurrentInstant();
+
             request.Adapt(inboundRequest);
 
-            if (request.InboundRequestDetails != null)
+            if (request.InboundRequestDetails != null && request.InboundRequestDetails.Any())
             {
                 // Remove all existing details
                 var existingDetails = _unitOfWork.InboundRequestDetailsRepository.GetByWhere(x => x.InboundRequestId == inboundRequest.InboundRequestId);
-                foreach (var detail in existingDetails)
-                {
-                    await _unitOfWork.InboundRequestDetailsRepository.DeleteAsync(detail);
-                }
+                await _unitOfWork.InboundRequestDetailsRepository.DeleteRangeAsync(existingDetails);
+
+                inboundRequest.Price = inboundRequest.InboundRequestDetails.Sum(x => x.TotalPrice); // Set the Price field
+            }
+            else
+            {
+                inboundRequest.Price = 0; // Set Price to 0 if there are no details
             }
 
             if (request.Images != null && request.Images.Any())
@@ -215,10 +229,7 @@ namespace DrugWarehouseManagement.Service.Services
                 {
                     // Remove all existing assets associated with this inbound report
                     var existingAssets = _unitOfWork.InboundRequestAssetsRepository.GetByWhere(x => x.InboundRequestId == inboundRequest.InboundRequestId);
-                    foreach (var asset in existingAssets)
-                    {
-                        await _unitOfWork.InboundRequestAssetsRepository.DeleteAsync(asset);
-                    }
+                    await _unitOfWork.InboundRequestAssetsRepository.DeleteRangeAsync(existingAssets);
 
                     // Upload new files and associate them with the inbound report
                     var uploadedAssets = await UploadFiles(request.Images, accountId);
