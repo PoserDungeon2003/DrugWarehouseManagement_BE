@@ -53,15 +53,106 @@ namespace DrugWarehouseManagement.Service.Services
 
         public async Task<BaseResponse> CreateCategory(CreateCategoryRequest createCategoryRequest)
         {
-            var category = createCategoryRequest.Adapt<Categories>();
-            await _unitOfWork.CategoriesRepository.CreateAsync(category);
-            await _unitOfWork.SaveChangesAsync();
-
-            return new BaseResponse
+            if (createCategoryRequest.ParentCategoryId.HasValue)
             {
-                Code = 200,
-                Message = "Category created successfully"
-            };
+                // Verify parent category exists
+                var parentCategory = await _unitOfWork.CategoriesRepository
+                    .GetByIdAsync(createCategoryRequest.ParentCategoryId);
+
+                if (parentCategory == null)
+                {
+                    throw new Exception($"Parent category with ID {createCategoryRequest.ParentCategoryId.Value} not found");
+                }
+
+                // Check if main category name already exists
+                var existingCategory = await _unitOfWork.CategoriesRepository
+                    .AnyAsync(c => c.CategoryName.ToLower().Trim() == createCategoryRequest.CategoryName.ToLower().Trim());
+
+                if (existingCategory)
+                {
+                    throw new Exception("Category name already exists");
+                }
+
+                // Create the new subcategory
+                var newSubCategory = new Categories
+                {
+                    CategoryName = createCategoryRequest.CategoryName,
+                    Description = createCategoryRequest.Description,
+                    ParentCategoryId = createCategoryRequest.ParentCategoryId
+                };
+
+                await _unitOfWork.CategoriesRepository.CreateAsync(newSubCategory);
+                await _unitOfWork.SaveChangesAsync();
+
+                // Handle nested subcategories (if provided)
+                var subcategoryResult = new { ExistingCount = 0, NewCount = 0 };
+
+                if (createCategoryRequest.SubCategories != null && createCategoryRequest.SubCategories.Any())
+                {
+                    // These will be sub-subcategories (nested one level deeper)
+                    subcategoryResult = await ProcessSubcategories(createCategoryRequest.SubCategories, newSubCategory.CategoriesId);
+                }
+
+                // Prepare response message
+                string message = "Subcategory created successfully";
+                if (subcategoryResult.NewCount > 0)
+                {
+                    message += $" with {subcategoryResult.NewCount} new nested subcategories";
+                    if (subcategoryResult.ExistingCount > 0)
+                    {
+                        message += $" and {subcategoryResult.ExistingCount} existing subcategories linked as children";
+                    }
+                }
+
+                return new BaseResponse
+                {
+                    Code = 200,
+                    Message = message
+                };
+            }
+            else
+            {
+                var existingCategory = await _unitOfWork.CategoriesRepository
+                .AnyAsync(c => c.CategoryName.ToLower().Trim() == createCategoryRequest.CategoryName.ToLower().Trim());
+
+                if (existingCategory)
+                {
+                    throw new Exception("Category name already exists");
+                }
+
+                // Handle subcategories
+                // Create the parent category first
+                var parentCategory = new Categories
+                {
+                    CategoryName = createCategoryRequest.CategoryName,
+                    Description = createCategoryRequest.Description,
+                };
+                await _unitOfWork.CategoriesRepository.CreateAsync(parentCategory);
+                await _unitOfWork.SaveChangesAsync(); // Save to generate the ID for the parent category
+
+                var subcategoryResult = new { ExistingCount = 0, NewCount = 0 };
+
+                // Handle subcategories
+                if (createCategoryRequest.SubCategories != null && createCategoryRequest.SubCategories.Any())
+                {
+                    subcategoryResult = await ProcessSubcategories(createCategoryRequest.SubCategories, parentCategory.CategoriesId);
+                }
+
+                string message = "Category created successfully";
+                if (createCategoryRequest.SubCategories != null && createCategoryRequest.SubCategories.Any())
+                {
+                    message += $" with {subcategoryResult.NewCount} new subcategories";
+                    if (subcategoryResult.ExistingCount > 0)
+                    {
+                        message += $" and {subcategoryResult.ExistingCount} existing subcategories linked as children";
+                    }
+                }
+                return new BaseResponse
+                {
+                    Code = 200,
+                    Message = message
+                };
+            }
         }
 
         public async Task<BaseResponse> DeleteCategory(int categoryId)
@@ -103,8 +194,8 @@ namespace DrugWarehouseManagement.Service.Services
             {
                 query.Search = query.Search.Trim().ToLower();
                 categories = categories
-                                 .Where(c => 
-                                        c.CategoryName.Contains(query.Search) || 
+                                 .Where(c =>
+                                        c.CategoryName.Contains(query.Search) ||
                                         c.CategoriesId.ToString().Contains(query.Search)
                                  );
             }
@@ -163,6 +254,74 @@ namespace DrugWarehouseManagement.Service.Services
                 Code = 200,
                 Message = "Category updated successfully",
             };
+        }
+
+        private async Task<dynamic> ProcessSubcategories(List<CreateSubCategories> subcategories, int parentId)
+        {
+            int existingCount = 0;
+            int newCount = 0;
+
+            // Check for duplicate subcategory names within the request
+            var subcategoryNames = subcategories.Select(s => s.CategoryName.ToLower().Trim()).ToList();
+            var duplicateSubcategoryNames = subcategoryNames
+                .GroupBy(name => name)
+                .Where(g => g.Count() > 1)
+                .Select(g => g.Key)
+                .ToList();
+
+            if (duplicateSubcategoryNames.Any())
+            {
+                throw new Exception($"Duplicate subcategory name(s) in request: {string.Join(", ", duplicateSubcategoryNames)}");
+            }
+
+            // Get existing subcategories from database
+            var existingSubcategories = await _unitOfWork.CategoriesRepository
+                .GetByWhere(c => subcategoryNames.Contains(c.CategoryName.ToLower().Trim()))
+                .ToListAsync();
+
+            var existingSubcategoryNames = existingSubcategories
+                .Select(c => c.CategoryName.ToLower().Trim())
+                .ToList();
+
+            // For existing subcategories, update their ParentCategoryId
+            foreach (var existingSubcategory in existingSubcategories)
+            {
+                existingSubcategory.ParentCategoryId = parentId; // Set the parent category ID
+            }
+
+            if (existingSubcategories.Any())
+            {
+                await _unitOfWork.CategoriesRepository.UpdateRangeAsync(existingSubcategories);
+                existingCount = existingSubcategories.Count;
+            }
+
+            // Create new subcategories with ParentCategoryId set
+            var newSubcategories = new List<Categories>();
+            foreach (var subCategoryRequest in subcategories)
+            {
+                if (!existingSubcategoryNames.Contains(subCategoryRequest.CategoryName.ToLower().Trim()))
+                {
+                    var subCategory = new Categories
+                    {
+                        CategoryName = subCategoryRequest.CategoryName,
+                        Description = subCategoryRequest.Description,
+                        ParentCategoryId = parentId
+                    };
+                    newSubcategories.Add(subCategory);
+                }
+            }
+
+            // Create all new subcategories
+            if (newSubcategories.Any())
+            {
+                await _unitOfWork.CategoriesRepository.AddRangeAsync(newSubcategories);
+                newCount = newSubcategories.Count;
+            }
+
+            await _unitOfWork.SaveChangesAsync();
+
+            // Return an anonymous object with the counts
+            return new { ExistingCount = existingCount, NewCount = newCount };
         }
     }
 }
