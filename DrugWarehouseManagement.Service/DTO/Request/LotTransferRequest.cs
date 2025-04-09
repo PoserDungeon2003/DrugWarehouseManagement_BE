@@ -14,9 +14,11 @@ namespace DrugWarehouseManagement.Service.DTO.Request
         [Required]
         public string LotTransferCode { get; set; } = null!;
         [Required]
+        [Range(1, int.MaxValue, ErrorMessage = "FromWareHouseId must be a positive number.")]
         public int FromWareHouseId { get; set; }
         [Required]
-        public int ToWareHouseId { get; set; }  
+        [Range(1, int.MaxValue, ErrorMessage = "ToWareHouseId must be a positive number.")]
+        public int ToWareHouseId { get; set; }
         [Required]
         public List<LotTransferDetailRequest> LotTransferDetails { get; set; } = null!;
     }
@@ -24,8 +26,10 @@ namespace DrugWarehouseManagement.Service.DTO.Request
     public class LotTransferDetailRequest
     {
         [Required]
+        [Range(1, int.MaxValue, ErrorMessage = "Quantity must be a positive number.")]
         public int Quantity { get; set; }
         [Required]
+        [Range(1, int.MaxValue, ErrorMessage = "LotId must be a positive number.")]
         public int LotId { get; set; }
     }
 }
