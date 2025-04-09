@@ -52,11 +52,11 @@ namespace DrugWarehouseManagement.Service.Services
             {
                 // Kiểm tra OutboundDetail
                 var outboundDetail = outbound.OutboundDetails
-                    .FirstOrDefault(od => od.OutboundDetailsId == detailItem.OutboundDetailId);
+                    .FirstOrDefault(od => od.OutboundDetailsId == detailItem.OutboundDetailsId);
 
                 if (outboundDetail == null)
                 {
-                    throw new Exception($"OutboundDetailId={detailItem.OutboundDetailId} not found in this outbound.");
+                    throw new Exception($"OutboundDetailId={detailItem.OutboundDetailsId} not found in this outbound.");
                 }
                 // Kiểm tra logic returnedQuantity <= outboundDetail.Quantity
                 // (nếu bạn giới hạn không trả quá số đã xuất)
@@ -68,7 +68,7 @@ namespace DrugWarehouseManagement.Service.Services
                 // Tạo record ReturnOutboundDetails
                 var rod = new ReturnOutboundDetails
                 {
-                    OutboundDetailsId = detailItem.OutboundDetailId,
+                    OutboundDetailsId = detailItem.OutboundDetailsId,
                     ReturnedQuantity = detailItem.Quantity,
                     Note = detailItem.Note              
                 };
