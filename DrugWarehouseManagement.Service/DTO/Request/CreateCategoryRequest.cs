@@ -14,6 +14,7 @@ namespace DrugWarehouseManagement.Service.DTO.Request
         [Required]
         public string CategoryName { get; set; } = null!;
         public string? Description { get; set; }
+        public int? ParentCategoryId { get; set; }
         public List<CreateSubCategories>? SubCategories { get; set; }
     }
 
