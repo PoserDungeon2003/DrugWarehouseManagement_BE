@@ -173,8 +173,7 @@ namespace DrugWarehouseManagement.Service.Services
                         FileSize = file.Length,
                         UploadedAt = SystemClock.Instance.GetCurrentInstant(),
                         Status = AssetStatus.Active,
-                        AccountId = accountId,
-                        CategoryId = 2 // Adjust as needed
+                        AccountId = accountId
                     };
 
                     uploadedAssets.Add(asset);
