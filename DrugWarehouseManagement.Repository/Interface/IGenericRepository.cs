@@ -26,5 +26,7 @@ namespace DrugWarehouseManagement.Repository.Interface
             int pageSize,
             Expression<Func<TEntity, bool>> predicate = null);
         Task DeleteRangeAsync(IEnumerable<TEntity> entities);
+        Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate);
+        Task UpdateRangeAsync(IEnumerable<TEntity> entities);
     }
 }

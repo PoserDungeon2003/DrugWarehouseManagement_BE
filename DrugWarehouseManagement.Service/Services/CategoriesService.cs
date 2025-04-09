@@ -53,14 +53,97 @@ namespace DrugWarehouseManagement.Service.Services
 
         public async Task<BaseResponse> CreateCategory(CreateCategoryRequest createCategoryRequest)
         {
-            var category = createCategoryRequest.Adapt<Categories>();
-            await _unitOfWork.CategoriesRepository.CreateAsync(category);
-            await _unitOfWork.SaveChangesAsync();
+            var existingCategory = await _unitOfWork.CategoriesRepository
+                .AnyAsync(c => c.CategoryName.ToLower().Trim() == createCategoryRequest.CategoryName.ToLower().Trim());
 
+            if (existingCategory)
+            {
+                throw new Exception("Category name already exists");
+            }
+
+            // Handle subcategories
+            // Create the parent category first
+            var parentCategory = new Categories 
+            { 
+                CategoryName = createCategoryRequest.CategoryName,
+                Description = createCategoryRequest.Description,
+            };
+            await _unitOfWork.CategoriesRepository.CreateAsync(parentCategory);
+            await _unitOfWork.SaveChangesAsync(); // Save to generate the ID for the parent category
+
+            int existingCount = 0;
+            // Handle subcategories
+            if (createCategoryRequest.SubCategories != null && createCategoryRequest.SubCategories.Any())
+            {
+                // Check for duplicate subcategory names within the request
+                var subcategoryNames = createCategoryRequest.SubCategories.Select(s => s.CategoryName.ToLower().Trim()).ToList();
+                var duplicateSubcategoryNames = subcategoryNames
+                    .GroupBy(name => name)
+                    .Where(g => g.Count() > 1)
+                    .Select(g => g.Key)
+                    .ToList();
+
+                if (duplicateSubcategoryNames.Any())
+                {
+                    throw new Exception($"Duplicate subcategory name(s) in request: {string.Join(", ", duplicateSubcategoryNames)}");
+                }
+
+                // Get existing subcategories from database
+                var existingSubcategories = await _unitOfWork.CategoriesRepository
+                    .GetByWhere(c => subcategoryNames.Contains(c.CategoryName.ToLower().Trim()))
+                    .ToListAsync();
+
+                var existingSubcategoryNames = existingSubcategories.Select(c => c.CategoryName).ToList();
+
+                // For existing subcategories, update their ParentCategoryId
+                foreach (var existingSubcategory in existingSubcategories)
+                {
+                    existingSubcategory.ParentCategoryId = parentCategory.CategoriesId; // Set the parent category ID
+                }
+                await _unitOfWork.CategoriesRepository.UpdateRangeAsync(existingSubcategories);
+
+                // Create new subcategories with ParentCategoryId set
+                var newSubcategories = new List<Categories>();
+                foreach (var subCategoryRequest in createCategoryRequest.SubCategories)
+                {
+                    if (!existingSubcategoryNames.Contains(subCategoryRequest.CategoryName.ToLower().Trim()))
+                    {
+                        var subCategory = subCategoryRequest.Adapt<Categories>();
+                        subCategory.ParentCategoryId = parentCategory.CategoriesId; // Set the parent category ID
+                        newSubcategories.Add(subCategory);
+                    }
+                }
+
+                // Create all new subcategories
+                if (newSubcategories.Any())
+                {
+                    await _unitOfWork.CategoriesRepository.AddRangeAsync(newSubcategories);
+                }
+
+                await _unitOfWork.SaveChangesAsync();
+
+                // Create a detailed response message
+                existingCount = createCategoryRequest.SubCategories != null ?
+                createCategoryRequest.SubCategories.Count(sc => existingSubcategoryNames.Contains(sc.CategoryName)) : 0;
+
+            }
+
+            int newCount = createCategoryRequest.SubCategories != null ?
+                createCategoryRequest.SubCategories.Count - existingCount : 0;
+
+            string message = "Category created successfully";
+            if (createCategoryRequest.SubCategories != null && createCategoryRequest.SubCategories.Any())
+            {
+                message += $" with {newCount} new subcategories";
+                if (existingCount > 0)
+                {
+                    message += $" and {existingCount} existing subcategories linked as children";
+                }
+            }
             return new BaseResponse
             {
                 Code = 200,
-                Message = "Category created successfully"
+                Message = message
             };
         }
 
@@ -103,8 +186,8 @@ namespace DrugWarehouseManagement.Service.Services
             {
                 query.Search = query.Search.Trim().ToLower();
                 categories = categories
-                                 .Where(c => 
-                                        c.CategoryName.Contains(query.Search) || 
+                                 .Where(c =>
+                                        c.CategoryName.Contains(query.Search) ||
                                         c.CategoriesId.ToString().Contains(query.Search)
                                  );
             }
