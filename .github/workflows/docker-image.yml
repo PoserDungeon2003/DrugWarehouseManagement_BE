@@ -20,10 +20,10 @@ jobs:
 
     - name: Build the Docker image
       run: |
-        IMAGE_TAG=poserdungeon/drugwarehouse-api:latest
+        IMAGE_TAG=${{ secrets.DOCKER_USERNAME }}/drugwarehouse-api:latest
         docker build . --file Dockerfile --tag $IMAGE_TAG
 
     - name: Push the Docker image
       run: |
-        IMAGE_TAG=poserdungeon/drugwarehouse-api:latest
+        IMAGE_TAG=${{ secrets.DOCKER_USERNAME }}/drugwarehouse-api:latest
         docker push $IMAGE_TAG
