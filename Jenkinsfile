@@ -7,12 +7,6 @@ pipeline {
     }
 
     stages {
-        stage('Checkout Code') {
-            steps {
-                git branch: 'main', url: 'git@github.com:PoserDungeon2003/DrugWarehouseManagement_BE.git'
-            }
-        }
-
         stage('Build API Service') {
             steps {
                 sh 'docker compose -f $DOCKER_COMPOSE_PATH build $API_SERVICE'

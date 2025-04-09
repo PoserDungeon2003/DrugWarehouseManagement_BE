@@ -11,6 +11,7 @@ namespace DrugWarehouseManagement.API.Controllers
     public class AssetController : ControllerBase
     {
         private readonly IMinioService _minioService;
+        private const string _bucketName = "drugwarehouse";
 
         public AssetController(IMinioService minioService)
         {
@@ -23,7 +24,7 @@ namespace DrugWarehouseManagement.API.Controllers
         {
             try
             {
-                var response = await _minioService.GetFileAsync($"drugwarehouse", $"{inboundId}/{id}");
+                var response = await _minioService.GetFileAsync(_bucketName, $"{inboundId}/{id}");
                 return File(response.ToArray(), "application/octet-stream", id);
             }
             catch (Exception ex)

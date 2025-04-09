@@ -7,6 +7,7 @@ using DrugWarehouseManagement.Service.DTO.Response;
 using DrugWarehouseManagement.Service.Extenstions;
 using DrugWarehouseManagement.Service.Interface;
 using Mapster;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using NodaTime;
 using NodaTime.Text;
@@ -27,12 +28,16 @@ namespace DrugWarehouseManagement.Service.Services
     public class LotTransferService : ILotTransferService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMinioService _minioService;
+        private const string _bucketName = "drugwarehouse";
 
         public LotTransferService(
-            IUnitOfWork unitOfWork
+            IUnitOfWork unitOfWork,
+            IMinioService minioService
             )
         {
             _unitOfWork = unitOfWork;
+            _minioService = minioService;
         }
 
         public async Task<BaseResponse> CancelLotTransfer(Guid accountId, int lotTransferId)
@@ -173,7 +178,7 @@ namespace DrugWarehouseManagement.Service.Services
             {
                 Code = (int)HttpStatusCode.OK,
                 Message = "Create transfer order successfully",
-                Result = lotTransfer.Adapt<CreateLotTransferResponse>(),  
+                Result = lotTransfer.Adapt<CreateLotTransferResponse>(),
             };
         }
 
@@ -184,9 +189,11 @@ namespace DrugWarehouseManagement.Service.Services
                                         .Include(w => w.FromWareHouse)
                                         .Include(w => w.ToWareHouse)
                                         .Include(lt => lt.LotTransferDetails)
-                                            .ThenInclude(ltd => ltd.Lot)
-                                                .ThenInclude(p => p.Provider)
+                                            .ThenInclude(l => l.Lot)
+                                                .ThenInclude(p => p.Product)
                                         .Include(lt => lt.LotTransferDetails)
+                                            .ThenInclude(l => l.Lot)
+                                                .ThenInclude(p => p.Provider)
                                         .FirstOrDefaultAsync();
 
             if (lotTransfer == null)
@@ -276,6 +283,33 @@ namespace DrugWarehouseManagement.Service.Services
                 });
             }).GeneratePdf();
 
+            // string fileName = $"lot-transfer/{lotTransfer.LotTransferCode}.pdf";
+            // var asset = new Asset
+            // {
+            //     FileUrl = Utils.BuildDownloadAssetUrl("lot-transfer", lotTransfer.LotTransferId.ToString(), fileName),
+            //     FileName = $"{lotTransfer.LotTransferCode}.pdf",
+            //     FileExtension = "pdf",
+            //     FileSize = pdfBytes.Length,
+            //     AccountId = accountId,
+            //     LotTransfer = lotTransfer,
+            // };
+
+            // await _unitOfWork.AssetRepository.CreateAsync(asset);
+            // await _unitOfWork.SaveChangesAsync();
+
+            // using (var stream = new MemoryStream(pdfBytes))
+            // {
+            //     var formFile = new FormFile(
+            //         baseStream: stream,
+            //         baseStreamOffset: 0,
+            //         length: stream.Length,
+            //         name: "file",
+            //         fileName: $"{lotTransfer.LotTransferCode}.pdf"
+            //     );
+
+            //     // Upload to MinIO
+            //     await _minioService.FileUpload(_bucketName, formFile, fileName, "application/pdf");
+            // }
             return pdfBytes;
         }
 
@@ -287,8 +321,7 @@ namespace DrugWarehouseManagement.Service.Services
                                     .Include(w => w.ToWareHouse)
                                     .Include(lt => lt.LotTransferDetails)
                                         .ThenInclude(ltd => ltd.Lot)
-                                            .ThenInclude(p => p.Provider)
-                                    .Include(lt => lt.LotTransferDetails)
+                                            .ThenInclude(p => p.Product)
                                     .FirstOrDefaultAsync();
             if (lotTransfer == null)
             {
@@ -305,16 +338,20 @@ namespace DrugWarehouseManagement.Service.Services
                                     .Include(w => w.FromWareHouse)
                                     .Include(w => w.ToWareHouse)
                                     .Include(a => a.Account)
+                                    .Include(ltd => ltd.LotTransferDetails)
+                                        .ThenInclude(l => l.Lot)
+                                            .ThenInclude(p => p.Provider)
+                                            .ThenInclude(p => p.Products)
                                     .OrderByDescending(lt => lt.UpdatedAt.HasValue)
                                     .ThenByDescending(lt => lt.UpdatedAt)
                                     .ThenByDescending(lt => lt.CreatedAt)
                                     //.Where(lt => lt.LotTransferStatus != Common.LotTransferStatus.Cancelled)
                                     .AsQueryable();
-            
+
             if (!string.IsNullOrEmpty(queryPaging.Search))
             {
                 lotTransfers = lotTransfers
-                                .Where(lt => 
+                                .Where(lt =>
                                     lt.LotTransferCode.Contains(queryPaging.Search.ToLower().Trim()) ||
                                     lt.FromWareHouse.WarehouseName.Contains(queryPaging.Search.ToLower().Trim()) ||
                                     lt.ToWareHouse.WarehouseName.Contains(queryPaging.Search.ToLower().Trim())

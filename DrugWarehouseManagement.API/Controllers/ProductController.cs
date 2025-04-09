@@ -1,7 +1,9 @@
 ﻿using DrugWarehouseManagement.Service.DTO.Request;
 using DrugWarehouseManagement.Service.DTO.Response;
 using DrugWarehouseManagement.Service.Interface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace DrugWarehouseManagement.API.Controllers
 {
@@ -17,10 +19,12 @@ namespace DrugWarehouseManagement.API.Controllers
 
         // POST: api/Product
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> CreateProduct([FromBody] CreateProductRequest request)
         {
             try
             {
+                var accountId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
                 await _productService.CreateProductAsync(request);
                 return Ok(new BaseResponse
                 {

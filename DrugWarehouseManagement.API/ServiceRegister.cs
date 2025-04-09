@@ -229,12 +229,23 @@ namespace DrugWarehouseManagement.API
                 .NewConfig()
 
                 .Map(dest => dest.LotNumber, src => src.Lot.LotNumber)
+                .Map(dest => dest.ProductName, src => src.Lot.Product.ProductName)
                 .IgnoreNullValues(true);
-
+            TypeAdapterConfig<UpdateCustomerRequest, Customer>
+            .NewConfig()
+            .IgnoreNullValues(true);
+            TypeAdapterConfig<UpdateProductRequest, Product>
+                .NewConfig()
+                .IgnoreNullValues(true);
+            TypeAdapterConfig<UpdateProviderRequest, Provider>
+                .NewConfig()
+    .           IgnoreNullValues(true);
             TypeAdapterConfig<UpdateLotTransferRequest, LotTransfer>
                 .NewConfig()
                 .IgnoreNullValues(true);
-
+            TypeAdapterConfig<UpdateOutboundRequest, Outbound>
+                .NewConfig()
+                .IgnoreNullValues(true);
             TypeAdapterConfig<Categories, ViewCategories>
                 .NewConfig()
                 .Map(dest => dest.ParentCategoryName, src => src.ParentCategory.CategoryName);

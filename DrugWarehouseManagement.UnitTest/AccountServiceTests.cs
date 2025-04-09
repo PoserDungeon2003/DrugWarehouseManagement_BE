@@ -675,9 +675,10 @@ namespace DrugWarehouseManagement.UnitTest
         public async Task ResetPassword_AccountNotFound_ThrowsException()
         {
             // Arrange
-            var accountId = Guid.NewGuid();
-            _unitOfWorkMock.Setup(uow => uow.AccountRepository.GetByIdAsync(accountId))
-                           .ReturnsAsync((Account)null);
+            var accountId = "user@example.com";
+            var mockAccounts = new List<Account>().AsQueryable().BuildMock();
+            _unitOfWorkMock.Setup(u => u.AccountRepository.GetByWhere(It.IsAny<Expression<Func<Account, bool>>>()))
+                .Returns(mockAccounts);
 
             // Act & Assert
             var exception = await Assert.ThrowsAsync<Exception>(() => _accountService.ResetPassword(accountId));
@@ -688,16 +689,19 @@ namespace DrugWarehouseManagement.UnitTest
         public async Task ResetPassword_SuccessfulReset_ReturnsBaseResponse()
         {
             // Arrange
-            var accountId = Guid.NewGuid();
+            var accountId = "test@example.com";
             var account = new Account
             {
-                Id = accountId,
+                Id = Guid.NewGuid(),
                 UserName = "testuser",
                 Email = "test@example.com"
             };
 
-            _unitOfWorkMock.Setup(uow => uow.AccountRepository.GetByIdAsync(accountId))
-                           .ReturnsAsync(account);
+            var mockAccounts = new List<Account>            {
+                new Account { Id = Guid.NewGuid(), UserName = "testuser", Email = "test@example.com" },
+            }.AsQueryable().BuildMock();
+            _unitOfWorkMock.Setup(u => u.AccountRepository.GetByWhere(It.IsAny<Expression<Func<Account, bool>>>()))
+                .Returns(mockAccounts);
             _unitOfWorkMock.Setup(uow => uow.SaveChangesAsync())
                            .Returns(Task.CompletedTask);
             _emailServiceMock.Setup(es => es.SendEmailAsync(account.Email, "Reset Password", It.IsAny<string>()))

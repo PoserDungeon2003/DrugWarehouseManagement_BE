@@ -129,11 +129,21 @@ namespace DrugWarehouseManagement.Service.Services
                  .GetAll()
                  .FirstOrDefaultAsync(p => p.ProviderId == providerId);
 
-            if (provider == null || provider.Status == ProviderStatus.Inactive)
+            if (provider == null )
             {
-                throw new Exception("Provider not found or inactive.");
+                throw new Exception("Provider not found.");
             }
-
+            if (!string.IsNullOrEmpty(request.Status))
+            {
+                if (Enum.TryParse<ProviderStatus>(request.Status, true, out var parsedStatus))
+                {
+                    provider.Status = parsedStatus;
+                }
+                else
+                {
+                    throw new Exception("Status is invalid.");
+                }
+            }
             request.Adapt(provider);
             provider.UpdatedAt = NodaTime.SystemClock.Instance.GetCurrentInstant();
             await _unitOfWork.ProviderRepository.UpdateAsync(provider);

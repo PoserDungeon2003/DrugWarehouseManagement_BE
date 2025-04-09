@@ -31,7 +31,7 @@ namespace DrugWarehouseManagement.Service.Services
             ITokenHandlerService tokenHandler,
             ILogger<IAccountService> logger,
             IEmailService emailService,
-            ITwoFactorAuthenticatorWrapper twoFactorAuthenticatorWrapper, 
+            ITwoFactorAuthenticatorWrapper twoFactorAuthenticatorWrapper,
             IPasswordWrapper passwordHelper)
         {
             _unitOfWork = unitOfWork;
@@ -121,7 +121,7 @@ namespace DrugWarehouseManagement.Service.Services
 
             if (account.TwoFactorAuthenticatorStatus == TwoFactorAuthenticatorSetupStatus.Completed)
             {
-               throw new Exception("Two factor authenticator is already confirmed");
+                throw new Exception("Two factor authenticator is already confirmed");
             }
 
             var verifyCode = VerifyTwoFactorCode(account.tOTPSecretKey, request.OTPCode.Trim());
@@ -170,8 +170,6 @@ namespace DrugWarehouseManagement.Service.Services
             account.PasswordHash = hashedPassword;
             account.AccountSettings = new AccountSettings();
 
-            await _unitOfWork.AccountRepository.CreateAsync(account);
-            await _unitOfWork.SaveChangesAsync();
 
             var htmlTemplate = Consts.htmlCreateAccountTemplate;
 
@@ -179,6 +177,9 @@ namespace DrugWarehouseManagement.Service.Services
                                        .Replace("{{Password}}", randomPassword);
 
             await _emailService.SendEmailAsync(account.Email, "Account Created", htmlTemplate);
+            
+            await _unitOfWork.AccountRepository.CreateAsync(account);
+            await _unitOfWork.SaveChangesAsync();
 
             //_logger.LogWarning($"Account created with username: {account.Username} and password: {randomPassword}"); // For development purpose, should using email to send password to user
 
@@ -265,6 +266,11 @@ namespace DrugWarehouseManagement.Service.Services
             if (account.Status == AccountStatus.Inactive)
             {
                 throw new Exception("Account is inactive, please contact your administrator to re-active your account");
+            }
+
+            if (account.Status == AccountStatus.Deleted)
+            {
+                throw new Exception("Account is deleted, please contact your administrator to re-active your account");
             }
 
             if (account.TwoFactorEnabled)
@@ -360,7 +366,7 @@ namespace DrugWarehouseManagement.Service.Services
                 throw new UnauthorizedAccessException("Invalid refresh token");
             }
 
-            var accountId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var accountId = principal.FindFirstValue(ClaimTypes.NameIdentifier);
 
             var account = await _unitOfWork.AccountRepository.GetByWhere(acc => acc.Id == Guid.Parse(accountId))
                                                             .Include(x => x.Role)
@@ -380,9 +386,10 @@ namespace DrugWarehouseManagement.Service.Services
             };
         }
 
-        public async Task<BaseResponse> ResetPassword(Guid accountId)
+        public async Task<BaseResponse> ResetPassword(string email)
         {
-            var account = await _unitOfWork.AccountRepository.GetByIdAsync(accountId);
+            var account = await _unitOfWork.AccountRepository.GetByWhere(acc => acc.Email == email.ToLower().Trim())
+                        .FirstOrDefaultAsync();
 
             if (account == null)
             {
@@ -394,14 +401,14 @@ namespace DrugWarehouseManagement.Service.Services
 
             account.PasswordHash = hashedPassword;
 
-            await _unitOfWork.SaveChangesAsync();
-
             var htmlTemplate = Consts.htmlResetPasswordTemplate;
 
             htmlTemplate = htmlTemplate.Replace("{{Username}}", account.UserName)
                                        .Replace("{{Password}}", randomPassword);
 
             await _emailService.SendEmailAsync(account.Email, "Reset Password", htmlTemplate);
+            await _unitOfWork.SaveChangesAsync();
+
             return new BaseResponse
             {
                 Code = 200,
@@ -436,7 +443,7 @@ namespace DrugWarehouseManagement.Service.Services
             var backupCode = Utils.Generate2FABackupCode(16);
 
             account.tOTPSecretKey = secretKey;
-            account.BackupCode = _passwordHelper.HashValue(backupCode);
+            // account.BackupCode = _passwordHelper.HashValue(backupCode);
             account.TwoFactorAuthenticatorStatus = TwoFactorAuthenticatorSetupStatus.Pending;
 
             await _unitOfWork.AccountRepository.UpdateAsync(account);

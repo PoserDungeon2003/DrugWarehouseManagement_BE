@@ -28,10 +28,10 @@ namespace DrugWarehouseManagement.Service.Services
 
         public async Task<PaginatedResult<WarehouseResponse>> SearchWarehousesAsync(SearchWarehouseRequest request)
         {
-            // Only include warehouses with Active status
             var query = _unitOfWork.WarehouseRepository
-                        .GetAll()
-                        .AsQueryable();
+                .GetAll()
+                .Where(w => w.Status == WarehouseStatus.Active)
+                .AsQueryable();
 
             if (!string.IsNullOrEmpty(request.Status))
             {
@@ -43,20 +43,17 @@ namespace DrugWarehouseManagement.Service.Services
                 {
                     throw new Exception("Status is invalid.");
                 }
-                // If a search term is provided, filter by WarehouseName or Address
-                if (!string.IsNullOrEmpty(request.Search))
-                {
-                    var searchTerm = request.Search.Trim().ToLower();
-                    query = query.Where(w =>
-                        EF.Functions.Like(w.WarehouseName.ToLower(), $"%{searchTerm}%") ||
-                        EF.Functions.Like(w.Address.ToLower(), $"%{searchTerm}%") ||
-                        EF.Functions.Like(w.WarehouseCode.ToString(), $"%{searchTerm}%")
-                    );
-                }
             }
-
-            // Optionally, add additional filtering by dates if the Warehouse model had such fields.
-            // Order by WarehouseId descending (or any other order)
+            if (!string.IsNullOrEmpty(request.Search))
+            {
+                var searchTerm = request.Search.Trim().ToLower();
+                query = query.Where(w =>
+                    EF.Functions.Like(w.WarehouseName.ToLower(), $"%{searchTerm}%") ||
+                    EF.Functions.Like(w.Address.ToLower(), $"%{searchTerm}%") ||
+                    EF.Functions.Like(w.WarehouseCode.ToLower(), $"%{searchTerm}%") ||
+                    EF.Functions.Like(w.DocumentNumber.ToLower(), $"%{searchTerm}%")
+                );
+            }
             query = query.OrderByDescending(w => w.WarehouseId);
 
             var paginatedResult = await query.ToPaginatedResultAsync(request.Page, request.PageSize);
@@ -75,14 +72,12 @@ namespace DrugWarehouseManagement.Service.Services
         {
             var warehouse = await _unitOfWork.WarehouseRepository
                                 .GetAll()
-                                .FirstOrDefaultAsync(w => w.WarehouseId == warehouseId && w.Status == WarehouseStatus.Active);
+                                .FirstOrDefaultAsync(w => w.WarehouseId == warehouseId);
             if (warehouse == null)
             {
-                throw new Exception("Warehouse not found or is inactive.");
+                throw new Exception("Không tìm thấy kho.");
             }
-            warehouse.WarehouseName = request.WarehouseName;
-            warehouse.Address = request.Address;
-
+            request.Adapt(warehouse);
             await _unitOfWork.WarehouseRepository.UpdateAsync(warehouse);
             await _unitOfWork.SaveChangesAsync();
         }
