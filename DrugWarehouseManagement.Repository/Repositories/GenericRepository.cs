@@ -24,7 +24,7 @@ namespace DrugWarehouseManagement.Repository.Repositories
 
         public async Task Detach(TEntity entity)
         {
-            var entry = _context.Entry(entity);
+            var entry = await Task.Run(() => _context.Entry(entity));
             if (entry.State == EntityState.Detached)
             {
                 return;
@@ -41,7 +41,7 @@ namespace DrugWarehouseManagement.Repository.Repositories
         public async Task DeleteAsync(TEntity entity)
         {
             // Kiểm tra xem thực thể đã được theo dõi chưa
-            var local = _context.Set<TEntity>().Local.FirstOrDefault(e => e == entity);
+            var local = await Task.Run(() => _context.Set<TEntity>().Local.FirstOrDefault(e => e == entity));
             if (local != null)
             {
                 // Nếu thực thể đã được theo dõi, gỡ bỏ nó
@@ -70,7 +70,7 @@ namespace DrugWarehouseManagement.Repository.Repositories
 
         public async Task UpdateAsync(TEntity entity)
         {
-            var local = _context.Set<TEntity>().Local.FirstOrDefault(e => e == entity);
+            var local = await Task.Run(() => _context.Set<TEntity>().Local.FirstOrDefault(e => e == entity));
             if (local != null)
             {
                 // Nếu thực thể đã được theo dõi, gỡ bỏ nó
@@ -118,7 +118,17 @@ namespace DrugWarehouseManagement.Repository.Repositories
 
         public async Task DeleteRangeAsync(IEnumerable<TEntity> entities)
         {
-            _context.Set<TEntity>().RemoveRange(entities);
+            await Task.Run(() => _context.Set<TEntity>().RemoveRange(entities));
+        }
+
+        public async Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate)
+        {
+            return await _context.Set<TEntity>().AnyAsync(predicate);
+        }
+
+        public async Task UpdateRangeAsync(IEnumerable<TEntity> entities)
+        {
+            await Task.Run(() => _context.Set<TEntity>().UpdateRange(entities));
         }
     }
 
