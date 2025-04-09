@@ -100,7 +100,7 @@ namespace DrugWarehouseManagement.Service.Services
             var groupedDetails = request.LotTransferDetails
                 .GroupBy(l => new { l.LotId })
                 .Select(l => new LotTransferDetailRequest
-                {
+                {   LotId = l.Key.LotId,
                     Quantity = l.Sum(d => d.Quantity),
                 }).ToList();
 
