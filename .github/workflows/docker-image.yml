@@ -33,4 +33,4 @@ jobs:
         docker push $IMAGE_TAG
 
     - name: Clean up credentials
-      run: rm firebase-service-account.json
+      run: rm firebase-credentials.json
