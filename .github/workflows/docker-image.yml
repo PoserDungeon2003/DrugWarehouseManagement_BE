@@ -7,13 +7,17 @@ on:
   #   branches: [ "main" ]
 
 jobs:
-
   build:
 
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
+
+    - name: Recreate Firebase credentials file
+      run: |
+        echo "${{ secrets.FIREBASE_CREDENTIALS }}" > firebase-service-account.json
+        echo "GOOGLE_APPLICATION_CREDENTIALS=$(pwd)/firebase-service-account.json" >> $GITHUB_ENV
 
     - name: Log in to Docker Hub
       run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
@@ -27,3 +31,6 @@ jobs:
       run: |
         IMAGE_TAG=${{ secrets.DOCKER_USERNAME }}/drugwarehouse-api:latest
         docker push $IMAGE_TAG
+
+    - name: Clean up credentials
+      run: rm firebase-service-account.json
