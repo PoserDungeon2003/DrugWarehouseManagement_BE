@@ -98,7 +98,7 @@ namespace DrugWarehouseManagement.API
             var ssl = configuration.GetValue<bool>("Minio:SSL");
             InitializeMinio(services, accessKey, secretKey, endpoint, ssl);
 
-            InitializeFirebase();
+            // InitializeFirebase();
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<ITokenHandlerService, TokenHandlerService>();
