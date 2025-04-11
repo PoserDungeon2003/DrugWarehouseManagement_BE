@@ -34,8 +34,8 @@ namespace DrugWarehouseManagement.Service.Services
 
             foreach (var lot in lots)
             {
-                // 1) Kiểm tra Low Stock (< 10)
-                if (lot.Quantity < 10)
+                // 1) Kiểm tra Low Stock (< 30)
+                if (lot.Quantity < 30)
                 {
                     alerts.Add(new LotAlert
                     {
