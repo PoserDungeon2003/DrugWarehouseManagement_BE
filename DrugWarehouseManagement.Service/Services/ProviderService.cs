@@ -7,6 +7,7 @@ using DrugWarehouseManagement.Service.Extenstions;
 using DrugWarehouseManagement.Service.Interface;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
+using NodaTime;
 using NodaTime.Text;
 using System;
 using System.Collections.Generic;
@@ -39,7 +40,7 @@ namespace DrugWarehouseManagement.Service.Services
 
             // Map the DTO to the Provider entity
             provider = request.Adapt<Provider>();
-            provider.CreatedAt = NodaTime.Instant.FromDateTimeUtc(DateTime.UtcNow);
+            provider.CreatedAt = SystemClock.Instance.GetCurrentInstant();
             provider.Status = ProviderStatus.Active;
             // Add the provider via the repository
             await _unitOfWork.ProviderRepository.CreateAsync(provider);

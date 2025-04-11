@@ -5,10 +5,13 @@ namespace DrugWarehouseManagement.Service.DTO.Request
     public class CreateOutboundRequest
     {
 
-        [Required]    
-        public int CustomerId { get; set; }     
+        [Required]
+        [Range(1, int.MaxValue, ErrorMessage = "CustomerId must be a positive number.")]
+        public int CustomerId { get; set; }
         public string? ReceiverName { get; set; }
-        [RegularExpression(@"^\d{10}$", ErrorMessage = "Không đúng format số điện thoại.")]
+        [MaxLength(15, ErrorMessage = "Max length is 15")]
+        [MinLength(10, ErrorMessage = "Min length is 10")]
+        [RegularExpression(@"^[\d+]*$", ErrorMessage = "Invalid phone number")]
         public string? ReceiverPhone { get; set; }
         public string? ReceiverAddress { get; set; }
         public string? OutboundOrderCode { get; set; }

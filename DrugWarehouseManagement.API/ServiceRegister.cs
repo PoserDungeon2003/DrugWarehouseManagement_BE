@@ -242,9 +242,6 @@ namespace DrugWarehouseManagement.API
             TypeAdapterConfig<UpdateCustomerRequest, Customer>
             .NewConfig()
             .IgnoreNullValues(true);
-            TypeAdapterConfig<UpdateProductRequest, Product>
-                .NewConfig()
-                .IgnoreNullValues(true);
             TypeAdapterConfig<UpdateProviderRequest, Provider>
                 .NewConfig()
     .           IgnoreNullValues(true);
@@ -311,6 +308,10 @@ namespace DrugWarehouseManagement.API
 
             TypeAdapterConfig<UpdateDeviceRequest, Device>
                 .NewConfig()
+                .IgnoreNullValues(true);
+            TypeAdapterConfig<Provider,ProviderResponse>
+                .NewConfig()
+                .Map(dest => dest.DocumentIssueDate, src => src.CreatedAt.ToString())
                 .IgnoreNullValues(true);
         }
             
