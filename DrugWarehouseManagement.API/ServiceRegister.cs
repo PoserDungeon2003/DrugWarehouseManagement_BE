@@ -309,6 +309,10 @@ namespace DrugWarehouseManagement.API
             TypeAdapterConfig<UpdateDeviceRequest, Device>
                 .NewConfig()
                 .IgnoreNullValues(true);
+            TypeAdapterConfig<Provider,ProviderResponse>
+                .NewConfig()
+                .Map(dest => dest.DocumentIssueDate, src => src.CreatedAt.ToString())
+                .IgnoreNullValues(true);
         }
             
         private static void AddEnum(IServiceCollection services)
