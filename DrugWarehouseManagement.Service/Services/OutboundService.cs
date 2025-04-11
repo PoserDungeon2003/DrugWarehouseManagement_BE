@@ -89,17 +89,16 @@ namespace DrugWarehouseManagement.Service.Services
             outbound.OutboundDate = SystemClock.Instance.GetCurrentInstant();
             outbound.Status = OutboundStatus.Pending;
             outbound.AccountId = accountId;
-         
+
             // Lấy danh sách Lot dựa trên các LotId được gửi từ request
             var lotIds = request.OutboundDetails.Select(d => d.LotId).ToList();
             var lots = await _unitOfWork.LotRepository
                             .GetByWhere(l => lotIds.Contains(l.LotId))
                             .ToListAsync();
 
-
             if (lots.Count != lotIds.Count)
             {
-                throw new Exception("One or some LotId not found.");
+                throw new Exception("Không tìm thấy lô hàng.");
             }
 
             // Danh sách chứa các chi tiết đơn xuất
@@ -112,34 +111,52 @@ namespace DrugWarehouseManagement.Service.Services
                 var lot = lots.FirstOrDefault(l => l.LotId == detailRequest.LotId);
                 if (lot == null)
                 {
-                    throw new Exception($"LotId {detailRequest.LotId} not found.");
+                    throw new Exception($"Lô hàng yêu cầu: {detailRequest.LotId} không tìm thấy.");
                 }
-                if (string.IsNullOrEmpty(lot.LotNumber))
-                {
-                    throw new Exception($"LotNumber is missing for LotId {lot.LotId}.");
-                }
+
                 // Kiểm tra số lượng trong lô có đủ không
                 if (lot.Quantity < detailRequest.Quantity)
                 {
                     throw new Exception($"Số lượng trong lô {lot.LotNumber} không đủ. Hiện có: {lot.Quantity}, yêu cầu: {detailRequest.Quantity}");
                 }
 
+                var inboundDetail = await _unitOfWork.InboundDetailRepository
+                    .GetByWhere(i => i.LotNumber == lot.LotNumber && i.ProductId == lot.ProductId)
+                    .FirstOrDefaultAsync();
+
+                if (inboundDetail == null)
+                    throw new Exception($"Không tìm thấy giá vốn cho LotNumber {lot.LotNumber}");
+
                 // Nếu hợp lệ, trừ số lượng trong Lot
                 lot.Quantity -= detailRequest.Quantity;
                 await _unitOfWork.LotRepository.UpdateAsync(lot);
+
+                // Tính giá xuất
+                decimal unitPrice;
+                if (detailRequest.UsePricingFormula)
+                {
+                    decimal baseCost = inboundDetail.UnitPrice; 
+                    decimal profitMargin = detailRequest.ProfitMargin ?? 0.2M; 
+                    decimal taxPercentage = detailRequest.TaxPercentage ?? 0.1M; 
+                    unitPrice = baseCost * (1 + profitMargin) * (1 + taxPercentage);
+                }
+                else
+                {
+                    unitPrice = detailRequest.UnitPrice;
+                }
                 var detail = new OutboundDetails
                 {
                     LotId = detailRequest.LotId,
                     Quantity = detailRequest.Quantity,
-                    UnitPrice = detailRequest.UnitPrice,
+                    UnitPrice = unitPrice,
                     ExpiryDate = lot.ExpiryDate,
                     Discount = detailRequest.Discount ?? 0,
-                    TotalPrice = (decimal)detailRequest.Quantity * detailRequest.UnitPrice * (1 - ((decimal)(detailRequest.Discount ?? 0) / 100))
-
+                    TotalPrice = detailRequest.Quantity * unitPrice * (1 - (decimal)(detailRequest.Discount ?? 0) / 100)
                 };
 
                 detailsList.Add(detail);
             }
+
             outbound.OutboundDetails = detailsList;
             outbound.CreatedAt = SystemClock.Instance.GetCurrentInstant();
             await _unitOfWork.OutboundRepository.CreateAsync(outbound);
