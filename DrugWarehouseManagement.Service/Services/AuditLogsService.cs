@@ -22,7 +22,7 @@ namespace DrugWarehouseManagement.Service.Services
             queryPaging.Search = queryPaging.Search?.ToLower().Trim() ?? "";
             var logs = await _unitOfWork.AuditLogsRepository.GetAll()
                                             .Include(a => a.Account)
-                                            .Where(al => al.Action.Contains(queryPaging.Search))
+                                            .Where(al => al.Action.ToLower().Contains(queryPaging.Search))
                                             .OrderByDescending(al => al.Date)
                                             .ToPaginatedResultAsync(queryPaging.Page, queryPaging.PageSize);
             return logs.Adapt<PaginatedResult<ViewAuditLogs>>();

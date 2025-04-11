@@ -68,7 +68,7 @@ namespace DrugWarehouseManagement.Service.Services
                         .OrderByDescending(x => x.UpdatedAt.HasValue)
                         .ThenByDescending(x => x.UpdatedAt)
                         .ThenByDescending(x => x.CreatedAt)
-                        .Where(x => x.DeviceId.ToString().Contains(queryPaging.Search) || x.DeviceName.Contains(queryPaging.Search) || x.DeviceType.Contains(queryPaging.Search))
+                        .Where(x => x.DeviceId.ToString().ToLower().Contains(queryPaging.Search) || x.DeviceName.ToLower().Contains(queryPaging.Search) || x.DeviceType.ToLower().Contains(queryPaging.Search))
                         .AsQueryable();
 
             if (queryPaging.DateFrom != null)
