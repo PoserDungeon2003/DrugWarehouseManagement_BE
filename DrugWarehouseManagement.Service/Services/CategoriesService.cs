@@ -195,8 +195,8 @@ namespace DrugWarehouseManagement.Service.Services
                 query.Search = query.Search.Trim().ToLower();
                 categories = categories
                                  .Where(c =>
-                                        c.CategoryName.Contains(query.Search) ||
-                                        c.CategoriesId.ToString().Contains(query.Search)
+                                        c.CategoryName.ToLower().Contains(query.Search) ||
+                                        c.CategoriesId.ToString().ToLower().Contains(query.Search)
                                  );
             }
 
