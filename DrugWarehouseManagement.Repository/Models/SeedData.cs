@@ -76,14 +76,14 @@ namespace DrugWarehouseManagement.Repository.Models
             );
             modelBuilder.Entity<Categories>().HasData(
                 // Nhóm chính: Báo cáo
-                new Categories { CategoriesId = 100, CategoryName = "Báo cáo", ParentCategoryId = null, Description = "Các loại báo cáo thống kê và phân tích.", Status = CategoriesStatus.Active },
+                new Categories { CategoriesId = (int)SystemConfigEnum.ReportId, CategoryName = "Báo cáo", ParentCategoryId = null, Description = "Các loại báo cáo thống kê và phân tích.", Status = CategoriesStatus.Active },
                     new Categories { CategoriesId = 101, CategoryName = "Báo cáo Doanh thu", ParentCategoryId = 100, Description = "Báo cáo về doanh thu bán hàng.", Status = CategoriesStatus.Active },
                     new Categories { CategoriesId = 102, CategoryName = "Báo cáo Kho", ParentCategoryId = 100, Description = "Báo cáo về tình trạng và số lượng hàng tồn kho.", Status = CategoriesStatus.Active },
                     new Categories { CategoriesId = 103, CategoryName = "Báo cáo Bán hàng", ParentCategoryId = 100, Description = "Báo cáo chi tiết về các giao dịch bán hàng.", Status = CategoriesStatus.Active },
                     new Categories { CategoriesId = 104, CategoryName = "Báo cáo Lợi nhuận", ParentCategoryId = 100, Description = "Báo cáo về lợi nhuận thu được.", Status = CategoriesStatus.Active },
 
                 // Nhóm chính: Thuốc & Dược phẩm
-                new Categories { CategoriesId = 200, CategoryName = "Thuốc & Dược phẩm", ParentCategoryId = null, Description = "Các loại thuốc và dược phẩm.", Status = CategoriesStatus.Active },
+                new Categories { CategoriesId = (int)SystemConfigEnum.MedicineId, CategoryName = "Thuốc & Dược phẩm", ParentCategoryId = null, Description = "Các loại thuốc và dược phẩm.", Status = CategoriesStatus.Active },
                     new Categories { CategoriesId = 201, CategoryName = "Thuốc kê đơn", ParentCategoryId = 200, Description = "Thuốc cần có đơn thuốc của bác sĩ.", Status = CategoriesStatus.Active },
                     new Categories { CategoriesId = 205, CategoryName = "Kháng sinh", ParentCategoryId = 200, Description = "Thuốc dùng để điều trị nhiễm khuẩn.", Status = CategoriesStatus.Active },
                     new Categories { CategoriesId = 206, CategoryName = "Kháng sinh phổ rộng", ParentCategoryId = 200, Description = "Kháng sinh có tác dụng trên nhiều loại vi khuẩn.", Status = CategoriesStatus.Active },
@@ -95,7 +95,7 @@ namespace DrugWarehouseManagement.Repository.Models
                     new Categories { CategoriesId = 209, CategoryName = "Men vi sinh & Hỗ trợ tiêu hóa", ParentCategoryId = 200, Description = "Các sản phẩm chứa lợi khuẩn và hỗ trợ tiêu hóa.", Status = CategoriesStatus.Active },
 
                 // Nhóm chính: Thiết bị Y tế
-                new Categories { CategoriesId = 300, CategoryName = "Thiết bị Y tế", ParentCategoryId = null, Description = "Các thiết bị sử dụng cho mục đích y tế.", Status = CategoriesStatus.Active },
+                new Categories { CategoriesId = (int)SystemConfigEnum.MedicalEquipmentId, CategoryName = "Thiết bị Y tế", ParentCategoryId = null, Description = "Các thiết bị sử dụng cho mục đích y tế.", Status = CategoriesStatus.Active },
                     new Categories { CategoriesId = 301, CategoryName = "Dụng cụ Chẩn đoán & Theo dõi", ParentCategoryId = 300, Description = "Thiết bị dùng cho việc chẩn đoán và theo dõi sức khỏe.", Status = CategoriesStatus.Active },
                     new Categories { CategoriesId = 302, CategoryName = "Máy đo huyết áp", ParentCategoryId = 300, Description = "Thiết bị đo huyết áp.", Status = CategoriesStatus.Active },
                     new Categories { CategoriesId = 303, CategoryName = "Nhiệt kế điện tử", ParentCategoryId = 300, Description = "Thiết bị đo nhiệt độ cơ thể điện tử.", Status = CategoriesStatus.Active },
@@ -108,7 +108,7 @@ namespace DrugWarehouseManagement.Repository.Models
                     new Categories { CategoriesId = 310, CategoryName = "Xe lăn", ParentCategoryId = 300, Description = "Các loại xe lăn cho người khuyết tật hoặc người già.", Status = CategoriesStatus.Active },
 
                 // Nhóm chính: Chăm sóc Cá nhân & Làm đẹp
-                new Categories { CategoriesId = 400, CategoryName = "Chăm sóc Cá nhân & Làm đẹp", ParentCategoryId = null, Description = "Các sản phẩm chăm sóc cá nhân và làm đẹp.", Status = CategoriesStatus.Active },
+                new Categories { CategoriesId = (int)SystemConfigEnum.BeautyId, CategoryName = "Chăm sóc Cá nhân & Làm đẹp", ParentCategoryId = null, Description = "Các sản phẩm chăm sóc cá nhân và làm đẹp.", Status = CategoriesStatus.Active },
                     new Categories { CategoriesId = 401, CategoryName = "Chăm sóc Da mặt", ParentCategoryId = 400, Description = "Các sản phẩm chăm sóc da mặt.", Status = CategoriesStatus.Active },
                     new Categories { CategoriesId = 402, CategoryName = "Sữa rửa mặt", ParentCategoryId = 400, Description = "Các loại sữa rửa mặt.", Status = CategoriesStatus.Active },
                     new Categories { CategoriesId = 403, CategoryName = "Kem dưỡng da", ParentCategoryId = 400, Description = "Các loại kem dưỡng da.", Status = CategoriesStatus.Active },
@@ -122,7 +122,7 @@ namespace DrugWarehouseManagement.Repository.Models
                     new Categories { CategoriesId = 411, CategoryName = "Sản phẩm Chống nắng", ParentCategoryId = 400, Description = "Các sản phẩm bảo vệ da khỏi tác hại của ánh nắng mặt trời.", Status = CategoriesStatus.Active },
 
                 // Nhóm chính: Sản phẩm cho Mẹ & Bé
-                new Categories { CategoriesId = 500, CategoryName = "Sản phẩm cho Mẹ & Bé", ParentCategoryId = null, Description = "Các sản phẩm dành cho bà mẹ và trẻ em.", Status = CategoriesStatus.Active },
+                new Categories { CategoriesId = (int)SystemConfigEnum.MomToolId, CategoryName = "Sản phẩm cho Mẹ & Bé", ParentCategoryId = null, Description = "Các sản phẩm dành cho bà mẹ và trẻ em.", Status = CategoriesStatus.Active },
                     new Categories { CategoriesId = 501, CategoryName = "Sản phẩm cho Mẹ", ParentCategoryId = 500, Description = "Các sản phẩm dành cho phụ nữ mang thai và sau sinh.", Status = CategoriesStatus.Active },
                     new Categories { CategoriesId = 502, CategoryName = "Vitamin & Thực phẩm chức năng cho mẹ", ParentCategoryId = 500, Description = "Vitamin và thực phẩm chức năng dành cho mẹ.", Status = CategoriesStatus.Active },
                     new Categories { CategoriesId = 503, CategoryName = "Đồ dùng cho mẹ", ParentCategoryId = 500, Description = "Các đồ dùng cá nhân cho mẹ.", Status = CategoriesStatus.Active },
@@ -131,9 +131,11 @@ namespace DrugWarehouseManagement.Repository.Models
                     new Categories { CategoriesId = 506, CategoryName = "Đồ dùng cho bé", ParentCategoryId = 500, Description = "Các đồ dùng cá nhân cho trẻ em.", Status = CategoriesStatus.Active },
 
                 // Nhóm chính: Khác
-                new Categories { CategoriesId = 600, CategoryName = "Khác", ParentCategoryId = null, Description = "Các danh mục sản phẩm khác.", Status = CategoriesStatus.Active },
+                new Categories { CategoriesId = (int)SystemConfigEnum.OtherId, CategoryName = "Khác", ParentCategoryId = null, Description = "Các danh mục sản phẩm khác.", Status = CategoriesStatus.Active },
                     new Categories { CategoriesId = 601, CategoryName = "Vật tư Y tế Gia đình", ParentCategoryId = 600, Description = "Các vật tư y tế sử dụng tại nhà.", Status = CategoriesStatus.Active },
-                    new Categories { CategoriesId = 602, CategoryName = "Sản phẩm Hỗ trợ Sức khỏe", ParentCategoryId = 600, Description = "Các sản phẩm hỗ trợ sức khỏe tổng thể.", Status = CategoriesStatus.Active }
+                    new Categories { CategoriesId = 602, CategoryName = "Sản phẩm Hỗ trợ Sức khỏe", ParentCategoryId = 600, Description = "Các sản phẩm hỗ trợ sức khỏe tổng thể.", Status = CategoriesStatus.Active },
+                
+                new Categories { CategoriesId = (int)SystemConfigEnum.SKUId, CategoryName = "Đơn vị tính", ParentCategoryId = null, Description = "Các danh mục sản phẩm khác.", Status = CategoriesStatus.Active }
             );
             modelBuilder.Entity<ProductCategories>().HasData(
                 new ProductCategories { CategoriesId = 201, ProductId = 1 },
