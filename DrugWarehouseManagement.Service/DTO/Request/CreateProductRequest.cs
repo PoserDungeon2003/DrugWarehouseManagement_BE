@@ -18,6 +18,7 @@ namespace DrugWarehouseManagement.Service.DTO.Request
 
     public class ProductCategoriesRequest
     {
+        [Range(1, int.MaxValue, ErrorMessage = "CategoriesId must be a positive number.")]
         public int CategoriesId { get; set; }
     }
 }

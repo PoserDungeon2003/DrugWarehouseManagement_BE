@@ -19,7 +19,7 @@ namespace DrugWarehouseManagement.Service.DTO.Request
         public int ProviderId { get; set; }
         public int? WarehouseId { get; set; }
         public int? InboundRequestId { get; set; }
-        public List<InboundDetailRequest> InboundDetails { get; set; }
+        public List<InboundDetailRequest>? InboundDetails { get; set; }
     }
 
     public class InboundDetailRequest

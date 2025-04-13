@@ -112,5 +112,24 @@ namespace DrugWarehouseManagement.API.Controllers
                 });
             }
         }
+
+        [HttpGet("{id}")]
+        [Authorize]
+        public async Task<IActionResult> GetCategoryById([FromRoute] int id)
+        {
+            try
+            {
+                var result = await _categoriesService.GetCategoryById(id);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    Code = 400,
+                    Message = ex.Message
+                });
+            }
+        }
     }
 }

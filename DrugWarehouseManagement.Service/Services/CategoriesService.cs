@@ -180,6 +180,21 @@ namespace DrugWarehouseManagement.Service.Services
             };
         }
 
+        public async Task<ViewCategories> GetCategoryById(int categoryId)
+        {
+            var category = await _unitOfWork.CategoriesRepository.GetByWhere(c => c.CategoriesId == categoryId)
+                .Include(c => c.ParentCategory)
+                .Include(c => c.SubCategories)
+                .FirstOrDefaultAsync();
+
+            if (category == null)
+            {
+                throw new Exception("Category not found");
+            }
+
+            return category.Adapt<ViewCategories>();
+        }
+
         public async Task<PaginatedResult<ViewCategories>> GetListCategories(QueryPaging query)
         {
             var categories = _unitOfWork.CategoriesRepository.GetAll()
@@ -195,8 +210,8 @@ namespace DrugWarehouseManagement.Service.Services
                 query.Search = query.Search.Trim().ToLower();
                 categories = categories
                                  .Where(c =>
-                                        c.CategoryName.Contains(query.Search) ||
-                                        c.CategoriesId.ToString().Contains(query.Search)
+                                        c.CategoryName.ToLower().Contains(query.Search) ||
+                                        c.CategoriesId.ToString().ToLower().Contains(query.Search)
                                  );
             }
 
