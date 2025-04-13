@@ -206,9 +206,6 @@ namespace DrugWarehouseManagement.API
             TypeAdapterConfig<UpdateAccountRequest, Account>
                 .NewConfig()
                 .IgnoreNullValues(true);
-            TypeAdapterConfig<UpdateOutboundRequest, Outbound>
-                .NewConfig()
-                .IgnoreNullValues(true);
             TypeAdapterConfig<UpdateProductRequest, Product>
                 .NewConfig()
                 .IgnoreNullValues(true);
