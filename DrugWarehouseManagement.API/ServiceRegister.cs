@@ -112,6 +112,7 @@ namespace DrugWarehouseManagement.API
             services.AddScoped<IInboundService, InboundService>();
             services.AddScoped<IInboundRequestService, InboundRequestService>();
             services.AddScoped<IInboundReportService, InboundReportService>();
+            services.AddScoped<IInventoryCheckService, InventoryCheckService>();
             services.AddScoped<ILotService, LotService>();
             services.AddScoped<IOutboundService, OutboundService>();
             services.AddScoped<IAuditLogsRepository, AuditLogsRepository>();
@@ -285,6 +286,17 @@ namespace DrugWarehouseManagement.API
             TypeAdapterConfig<InboundRequestDetails, InboundRequestDetailResponse>
                 .NewConfig()
                 .Map(dest => dest.ProductName, src => src.Product.ProductName);
+
+            TypeAdapterConfig<InventoryCheck, ViewInventoryCheck>
+                .NewConfig()
+                .Map(dest => dest.Warehouse, src => src.Warehouse)
+                .Map(dest => dest.Details, src => src.InventoryCheckDetails);
+
+            TypeAdapterConfig<InventoryCheckDetail, InventoryCheckDetailReponse>
+                .NewConfig()
+                .Map(dest => dest.LotNumber, src => src.Lot.LotNumber)
+                .Map(dest => dest.ProductName, src => src.Lot.Product.ProductName)
+                .Map(dest => dest.SKU, src => src.Lot.Product.SKU);
 
             TypeAdapterConfig<Asset, AssetResponse>
                 .NewConfig()
