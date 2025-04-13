@@ -246,7 +246,7 @@ namespace DrugWarehouseManagement.Service.Services
             var query = await _unitOfWork.AccountRepository.GetAll()
                         .Include(x => x.Role)
                         .Where(x => x.Status == AccountStatus.Active)
-                        .Where(x => x.UserName.Contains(request.Search) || x.Email.Contains(request.Search) || x.PhoneNumber.Contains(request.Search))
+                        .Where(x => x.UserName.ToLower().Contains(request.Search) || x.Email.ToLower().Contains(request.Search) || x.PhoneNumber.ToLower().Contains(request.Search))
                         .ToPaginatedResultAsync(request.Page, request.PageSize);
             return query.Adapt<PaginatedResult<ViewAccount>>();
         }

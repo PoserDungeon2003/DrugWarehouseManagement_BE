@@ -14,6 +14,8 @@ namespace DrugWarehouseManagement.Service.DTO.Request
         [Required]
         public string CategoryName { get; set; } = null!;
         public string? Description { get; set; }
+        [Range(1, int.MaxValue, ErrorMessage = "ParentCategoryId must be a positive number.")]
+        public int? ParentCategoryId { get; set; }
         public List<CreateSubCategories>? SubCategories { get; set; }
     }
 

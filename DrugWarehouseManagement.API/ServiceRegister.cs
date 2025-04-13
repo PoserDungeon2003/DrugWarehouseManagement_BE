@@ -98,7 +98,7 @@ namespace DrugWarehouseManagement.API
             var ssl = configuration.GetValue<bool>("Minio:SSL");
             InitializeMinio(services, accessKey, secretKey, endpoint, ssl);
 
-            InitializeFirebase();
+            // InitializeFirebase();
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<ITokenHandlerService, TokenHandlerService>();
@@ -207,9 +207,6 @@ namespace DrugWarehouseManagement.API
             TypeAdapterConfig<UpdateAccountRequest, Account>
                 .NewConfig()
                 .IgnoreNullValues(true);
-            TypeAdapterConfig<UpdateOutboundRequest, Outbound>
-                .NewConfig()
-                .IgnoreNullValues(true);
             TypeAdapterConfig<UpdateProductRequest, Product>
                 .NewConfig()
                 .IgnoreNullValues(true);
@@ -243,9 +240,6 @@ namespace DrugWarehouseManagement.API
             TypeAdapterConfig<UpdateCustomerRequest, Customer>
             .NewConfig()
             .IgnoreNullValues(true);
-            TypeAdapterConfig<UpdateProductRequest, Product>
-                .NewConfig()
-                .IgnoreNullValues(true);
             TypeAdapterConfig<UpdateProviderRequest, Provider>
                 .NewConfig()
     .           IgnoreNullValues(true);
@@ -323,6 +317,10 @@ namespace DrugWarehouseManagement.API
 
             TypeAdapterConfig<UpdateDeviceRequest, Device>
                 .NewConfig()
+                .IgnoreNullValues(true);
+            TypeAdapterConfig<Provider,ProviderResponse>
+                .NewConfig()
+                .Map(dest => dest.DocumentIssueDate, src => src.CreatedAt.ToString())
                 .IgnoreNullValues(true);
         }
             

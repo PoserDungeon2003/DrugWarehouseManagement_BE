@@ -101,6 +101,7 @@ namespace DrugWarehouseManagement.Service.Services
                 .GroupBy(l => new { l.LotId })
                 .Select(l => new LotTransferDetailRequest
                 {
+                    LotId = l.Key.LotId,
                     Quantity = l.Sum(d => d.Quantity),
                 }).ToList();
 
@@ -113,7 +114,6 @@ namespace DrugWarehouseManagement.Service.Services
                 {
                     throw new Exception("Lot not found");
                 }
-                detail.LotId = lot.LotId;
 
                 if (detail.Quantity <= 0)
                 {
@@ -352,9 +352,9 @@ namespace DrugWarehouseManagement.Service.Services
             {
                 lotTransfers = lotTransfers
                                 .Where(lt =>
-                                    lt.LotTransferCode.Contains(queryPaging.Search.ToLower().Trim()) ||
-                                    lt.FromWareHouse.WarehouseName.Contains(queryPaging.Search.ToLower().Trim()) ||
-                                    lt.ToWareHouse.WarehouseName.Contains(queryPaging.Search.ToLower().Trim())
+                                    lt.LotTransferCode.ToLower().Contains(queryPaging.Search.ToLower().Trim()) ||
+                                    lt.FromWareHouse.WarehouseName.ToLower().Contains(queryPaging.Search.ToLower().Trim()) ||
+                                    lt.ToWareHouse.WarehouseName.ToLower().Contains(queryPaging.Search.ToLower().Trim())
                                 );
             }
 

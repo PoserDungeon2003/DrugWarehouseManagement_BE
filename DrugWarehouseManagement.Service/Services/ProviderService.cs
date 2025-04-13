@@ -7,6 +7,7 @@ using DrugWarehouseManagement.Service.Extenstions;
 using DrugWarehouseManagement.Service.Interface;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
+using NodaTime;
 using NodaTime.Text;
 using System;
 using System.Collections.Generic;
@@ -30,16 +31,24 @@ namespace DrugWarehouseManagement.Service.Services
             var response = new BaseResponse();
             // Check if the provider exists
             var provider = await _unitOfWork.ProviderRepository
-                                        .GetAll()
-                                        .FirstOrDefaultAsync(p => p.PhoneNumber == request.PhoneNumber);
+                                        .GetByWhere(p => p.PhoneNumber == request.PhoneNumber)
+                                        .FirstOrDefaultAsync();
             if (provider != null)
             {
                 throw new Exception("Provider already exist.");
             }
 
+            var existedDocumentNumber = await _unitOfWork.ProviderRepository
+                .GetByWhere(p => p.DocumentNumber == request.DocumentNumber)
+                .FirstOrDefaultAsync();
+
+            if(existedDocumentNumber != null && existedDocumentNumber.DocumentNumber == request.DocumentNumber)
+            {
+                throw new Exception("Document number already exist.");
+            }
             // Map the DTO to the Provider entity
             provider = request.Adapt<Provider>();
-            provider.CreatedAt = NodaTime.Instant.FromDateTimeUtc(DateTime.UtcNow);
+            provider.CreatedAt = SystemClock.Instance.GetCurrentInstant();
             provider.Status = ProviderStatus.Active;
             // Add the provider via the repository
             await _unitOfWork.ProviderRepository.CreateAsync(provider);
@@ -54,8 +63,8 @@ namespace DrugWarehouseManagement.Service.Services
         public async Task<BaseResponse> DeleteProviderAsync(int providerId)
         {
             var provider = await _unitOfWork.ProviderRepository
-                  .GetAll()
-                  .FirstOrDefaultAsync(p => p.ProviderId == providerId);
+                  .GetByWhere(p => p.ProviderId == providerId)
+                  .FirstOrDefaultAsync();
             if (provider == null)
             {
                 throw new Exception("Provider not found.");
@@ -126,10 +135,10 @@ namespace DrugWarehouseManagement.Service.Services
         public async Task<BaseResponse> UpdateProviderAsync(int providerId, UpdateProviderRequest request)
         {
             var provider = await _unitOfWork.ProviderRepository
-                 .GetAll()
-                 .FirstOrDefaultAsync(p => p.ProviderId == providerId);
+                 .GetByWhere(p => p.ProviderId == providerId)
+                 .FirstOrDefaultAsync();
 
-            if (provider == null )
+            if (provider == null)
             {
                 throw new Exception("Provider not found.");
             }

@@ -22,7 +22,7 @@ namespace DrugWarehouseManagement.Service.Services
         }
 
         public async Task<BaseResponse> CreateProductAsync(CreateProductRequest request)
-        {            
+        {
             // Map the DTO to the Product entity
             var product = request.Adapt<Product>();
             // Add the product via the repository
@@ -91,15 +91,50 @@ namespace DrugWarehouseManagement.Service.Services
 
             if (request.ProductCategories != null)
             {
-                var requestedCategoryIds = new HashSet<int>(request.ProductCategories.Select(pc => pc.CategoriesId));
+                var existingCategoryIds = product.ProductCategories
+                    .Select(pc => pc.CategoriesId)
+                    .ToHashSet();
 
+                var requestedCategoryIds = request.ProductCategories
+                    .GroupBy(c => new { c.CategoriesId })
+                    .Select(c => c.Key.CategoriesId)
+                    .ToHashSet();
+
+                // DELETE: Remove categories no longer in request
                 var categoriesToDelete = product.ProductCategories
-                    .Where(category => !requestedCategoryIds.Contains(category.CategoriesId))
+                    .Where(pc => !requestedCategoryIds.Contains(pc.CategoriesId))
                     .ToList();
 
-                await _unitOfWork.ProductCategoriesRepository.DeleteRangeAsync(categoriesToDelete);
+                if (categoriesToDelete.Any())
+                {
+                    await _unitOfWork.ProductCategoriesRepository.DeleteRangeAsync(categoriesToDelete);
+                }
+
+                // ADD: Add only new categories that don't exist in DB
+                var newCategoryIds = requestedCategoryIds
+                    .Except(existingCategoryIds)
+                    .ToList();
+
+                if (newCategoryIds.Any())
+                {
+                    var newProductCategories = newCategoryIds
+                        .Select(catId => new ProductCategories
+                        {
+                            ProductId = productId,
+                            CategoriesId = catId
+                        }).ToList();
+
+                    await _unitOfWork.ProductCategoriesRepository.AddRangeAsync(newProductCategories);
+                }
             }
-            request.Adapt(product);
+            // Prevent overwriting navigation property
+            var productCategoriesBackup = request.ProductCategories;
+            request.ProductCategories = null;
+
+            request.Adapt(product); // Mapster will now skip ProductCategories
+
+            request.ProductCategories = productCategoriesBackup; // restore if needed later
+
 
             await _unitOfWork.ProductRepository.UpdateAsync(product);
             await _unitOfWork.SaveChangesAsync();
