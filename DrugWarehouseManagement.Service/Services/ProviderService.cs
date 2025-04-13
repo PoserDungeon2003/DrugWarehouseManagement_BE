@@ -37,6 +37,10 @@ namespace DrugWarehouseManagement.Service.Services
                 throw new Exception("Provider already exist.");
             }
 
+            if(provider.DocumentNumber == request.DocumentNumber)
+            {
+                throw new Exception("Document number already exist.");
+            }
             // Map the DTO to the Provider entity
             provider = request.Adapt<Provider>();
             provider.CreatedAt = NodaTime.Instant.FromDateTimeUtc(DateTime.UtcNow);

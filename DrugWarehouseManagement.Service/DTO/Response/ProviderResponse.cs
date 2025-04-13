@@ -17,7 +17,6 @@ namespace DrugWarehouseManagement.Service.DTO.Response
         public string? Nationality { get; set; }
         public string Email { get; set; } = null!;
         public string DocumentNumber { get; set; } = null!;
-        public DateOnly DocumentIssueDate { get; set; }
         public ProviderStatus Status { get; set; }
     }
 

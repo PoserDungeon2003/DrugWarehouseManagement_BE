@@ -24,7 +24,6 @@ namespace DrugWarehouseManagement.Service.DTO.Request
         public string? Nationality { get; set; }
        
         public string DocumentNumber { get; set; } = null!; // Số chứng từ của nhà cung cấp
-        public DateOnly DocumentIssueDate { get; set; } // Ngày cấp chứng từ
 
     }
 }
