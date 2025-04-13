@@ -113,7 +113,9 @@ namespace DrugWarehouseManagement.Service.Services
                              && od.Outbound.OutboundDate >= startDate
                              && od.Outbound.OutboundDate <= endDate
                              && od.TotalPrice > 0
-                             && od.Outbound.Status == OutboundStatus.Completed)
+                             && od.Outbound.Status == OutboundStatus.Completed
+                             || od.Outbound.Status == OutboundStatus.Returned
+                             )
                 .GroupBy(od => od.Lot.ProductId)
                 .Select(g => new { ProductId = g.Key, Qty = g.Sum(x => x.Quantity) })
                 .ToListAsync();
@@ -140,6 +142,7 @@ namespace DrugWarehouseManagement.Service.Services
                              && od.Outbound.OutboundDate >= startDate
                              && od.Outbound.OutboundDate <= endDate
                              && od.Outbound.Status == OutboundStatus.Completed
+                             && od.Outbound.Status == OutboundStatus.Returned
                              && od.TotalPrice == 0) // Điều kiện xuất mẫu
                 .GroupBy(od => od.Lot.ProductId)
                 .Select(g => new { ProductId = g.Key, Qty = g.Sum(x => x.Quantity) })

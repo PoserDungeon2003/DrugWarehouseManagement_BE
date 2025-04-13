@@ -142,7 +142,7 @@ namespace DrugWarehouseManagement.Service.Services
                 }
                 else
                 {
-                    unitPrice = detailRequest.UnitPrice;
+                    unitPrice = detailRequest.UnitPrice ??0;
                 }
                 var detail = new OutboundDetails
                 {
