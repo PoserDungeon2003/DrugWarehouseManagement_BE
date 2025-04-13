@@ -295,11 +295,26 @@ namespace DrugWarehouseManagement.Service.Services
                     throw new Exception("Trạng thái cập nhật không hợp lệ.");
                 }
             }
-            outbound.ReceiverAddress = request.Address;
-            outbound.ReceiverPhone = request.PhoneNumber;
-            outbound.ReceiverName = request.CustomerName;
-            outbound.OutboundOrderCode = request.OutboundOrderCode;
-            outbound.Note = request.Note;
+            if (!string.IsNullOrEmpty(request.Address))
+            {
+                outbound.ReceiverAddress = request.Address;
+            }
+            if (!string.IsNullOrEmpty(request.PhoneNumber))
+            {
+                outbound.ReceiverPhone = request.PhoneNumber;
+            }
+            if (!string.IsNullOrEmpty(request.CustomerName))
+            {
+                outbound.ReceiverName = request.CustomerName;
+            }
+            if (!string.IsNullOrEmpty(request.OutboundOrderCode))
+            {
+                outbound.OutboundOrderCode = request.OutboundOrderCode;
+            }
+            if (!string.IsNullOrEmpty(request.OutboundOrderCode))
+            {
+                outbound.Note = request.Note;
+            }
             outbound.UpdatedAt = SystemClock.Instance.GetCurrentInstant();
 
             await _unitOfWork.OutboundRepository.UpdateAsync(outbound);
