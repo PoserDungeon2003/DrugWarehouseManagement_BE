@@ -31,14 +31,18 @@ namespace DrugWarehouseManagement.Service.Services
             var response = new BaseResponse();
             // Check if the provider exists
             var provider = await _unitOfWork.ProviderRepository
-                                        .GetAll()
-                                        .FirstOrDefaultAsync(p => p.PhoneNumber == request.PhoneNumber);
+                                        .GetByWhere(p => p.PhoneNumber == request.PhoneNumber)
+                                        .FirstOrDefaultAsync();
             if (provider != null)
             {
                 throw new Exception("Provider already exist.");
             }
 
-            if(provider.DocumentNumber == request.DocumentNumber)
+            var existedDocumentNumber = await _unitOfWork.ProviderRepository
+                .GetByWhere(p => p.DocumentNumber == request.DocumentNumber)
+                .FirstOrDefaultAsync();
+
+            if(existedDocumentNumber != null && existedDocumentNumber.DocumentNumber == request.DocumentNumber)
             {
                 throw new Exception("Document number already exist.");
             }
@@ -59,8 +63,8 @@ namespace DrugWarehouseManagement.Service.Services
         public async Task<BaseResponse> DeleteProviderAsync(int providerId)
         {
             var provider = await _unitOfWork.ProviderRepository
-                  .GetAll()
-                  .FirstOrDefaultAsync(p => p.ProviderId == providerId);
+                  .GetByWhere(p => p.ProviderId == providerId)
+                  .FirstOrDefaultAsync();
             if (provider == null)
             {
                 throw new Exception("Provider not found.");
@@ -131,10 +135,10 @@ namespace DrugWarehouseManagement.Service.Services
         public async Task<BaseResponse> UpdateProviderAsync(int providerId, UpdateProviderRequest request)
         {
             var provider = await _unitOfWork.ProviderRepository
-                 .GetAll()
-                 .FirstOrDefaultAsync(p => p.ProviderId == providerId);
+                 .GetByWhere(p => p.ProviderId == providerId)
+                 .FirstOrDefaultAsync();
 
-            if (provider == null )
+            if (provider == null)
             {
                 throw new Exception("Provider not found.");
             }

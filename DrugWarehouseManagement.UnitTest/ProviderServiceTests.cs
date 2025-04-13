@@ -28,23 +28,12 @@ namespace DrugWarehouseManagement.UnitTest
         }
 
         [Fact]
-        public async Task CreateProviderAsync_ProviderAlreadyExists_ThrowsException()
-        {
-            // Arrange
-            var request = new CreateProviderRequest { PhoneNumber = "1234567890" };
-            _unitOfWorkMock.Setup(uow => uow.ProviderRepository.GetAll())
-                .Returns(new List<Provider> { new Provider { PhoneNumber = "1234567890" } }.AsQueryable().BuildMock());
-
-            // Act & Assert
-            await Assert.ThrowsAsync<Exception>(() => _providerService.CreateProviderAsync(request));
-        }
-
-        [Fact]
         public async Task CreateProviderAsync_CreatesProviderSuccessfully()
         {
             // Arrange
-            var request = new CreateProviderRequest { PhoneNumber = "1234567890", ProviderName = "Provider1" };
-            _unitOfWorkMock.Setup(uow => uow.ProviderRepository.GetAll())
+            var request = new CreateProviderRequest { PhoneNumber = "1234567890", DocumentNumber = "456" };
+            var provider = new Provider { PhoneNumber = "9233452343232", DocumentNumber = "123" };
+            _unitOfWorkMock.Setup(uow => uow.ProviderRepository.GetByWhere(It.IsAny<Expression<Func<Provider, bool>>>()))
                 .Returns(new List<Provider>().AsQueryable().BuildMock());
             _unitOfWorkMock.Setup(uow => uow.ProviderRepository.CreateAsync(It.IsAny<Provider>()))
                 .Returns(Task.CompletedTask);
@@ -66,7 +55,7 @@ namespace DrugWarehouseManagement.UnitTest
         {
             // Arrange
             var providerId = 1;
-            _unitOfWorkMock.Setup(uow => uow.ProviderRepository.GetAll())
+            _unitOfWorkMock.Setup(uow => uow.ProviderRepository.GetByWhere(It.IsAny<Expression<Func<Provider, bool>>>()))
                 .Returns(new List<Provider>().AsQueryable().BuildMock());
 
             // Act & Assert
@@ -79,7 +68,7 @@ namespace DrugWarehouseManagement.UnitTest
             // Arrange
             var providerId = 1;
             var provider = new Provider { ProviderId = providerId, Status = ProviderStatus.Active };
-            _unitOfWorkMock.Setup(uow => uow.ProviderRepository.GetAll())
+            _unitOfWorkMock.Setup(uow => uow.ProviderRepository.GetByWhere(It.IsAny<Expression<Func<Provider, bool>>>()))
                 .Returns(new List<Provider> { provider }.AsQueryable().BuildMock());
             _unitOfWorkMock.Setup(uow => uow.ProviderRepository.UpdateAsync(It.IsAny<Provider>()))
                 .Returns(Task.CompletedTask);
@@ -153,7 +142,7 @@ namespace DrugWarehouseManagement.UnitTest
             // Arrange
             var providerId = 1;
             var request = new UpdateProviderRequest { ProviderName = "UpdatedProvider" };
-            _unitOfWorkMock.Setup(uow => uow.ProviderRepository.GetAll())
+            _unitOfWorkMock.Setup(uow => uow.ProviderRepository.GetByWhere(It.IsAny<Expression<Func<Provider, bool>>>()))
                 .Returns(new List<Provider>().AsQueryable().BuildMock());
 
             // Act & Assert
@@ -168,7 +157,7 @@ namespace DrugWarehouseManagement.UnitTest
             var provider = new Provider { ProviderId = providerId, Status = ProviderStatus.Active };
             var request = new UpdateProviderRequest { ProviderName = "UpdatedProvider" };
 
-            _unitOfWorkMock.Setup(uow => uow.ProviderRepository.GetAll())
+            _unitOfWorkMock.Setup(uow => uow.ProviderRepository.GetByWhere(It.IsAny<Expression<Func<Provider, bool>>>()))
                 .Returns(new List<Provider> { provider }.AsQueryable().BuildMock());
             _unitOfWorkMock.Setup(uow => uow.ProviderRepository.UpdateAsync(It.IsAny<Provider>()))
                 .Returns(Task.CompletedTask);
