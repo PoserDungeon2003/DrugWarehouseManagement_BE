@@ -21,6 +21,7 @@ namespace DrugWarehouseManagement.Service.DTO.Response
         public string? InboundDate { get; set; } // Ngày nhập kho
         public string Status { get; set; }
         public List<InboundDetailResponse> InboundDetails { get; set; }
+        public ViewInboundReport? Report { get; set; }
         public ProviderResponse ProviderDetails { get; set; }
     }
 
