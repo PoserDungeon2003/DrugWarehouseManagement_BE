@@ -22,6 +22,7 @@ namespace DrugWarehouseManagement.Repository.Models
         public virtual Product Product { get; set; } = null!;
         public virtual ICollection<OutboundDetails> OutboundDetails { get; set; } = new List<OutboundDetails>(); //1-N
         public virtual List<LotTransferDetail> LotTransferDetails { get; set; } = null!;
+        public virtual ICollection<InventoryCheckDetail> InventoryCheckDetails { get; set; } = new List<InventoryCheckDetail>();
 
     }
 }

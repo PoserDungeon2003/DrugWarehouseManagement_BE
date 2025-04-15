@@ -18,6 +18,8 @@ namespace DrugWarehouseManagement.Repository
         IInboundRequestAssetsRepository InboundRequestAssetsRepository { get; }
         IInboundReportRepository InboundReportRepository { get; }
         IInboundReportAssetsRepository InboundReportAssetsRepository { get; }
+        IInventoryCheckRepository InventoryCheckRepository { get; }
+        IInventoryCheckDetailRepository InventoryCheckDetailRepository { get; }
         IOutboundRepository OutboundRepository { get; }
         IOutboundDetailsRepository OutboundDetailsRepository { get; }
         IProductRepository ProductRepository { get; }
