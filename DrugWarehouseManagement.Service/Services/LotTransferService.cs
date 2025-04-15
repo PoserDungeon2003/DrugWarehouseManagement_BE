@@ -134,8 +134,8 @@ namespace DrugWarehouseManagement.Service.Services
                 await _unitOfWork.LotRepository.UpdateAsync(lot);
 
                 // Kiểm tra có lô hàng nào trong kho tới trùng thông tin không
-                var lotInWarehouseTo = await _unitOfWork.LotRepository
-                                    .GetByWhere(l => l.LotId == detail.LotId && l.WarehouseId == request.ToWareHouseId)
+                var getLotByLotNumber = await _unitOfWork.LotRepository
+                                    .GetByWhere(l => l.LotNumber == lot.LotNumber && l.WarehouseId == request.ToWareHouseId)
                                     .FirstOrDefaultAsync();
 
                 // Kiểm tra mã lô mới có expiry date đã tồn tại chưa
@@ -145,10 +145,10 @@ namespace DrugWarehouseManagement.Service.Services
                 //}
 
                 // Nếu có thì cộng thêm số lượng
-                if (lotInWarehouseTo != null)
+                if (getLotByLotNumber != null)
                 {
-                    lotInWarehouseTo.Quantity += detail.Quantity;
-                    await _unitOfWork.LotRepository.UpdateAsync(lotInWarehouseTo);
+                    getLotByLotNumber.Quantity += detail.Quantity;
+                    await _unitOfWork.LotRepository.UpdateAsync(getLotByLotNumber);
                     continue;
                 }
 
