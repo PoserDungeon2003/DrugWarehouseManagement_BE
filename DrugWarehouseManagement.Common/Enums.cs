@@ -155,6 +155,7 @@
         OtherId = 600,
         SKUId = 700,
     }
+
     public enum InventoryCheckStatus
     {
         Damaged = 1,
