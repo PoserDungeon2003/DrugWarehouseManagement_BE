@@ -111,6 +111,7 @@ namespace DrugWarehouseManagement.Service.Services
             }
 
             request.Adapt(inboundReport);
+            inboundReport.Status = InboundReportStatus.Completed;
             inboundReport.UpdatedAt = SystemClock.Instance.GetCurrentInstant();
 
             if (request.InboundReportStatus == InboundReportStatus.Completed)

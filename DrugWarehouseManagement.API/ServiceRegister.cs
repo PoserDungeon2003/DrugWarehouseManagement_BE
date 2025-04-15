@@ -267,6 +267,12 @@ namespace DrugWarehouseManagement.API
                 .Map(dest => dest.Status, src => src.Status.ToString())
                 .Map(dest => dest.WarehouseName, src => src.Warehouse.WarehouseName)
                 .Map(dest => dest.ProviderDetails, src => src.Provider);
+            // Configure InboundReport to ViewInboundReport
+            TypeAdapterConfig<InboundReport, ViewInboundReport>.NewConfig()
+                .Map(dest => dest.InboundReportId, src => src.InboundReportId)
+                .Map(dest => dest.ReportDate, src => src.ReportDate.ToString("dd/MM/yyyy HH:mm", null))
+                .Map(dest => dest.Status, src => src.Status.ToString())
+                .Map(dest => dest.ProblemDescription, src => src.ProblemDescription);
 
             TypeAdapterConfig<InboundDetails, InboundDetailResponse>
                 .NewConfig()
