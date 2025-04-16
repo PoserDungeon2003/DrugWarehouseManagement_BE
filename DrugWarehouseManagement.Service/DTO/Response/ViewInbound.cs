@@ -15,6 +15,7 @@ namespace DrugWarehouseManagement.Service.DTO.Response
         public int InboundId { get; set; }
         public string? InboundCode { get; set; }
         public string? ProviderOrderCode { get; set; }
+        public int WarehouseId { get; set; }
         public string? WarehouseName { get; set; }
         public string? CreateBy { get; set; }
         public string? Note { get; set; }
