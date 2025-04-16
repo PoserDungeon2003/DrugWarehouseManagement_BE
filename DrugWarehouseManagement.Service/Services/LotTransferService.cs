@@ -317,6 +317,7 @@ namespace DrugWarehouseManagement.Service.Services
         {
             var lotTransfer = await _unitOfWork.LotTransferRepository
                                     .GetByWhere(lt => lt.LotTransferId == lotTransferId)
+                                    .Include(a => a.Account)
                                     .Include(w => w.FromWareHouse)
                                     .Include(w => w.ToWareHouse)
                                     .Include(lt => lt.LotTransferDetails)
