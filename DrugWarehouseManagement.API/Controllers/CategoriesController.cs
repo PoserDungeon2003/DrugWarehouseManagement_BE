@@ -20,7 +20,7 @@ namespace DrugWarehouseManagement.API.Controllers
 
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> GetListCategories([FromQuery] QueryPaging query)
+        public async Task<IActionResult> GetListCategories([FromQuery] CategoriesQueryPaging query)
         {
             try
             {
