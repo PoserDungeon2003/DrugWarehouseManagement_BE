@@ -254,8 +254,8 @@ namespace DrugWarehouseManagement.Service.Services
                                 header.Cell().Border(1).AlignCenter().Text("ĐVT").Bold();
                                 header.Cell().Border(1).AlignCenter().Text("Đầu kỳ").Bold();
                                 header.Cell().Border(1).AlignCenter().Text("Mua").Bold();
-                                header.Cell().Border(1).AlignCenter().Text("Chuyển").Bold();
-                                header.Cell().Border(1).AlignCenter().Text("Trả về\n(Nhập)").Bold();
+                                header.Cell().Border(1).AlignCenter().Text("Chuyển\n(Nhập)").Bold();
+                                header.Cell().Border(1).AlignCenter().Text("Trả về").Bold();
                                 header.Cell().Border(1).AlignCenter().Text("Bán").Bold();
                                 header.Cell().Border(1).AlignCenter().Text("Chuyển\n(Xuất)").Bold();
                                 header.Cell().Border(1).AlignCenter().Text("Tồn").Bold();
