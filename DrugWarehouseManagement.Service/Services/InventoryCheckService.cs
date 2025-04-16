@@ -68,6 +68,11 @@ namespace DrugWarehouseManagement.Service.Services
                             case InventoryCheckStatus.Damaged:
                                 inventoryDetail.CheckQuantity = detail.Quantity;
                                 inventoryDetail.Reason = detail.Reason ?? "Hàng bị hư hại";
+
+                                lot.Quantity -= detail.Quantity;
+                                await _unitOfWork.LotRepository.UpdateAsync(lot);
+                                await _unitOfWork.SaveChangesAsync();
+
                                 break;
 
                             case InventoryCheckStatus.Excess:
@@ -78,6 +83,10 @@ namespace DrugWarehouseManagement.Service.Services
                             case InventoryCheckStatus.Lost:
                                 inventoryDetail.CheckQuantity = detail.Quantity;
                                 inventoryDetail.Reason = detail.Reason ?? "Hàng mất";
+
+                                lot.Quantity -= detail.Quantity;
+                                await _unitOfWork.LotRepository.UpdateAsync(lot);
+                                await _unitOfWork.SaveChangesAsync();
                                 break;
 
                             case InventoryCheckStatus.Found:
@@ -97,7 +106,7 @@ namespace DrugWarehouseManagement.Service.Services
                                     return new BaseResponse
                                     {
                                         Code = 400,
-                                        Message = $"No suitable lot found to deduct {detail.Quantity} for lot {nearestLot.CheckQuantity}."
+                                        Message = $"Không thể tìm thấy số lượng {detail.Quantity} cho lô {lot.LotNumber} với số lượng {nearestLot.CheckQuantity}."
                                     };
                                 }
 
@@ -107,6 +116,11 @@ namespace DrugWarehouseManagement.Service.Services
 
                                 inventoryDetail.CheckQuantity = detail.Quantity;
                                 inventoryDetail.Reason = detail.Reason ?? "Hàng mất đã tìm thấy";
+
+                                lot.Quantity += detail.Quantity;
+                                await _unitOfWork.LotRepository.UpdateAsync(lot);
+                                await _unitOfWork.SaveChangesAsync();
+
                                 break;
 
                             default:
