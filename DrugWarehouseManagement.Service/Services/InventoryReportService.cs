@@ -171,7 +171,7 @@ namespace DrugWarehouseManagement.Service.Services
                 int sampleQty = sampleExportDict.ContainsKey(pid) ? sampleExportDict[pid] : 0;
 
                 // Lưu ý: Công thức tính tồn của kho đích chỉ cộng nhập mua và chuyển nhập (từ các kho khác)
-                int remain = beginning + (buyQty + transNormalQty) - (sellQty + outTransQty);
+                int remain = beginning + (buyQty + transNormalQty + transReturnQty) - (sellQty + outTransQty);
 
                 reportData.Add(new InventoryReportRow
                 {
@@ -288,10 +288,9 @@ namespace DrugWarehouseManagement.Service.Services
             return pdfBytes;
         }
 
-        // Phần ExportStockCardPdf không thay đổi so với logic cũ nên giữ nguyên
         public async Task<byte[]> ExportStockCardPdf(int warehouseId, int productId, Instant startDate, Instant endDate)
         {
-            // 1. Tính tồn đầu kỳ          
+            // 1. Tính tồn đầu kỳ: Lấy OpeningStock của Inbound trước startDate
             var beginningBalance = await _unitOfWork.InboundDetailRepository
                  .GetAll()
                  .Include(d => d.Inbound)
@@ -310,7 +309,7 @@ namespace DrugWarehouseManagement.Service.Services
             string unitType = productEntity?.SKU ?? "";
 
             // =========================
-            // 2. Lấy danh sách Inbound (Nhập)
+            // 2. Lấy danh sách Inbound (Nhập mua)
             // =========================
             var inboundList = await _unitOfWork.InboundDetailRepository
                 .GetAll()
@@ -358,7 +357,7 @@ namespace DrugWarehouseManagement.Service.Services
                 })
                 .ToListAsync();
 
-            // Gộp inbound + transferIn => inboundTransactions
+            // Các giao dịch nhập (mỗi giao dịch ở 1 dòng riêng)
             var inboundTransactions = new List<StockCardLine>();
             foreach (var i in inboundList)
             {
@@ -385,16 +384,16 @@ namespace DrugWarehouseManagement.Service.Services
                 });
             }
 
-            // =========================
-            // 4. Lấy danh sách Outbound (Xuất)
-            // =========================
+            // 4. Lấy danh sách Outbound (Xuất bán)
+            // Bao gồm cả các Outbound có trạng thái Completed hoặc Returned để đảm bảo nếu Outbound bị update thành Returned thì vẫn được tính vào "Xuất trong kỳ"
             var outboundList = await _unitOfWork.OutboundDetailsRepository
                 .GetAll()
                 .Include(d => d.Outbound)
                     .ThenInclude(o => o.Customer)
                 .Include(d => d.Lot)
                 .Where(d => d.Lot.ProductId == productId
-                            && d.Outbound.Status == OutboundStatus.Completed
+                            && d.Lot.WarehouseId == warehouseId
+                            && (d.Outbound.Status == OutboundStatus.Completed || d.Outbound.Status == OutboundStatus.Returned)
                             && d.Outbound.OutboundDate >= startDate
                             && d.Outbound.OutboundDate <= endDate)
                 .GroupBy(d => d.OutboundId)
@@ -409,9 +408,7 @@ namespace DrugWarehouseManagement.Service.Services
                 })
                 .ToListAsync();
 
-            // =========================
             // 5. Lấy danh sách LotTransfer (Xuất chuyển ra)
-            // =========================
             var transferOutList = await _unitOfWork.LotTransferDetailsRepository
                 .GetAll()
                 .Include(d => d.LotTransfer)
@@ -459,18 +456,14 @@ namespace DrugWarehouseManagement.Service.Services
                     OutQty = t.Qty
                 });
             }
-
-            // =========================
-            // 6. Gộp inboundTransactions + outboundTransactions
-            // =========================
+            // 6. Gộp tất cả giao dịch và sắp xếp theo ngày 
             var allTransactions = inboundTransactions
                 .Concat(outboundTransactions)
                 .OrderBy(t => t.Date)
                 .ToList();
 
-            // =========================
             // 7. Tính luỹ kế: Tồn cuối
-            // =========================
+            // Công thức: Tồn cuối = Tồn đầu kỳ + (Tổng Nhập trong kỳ) – (Tổng Xuất trong kỳ)
             var stockCardLines = new List<StockCardDto>();
             int running = beginningBalance;
             foreach (var t in allTransactions)
