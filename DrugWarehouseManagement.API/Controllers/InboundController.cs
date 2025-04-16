@@ -99,7 +99,7 @@ namespace DrugWarehouseManagement.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetInboundsPaginated([FromQuery] QueryPaging request)
+        public async Task<IActionResult> GetInboundsPaginated([FromQuery] InboundtQueryPaging request)
         {
             try
             {

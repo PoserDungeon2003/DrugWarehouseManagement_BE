@@ -94,23 +94,23 @@ namespace DrugWarehouseManagement.Service.Services
         public async Task<ViewInboundRequest> GetInboundRequestById(int inboundRequestId)
         {
             var inboundRequest = await _unitOfWork.InboundRequestRepository
-                    .GetByWhere(i => i.InboundRequestId == inboundRequestId)
-                    .Include(i => i.InboundRequestDetails)
-                    .ThenInclude(i => i.Product)
-                    .AsQueryable()
-                    .FirstOrDefaultAsync();
-            if (inboundRequest == null )
+                .GetByWhere(i => i.InboundRequestId == inboundRequestId)
+                .Include(i => i.InboundRequestDetails)
+                .ThenInclude(i => i.Product)
+                .AsQueryable()
+                .FirstOrDefaultAsync();
+            if (inboundRequest == null)
             {
-                throw new Exception("Inbound not found");
+                throw new Exception("Inbound Request not found");
             }
-            var result = inboundRequest.Adapt<ViewInboundRequest>();
-            result.CreateDate = InstantPattern.ExtendedIso.Parse(result.CreateDate)
-                .Value.ToString("dd/MM/yyyy HH:mm", null);
 
+            var result = inboundRequest.Adapt<ViewInboundRequest>();
+            // Manually map CreatedAt to CreateDate in the desired format
+            result.CreateDate = inboundRequest.CreatedAt.ToString("dd/MM/yyyy HH:mm", null);
             return result;
         }
 
-        public async Task<PaginatedResult<ViewInboundRequest>> GetInboundRequestsPaginatedAsync(QueryPaging request)
+        public async Task<PaginatedResult<ViewInboundRequest>> GetInboundRequestsPaginatedAsync(InboundRequestQueryPaging request)
         {
             var query = _unitOfWork.InboundRequestRepository
                         .GetAll()
@@ -119,21 +119,15 @@ namespace DrugWarehouseManagement.Service.Services
                         .ThenInclude(i => i.Product)
                         .AsQueryable();
 
+            // Apply filters
             if (!string.IsNullOrEmpty(request.Search))
             {
-                var searchTerm = request.Search.Trim().ToLower();
+                query = query.Where(i => i.InboundRequestCode.Contains(request.Search));
+            }
 
-                if (int.TryParse(searchTerm, out int inboundId))
-                {
-                    query = query.Where(i =>
-                        i.InboundRequestId == inboundId ||
-                        EF.Functions.Like(i.InboundRequestCode.ToLower(), $"%{searchTerm}%"));
-                }
-                else
-                {
-                    query = query.Where(i =>
-                        EF.Functions.Like(i.InboundRequestCode.ToLower(), $"%{searchTerm}%"));
-                }
+            if (Enum.IsDefined(typeof(InboundRequestStatus), request.InboundRequestStatus))
+            {
+                query = query.Where(i => i.Status == request.InboundRequestStatus);
             }
 
             var pattern = InstantPattern.ExtendedIso;
@@ -197,7 +191,7 @@ namespace DrugWarehouseManagement.Service.Services
                 .FirstOrDefaultAsync();
             if (inboundRequest == null)
             {
-                return new BaseResponse { Code = 404, Message = "Inbound not found" };
+                return new BaseResponse { Code = 404, Message = "Inbound Request not found" };
             }
 
             if (inboundRequest.Status == InboundRequestStatus.Completed || inboundRequest.Status == InboundRequestStatus.Cancelled)

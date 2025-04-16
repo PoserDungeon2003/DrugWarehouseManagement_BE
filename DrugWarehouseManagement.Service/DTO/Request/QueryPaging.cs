@@ -1,4 +1,5 @@
-﻿using NodaTime;
+﻿using DrugWarehouseManagement.Common;
+using NodaTime;
 
 namespace DrugWarehouseManagement.Service.DTO.Request
 {
@@ -11,11 +12,23 @@ namespace DrugWarehouseManagement.Service.DTO.Request
         public string? DateTo { get; set; } // ISO string format only
     }
 
+    
     public class LotQueryPaging : QueryPaging
     {
         public int ProductId { get; set; }
         public int ProviderId { get; set; }
         public int WarehouseId { get; set; }
         public bool Availablle { get; set; } = false;
+    }
+
+    public class InboundRequestQueryPaging : QueryPaging
+    {
+        public InboundRequestStatus InboundRequestStatus { get; set; }
+    }
+
+    public class InboundtQueryPaging : QueryPaging
+    {
+        public InboundStatus InboundStatus { get; set; }
+        public bool IsReportPendingExist { get; set; } = false;
     }
 }

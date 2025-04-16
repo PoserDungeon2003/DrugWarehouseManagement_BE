@@ -155,4 +155,12 @@
         OtherId = 600,
         SKUId = 700,
     }
+
+    public enum InventoryCheckStatus
+    {
+        Damaged = 1,
+        Excess = 2, // Sai số nhiều hơn số lượng thực tế
+        Lost = 3,
+        Found = 4
+    }
 }

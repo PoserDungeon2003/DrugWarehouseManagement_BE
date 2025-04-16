@@ -112,6 +112,7 @@ namespace DrugWarehouseManagement.API
             services.AddScoped<IInboundService, InboundService>();
             services.AddScoped<IInboundRequestService, InboundRequestService>();
             services.AddScoped<IInboundReportService, InboundReportService>();
+            services.AddScoped<IInventoryCheckService, InventoryCheckService>();
             services.AddScoped<ILotService, LotService>();
             services.AddScoped<IOutboundService, OutboundService>();
             services.AddScoped<IAuditLogsRepository, AuditLogsRepository>();
@@ -206,9 +207,6 @@ namespace DrugWarehouseManagement.API
             TypeAdapterConfig<UpdateAccountRequest, Account>
                 .NewConfig()
                 .IgnoreNullValues(true);
-            TypeAdapterConfig<UpdateOutboundRequest, Outbound>
-                .NewConfig()
-                .IgnoreNullValues(true);
             TypeAdapterConfig<UpdateProductRequest, Product>
                 .NewConfig()
                 .IgnoreNullValues(true);
@@ -269,6 +267,12 @@ namespace DrugWarehouseManagement.API
                 .Map(dest => dest.Status, src => src.Status.ToString())
                 .Map(dest => dest.WarehouseName, src => src.Warehouse.WarehouseName)
                 .Map(dest => dest.ProviderDetails, src => src.Provider);
+            // Configure InboundReport to ViewInboundReport
+            TypeAdapterConfig<InboundReport, ViewInboundReport>.NewConfig()
+                .Map(dest => dest.InboundReportId, src => src.InboundReportId)
+                .Map(dest => dest.ReportDate, src => src.ReportDate.ToString("dd/MM/yyyy HH:mm", null))
+                .Map(dest => dest.Status, src => src.Status.ToString())
+                .Map(dest => dest.ProblemDescription, src => src.ProblemDescription);
 
             TypeAdapterConfig<InboundDetails, InboundDetailResponse>
                 .NewConfig()
@@ -282,6 +286,17 @@ namespace DrugWarehouseManagement.API
             TypeAdapterConfig<InboundRequestDetails, InboundRequestDetailResponse>
                 .NewConfig()
                 .Map(dest => dest.ProductName, src => src.Product.ProductName);
+
+            TypeAdapterConfig<InventoryCheck, ViewInventoryCheck>
+                .NewConfig()
+                .Map(dest => dest.Warehouse, src => src.Warehouse)
+                .Map(dest => dest.Details, src => src.InventoryCheckDetails);
+
+            TypeAdapterConfig<InventoryCheckDetail, InventoryCheckDetailReponse>
+                .NewConfig()
+                .Map(dest => dest.LotNumber, src => src.Lot.LotNumber)
+                .Map(dest => dest.ProductName, src => src.Lot.Product.ProductName)
+                .Map(dest => dest.SKU, src => src.Lot.Product.SKU);
 
             TypeAdapterConfig<Asset, AssetResponse>
                 .NewConfig()
