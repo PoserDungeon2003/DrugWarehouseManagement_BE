@@ -173,6 +173,7 @@ namespace DrugWarehouseManagement.Service.Services
             var lotTransfer = request.Adapt<LotTransfer>();
             lotTransfer.LotTransferDetails = groupedDetails.Adapt<List<LotTransferDetail>>();
             lotTransfer.AccountId = accountId;
+            lotTransfer.LotTransferCode = $"LT-{DateTime.Now.ToString("yyyyMMddHHmmss")}";
             lotTransfer.LotTransferStatus = LotTransferStatus.Completed;
 
             await _unitOfWork.LotTransferRepository.CreateAsync(lotTransfer);
