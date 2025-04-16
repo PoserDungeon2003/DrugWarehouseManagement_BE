@@ -307,6 +307,7 @@ namespace DrugWarehouseManagement.API
                 .NewConfig()
                 .Map(dest => dest.ProviderName, src => src.Provider.ProviderName)
                 .Map(dest => dest.ProductName, src => src.Product.ProductName)
+                .Map(dest => dest.ProductSKU, src => src.Product.SKU)
                 .Map(dest => dest.WarehouseName, src => src.Warehouse.WarehouseName);
 
             TypeAdapterConfig<ReturnOutboundDetails, ReturnOutboundDetailsResponse>
