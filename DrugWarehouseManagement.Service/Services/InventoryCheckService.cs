@@ -308,7 +308,16 @@ namespace DrugWarehouseManagement.Service.Services
                 {
                     query = query.Where(i =>
                         i.InventoryCheckId == inventoryCheckId ||
-                        EF.Functions.Like(i.Title.ToLower(), $"%{searchTerm}%"));
+                        EF.Functions.Like(i.Title.ToLower(), $"%{searchTerm}%") ||
+                        i.InventoryCheckDetails.Any(d => EF.Functions.Like(d.Lot.LotNumber.ToLower(), $"%{searchTerm}%") ||
+                        i.InventoryCheckDetails.Any(d => EF.Functions.Like(d.Lot.LotId.ToString(), $"%{searchTerm}%"))));
+                }
+                else
+                {
+                    query = query.Where(i =>
+                        EF.Functions.Like(i.Title.ToLower(), $"%{searchTerm}%") ||
+                        i.InventoryCheckDetails.Any(d => EF.Functions.Like(d.Lot.LotNumber.ToLower(), $"%{searchTerm}%") ||
+                        i.InventoryCheckDetails.Any(d => EF.Functions.Like(d.Lot.LotId.ToString(), $"%{searchTerm}%"))));
                 }
             }
 
