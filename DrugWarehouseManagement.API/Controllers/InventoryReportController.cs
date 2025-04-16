@@ -15,7 +15,6 @@ namespace DrugWarehouseManagement.API.Controllers
         {
             _reportService = reportService;
         }
-        
         [HttpGet("export")]
         public async Task <IActionResult> ExportInventoryReportPdf(
            [FromQuery] int warehouseId,

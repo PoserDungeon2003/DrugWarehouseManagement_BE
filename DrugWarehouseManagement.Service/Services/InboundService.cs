@@ -225,7 +225,7 @@ namespace DrugWarehouseManagement.Service.Services
             return result;
         }
 
-        public async Task<PaginatedResult<ViewInbound>> GetInboundsPaginatedAsync(QueryPaging request)
+        public async Task<PaginatedResult<ViewInbound>> GetInboundsPaginatedAsync(InboundtQueryPaging request)
         {
             var query = _unitOfWork.InboundRepository
                         .GetAll()
@@ -235,6 +235,17 @@ namespace DrugWarehouseManagement.Service.Services
                         .Include(i => i.Account)
                         .Include(i => i.Warehouse)
                         .AsQueryable();
+
+            if (request.IsReportPendingExist)
+            {
+                var pendingReportInboundIds = await _unitOfWork.InboundReportRepository
+                    .GetByWhere(ir => ir.Status == InboundReportStatus.Pending)
+                    .Select(ir => ir.InboundId)
+                    .Distinct()
+                    .ToListAsync();
+
+                query = query.Where(i => pendingReportInboundIds.Contains(i.InboundId));
+            }
 
             if (!string.IsNullOrEmpty(request.Search))
             {
@@ -251,6 +262,11 @@ namespace DrugWarehouseManagement.Service.Services
                     query = query.Where(i =>
                         EF.Functions.Like(i.InboundId.ToString(), $"%{searchTerm}%"));
                 }
+            }
+
+            if (Enum.IsDefined(typeof(InboundStatus), request.InboundStatus))
+            {
+                query = query.Where(i => i.Status == request.InboundStatus);
             }
 
             var pattern = InstantPattern.ExtendedIso;
@@ -280,6 +296,14 @@ namespace DrugWarehouseManagement.Service.Services
             // Paginate the result
             var paginatedInbounds = await query.ToPaginatedResultAsync(request.Page, request.PageSize);
 
+            // Fetch pending InboundReports for the paginated Inbounds
+            var inboundIds = paginatedInbounds.Items.Select(i => i.InboundId).ToList();
+
+            var pendingReports = await _unitOfWork.InboundReportRepository
+                    .GetByWhere(ir => inboundIds.Contains(ir.InboundId))
+                    .Include(ir => ir.Assets)
+                    .ToListAsync();
+
             // Ensure proper formatting of InboundDate
             var viewInbounds = paginatedInbounds.Items.Adapt<List<ViewInbound>>();
 
@@ -290,7 +314,14 @@ namespace DrugWarehouseManagement.Service.Services
                     viewInbound.InboundDate = InstantPattern.ExtendedIso.Parse(viewInbound.InboundDate)
                         .Value.ToString("dd/MM/yyyy HH:mm", null);
                 }
+
+                // Map pending InboundReport using Adapt
+                viewInbound.Report = pendingReports
+                    .Where(ir => ir.InboundId == viewInbound.InboundId)
+                    .FirstOrDefault()
+                    ?.Adapt<ViewInboundReport>();
             }
+
             return new PaginatedResult<ViewInbound>
             {
                 Items = viewInbounds,

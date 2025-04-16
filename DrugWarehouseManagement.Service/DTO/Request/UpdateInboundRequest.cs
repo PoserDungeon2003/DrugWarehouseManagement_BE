@@ -21,7 +21,9 @@ namespace DrugWarehouseManagement.Service.DTO.Request
         [Required]
         [Range(1, int.MaxValue, ErrorMessage = "ProviderId must be greater than 0.")]
         public int ProviderId { get; set; }
-        public int? WarehouseId { get; set; } // Warehouse
+        [Required]
+        [Range(1, int.MaxValue, ErrorMessage = "WarehouseId must be greater than 0.")]
+        public int WarehouseId { get; set; } // Warehouse
         public List<InboundDetailRequest>? InboundDetails { get; set; }
 
     }
