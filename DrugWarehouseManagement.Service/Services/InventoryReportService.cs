@@ -196,11 +196,20 @@ namespace DrugWarehouseManagement.Service.Services
 
             // Lấy tên kho, format ngày
             var warehouse = await _unitOfWork.WarehouseRepository
-                                    .GetByWhere(w => w.WarehouseId == warehouseId)
-                                    .FirstOrDefaultAsync();
+                                 .GetByWhere(w => w.WarehouseId == warehouseId)
+                                 .FirstOrDefaultAsync();
             string warehouseName = warehouse?.WarehouseName ?? "N/A";
-            string startDateStr = startDate.ToDateTimeUtc().ToString("dd/MM/yyyy", CultureInfo.InvariantCulture);
-            string endDateStr = endDate.ToDateTimeUtc().ToString("dd/MM/yyyy", CultureInfo.InvariantCulture);
+
+            // Chuyển đổi từ UTC sang giờ địa phương của server
+            var serverTimeZone = TimeZoneInfo.Local;
+
+            var startDateUtc = startDate.ToDateTimeUtc();
+            var startDateLocal = TimeZoneInfo.ConvertTimeFromUtc(startDateUtc, serverTimeZone);
+            string startDateStr = startDateLocal.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture);
+
+            var endDateUtc = endDate.ToDateTimeUtc();
+            var endDateLocal = TimeZoneInfo.ConvertTimeFromUtc(endDateUtc, serverTimeZone);
+            string endDateStr = endDateLocal.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture);
 
             // Kích hoạt license QuestPDF (nếu dùng Community)
             Settings.License = LicenseType.Community;
