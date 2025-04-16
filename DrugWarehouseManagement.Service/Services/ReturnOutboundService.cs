@@ -10,7 +10,6 @@ using NodaTime;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace DrugWarehouseManagement.Service.Services
@@ -24,10 +23,10 @@ namespace DrugWarehouseManagement.Service.Services
         {
             _unitOfWork = unitOfWork;
         }
+
         /// <summary>
-        /// Tạo các bản ghi ReturnOutboundDetails khi có hàng trả về
+        /// Tạo các bản ghi ReturnOutboundDetails và xử lý trả hàng
         /// </summary>
-        /// 
         public async Task CreateReturnOutboundAsync(CreateReturnOutboundRequest request)
         {
             // 1) Kiểm tra Outbound
@@ -48,7 +47,7 @@ namespace DrugWarehouseManagement.Service.Services
 
             // 2) Xử lý từng dòng trả hàng
             var returnDetailsList = new List<ReturnOutboundDetails>();
-            // Danh sách các InboundDetails theo từng Provider, dùng Dictionary: key = ProviderId, value = list InboundDetails
+            // Nhóm các InboundDetails theo từng Provider: key = ProviderId, value = list InboundDetails
             var inboundDetailsByProvider = new Dictionary<int, List<InboundDetails>>();
 
             foreach (var detailItem in request.Details)
@@ -87,7 +86,7 @@ namespace DrugWarehouseManagement.Service.Services
                     TotalPrice = outboundDetail.UnitPrice * detailItem.Quantity
                 };
 
-                // Lấy ProviderId từ Lot
+                // Nhóm theo Provider (lấy ProviderId từ Lot của OutboundDetail)
                 int providerId = outboundDetail.Lot.ProviderId;
                 if (!inboundDetailsByProvider.ContainsKey(providerId))
                 {
@@ -105,35 +104,81 @@ namespace DrugWarehouseManagement.Service.Services
             await _unitOfWork.OutboundRepository.UpdateAsync(outbound);
             await _unitOfWork.SaveChangesAsync();
 
-            // 5) Tạo phiếu Inbound cho mỗi nhóm Provider
+            // 5) Tạo phiếu Inbound cho mỗi nhóm Provider và cập nhật lô (Lot) vào kho chỉ định
             foreach (var kvp in inboundDetailsByProvider)
             {
                 int providerId = kvp.Key;
                 List<InboundDetails> detailsForProvider = kvp.Value;
                 var lotNumbers = string.Join(", ", detailsForProvider.Select(d => d.LotNumber));
+
                 var newInbound = new Inbound
                 {
                     InboundCode = GenerateInboundCode(),
                     Note = $"Tạo tự động từ hoàn trả đơn Outbound {outbound.OutboundCode} cho các lô hàng: {lotNumbers}",
                     InboundDate = SystemClock.Instance.GetCurrentInstant(),
                     Status = InboundStatus.Completed,
-                    ProviderId = providerId, // Lấy Provider từ từng nhóm
+                    ProviderId = providerId,
                     AccountId = outbound.AccountId,
-                    WarehouseId = TEMPORARY_WAREHOUSE_ID, // Kho tạm thời
+                    WarehouseId = TEMPORARY_WAREHOUSE_ID, // Kho chỉ định (tạm thời)
                     InboundRequestId = null, // Nhập trả hàng
                     InboundDetails = new List<InboundDetails>()
                 };
 
-                // Gán danh sách InboundDetails tương ứng
+                // Thêm danh sách InboundDetails tương ứng vào phiếu Inbound
                 foreach (var detail in detailsForProvider)
                 {
                     newInbound.InboundDetails.Add(detail);
                 }
 
                 await _unitOfWork.InboundRepository.CreateAsync(newInbound);
+
+                // Cập nhật hoặc tạo mới lô (Lot) dựa trên Inbound và InboundDetails
+                await CreateOrUpdateLotAsync(newInbound);
             }
 
-            // Lưu tất cả các phiếu Inbound mới vào DB
+            await _unitOfWork.SaveChangesAsync();
+        }
+
+        /// <summary>
+        /// Tạo hoặc cập nhật lô (Lot) trong kho chỉ định dựa trên phiếu Inbound và các chi tiết InboundDetails
+        /// Nếu đã có lô trùng LotNumber, ManufacturingDate, ExpiryDate và ProductId thì cộng thêm số lượng vào lô đó.
+        /// </summary>
+        private async Task CreateOrUpdateLotAsync(Inbound inbound)
+        {
+            foreach (var inboundDetail in inbound.InboundDetails)
+            {
+                var existingLot = await _unitOfWork.LotRepository
+                    .GetByWhere(l =>
+                        l.WarehouseId == inbound.WarehouseId &&
+                        l.LotNumber == inboundDetail.LotNumber &&
+                        l.ManufacturingDate == inboundDetail.ManufacturingDate &&
+                        l.ExpiryDate == inboundDetail.ExpiryDate &&
+                        l.ProductId == inboundDetail.ProductId)
+                    .FirstOrDefaultAsync();
+
+                if (existingLot != null)
+                {
+                    // Cộng thêm số lượng vào lô đã tồn tại
+                    existingLot.Quantity += inboundDetail.Quantity;
+                    await _unitOfWork.LotRepository.UpdateAsync(existingLot);
+                }
+                else
+                {
+                    // Tạo mới lô với thông tin từ InboundDetail
+                    var newLot = new Lot
+                    {
+                        LotNumber = inboundDetail.LotNumber,
+                        ManufacturingDate = inboundDetail.ManufacturingDate,
+                        ExpiryDate = inboundDetail.ExpiryDate ?? DateOnly.FromDateTime(DateTime.Today),
+                        ProductId = inboundDetail.ProductId,
+                        WarehouseId = inbound.WarehouseId?? 6,
+                        ProviderId = inbound.ProviderId,
+                        Quantity = inboundDetail.Quantity
+                    };
+
+                    await _unitOfWork.LotRepository.CreateAsync(newLot);
+                }
+            }
             await _unitOfWork.SaveChangesAsync();
         }
 
@@ -142,9 +187,6 @@ namespace DrugWarehouseManagement.Service.Services
             return $"IN-{DateTime.Now:yyyyMMdd}-{Guid.NewGuid().ToString().Substring(0, 8).ToUpper()}";
         }
 
-        /// <summary>
-        /// Lấy danh sách ReturnOutboundDetails dựa trên OutboundId
-        /// </summary>
         public async Task<List<ReturnOutboundDetailsResponse>> GetReturnOutboundByOutboundIdAsync(int outboundId)
         {
             // Lấy tất cả OutboundDetail của Outbound
@@ -156,15 +198,14 @@ namespace DrugWarehouseManagement.Service.Services
 
             var outboundDetailIds = outboundDetails.Select(od => od.OutboundDetailsId).ToList();
 
-            // Lấy tất cả ReturnOutboundDetails có OutboundDetailId thuộc OutboundId này
+            // Lấy các ReturnOutboundDetails có OutboundDetailId thuộc Outbound này
             var returnOutboundDetails = await _unitOfWork.ReturnOutboundDetailsRepository
                 .GetAll()
                 .Include(r => r.OutboundDetails)
                     .ThenInclude(od => od.Outbound)
-                 .Include(od => od.OutboundDetails.Lot)
+                .Include(r => r.OutboundDetails.Lot)
                     .ThenInclude(l => l.Product)
                 .Where(r => outboundDetailIds.Contains(r.OutboundDetailsId))
-
                 .ToListAsync();
 
             var response = returnOutboundDetails.Select(r =>
@@ -179,6 +220,7 @@ namespace DrugWarehouseManagement.Service.Services
 
             return response;
         }
+
         public async Task<List<ReturnOutboundDetailsResponse>> GetAllReturnOutboundDetailsAsync()
         {
             var returnOutboundDetails = await _unitOfWork.ReturnOutboundDetailsRepository
@@ -201,6 +243,5 @@ namespace DrugWarehouseManagement.Service.Services
 
             return response;
         }
-
     }
 }

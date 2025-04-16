@@ -75,32 +75,33 @@ namespace DrugWarehouseManagement.Service.Services
                 .Select(g => new { ProductId = g.Key, Qty = g.Sum(x => x.Quantity) })
                 .ToListAsync();
 
-            // (c2) Nhập Chuyển (LotTransfer to warehouseId)
-            var transferIn = await _unitOfWork.LotTransferDetailsRepository
+            // (c2) Nhập chuyển thông thường (chuyển từ các kho khác ngoài kho 6)
+            var transferInNormal = await _unitOfWork.LotTransferDetailsRepository
                 .GetAll()
                 .Include(d => d.LotTransfer)
                 .Include(d => d.Lot)
                 .Where(d => d.LotTransfer.ToWareHouseId == warehouseId
-                            && d.LotTransfer.CreatedAt >= startDate
-                            && d.LotTransfer.CreatedAt <= endDate
-                            && d.LotTransfer.LotTransferStatus == LotTransferStatus.Completed)
+                          && d.LotTransfer.FromWareHouseId != 6  // Các kho khác ngoài kho 6
+                          && d.LotTransfer.CreatedAt >= startDate
+                          && d.LotTransfer.CreatedAt <= endDate
+                          && d.LotTransfer.LotTransferStatus == LotTransferStatus.Completed)
                 .GroupBy(d => d.Lot.ProductId)
                 .Select(g => new { ProductId = g.Key, Qty = g.Sum(x => x.Quantity) })
                 .ToListAsync();
 
-            // (c3) Nhập trả về  -inbound không có InboundRequestId
-
-            var inboundReturn = await _unitOfWork.InboundDetailRepository
-                .GetAll()
-                .Include(d => d.Inbound)
-                .Where(d => d.Inbound.WarehouseId == warehouseId
-                         && d.Inbound.InboundDate >= startDate
-                         && d.Inbound.InboundDate <= endDate
-                         && d.Inbound.Status == InboundStatus.Completed
-                         && d.Inbound.InboundRequestId == null)
-                .GroupBy(d => d.ProductId)
-                .Select(g => new { ProductId = g.Key, Qty = g.Sum(x => x.Quantity) })
-                .ToListAsync();
+            // (c3) Nhập trả về: lấy từ giao dịch chuyển kho từ kho 6 sang kho đích
+            var transferInReturn = await _unitOfWork.LotTransferDetailsRepository
+                 .GetAll()
+                 .Include(d => d.LotTransfer)
+                 .Include(d => d.Lot)
+                 .Where(d => d.LotTransfer.ToWareHouseId == warehouseId
+                             && d.LotTransfer.FromWareHouseId == 6  // Chỉ lấy từ kho tạm (6)
+                             && d.LotTransfer.CreatedAt >= startDate
+                             && d.LotTransfer.CreatedAt <= endDate
+                             && d.LotTransfer.LotTransferStatus == LotTransferStatus.Completed)
+                 .GroupBy(d => d.Lot.ProductId)
+                 .Select(g => new { ProductId = g.Key, Qty = g.Sum(x => x.Quantity) })
+                 .ToListAsync();
 
             // ------------------------ XUẤT ------------------------
 
@@ -110,17 +111,15 @@ namespace DrugWarehouseManagement.Service.Services
                 .Include(od => od.Outbound)
                 .Include(od => od.Lot)
                 .Where(od => od.Lot.WarehouseId == warehouseId
-                             && od.Outbound.OutboundDate >= startDate
-                             && od.Outbound.OutboundDate <= endDate
-                             && od.TotalPrice > 0
-                             && od.Outbound.Status == OutboundStatus.Completed
-                             || od.Outbound.Status == OutboundStatus.Returned
-                             )
+                     && od.Outbound.OutboundDate >= startDate
+                     && od.Outbound.OutboundDate <= endDate
+                     && od.TotalPrice > 0
+                     && (od.Outbound.Status == OutboundStatus.Completed || od.Outbound.Status == OutboundStatus.Returned))
                 .GroupBy(od => od.Lot.ProductId)
                 .Select(g => new { ProductId = g.Key, Qty = g.Sum(x => x.Quantity) })
                 .ToListAsync();
 
-            // (d2) Xuất Chuyển (LotTransfer from warehouseId)
+            // (d2) Xuất chuyển (chuyển ra từ kho đích)
             var transferOut = await _unitOfWork.LotTransferDetailsRepository
                 .GetAll()
                 .Include(d => d.LotTransfer)
@@ -143,17 +142,16 @@ namespace DrugWarehouseManagement.Service.Services
                              && od.Outbound.OutboundDate <= endDate
                              && od.Outbound.Status == OutboundStatus.Completed
                              && od.Outbound.Status == OutboundStatus.Returned
-                             && od.TotalPrice == 0) // Điều kiện xuất mẫu
+                             && od.TotalPrice == 0)
                 .GroupBy(od => od.Lot.ProductId)
                 .Select(g => new { ProductId = g.Key, Qty = g.Sum(x => x.Quantity) })
                 .ToListAsync();
 
-
             // ------------------------ Tạo dictionary ------------------------
 
             var buyDict = inboundBuy.ToDictionary(x => x.ProductId, x => x.Qty);
-            var transferInDict = transferIn.ToDictionary(x => x.ProductId, x => x.Qty);
-            var inboundReturnDict = inboundReturn.ToDictionary(x => x.ProductId, x => x.Qty);
+            var transferInNormalDict = transferInNormal.ToDictionary(x => x.ProductId, x => x.Qty);
+            var transferInReturnDict = transferInReturn.ToDictionary(x => x.ProductId, x => x.Qty);
             var sellDict = outboundSell.ToDictionary(x => x.ProductId, x => x.Qty);
             var transferOutDict = transferOut.ToDictionary(x => x.ProductId, x => x.Qty);
             var sampleExportDict = sampleExport.ToDictionary(x => x.ProductId, x => x.Qty);
@@ -164,17 +162,16 @@ namespace DrugWarehouseManagement.Service.Services
             foreach (var p in products)
             {
                 int pid = p.ProductId;
-
                 int beginning = openingStockDict.ContainsKey(pid) ? (openingStockDict[pid] ?? 0) : 0;
                 int buyQty = buyDict.ContainsKey(pid) ? buyDict[pid] : 0;
-                int inTransQty = transferInDict.ContainsKey(pid) ? transferInDict[pid] : 0;
-                int inReturnQty = inboundReturnDict.ContainsKey(pid) ? inboundReturnDict[pid] : 0;
+                int transNormalQty = transferInNormalDict.ContainsKey(pid) ? transferInNormalDict[pid] : 0;
+                int transReturnQty = transferInReturnDict.ContainsKey(pid) ? transferInReturnDict[pid] : 0;
                 int sellQty = sellDict.ContainsKey(pid) ? sellDict[pid] : 0;
                 int outTransQty = transferOutDict.ContainsKey(pid) ? transferOutDict[pid] : 0;
                 int sampleQty = sampleExportDict.ContainsKey(pid) ? sampleExportDict[pid] : 0;
-                int remain = beginning
-                             + (buyQty + inTransQty + inReturnQty)
-                             - (sellQty + outTransQty);
+
+                // Lưu ý: Công thức tính tồn của kho đích chỉ cộng nhập mua và chuyển nhập (từ các kho khác)
+                int remain = beginning + (buyQty + transNormalQty) - (sellQty + outTransQty);
 
                 reportData.Add(new InventoryReportRow
                 {
@@ -183,8 +180,9 @@ namespace DrugWarehouseManagement.Service.Services
                     SKU = p.SKU,  // hoặc p.UnitName, tuỳ logic
                     Beginning = beginning,
                     BuyQty = buyQty,
-                    TransferInQty = inTransQty,
-                    ReturnInQty = inReturnQty,
+                    // Hiển thị riêng cột "Chuyển (Nhập)" và "Trả về (Nhập)"
+                    TransferInQty = transNormalQty,
+                    ReturnInQty = transReturnQty,
                     SellQty = sellQty,
                     TransferOutQty = outTransQty,
                     SampleExportQty = sampleQty,
@@ -244,7 +242,7 @@ namespace DrugWarehouseManagement.Service.Services
                                 columns.RelativeColumn(1);  // Bán
                                 columns.RelativeColumn(1);  // Chuyển (Xuất)
                                 columns.RelativeColumn(1);  // Tồn
-                                columns.RelativeColumn(1); // xuất mẫu 
+                                columns.RelativeColumn(1);  // Xuất mẫu 
                             });
 
                             // Header
@@ -256,7 +254,7 @@ namespace DrugWarehouseManagement.Service.Services
                                 header.Cell().Border(1).AlignCenter().Text("ĐVT").Bold();
                                 header.Cell().Border(1).AlignCenter().Text("Đầu kỳ").Bold();
                                 header.Cell().Border(1).AlignCenter().Text("Mua").Bold();
-                                header.Cell().Border(1).AlignCenter().Text("Chuyển\n(Nhập)").Bold();
+                                header.Cell().Border(1).AlignCenter().Text("Chuyển").Bold();
                                 header.Cell().Border(1).AlignCenter().Text("Trả về\n(Nhập)").Bold();
                                 header.Cell().Border(1).AlignCenter().Text("Bán").Bold();
                                 header.Cell().Border(1).AlignCenter().Text("Chuyển\n(Xuất)").Bold();
@@ -290,10 +288,10 @@ namespace DrugWarehouseManagement.Service.Services
             return pdfBytes;
         }
 
+        // Phần ExportStockCardPdf không thay đổi so với logic cũ nên giữ nguyên
         public async Task<byte[]> ExportStockCardPdf(int warehouseId, int productId, Instant startDate, Instant endDate)
         {
             // 1. Tính tồn đầu kỳ          
-            // Lấy OpeningStock từ InboundDetails mới nhất (trước startDate)
             var beginningBalance = await _unitOfWork.InboundDetailRepository
                  .GetAll()
                  .Include(d => d.Inbound)
@@ -314,9 +312,6 @@ namespace DrugWarehouseManagement.Service.Services
             // =========================
             // 2. Lấy danh sách Inbound (Nhập)
             // =========================
-            // Gồm: Nhập mua (InboundRequestId != null), Nhập trả về (InboundRequestId == null)
-            // Mỗi phiếu inbound -> 1 dòng. DocumentNumber = Warehouse.DocumentNumber, Tên khách hàng = WarehouseName
-            // Số lượng = tổng quantity InboundDetails => ta gộp theo InboundId
             var inboundList = await _unitOfWork.InboundDetailRepository
                 .GetAll()
                 .Include(d => d.Inbound)
@@ -329,20 +324,18 @@ namespace DrugWarehouseManagement.Service.Services
                 .GroupBy(d => d.InboundId)
                 .Select(g => new
                 {
-                    // Mỗi inboundId -> 1 record
                     InboundId = g.Key,
-                    InboundDate = g.First().Inbound.InboundDate,  // Tất cả inboundDetail chung 1 inboundDate
-                    WarehouseDocNumber = g.First().Inbound.Warehouse.DocumentNumber, // Số chứng từ -> Warehouse
-                    WarehouseName = g.First().Inbound.Warehouse.WarehouseName,       // Tên khách hàng => Tên kho
+                    InboundDate = g.First().Inbound.InboundDate,
+                    WarehouseDocNumber = g.First().Inbound.Warehouse.DocumentNumber,
+                    WarehouseName = g.First().Inbound.Warehouse.WarehouseName,
                     Note = g.First().Inbound.Note ?? "",
-                    Qty = g.Sum(x => x.Quantity) // Tổng quantity
+                    Qty = g.Sum(x => x.Quantity)
                 })
                 .ToListAsync();
 
             // =========================
             // 3. Lấy danh sách LotTransfer (Nhập chuyển vào)
             // =========================
-            // Mỗi lot transfer -> 1 dòng inbound
             var transferInList = await _unitOfWork.LotTransferDetailsRepository
                 .GetAll()
                 .Include(d => d.LotTransfer)
@@ -356,21 +349,17 @@ namespace DrugWarehouseManagement.Service.Services
                 .GroupBy(d => d.LotTransferId)
                 .Select(g => new
                 {
-                    // Mỗi lotTransfer -> 1 record
                     TransferId = g.Key,
                     TransferDate = g.First().LotTransfer.CreatedAt,
-                    WarehouseDocNumber = g.First().LotTransfer.ToWareHouse.DocumentNumber, // Số chứng từ -> toWarehouse
+                    WarehouseDocNumber = g.First().LotTransfer.ToWareHouse.DocumentNumber,
                     WarehouseName = g.First().LotTransfer.ToWareHouse.WarehouseName,
                     Note = "Chuyển kho vào",
                     Qty = g.Sum(x => x.Quantity)
                 })
                 .ToListAsync();
 
-
-
             // Gộp inbound + transferIn => inboundTransactions
             var inboundTransactions = new List<StockCardLine>();
-            // Chuyển inbound -> StockCardLine
             foreach (var i in inboundList)
             {
                 inboundTransactions.Add(new StockCardLine
@@ -383,7 +372,6 @@ namespace DrugWarehouseManagement.Service.Services
                     OutQty = 0
                 });
             }
-            // Chuyển transferIn -> StockCardLine
             foreach (var t in transferInList)
             {
                 inboundTransactions.Add(new StockCardLine
@@ -400,7 +388,6 @@ namespace DrugWarehouseManagement.Service.Services
             // =========================
             // 4. Lấy danh sách Outbound (Xuất)
             // =========================
-            // Gồm: Xuất bán, Xuất mẫu (TotalPrice=0), Mỗi Outbound => 1 dòng
             var outboundList = await _unitOfWork.OutboundDetailsRepository
                 .GetAll()
                 .Include(d => d.Outbound)
@@ -425,7 +412,6 @@ namespace DrugWarehouseManagement.Service.Services
             // =========================
             // 5. Lấy danh sách LotTransfer (Xuất chuyển ra)
             // =========================
-            // Mỗi lot transfer -> 1 dòng outbound
             var transferOutList = await _unitOfWork.LotTransferDetailsRepository
                 .GetAll()
                 .Include(d => d.LotTransfer)
@@ -447,9 +433,8 @@ namespace DrugWarehouseManagement.Service.Services
                     Qty = g.Sum(x => x.Quantity)
                 })
                 .ToListAsync();
-            // Gộp outbound + transferOut => outboundTransactions
+
             var outboundTransactions = new List<StockCardLine>();
-            // Chuyển outbound -> StockCardLine
             foreach (var o in outboundList)
             {
                 outboundTransactions.Add(new StockCardLine
@@ -462,7 +447,6 @@ namespace DrugWarehouseManagement.Service.Services
                     OutQty = o.Qty
                 });
             }
-            // Chuyển transferOut -> StockCardLine
             foreach (var t in transferOutList)
             {
                 outboundTransactions.Add(new StockCardLine
@@ -488,8 +472,6 @@ namespace DrugWarehouseManagement.Service.Services
             // 7. Tính luỹ kế: Tồn cuối
             // =========================
             var stockCardLines = new List<StockCardDto>();
-
-      
             int running = beginningBalance;
             foreach (var t in allTransactions)
             {
@@ -512,14 +494,13 @@ namespace DrugWarehouseManagement.Service.Services
             // =========================
             // 8. Xuất PDF bằng QuestPDF
             // =========================
-            // Lấy thông tin kho, format ngày
             var warehouseEntity = await _unitOfWork.WarehouseRepository
                 .GetByWhere(w => w.WarehouseId == warehouseId)
                 .FirstOrDefaultAsync();
-            string warehouseName = warehouseEntity?.WarehouseName ?? "N/A";
+            string warehouseNameForCard = warehouseEntity?.WarehouseName ?? "N/A";
 
-            string startDateStr = startDate.ToDateTimeUtc().ToString("dd/MM/yyyy", CultureInfo.InvariantCulture);
-            string endDateStr = endDate.ToDateTimeUtc().ToString("dd/MM/yyyy", CultureInfo.InvariantCulture);
+            string startDateStrCard = startDate.ToDateTimeUtc().ToString("dd/MM/yyyy", CultureInfo.InvariantCulture);
+            string endDateStrCard = endDate.ToDateTimeUtc().ToString("dd/MM/yyyy", CultureInfo.InvariantCulture);
 
             Settings.License = LicenseType.Community;
             var pdfBytes = Document.Create(container =>
@@ -530,18 +511,16 @@ namespace DrugWarehouseManagement.Service.Services
                     page.Margin(15);
                     page.DefaultTextStyle(x => x.FontSize(9));
 
-                    // Header
                     page.Header().Column(col =>
                     {
                         col.Item().Text("CÔNG TY TNHH DƯỢC PHẨM TRUNG HẠNH").Bold().FontSize(12).AlignCenter();
                         col.Item().Text("THẺ KHO").Bold().FontSize(14).AlignCenter();
-                        col.Item().Text($"Kho: {warehouseName}").AlignCenter();
-                        col.Item().Text($"Từ ngày {startDateStr} đến ngày {endDateStr}").AlignCenter();
+                        col.Item().Text($"Kho: {warehouseNameForCard}").AlignCenter();
+                        col.Item().Text($"Từ ngày {startDateStrCard} đến ngày {endDateStrCard}").AlignCenter();
                         col.Item().Text($"Sản phẩm: {productName}").AlignCenter();
                         col.Item().Text($"Đơn vị tính: {unitType}").AlignCenter();
                     });
 
-                    // Content
                     page.Content().Column(col =>
                     {
                         col.Item().Table(table =>
@@ -559,7 +538,6 @@ namespace DrugWarehouseManagement.Service.Services
                                 columns.RelativeColumn(3);  // Ghi chú
                             });
 
-                            // Header
                             table.Header(header =>
                             {
                                 header.Cell().Border(1).AlignCenter().Text("STT").Bold();
@@ -596,4 +574,3 @@ namespace DrugWarehouseManagement.Service.Services
         }
     }
 }
-
