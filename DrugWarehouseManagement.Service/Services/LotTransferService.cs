@@ -59,11 +59,14 @@ namespace DrugWarehouseManagement.Service.Services
                 throw new Exception("Can't cancel lot with status not Pending");
             }
 
-            foreach (var detail in lotTransfer.LotTransferDetails)
+            if (lotTransfer.LotTransferDetails != null && lotTransfer.LotTransferDetails.Any())
             {
-                var lot = await _unitOfWork.LotRepository.GetByIdAsync(detail.LotId);
-                lot.Quantity += detail.Quantity; // Trả lại số lượng lô hàng
-                await _unitOfWork.LotRepository.UpdateAsync(lot);
+                foreach (var detail in lotTransfer.LotTransferDetails)
+                {
+                    var lot = await _unitOfWork.LotRepository.GetByIdAsync(detail.LotId);
+                    lot.Quantity += detail.Quantity; // Trả lại số lượng lô hàng
+                    await _unitOfWork.LotRepository.UpdateAsync(lot);
+                }
             }
 
             lotTransfer.LotTransferStatus = Common.LotTransferStatus.Cancelled;
@@ -170,6 +173,7 @@ namespace DrugWarehouseManagement.Service.Services
             var lotTransfer = request.Adapt<LotTransfer>();
             lotTransfer.LotTransferDetails = groupedDetails.Adapt<List<LotTransferDetail>>();
             lotTransfer.AccountId = accountId;
+            lotTransfer.LotTransferStatus = LotTransferStatus.Completed;
 
             await _unitOfWork.LotTransferRepository.CreateAsync(lotTransfer);
             await _unitOfWork.SaveChangesAsync();

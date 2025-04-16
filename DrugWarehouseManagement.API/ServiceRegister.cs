@@ -233,9 +233,10 @@ namespace DrugWarehouseManagement.API
 
             TypeAdapterConfig<LotTransferDetail, ViewLotTransferDetail>
                 .NewConfig()
-
+                .Map(dest => dest.ExpiryDate, src => src.Lot.ExpiryDate)
                 .Map(dest => dest.LotNumber, src => src.Lot.LotNumber)
                 .Map(dest => dest.ProductName, src => src.Lot.Product.ProductName)
+                .Map(dest => dest.Quantity, src => src.Lot.Quantity)
                 .IgnoreNullValues(true);
             TypeAdapterConfig<UpdateCustomerRequest, Customer>
             .NewConfig()
