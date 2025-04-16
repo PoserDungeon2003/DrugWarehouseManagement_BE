@@ -150,7 +150,8 @@ namespace DrugWarehouseManagement.Repository.Models
                 new Warehouse { WarehouseId = 2, WarehouseCode = "KHUY-01", WarehouseName = "Kho Hủy", Address = "Khu vực xử lý hàng lỗi, Đường Số 7, KCN Vĩnh Lộc, Bình Chánh, TP.HCM", Status = WarehouseStatus.Active, DocumentNumber = "KH20250409-002" },
                 new Warehouse { WarehouseId = 3, WarehouseCode = "KTHU-01", WarehouseName = "Kho Thuốc", Address = "Số 3B Đường Nguyễn Văn Quá, Đông Hưng Thuận, Quận 12, TP.HCM", Status = WarehouseStatus.Active, DocumentNumber = "KT20250409-003" },
                 new Warehouse { WarehouseId = 4, WarehouseCode = "KMP-01", WarehouseName = "Kho Mỹ Phẩm", Address = "Số 1 Lê Duẩn, Bến Nghé, Quận 1, TP.HCM", Status = WarehouseStatus.Active, DocumentNumber = "KMP20250409-004" },
-                new Warehouse { WarehouseId = 5, WarehouseCode = "KTH-01", WarehouseName = "Kho Trung Hạnh", Address = "Số 88 Đường 3 Tháng 2, Phường 11, Quận 10, TP.HCM", Status = WarehouseStatus.Active, DocumentNumber = "KTH20250409-005" }
+                new Warehouse { WarehouseId = 5, WarehouseCode = "KTH-01", WarehouseName = "Kho Trung Hạnh", Address = "Số 88 Đường 3 Tháng 2, Phường 11, Quận 10, TP.HCM", Status = WarehouseStatus.Active, DocumentNumber = "KTH20250409-005" },
+                new Warehouse { WarehouseId = 6, WarehouseCode = "KTAMTHOI-01", WarehouseName = "Kho Tạm", Address = "Số 95 Đường 3 Tháng 2, Phường 11, Quận 10, TP.HCM", Status = WarehouseStatus.Active, DocumentNumber = "KTAMTHOI20250409-006" }  
             );
             // 5. Seed Products
             modelBuilder.Entity<Product>().HasData(
