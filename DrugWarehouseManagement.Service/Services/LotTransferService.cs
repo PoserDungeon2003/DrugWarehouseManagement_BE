@@ -337,7 +337,7 @@ namespace DrugWarehouseManagement.Service.Services
             return lotTransfer.Adapt<ViewLotTransfer>();
         }
 
-        public async Task<PaginatedResult<ViewLotTransfer>> GetLotTransfers(QueryPaging queryPaging)
+        public async Task<PaginatedResult<ViewLotTransfer>> GetLotTransfers(LotTransferQueryPaging queryPaging)
         {
             var lotTransfers = _unitOfWork.LotTransferRepository
                                     .GetAll()
@@ -383,6 +383,12 @@ namespace DrugWarehouseManagement.Service.Services
                 }
                 lotTransfers = lotTransfers.Where(lt => lt.CreatedAt <= dateTo.Value);
             }
+
+            if (queryPaging.Status != null)
+            {
+                lotTransfers = lotTransfers.Where(lt => lt.LotTransferStatus == queryPaging.Status);
+            }
+            
             var result = await lotTransfers.ToPaginatedResultAsync(queryPaging.Page, queryPaging.PageSize);
 
             return result.Adapt<PaginatedResult<ViewLotTransfer>>();

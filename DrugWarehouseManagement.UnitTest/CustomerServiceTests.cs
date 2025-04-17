@@ -27,12 +27,48 @@ namespace DrugWarehouseManagement.UnitTest
         }
 
         [Fact]
+        public async Task CreateCustomerAsync_CustomerWithPhoneNumberExists_ThrowsException()
+        {
+            // Arrange
+            var request = new CreateCustomerRequest { PhoneNumber = "123456789" };
+            var existingCustomer = new Customer { PhoneNumber = "123456789" };
+
+            _unitOfWorkMock.Setup(uow => uow.CustomerRepository
+                .GetByWhere(It.IsAny<System.Linq.Expressions.Expression<Func<Customer, bool>>>()))
+                .Returns(new List<Customer> { existingCustomer }.AsQueryable().BuildMock());
+
+            // Act & Assert
+            var exception = await Assert.ThrowsAsync<Exception>(() => _customerService.CreateCustomerAsync(request));
+            Assert.Equal("Khách hàng với số điện thoại này đã tồn tại.", exception.Message);
+        }
+
+        [Fact]
+        public async Task CreateCustomerAsync_CustomerWithDocumentNumberExists_ThrowsException()
+        {
+            // Arrange
+            var request = new CreateCustomerRequest { DocumentNumber = "DOC123" };
+            var existingCustomer = new Customer { DocumentNumber = "DOC123" };
+
+            _unitOfWorkMock.SetupSequence(uow => uow.CustomerRepository
+                .GetByWhere(It.IsAny<System.Linq.Expressions.Expression<Func<Customer, bool>>>()))
+                .Returns(new List<Customer>().AsQueryable().BuildMock()) // No phone number conflict
+                .Returns(new List<Customer> { existingCustomer }.AsQueryable().BuildMock()); // Document number conflict
+
+            // Act & Assert
+            var exception = await Assert.ThrowsAsync<Exception>(() => _customerService.CreateCustomerAsync(request));
+            Assert.Equal(" Khách hàng với Số chứng từ này đã tồn tại.", exception.Message);
+        }
+
+        [Fact]
         public async Task CreateCustomerAsync_CreatesCustomerSuccessfully()
         {
             // Arrange
-            var request = new CreateCustomerRequest { CustomerName = "John Doe" };
-            var customer = request.Adapt<Customer>();
+            var request = new CreateCustomerRequest { PhoneNumber = "123456789", DocumentNumber = "DOC123" };
 
+            _unitOfWorkMock.SetupSequence(uow => uow.CustomerRepository
+                .GetByWhere(It.IsAny<System.Linq.Expressions.Expression<Func<Customer, bool>>>()))
+                .Returns(new List<Customer>().AsQueryable().BuildMock()) // No phone number conflict
+                .Returns(new List<Customer>().AsQueryable().BuildMock()); // No document number conflict
             _unitOfWorkMock.Setup(uow => uow.CustomerRepository.CreateAsync(It.IsAny<Customer>()))
                 .Returns(Task.CompletedTask);
             _unitOfWorkMock.Setup(uow => uow.SaveChangesAsync())
