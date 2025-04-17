@@ -87,7 +87,7 @@ namespace DrugWarehouseManagement.API.Controllers
 
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> GetLotTransfers([FromQuery] QueryPaging request)
+        public async Task<IActionResult> GetLotTransfers([FromQuery] LotTransferQueryPaging request)
         {
             var accountId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
