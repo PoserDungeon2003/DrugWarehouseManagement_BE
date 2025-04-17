@@ -20,8 +20,22 @@ namespace DrugWarehouseManagement.Service.Services
 
         public async Task CreateWarehouseAsync(CreateWarehouseRequest request)
         {
-            // Map the request to Warehouse entity
-            var warehouse = request.Adapt<Warehouse>();
+            var existedWarehouse = await _unitOfWork.WarehouseRepository
+                .GetByWhere(w => w.WarehouseName == request.WarehouseName)
+                .FirstOrDefaultAsync();
+            if (existedWarehouse != null && existedWarehouse.WarehouseName == request.WarehouseName)
+            {
+                throw new Exception("Tên kho này đã tồn tại.");
+            }
+            var existedDocumentNumber = await _unitOfWork.WarehouseRepository
+                .GetByWhere(w => w.DocumentNumber == request.DocumentNumber)
+                .FirstOrDefaultAsync();
+            if (existedDocumentNumber != null && existedDocumentNumber.DocumentNumber == request.DocumentNumber)
+            {
+                throw new Exception("Số chứng từ này đã tồn tại.");
+            }
+                // Map the request to Warehouse entity
+                var warehouse = request.Adapt<Warehouse>();
             await _unitOfWork.WarehouseRepository.CreateAsync(warehouse);
             await _unitOfWork.SaveChangesAsync();
         }
@@ -41,7 +55,7 @@ namespace DrugWarehouseManagement.Service.Services
                 }
                 else
                 {
-                    throw new Exception("Status is invalid.");
+                    throw new Exception("Trạng thái không hợp lệ.");
                 }
             }
             if (!string.IsNullOrEmpty(request.Search))
@@ -89,7 +103,7 @@ namespace DrugWarehouseManagement.Service.Services
                                 .FirstOrDefaultAsync(w => w.WarehouseId == warehouseId && w.Status == WarehouseStatus.Active);
             if (warehouse == null)
             {
-                throw new Exception("Warehouse not found or already inactive.");
+                throw new Exception("Không tìm thấy kho hoặc kho đã bị xóa.");
             }
             // Soft delete: update status to Inactive
             warehouse.Status = WarehouseStatus.Inactive;
@@ -99,7 +113,7 @@ namespace DrugWarehouseManagement.Service.Services
             return new BaseResponse
             {
                 Code = (int)System.Net.HttpStatusCode.OK,
-                Message = "Warehouse deleted successfully."
+                Message = "Xóa kho thành công."
             };
         }
     }

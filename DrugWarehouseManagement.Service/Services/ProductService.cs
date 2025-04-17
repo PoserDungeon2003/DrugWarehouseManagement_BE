@@ -23,6 +23,13 @@ namespace DrugWarehouseManagement.Service.Services
 
         public async Task<BaseResponse> CreateProductAsync(CreateProductRequest request)
         {
+            var existedProduct = await _unitOfWork.ProductRepository
+                    .GetByWhere(p => p.ProductName == request.ProductName)
+                    .FirstOrDefaultAsync();
+            if (existedProduct != null && existedProduct.ProductName == request.ProductName)
+            {
+                throw new Exception("Tên sản phẩm này đã tồn tại.");
+            }
             // Map the DTO to the Product entity
             var product = request.Adapt<Product>();
             // Add the product via the repository
@@ -32,7 +39,7 @@ namespace DrugWarehouseManagement.Service.Services
             return new BaseResponse
             {
                 Code = (int)HttpStatusCode.OK,
-                Message = "Product created successfully."
+                Message = "Tạo sản phẩm thành công."
             };
         }
 
@@ -55,7 +62,7 @@ namespace DrugWarehouseManagement.Service.Services
                 }
                 else
                 {
-                    throw new Exception("Status is invalid.");
+                    throw new Exception("Trạng thái không hợp lệ");
                 }
             }
 
@@ -86,7 +93,7 @@ namespace DrugWarehouseManagement.Service.Services
 
             if (product == null)
             {
-                throw new Exception("Product not found.");
+                throw new Exception("Không tìm thấy sản phẩm.");
             }
 
             if (request.ProductCategories != null)
@@ -141,7 +148,7 @@ namespace DrugWarehouseManagement.Service.Services
             return new BaseResponse
             {
                 Code = (int)HttpStatusCode.OK,
-                Message = "Product updated successfully."
+                Message = "Cập nhật sản phẩm thành công."
             };
         }
 
@@ -152,7 +159,7 @@ namespace DrugWarehouseManagement.Service.Services
 
             if (product == null)
             {
-                throw new Exception("Product not found.");
+                throw new Exception("Không tìm thấy sản phẩm.");
             }
             product.Status = ProductStatus.Inactive;
 
@@ -162,7 +169,7 @@ namespace DrugWarehouseManagement.Service.Services
             return new BaseResponse
             {
                 Code = (int)HttpStatusCode.OK,
-                Message = "Product deleted successfully."
+                Message = "Xóa sản phầm thành công."
             };
         }
     }
