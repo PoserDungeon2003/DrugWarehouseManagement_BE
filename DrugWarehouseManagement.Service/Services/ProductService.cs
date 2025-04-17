@@ -23,8 +23,17 @@ namespace DrugWarehouseManagement.Service.Services
 
         public async Task<BaseResponse> CreateProductAsync(CreateProductRequest request)
         {
+            var existedProduct = await _unitOfWork.ProductRepository
+                    .GetByWhere(p => p.ProductName == request.ProductName)
+                    .FirstOrDefaultAsync();
+            if (existedProduct != null && existedProduct.ProductName == request.ProductName)
+            {
+                throw new Exception("Tên sản phẩm này đã tồn tại.");
+            }
             // Map the DTO to the Product entity
             var product = request.Adapt<Product>();
+           
+                
             // Add the product via the repository
             await _unitOfWork.ProductRepository.CreateAsync(product);
             await _unitOfWork.SaveChangesAsync();
@@ -32,7 +41,7 @@ namespace DrugWarehouseManagement.Service.Services
             return new BaseResponse
             {
                 Code = (int)HttpStatusCode.OK,
-                Message = "Product created successfully."
+                Message = "Tạo sản phẩm thành công."
             };
         }
 
