@@ -104,7 +104,7 @@ namespace DrugWarehouseManagement.Service.Services
                         else
                         {
                             var newLot = detail.Adapt<Lot>();
-                            newLot.WarehouseId = inbound.WarehouseId ?? 0;
+                            newLot.WarehouseId = inbound.WarehouseId;
                             newLot.ProviderId = inbound.ProviderId;
 
                             await _unitOfWork.LotRepository.CreateAsync(newLot);

@@ -17,14 +17,14 @@ namespace DrugWarehouseManagement.Repository.Models
         public InboundStatus Status { get; set; } = InboundStatus.Pending;
         public int ProviderId { get; set; } // Provider
         public Guid AccountId { get; set; } // Created By
-        public int? WarehouseId { get; set; } // Warehouse
+        public int WarehouseId { get; set; } // Warehouse
         public int? InboundRequestId { get; set; }
 
 
         public virtual List<InboundDetails> InboundDetails { get; set; } = null!;
         public virtual Account Account { get; set; } = null!;
         public virtual Provider Provider { get; set; } = null!;
-        public virtual Warehouse? Warehouse { get; set; }
+        public virtual Warehouse Warehouse { get; set; } = null!;
         public virtual InboundRequest? InboundRequest { get; set; }
     }
 }
