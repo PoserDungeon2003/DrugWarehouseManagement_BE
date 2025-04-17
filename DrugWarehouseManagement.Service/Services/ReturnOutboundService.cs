@@ -171,7 +171,7 @@ namespace DrugWarehouseManagement.Service.Services
                         ManufacturingDate = inboundDetail.ManufacturingDate,
                         ExpiryDate = inboundDetail.ExpiryDate ?? DateOnly.FromDateTime(DateTime.Today),
                         ProductId = inboundDetail.ProductId,
-                        WarehouseId = inbound.WarehouseId?? 6,
+                        WarehouseId = inbound.WarehouseId,
                         ProviderId = inbound.ProviderId,
                         Quantity = inboundDetail.Quantity
                     };
