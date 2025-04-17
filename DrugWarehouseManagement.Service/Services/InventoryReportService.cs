@@ -140,8 +140,7 @@ namespace DrugWarehouseManagement.Service.Services
                 .Where(od => od.Lot.WarehouseId == warehouseId
                              && od.Outbound.OutboundDate >= startDate
                              && od.Outbound.OutboundDate <= endDate
-                             && od.Outbound.Status == OutboundStatus.Completed
-                             && od.Outbound.Status == OutboundStatus.Returned
+                             && (od.Outbound.Status == OutboundStatus.Completed || od.Outbound.Status == OutboundStatus.Returned)
                              && od.TotalPrice == 0)
                 .GroupBy(od => od.Lot.ProductId)
                 .Select(g => new { ProductId = g.Key, Qty = g.Sum(x => x.Quantity) })
@@ -346,6 +345,8 @@ namespace DrugWarehouseManagement.Service.Services
             // =========================
             var transferInList = await _unitOfWork.LotTransferDetailsRepository
                 .GetAll()
+                   .Include(d => d.LotTransfer)
+        .ThenInclude(lt => lt.FromWareHouse)
                 .Include(d => d.LotTransfer)
                     .ThenInclude(lt => lt.ToWareHouse)
                 .Include(d => d.Lot)
@@ -361,7 +362,7 @@ namespace DrugWarehouseManagement.Service.Services
                     TransferDate = g.First().LotTransfer.CreatedAt,
                     WarehouseDocNumber = g.First().LotTransfer.ToWareHouse.DocumentNumber,
                     WarehouseName = g.First().LotTransfer.ToWareHouse.WarehouseName,
-                    Note = "Chuyển kho vào",
+                    Note = $"Chuyển từ kho {g.First().LotTransfer.FromWareHouse.WarehouseName} sang kho {g.First().LotTransfer.ToWareHouse.WarehouseName}",
                     Qty = g.Sum(x => x.Quantity)
                 })
                 .ToListAsync();
@@ -421,7 +422,9 @@ namespace DrugWarehouseManagement.Service.Services
             var transferOutList = await _unitOfWork.LotTransferDetailsRepository
                 .GetAll()
                 .Include(d => d.LotTransfer)
-                    .ThenInclude(lt => lt.FromWareHouse)
+                        .ThenInclude(lt => lt.FromWareHouse)
+                .Include(d => d.LotTransfer)
+                        .ThenInclude(lt => lt.ToWareHouse)
                 .Include(d => d.Lot)
                 .Where(d => d.Lot.ProductId == productId
                             && d.LotTransfer.FromWareHouseId == warehouseId
@@ -435,7 +438,7 @@ namespace DrugWarehouseManagement.Service.Services
                     TransferDate = g.First().LotTransfer.CreatedAt,
                     CustomerDocNumber = g.First().LotTransfer.FromWareHouse.DocumentNumber,
                     CustomerName = g.First().LotTransfer.FromWareHouse.WarehouseName,
-                    Note = "Chuyển kho ra",
+                    Note = $"Chuyển từ kho {g.First().LotTransfer.FromWareHouse.WarehouseName} sang kho {g.First().LotTransfer.ToWareHouse.WarehouseName}",
                     Qty = g.Sum(x => x.Quantity)
                 })
                 .ToListAsync();
