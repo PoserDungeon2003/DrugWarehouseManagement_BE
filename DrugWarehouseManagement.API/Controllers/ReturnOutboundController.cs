@@ -2,6 +2,7 @@
 using DrugWarehouseManagement.Service.DTO.Response;
 using DrugWarehouseManagement.Service.Interface;
 using DrugWarehouseManagement.Service.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Client;
 
@@ -18,6 +19,7 @@ namespace DrugWarehouseManagement.API.Controllers
         }
 
         [HttpPost("create")]
+        [Authorize(Roles = "Sale Admin, Inventory Manager")]
         public async Task<IActionResult> CreateReturnOutbound([FromBody] CreateReturnOutboundRequest request)
         {
             try
@@ -40,6 +42,7 @@ namespace DrugWarehouseManagement.API.Controllers
         }
 
         [HttpGet("{outboundId}")]
+        [Authorize]
         public async Task<IActionResult> GetReturnOutbound(int outboundId)
         {
             var returnOutbound = await _returnOutboundService.GetReturnOutboundByOutboundIdAsync(outboundId);
@@ -55,6 +58,7 @@ namespace DrugWarehouseManagement.API.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> GetAllReturnOutbound()
         {
             var returnOutbound = await _returnOutboundService.GetAllReturnOutboundDetailsAsync();

@@ -21,7 +21,7 @@ namespace DrugWarehouseManagement.API.Controllers
         }
 
         [HttpPost]
-        [Authorize]
+        [Authorize(Roles = "Sale Admin, Accountant, Inventory Manager")]
         public async Task<IActionResult> CreateInboundReport([FromForm] CreateInboundReportRequest request)
         {
             try
@@ -41,7 +41,7 @@ namespace DrugWarehouseManagement.API.Controllers
         }
 
         [HttpPut]
-        [Authorize]
+        [Authorize(Roles = "Sale Admin, Accountant, Inventory Manager")]
         public async Task<IActionResult> UpdateInboundReport([FromForm] UpdateInboundReportRequest request)
         {
             try

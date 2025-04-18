@@ -18,6 +18,7 @@ namespace DrugWarehouseManagement.API.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Sale Admin, Inventory Manager")]
         public async Task<IActionResult> CreateLot([FromBody] CreateLotRequest request)
         {
             try
@@ -36,6 +37,7 @@ namespace DrugWarehouseManagement.API.Controllers
         }
 
         [HttpPut]
+        [Authorize(Roles = "Sale Admin, Inventory Manager")]
         public async Task<IActionResult> UpdateLot([FromBody] UpdateLotRequest request)
         {
             try
@@ -54,6 +56,7 @@ namespace DrugWarehouseManagement.API.Controllers
         }
 
         [HttpDelete("{lotId}")]
+        [Authorize(Roles = "Sale Admin, Inventory Manager")]
         public async Task<IActionResult> DeleteLot(int lotId)
         {
             try
@@ -72,6 +75,7 @@ namespace DrugWarehouseManagement.API.Controllers
         }
 
         [HttpGet("{lotId}")]
+        [Authorize]
         public async Task<IActionResult> GetLotById(int lotId)
         {
             try
@@ -90,13 +94,14 @@ namespace DrugWarehouseManagement.API.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> GetLotsPaginated([FromQuery] LotQueryPaging request)
         {
             try
             {
                 var result = await _lotService.GetLotsPaginatedAsync(request);
                 return Ok(result);
-            }   
+            }
             catch (Exception ex)
             {
                 return BadRequest(new BaseResponse

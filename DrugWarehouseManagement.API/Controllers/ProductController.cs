@@ -19,7 +19,7 @@ namespace DrugWarehouseManagement.API.Controllers
 
         // POST: api/Product
         [HttpPost]
-        [Authorize]
+        [Authorize(Roles = "Sale Admin")]
         public async Task<IActionResult> CreateProduct([FromBody] CreateProductRequest request)
         {
             try
@@ -44,6 +44,7 @@ namespace DrugWarehouseManagement.API.Controllers
 
         // GET: api/Product/search?page=1&pageSize=10&search=...
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> GetProducts([FromQuery] GetProductRequest request)
         {
             try
@@ -63,6 +64,7 @@ namespace DrugWarehouseManagement.API.Controllers
 
         // PUT: api/Product/{id}
         [HttpPut("{id}")]
+        [Authorize(Roles = "Sale Admin")]
         public async Task<IActionResult> UpdateProduct(int id, [FromBody] UpdateProductRequest request)
         {
             try
@@ -86,6 +88,7 @@ namespace DrugWarehouseManagement.API.Controllers
 
         // DELETE: api/Product/{id}
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Sale Admin")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
             try

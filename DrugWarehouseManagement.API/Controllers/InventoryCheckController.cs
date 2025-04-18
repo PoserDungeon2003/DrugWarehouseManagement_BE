@@ -19,7 +19,7 @@ namespace DrugWarehouseManagement.API.Controllers
         }
 
         [HttpPost]
-        [Authorize]
+        [Authorize(Roles = "Inventory Manager")]
         public async Task<IActionResult> CreateInventoryCheck([FromBody] CreateInventoryCheckRequest request)
         {
             try
@@ -45,6 +45,7 @@ namespace DrugWarehouseManagement.API.Controllers
         }
 
         [HttpGet("{inventoryCheckId}/pdf")]
+        [Authorize]
         public async Task<IActionResult> GetInventoryCheckPdf(int inventoryCheckId)
         {
             try
@@ -63,6 +64,7 @@ namespace DrugWarehouseManagement.API.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> GetInventoryChecksPaginated([FromQuery] QueryPaging request)
         {
             try

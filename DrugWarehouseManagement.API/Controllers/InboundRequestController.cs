@@ -19,7 +19,7 @@ namespace DrugWarehouseManagement.API.Controllers
         }
 
         [HttpPost]
-        [Authorize]
+        [Authorize(Roles = "Sale Admin")]
         public async Task<IActionResult> CreateInboundRequest([FromForm] CreateInboundOrderRequest request)
         {
             try
@@ -45,7 +45,7 @@ namespace DrugWarehouseManagement.API.Controllers
         }
 
         [HttpPut]
-        [Authorize]
+        [Authorize(Roles = "Sale Admin")]
         public async Task<IActionResult> UpdateInboundRequest([FromForm] UpdateInboundOrderRequest request)
         {
             try
@@ -65,7 +65,7 @@ namespace DrugWarehouseManagement.API.Controllers
         }
 
         [HttpPut("status")]
-        [Authorize]
+        [Authorize(Roles = "Sale Admin, Accountant, Inventory Manager, Director")]
         public async Task<IActionResult> UpdateInboundRequestStatus([FromBody] UpdateInboundOrderStatusRequest request)
         {
             try
@@ -85,6 +85,7 @@ namespace DrugWarehouseManagement.API.Controllers
         }
 
         [HttpGet("{inboundId}")]
+        [Authorize]
         public async Task<IActionResult> GetInboundRequestById(int inboundId)
         {
             try
@@ -103,6 +104,7 @@ namespace DrugWarehouseManagement.API.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> GetInboundRequestsPaginated([FromQuery] InboundRequestQueryPaging request)
         {
             try

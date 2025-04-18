@@ -21,7 +21,7 @@ namespace DrugWarehouseManagement.API.Controllers
         }
 
         [HttpPost]
-        [Authorize]
+        [Authorize(Roles = "Sale Admin, Inventory Manager")]
         public async Task<IActionResult> CreateInbound([FromBody] CreateInboundRequest request)
         {
             try
@@ -41,7 +41,7 @@ namespace DrugWarehouseManagement.API.Controllers
         }
 
         [HttpPut]
-        [Authorize]
+        [Authorize(Roles = "Sale Admin, Inventory Manager")]
         public async Task<IActionResult> UpdateInbound([FromBody] UpdateInboundRequest request)
         {
             try
@@ -61,7 +61,7 @@ namespace DrugWarehouseManagement.API.Controllers
         }
 
         [HttpPut("status")]
-        [Authorize]
+        [Authorize(Roles = "Sale Admin, Inventory Manager")]
         public async Task<IActionResult> UpdateInboundStatus([FromBody] UpdateInboundStatusRequest request)
         {
             try
@@ -81,6 +81,7 @@ namespace DrugWarehouseManagement.API.Controllers
         }
 
         [HttpGet("{inboundId}")]
+        [Authorize]
         public async Task<IActionResult> GetInboundById(int inboundId)
         {
             try
@@ -99,6 +100,7 @@ namespace DrugWarehouseManagement.API.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> GetInboundsPaginated([FromQuery] InboundtQueryPaging request)
         {
             try
@@ -117,6 +119,7 @@ namespace DrugWarehouseManagement.API.Controllers
         }
 
         [HttpGet("{inboundId}/pdf")]
+        [Authorize]
         public async Task<IActionResult> GetInboundPdf(int inboundId)
         {
             try
@@ -139,6 +142,7 @@ namespace DrugWarehouseManagement.API.Controllers
         }
 
         [HttpGet("{inboundId}/inbound-report")]
+        [Authorize]
         public async Task<IActionResult> GetInboundReportById(int inboundId)
         {
             try
