@@ -22,7 +22,7 @@ namespace DrugWarehouseManagement.API.Controllers
         }
 
         [HttpPost]
-        [Authorize]
+        [Authorize(Roles = "Sale Admin, Inventory Manager")]
         public async Task<IActionResult> CreateLotTransfer([FromBody] LotTransferRequest request)
         {
             var accountId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -65,7 +65,7 @@ namespace DrugWarehouseManagement.API.Controllers
         }
 
         [HttpPost("cancel/{id}")]
-        [Authorize]
+        [Authorize(Roles = "Sale Admin, Inventory Manager")]
         public async Task<IActionResult> CancelLotTransfer([FromRoute] int id)
         {
             var accountId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -128,7 +128,7 @@ namespace DrugWarehouseManagement.API.Controllers
         }
 
         [HttpPut]
-        [Authorize]
+        [Authorize(Roles = "Sale Admin, Inventory Manager")]
         public async Task<IActionResult> UpdateLotTransfer([FromBody] UpdateLotTransferRequest request)
         {
             var accountId = User.FindFirstValue(ClaimTypes.NameIdentifier);

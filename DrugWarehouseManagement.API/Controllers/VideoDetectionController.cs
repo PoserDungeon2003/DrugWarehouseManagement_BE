@@ -1,4 +1,5 @@
 ﻿using DrugWarehouseManagement.Service.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DrugWarehouseManagement.API.Controllers
@@ -15,6 +16,7 @@ namespace DrugWarehouseManagement.API.Controllers
         }
 
         [HttpPost("detect")]
+        [Authorize]
         public async Task<IActionResult> DetectProductsInVideo(IFormFile videoFile)
         {
             if (videoFile == null || videoFile.Length == 0)
