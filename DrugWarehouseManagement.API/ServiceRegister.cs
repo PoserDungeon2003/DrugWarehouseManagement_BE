@@ -128,6 +128,7 @@ namespace DrugWarehouseManagement.API
             services.AddScoped<ICategoriesService, CategoriesService>();
             services.AddScoped<IInventoryReportService, InventoryReportService>();
             services.AddScoped<IReturnOutboundService,ReturnOutboundService >();
+            services.AddScoped<IDashboardService, DashboardService>();
             //services.AddScoped<IInventoryReportService, InventoryReportService>();
             services.AddScoped<IDeviceService, DeviceService>();
             services.AddScoped<IInboundRequestService, InboundRequestService>();
