@@ -75,6 +75,7 @@ namespace DrugWarehouseManagement.Service.Services
             // Update inbound details
             inbound.Status = request.InboundStatus;
             inbound.AccountId = accountId;
+            inbound.InboundDate = SystemClock.Instance.GetCurrentInstant();
             inbound.UpdatedAt = SystemClock.Instance.GetCurrentInstant();
 
             await _unitOfWork.InboundRepository.UpdateAsync(inbound);
@@ -183,6 +184,7 @@ namespace DrugWarehouseManagement.Service.Services
             }
 
             inbound.AccountId = accountId;
+            inbound.InboundDate = SystemClock.Instance.GetCurrentInstant();
             inbound.UpdatedAt = SystemClock.Instance.GetCurrentInstant();
             request.Adapt(inbound);
 
