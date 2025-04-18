@@ -27,11 +27,30 @@ namespace DrugWarehouseManagement.UnitTest
         }
 
         [Fact]
-        public async Task CreateProductAsync_CreatesProductSuccessfully()
+        public async Task CreateProductAsync_ProductAlreadyExists_ThrowsException()
         {
             // Arrange
-            var request = new CreateProductRequest { ProductName = "Product1" };
+            var request = new CreateProductRequest { ProductName = "ExistingProduct" };
+            var existingProduct = new Product { ProductName = "ExistingProduct" };
 
+            _unitOfWorkMock.Setup(uow => uow.ProductRepository
+                .GetByWhere(It.IsAny<System.Linq.Expressions.Expression<Func<Product, bool>>>()))
+                .Returns(new List<Product> { existingProduct }.AsQueryable().BuildMock());
+
+            // Act & Assert
+            var exception = await Assert.ThrowsAsync<Exception>(() => _productService.CreateProductAsync(request));
+            Assert.Equal("Tên sản phẩm này đã tồn tại.", exception.Message);
+        }
+
+        [Fact]
+        public async Task CreateProductAsync_SavesProductSuccessfully()
+        {
+            // Arrange
+            var request = new CreateProductRequest { ProductName = "NewProduct" };
+
+            _unitOfWorkMock.Setup(uow => uow.ProductRepository
+                .GetByWhere(It.IsAny<System.Linq.Expressions.Expression<Func<Product, bool>>>()))
+                .Returns(new List<Product>().AsQueryable().BuildMock());
             _unitOfWorkMock.Setup(uow => uow.ProductRepository.CreateAsync(It.IsAny<Product>()))
                 .Returns(Task.CompletedTask);
             _unitOfWorkMock.Setup(uow => uow.SaveChangesAsync())
@@ -42,7 +61,7 @@ namespace DrugWarehouseManagement.UnitTest
 
             // Assert
             Assert.Equal((int)HttpStatusCode.OK, response.Code);
-            Assert.Equal("Product created successfully.", response.Message);
+            Assert.Equal("Tạo sản phẩm thành công.", response.Message);
             _unitOfWorkMock.Verify(uow => uow.ProductRepository.CreateAsync(It.IsAny<Product>()), Times.Once);
             _unitOfWorkMock.Verify(uow => uow.SaveChangesAsync(), Times.Once);
         }
@@ -102,7 +121,7 @@ namespace DrugWarehouseManagement.UnitTest
 
             // Assert
             Assert.Equal((int)HttpStatusCode.OK, response.Code);
-            Assert.Equal("Product updated successfully.", response.Message);
+            Assert.Equal("Cập nhật sản phẩm thành công.", response.Message);
             Assert.Equal("NewName", product.ProductName);
             _unitOfWorkMock.Verify(uow => uow.ProductRepository.UpdateAsync(It.IsAny<Product>()), Times.Once);
             _unitOfWorkMock.Verify(uow => uow.SaveChangesAsync(), Times.Once);
@@ -144,7 +163,7 @@ namespace DrugWarehouseManagement.UnitTest
 
             // Assert
             Assert.Equal((int)HttpStatusCode.OK, response.Code);
-            Assert.Equal("Product updated successfully.", response.Message);
+            Assert.Equal("Cập nhật sản phẩm thành công.", response.Message);
             _unitOfWorkMock.Verify(uow => uow.ProductCategoriesRepository.DeleteRangeAsync(It.Is<IEnumerable<ProductCategories>>(c => c.Count() == 1 && c.First().CategoriesId == 2)), Times.Once);
             _unitOfWorkMock.Verify(uow => uow.ProductRepository.UpdateAsync(It.IsAny<Product>()), Times.Once);
             _unitOfWorkMock.Verify(uow => uow.SaveChangesAsync(), Times.Once);
@@ -182,7 +201,7 @@ namespace DrugWarehouseManagement.UnitTest
 
             // Assert
             Assert.Equal((int)HttpStatusCode.OK, response.Code);
-            Assert.Equal("Product deleted successfully.", response.Message);
+            Assert.Equal("Xóa sản phầm thành công.", response.Message);
             Assert.Equal(ProductStatus.Inactive, product.Status);
             _unitOfWorkMock.Verify(uow => uow.ProductRepository.UpdateAsync(It.IsAny<Product>()), Times.Once);
             _unitOfWorkMock.Verify(uow => uow.SaveChangesAsync(), Times.Once);

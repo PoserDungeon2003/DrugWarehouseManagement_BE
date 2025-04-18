@@ -45,7 +45,7 @@ namespace DrugWarehouseManagement.UnitTest
 
             // Assert
             Assert.Equal((int)HttpStatusCode.OK, response.Code);
-            Assert.Equal("Provider created successfully.", response.Message);
+            Assert.Equal("Tạo nhà cung cấp thành công.", response.Message);
             _unitOfWorkMock.Verify(uow => uow.ProviderRepository.CreateAsync(It.IsAny<Provider>()), Times.Once);
             _unitOfWorkMock.Verify(uow => uow.SaveChangesAsync(), Times.Once);
         }
@@ -80,7 +80,7 @@ namespace DrugWarehouseManagement.UnitTest
 
             // Assert
             Assert.Equal((int)HttpStatusCode.OK, response.Code);
-            Assert.Equal("Provider deleted successfully.", response.Message);
+            Assert.Equal("Xóa nhà cung cấp thành công.", response.Message);
             Assert.Equal(ProviderStatus.Deleted, provider.Status);
             _unitOfWorkMock.Verify(uow => uow.ProviderRepository.UpdateAsync(It.IsAny<Provider>()), Times.Once);
             _unitOfWorkMock.Verify(uow => uow.SaveChangesAsync(), Times.Once);
@@ -169,7 +169,7 @@ namespace DrugWarehouseManagement.UnitTest
 
             // Assert
             Assert.Equal((int)HttpStatusCode.OK, response.Code);
-            Assert.Equal("Provider updated successfully.", response.Message);
+            Assert.Equal("Cập nhật thành công.", response.Message);
             _unitOfWorkMock.Verify(uow => uow.ProviderRepository.UpdateAsync(It.IsAny<Provider>()), Times.Once);
             _unitOfWorkMock.Verify(uow => uow.SaveChangesAsync(), Times.Once);
         }

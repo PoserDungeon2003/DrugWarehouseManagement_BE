@@ -1,6 +1,7 @@
 ﻿using DrugWarehouseManagement.Service.DTO.Request;
 using DrugWarehouseManagement.Service.DTO.Response;
 using DrugWarehouseManagement.Service.Interface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DrugWarehouseManagement.API.Controllers
@@ -17,6 +18,7 @@ namespace DrugWarehouseManagement.API.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Sale Admin")]
         public async Task<IActionResult> CreateCustomer([FromBody] CreateCustomerRequest request)
         {
             try
@@ -35,6 +37,7 @@ namespace DrugWarehouseManagement.API.Controllers
         }
 
         [HttpGet("{customerId}")]
+        [Authorize]
         public async Task<IActionResult> GetCustomerDetailById(int customerId)
         {
             try
@@ -53,6 +56,7 @@ namespace DrugWarehouseManagement.API.Controllers
         }
 
         [HttpPut("{customerId}")]
+        [Authorize(Roles = "Sale Admin")]
         public async Task<IActionResult> UpdateCustomer(int customerId, [FromBody] UpdateCustomerRequest request)
         {
             try
@@ -74,6 +78,7 @@ namespace DrugWarehouseManagement.API.Controllers
         }
 
         [HttpDelete("{customerId}")]
+        [Authorize(Roles = "Sale Admin")]
         public async Task<IActionResult> DeleteCustomer(int customerId)
         {
             try
@@ -92,6 +97,7 @@ namespace DrugWarehouseManagement.API.Controllers
         }
 
         [HttpGet("loyal")]
+        [Authorize]
         public async Task<IActionResult> GetLoyalCustomers()
         {
             try
@@ -110,6 +116,7 @@ namespace DrugWarehouseManagement.API.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> SearchCustomers([FromQuery] SearchCustomerRequest request)
         {
             try

@@ -59,11 +59,14 @@ namespace DrugWarehouseManagement.Service.Services
                 throw new Exception("Can't cancel lot with status not Pending");
             }
 
-            foreach (var detail in lotTransfer.LotTransferDetails)
+            if (lotTransfer.LotTransferDetails != null && lotTransfer.LotTransferDetails.Any())
             {
-                var lot = await _unitOfWork.LotRepository.GetByIdAsync(detail.LotId);
-                lot.Quantity += detail.Quantity; // Trả lại số lượng lô hàng
-                await _unitOfWork.LotRepository.UpdateAsync(lot);
+                foreach (var detail in lotTransfer.LotTransferDetails)
+                {
+                    var lot = await _unitOfWork.LotRepository.GetByIdAsync(detail.LotId);
+                    lot.Quantity += detail.Quantity; // Trả lại số lượng lô hàng
+                    await _unitOfWork.LotRepository.UpdateAsync(lot);
+                }
             }
 
             lotTransfer.LotTransferStatus = Common.LotTransferStatus.Cancelled;
@@ -134,8 +137,8 @@ namespace DrugWarehouseManagement.Service.Services
                 await _unitOfWork.LotRepository.UpdateAsync(lot);
 
                 // Kiểm tra có lô hàng nào trong kho tới trùng thông tin không
-                var lotInWarehouseTo = await _unitOfWork.LotRepository
-                                    .GetByWhere(l => l.LotId == detail.LotId && l.WarehouseId == request.ToWareHouseId)
+                var getLotByLotNumber = await _unitOfWork.LotRepository
+                                    .GetByWhere(l => l.LotNumber == lot.LotNumber && l.WarehouseId == request.ToWareHouseId)
                                     .FirstOrDefaultAsync();
 
                 // Kiểm tra mã lô mới có expiry date đã tồn tại chưa
@@ -145,10 +148,10 @@ namespace DrugWarehouseManagement.Service.Services
                 //}
 
                 // Nếu có thì cộng thêm số lượng
-                if (lotInWarehouseTo != null)
+                if (getLotByLotNumber != null)
                 {
-                    lotInWarehouseTo.Quantity += detail.Quantity;
-                    await _unitOfWork.LotRepository.UpdateAsync(lotInWarehouseTo);
+                    getLotByLotNumber.Quantity += detail.Quantity;
+                    await _unitOfWork.LotRepository.UpdateAsync(getLotByLotNumber);
                     continue;
                 }
 
@@ -170,6 +173,8 @@ namespace DrugWarehouseManagement.Service.Services
             var lotTransfer = request.Adapt<LotTransfer>();
             lotTransfer.LotTransferDetails = groupedDetails.Adapt<List<LotTransferDetail>>();
             lotTransfer.AccountId = accountId;
+            lotTransfer.LotTransferCode = $"LT-{DateTime.Now.ToString("yyyyMMddHHmmss")}";
+            lotTransfer.LotTransferStatus = LotTransferStatus.Completed;
 
             await _unitOfWork.LotTransferRepository.CreateAsync(lotTransfer);
             await _unitOfWork.SaveChangesAsync();
@@ -317,6 +322,7 @@ namespace DrugWarehouseManagement.Service.Services
         {
             var lotTransfer = await _unitOfWork.LotTransferRepository
                                     .GetByWhere(lt => lt.LotTransferId == lotTransferId)
+                                    .Include(a => a.Account)
                                     .Include(w => w.FromWareHouse)
                                     .Include(w => w.ToWareHouse)
                                     .Include(lt => lt.LotTransferDetails)
@@ -331,7 +337,7 @@ namespace DrugWarehouseManagement.Service.Services
             return lotTransfer.Adapt<ViewLotTransfer>();
         }
 
-        public async Task<PaginatedResult<ViewLotTransfer>> GetLotTransfers(QueryPaging queryPaging)
+        public async Task<PaginatedResult<ViewLotTransfer>> GetLotTransfers(LotTransferQueryPaging queryPaging)
         {
             var lotTransfers = _unitOfWork.LotTransferRepository
                                     .GetAll()
@@ -377,6 +383,12 @@ namespace DrugWarehouseManagement.Service.Services
                 }
                 lotTransfers = lotTransfers.Where(lt => lt.CreatedAt <= dateTo.Value);
             }
+
+            if (queryPaging.Status != null)
+            {
+                lotTransfers = lotTransfers.Where(lt => lt.LotTransferStatus == queryPaging.Status);
+            }
+            
             var result = await lotTransfers.ToPaginatedResultAsync(queryPaging.Page, queryPaging.PageSize);
 
             return result.Adapt<PaginatedResult<ViewLotTransfer>>();

@@ -23,11 +23,11 @@ namespace DrugWarehouseManagement.Common
             const string upperCaseLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
             const string lowerCaseLetters = "abcdefghijklmnopqrstuvwxyz";
             const string digits = "0123456789";
-            //const string specialCharacters = "!@#$%^&*()-_+=<>?";
+            const string specialCharacters = "!@#$%^&*()-_+=<>?";
 
             // Combine all character groups
-            string allCharacters = upperCaseLetters + lowerCaseLetters + digits;
-            //+ specialCharacters;
+            string allCharacters = upperCaseLetters + lowerCaseLetters + digits
+                                + specialCharacters;
 
             var random = new Random();
             var passwordBuilder = new StringBuilder();
@@ -36,7 +36,7 @@ namespace DrugWarehouseManagement.Common
             passwordBuilder.Append(upperCaseLetters[random.Next(upperCaseLetters.Length)]);
             passwordBuilder.Append(lowerCaseLetters[random.Next(lowerCaseLetters.Length)]);
             passwordBuilder.Append(digits[random.Next(digits.Length)]);
-            //passwordBuilder.Append(specialCharacters[random.Next(specialCharacters.Length)]);
+            passwordBuilder.Append(specialCharacters[random.Next(specialCharacters.Length)]);
 
             // Fill the remaining length with random characters from all groups
             for (int i = 4; i < length; i++)

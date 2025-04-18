@@ -1,6 +1,7 @@
 ﻿using DrugWarehouseManagement.Service.DTO.Request;
 using DrugWarehouseManagement.Service.DTO.Response;
 using DrugWarehouseManagement.Service.Interface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DrugWarehouseManagement.API.Controllers
@@ -17,6 +18,7 @@ namespace DrugWarehouseManagement.API.Controllers
 
         // POST: api/Warehouse
         [HttpPost]
+        [Authorize(Roles = "Sale Admin")]
         public async Task<IActionResult> CreateWarehouse([FromBody] CreateWarehouseRequest request)
         {
             try
@@ -40,6 +42,7 @@ namespace DrugWarehouseManagement.API.Controllers
 
         // GET: api/Warehouse/search?page=1&pageSize=10&search=...
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> SearchWarehouse([FromQuery] SearchWarehouseRequest request)
         {
             try
@@ -59,6 +62,7 @@ namespace DrugWarehouseManagement.API.Controllers
 
         // PUT: api/Warehouse/{id}
         [HttpPut("{id}")]
+        [Authorize(Roles = "Sale Admin")]
         public async Task<IActionResult> UpdateWarehouse(int id, [FromBody] UpdateWarehouseRequest request)
         {
             try
@@ -81,6 +85,7 @@ namespace DrugWarehouseManagement.API.Controllers
         }
         // DELETE: api/Warehouse/{id}
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Sale Admin")]
         public async Task<IActionResult> DeleteWarehouse(int id)
         {
             try

@@ -27,10 +27,48 @@ namespace DrugWarehouseManagement.UnitTest
         }
 
         [Fact]
+        public async Task CreateWarehouseAsync_WarehouseNameExists_ThrowsException()
+        {
+            // Arrange
+            var request = new CreateWarehouseRequest { WarehouseName = "ExistingWarehouse", DocumentNumber = "DOC123" };
+            var existingWarehouse = new Warehouse { WarehouseName = "ExistingWarehouse" };
+
+            _unitOfWorkMock.Setup(uow => uow.WarehouseRepository
+                .GetByWhere(It.IsAny<System.Linq.Expressions.Expression<Func<Warehouse, bool>>>()))
+                .Returns(new List<Warehouse> { existingWarehouse }.AsQueryable().BuildMock());
+
+            // Act & Assert
+            var exception = await Assert.ThrowsAsync<Exception>(() => _warehouseService.CreateWarehouseAsync(request));
+            Assert.Equal("Tên kho này đã tồn tại.", exception.Message);
+        }
+
+        [Fact]
+        public async Task CreateWarehouseAsync_DocumentNumberExists_ThrowsException()
+        {
+            // Arrange
+            var request = new CreateWarehouseRequest { WarehouseName = "NewWarehouse", DocumentNumber = "DOC123" };
+            var existingWarehouse = new Warehouse { DocumentNumber = "DOC123" };
+
+            _unitOfWorkMock.SetupSequence(uow => uow.WarehouseRepository
+                .GetByWhere(It.IsAny<System.Linq.Expressions.Expression<Func<Warehouse, bool>>>()))
+                .Returns(new List<Warehouse>().AsQueryable().BuildMock()) // No warehouse name conflict
+                .Returns(new List<Warehouse> { existingWarehouse }.AsQueryable().BuildMock()); // Document number conflict
+
+            // Act & Assert
+            var exception = await Assert.ThrowsAsync<Exception>(() => _warehouseService.CreateWarehouseAsync(request));
+            Assert.Equal("Số chứng từ này đã tồn tại.", exception.Message);
+        }
+
+        [Fact]
         public async Task CreateWarehouseAsync_CreatesWarehouseSuccessfully()
         {
             // Arrange
-            var request = new CreateWarehouseRequest { WarehouseName = "Warehouse1", Address = "Address1" };
+            var request = new CreateWarehouseRequest { WarehouseName = "NewWarehouse", DocumentNumber = "DOC123" };
+
+            _unitOfWorkMock.SetupSequence(uow => uow.WarehouseRepository
+                .GetByWhere(It.IsAny<System.Linq.Expressions.Expression<Func<Warehouse, bool>>>()))
+                .Returns(new List<Warehouse>().AsQueryable().BuildMock()) // No warehouse name conflict
+                .Returns(new List<Warehouse>().AsQueryable().BuildMock()); // No document number conflict
             _unitOfWorkMock.Setup(uow => uow.WarehouseRepository.CreateAsync(It.IsAny<Warehouse>()))
                 .Returns(Task.CompletedTask);
             _unitOfWorkMock.Setup(uow => uow.SaveChangesAsync())
@@ -134,7 +172,7 @@ namespace DrugWarehouseManagement.UnitTest
 
             // Assert
             Assert.Equal((int)HttpStatusCode.OK, response.Code);
-            Assert.Equal("Warehouse deleted successfully.", response.Message);
+            Assert.Equal("Xóa kho thành công.", response.Message);
             Assert.Equal(WarehouseStatus.Inactive, warehouse.Status);
             _unitOfWorkMock.Verify(uow => uow.WarehouseRepository.UpdateAsync(It.IsAny<Warehouse>()), Times.Once);
             _unitOfWorkMock.Verify(uow => uow.SaveChangesAsync(), Times.Once);

@@ -150,7 +150,8 @@ namespace DrugWarehouseManagement.Repository.Models
                 new Warehouse { WarehouseId = 2, WarehouseCode = "KHUY-01", WarehouseName = "Kho Hủy", Address = "Khu vực xử lý hàng lỗi, Đường Số 7, KCN Vĩnh Lộc, Bình Chánh, TP.HCM", Status = WarehouseStatus.Active, DocumentNumber = "KH20250409-002" },
                 new Warehouse { WarehouseId = 3, WarehouseCode = "KTHU-01", WarehouseName = "Kho Thuốc", Address = "Số 3B Đường Nguyễn Văn Quá, Đông Hưng Thuận, Quận 12, TP.HCM", Status = WarehouseStatus.Active, DocumentNumber = "KT20250409-003" },
                 new Warehouse { WarehouseId = 4, WarehouseCode = "KMP-01", WarehouseName = "Kho Mỹ Phẩm", Address = "Số 1 Lê Duẩn, Bến Nghé, Quận 1, TP.HCM", Status = WarehouseStatus.Active, DocumentNumber = "KMP20250409-004" },
-                new Warehouse { WarehouseId = 5, WarehouseCode = "KTH-01", WarehouseName = "Kho Trung Hạnh", Address = "Số 88 Đường 3 Tháng 2, Phường 11, Quận 10, TP.HCM", Status = WarehouseStatus.Active, DocumentNumber = "KTH20250409-005" }
+                new Warehouse { WarehouseId = 5, WarehouseCode = "KTH-01", WarehouseName = "Kho Trung Hạnh", Address = "Số 88 Đường 3 Tháng 2, Phường 11, Quận 10, TP.HCM", Status = WarehouseStatus.Active, DocumentNumber = "KTH20250409-005" },
+                new Warehouse { WarehouseId = 6, WarehouseCode = "KTAMTHOI-01", WarehouseName = "Kho Tạm", Address = "Số 95 Đường 3 Tháng 2, Phường 11, Quận 10, TP.HCM", Status = WarehouseStatus.Active, DocumentNumber = "KTAMTHOI20250409-006" }  
             );
             // 5. Seed Products
             modelBuilder.Entity<Product>().HasData(
@@ -182,91 +183,7 @@ namespace DrugWarehouseManagement.Repository.Models
                 new Customer { CustomerId = 9, CustomerName = "Lâm Chấn Khang", Address = "852 Đường Kinh Dương Vương, Phường An Lạc, Quận Bình Tân, TP. Hồ Chí Minh", PhoneNumber = "0933224466", Email = "chankhang.lam@vitanet.vn", IsLoyal = true, Status = CustomerStatus.Active, DocumentNumber = "KH-LCKH-250409-009" },
                 new Customer { CustomerId = 10, CustomerName = "Trương Thị Mỹ Linh", Address = "951 Đường Trần Hưng Đạo, Phường 1, Quận 5, TP. Hồ Chí Minh", PhoneNumber = "0976543210", Email = "mylinh.truong@hcmtelecom.vn", IsLoyal = false, Status = CustomerStatus.Active, DocumentNumber = "KH-TTML-250409-010" }
             );
-            modelBuilder.Entity<InboundRequest>().HasData(
-                     new InboundRequest { InboundRequestId = 1, InboundRequestCode = "REQ-001", AccountId = Guid.Parse("44444444-4444-4444-4444-444444444441"), CreatedAt = Instant.FromDateTimeUtc(new DateTime(2025, 03, 01, 0, 0, 0, DateTimeKind.Utc)), Status = InboundRequestStatus.Completed },
-                     new InboundRequest { InboundRequestId = 2, InboundRequestCode = "REQ-002", AccountId = Guid.Parse("44444444-4444-4444-4444-444444444441"), CreatedAt = Instant.FromDateTimeUtc(new DateTime(2025, 03, 05, 0, 0, 0, DateTimeKind.Utc)), Status = InboundRequestStatus.Completed },
-                     new InboundRequest { InboundRequestId = 3, InboundRequestCode = "REQ-003", AccountId = Guid.Parse("44444444-4444-4444-4444-444444444441"), CreatedAt = Instant.FromDateTimeUtc(new DateTime(2025, 03, 10, 0, 0, 0, DateTimeKind.Utc)), Status = InboundRequestStatus.Completed },
-                     new InboundRequest { InboundRequestId = 4, InboundRequestCode = "REQ-004", AccountId = Guid.Parse("44444444-4444-4444-4444-444444444441"), CreatedAt = Instant.FromDateTimeUtc(new DateTime(2025, 03, 15, 0, 0, 0, DateTimeKind.Utc)), Status = InboundRequestStatus.Completed },
-                     new InboundRequest { InboundRequestId = 5, InboundRequestCode = "REQ-005", AccountId = Guid.Parse("44444444-4444-4444-4444-444444444441"), CreatedAt = Instant.FromDateTimeUtc(new DateTime(2025, 03, 20, 0, 0, 0, DateTimeKind.Utc)), Status = InboundRequestStatus.Completed }
-            );
-            modelBuilder.Entity<InboundRequestDetails>().HasData(
-                     new InboundRequestDetails { InboundRequestDetailsId = 1, InboundRequestId = 1, ProductId = 1, Quantity = 100, UnitPrice = 25, TotalPrice = 2500 },
-                     new InboundRequestDetails { InboundRequestDetailsId = 2, InboundRequestId = 1, ProductId = 2, Quantity = 350, UnitPrice = 30.5M, TotalPrice = 10675 },
-                     new InboundRequestDetails { InboundRequestDetailsId = 3, InboundRequestId = 2, ProductId = 3, Quantity = 200, UnitPrice = 35, TotalPrice = 7000 },
-                     new InboundRequestDetails { InboundRequestDetailsId = 4, InboundRequestId = 3, ProductId = 4, Quantity = 400, UnitPrice = 25.5M, TotalPrice = 10200 },
-                     new InboundRequestDetails { InboundRequestDetailsId = 5, InboundRequestId = 4, ProductId = 5, Quantity = 250, UnitPrice = 47.5M, TotalPrice = 11875 }
-            );
-            modelBuilder.Entity<Inbound>().HasData(
-                     new Inbound { InboundId = 1, InboundCode = "INB-001", InboundRequestId = 1, WarehouseId = 1, InboundDate = Instant.FromDateTimeUtc(new DateTime(2025, 03, 02, 0, 0, 0, DateTimeKind.Utc)), AccountId = Guid.Parse("44444444-4444-4444-4444-444444444443"), Status = InboundStatus.Completed, ProviderId = 1 },
-                     new Inbound { InboundId = 2, InboundCode = "INB-002", InboundRequestId = 2, WarehouseId = 2, InboundDate = Instant.FromDateTimeUtc(new DateTime(2025, 03, 06, 0, 0, 0, DateTimeKind.Utc)), AccountId = Guid.Parse("44444444-4444-4444-4444-444444444443"), Status = InboundStatus.Completed, ProviderId = 2 },
-                     new Inbound { InboundId = 3, InboundCode = "INB-003", InboundRequestId = 3, WarehouseId = 1, InboundDate = Instant.FromDateTimeUtc(new DateTime(2025, 03, 11, 0, 0, 0, DateTimeKind.Utc)), AccountId = Guid.Parse("44444444-4444-4444-4444-444444444443"), Status = InboundStatus.Completed, ProviderId = 3 },
-                     new Inbound { InboundId = 4, InboundCode = "INB-004", InboundRequestId = 4, WarehouseId = 3, InboundDate = Instant.FromDateTimeUtc(new DateTime(2025, 03, 16, 0, 0, 0, DateTimeKind.Utc)), AccountId = Guid.Parse("44444444-4444-4444-4444-444444444443"), Status = InboundStatus.Completed, ProviderId = 4 },
-                     new Inbound { InboundId = 5, InboundCode = "INB-005", InboundRequestId = 5, WarehouseId = 2, InboundDate = Instant.FromDateTimeUtc(new DateTime(2025, 03, 21, 0, 0, 0, DateTimeKind.Utc)), AccountId = Guid.Parse("44444444-4444-4444-4444-444444444443"), Status = InboundStatus.Completed, ProviderId = 5 },
-                     new Inbound { InboundId = 6, InboundCode = "INB-006", WarehouseId = 1, InboundDate = Instant.FromDateTimeUtc(new DateTime(2025, 03, 26, 0, 0, 0, DateTimeKind.Utc)), AccountId = Guid.Parse("44444444-4444-4444-4444-444444444443"), Status = InboundStatus.Completed, ProviderId = 1 },
-                     new Inbound { InboundId = 7, InboundCode = "INB-P9", InboundRequestId = null, WarehouseId = 1, InboundDate = Instant.FromDateTimeUtc(new DateTime(2025, 03, 10, 0, 0, 0, DateTimeKind.Utc)), AccountId = Guid.Parse("44444444-4444-4444-4444-444444444443"), Status = InboundStatus.Completed, ProviderId = 1 }
-            );
-            // Seed InboundDetails với ID bắt đầu từ 1, UnitPrice theo đơn vị VNĐ (ví dụ: 25.000 VNĐ biểu diễn là 25000M)
-            modelBuilder.Entity<InboundDetails>().HasData(
-                    new InboundDetails { InboundDetailsId = 1, InboundId = 1, ProductId = 1, Quantity = 100, LotNumber = "LOT-001", OpeningStock = 80, UnitPrice = 25000M, TotalPrice = 100 * 25000M, ExpiryDate = DateOnly.FromDateTime(new DateTime(2026, 03, 01)), ManufacturingDate = DateOnly.FromDateTime(new DateTime(2025, 03, 01)) },
-                    new InboundDetails { InboundDetailsId = 2, InboundId = 1, ProductId = 2, Quantity = 350, LotNumber = "LOT-002", OpeningStock = 100, UnitPrice = 30500M, TotalPrice = 350 * 30500M, ExpiryDate = DateOnly.FromDateTime(new DateTime(2027, 06, 15)), ManufacturingDate = DateOnly.FromDateTime(new DateTime(2025, 06, 15)) },
-                    new InboundDetails { InboundDetailsId = 3, InboundId = 2, ProductId = 3, Quantity = 200, LotNumber = "LOT-003", OpeningStock = 50, UnitPrice = 35000M, TotalPrice = 200 * 35000M, ExpiryDate = DateOnly.FromDateTime(new DateTime(2025, 12, 10)), ManufacturingDate = DateOnly.FromDateTime(new DateTime(2024, 12, 10)) },
-                    new InboundDetails { InboundDetailsId = 4, InboundId = 3, ProductId = 4, Quantity = 400, LotNumber = "LOT-004", OpeningStock = 60, UnitPrice = 25500M, TotalPrice = 400 * 25500M, ExpiryDate = DateOnly.FromDateTime(new DateTime(2026, 09, 20)), ManufacturingDate = DateOnly.FromDateTime(new DateTime(2025, 09, 20)) },
-                    new InboundDetails { InboundDetailsId = 5, InboundId = 4, ProductId = 5, Quantity = 250, LotNumber = "LOT-005", OpeningStock = 30, UnitPrice = 47500M, TotalPrice = 250 * 47500M, ExpiryDate = DateOnly.FromDateTime(new DateTime(2027, 02, 05)), ManufacturingDate = DateOnly.FromDateTime(new DateTime(2026, 02, 05)) },
-                    new InboundDetails { InboundDetailsId = 6, InboundId = 6, ProductId = 1, Quantity = 30, LotNumber = "LOT-001", OpeningStock = 80, UnitPrice = 25000M, TotalPrice = 30 * 25000M, ExpiryDate = DateOnly.FromDateTime(new DateTime(2026, 03, 01)), ManufacturingDate = DateOnly.FromDateTime(new DateTime(2025, 03, 01)) },
-                    new InboundDetails { InboundDetailsId = 7, InboundId = 7, ProductId = 9, Quantity = 50, LotNumber = "LOT-P9-NHAP", OpeningStock = 0, UnitPrice = 15000M, TotalPrice = 50 * 15000M, ExpiryDate = DateOnly.FromDateTime(new DateTime(2027, 02, 01)), ManufacturingDate = DateOnly.FromDateTime(new DateTime(2025, 02, 01)) }
-            );
-
-            //Lot
-
-            modelBuilder.Entity<Lot>().HasData(
-                new Lot { LotId = 1, LotNumber = "LOT-001", ProductId = 1, Quantity = 180, WarehouseId = 1, ProviderId = 1, ManufacturingDate = DateOnly.FromDateTime(new DateTime(2025, 03, 01)), ExpiryDate = DateOnly.FromDateTime(new DateTime(2025, 03, 01)) },
-                new Lot { LotId = 2, LotNumber = "LOT-002", ProductId = 2, Quantity = 450, WarehouseId = 1, ProviderId = 1, ManufacturingDate = DateOnly.FromDateTime(new DateTime(2025, 06, 15)), ExpiryDate = DateOnly.FromDateTime(new DateTime(2027, 06, 15)) },
-                new Lot { LotId = 3, LotNumber = "LOT-003", ProductId = 3, Quantity = 250, WarehouseId = 2, ProviderId = 2, ManufacturingDate = DateOnly.FromDateTime(new DateTime(2024, 12, 10)), ExpiryDate = DateOnly.FromDateTime(new DateTime(2025, 12, 10)) },
-                new Lot { LotId = 4, LotNumber = "LOT-004", ProductId = 4, Quantity = 460, WarehouseId = 1, ProviderId = 3, ManufacturingDate = DateOnly.FromDateTime(new DateTime(2025, 09, 20)), ExpiryDate = DateOnly.FromDateTime(new DateTime(2026, 09, 20)) },
-                new Lot { LotId = 5, LotNumber = "LOT-005", ProductId = 5, Quantity = 280, WarehouseId = 3, ProviderId = 4, ManufacturingDate = DateOnly.FromDateTime(new DateTime(2026, 02, 05)), ExpiryDate = DateOnly.FromDateTime(new DateTime(2027, 02, 05)) },
-                new Lot { LotId = 16, LotNumber = "LOT-P10-KHO2", ProductId = 10, Quantity = 250, WarehouseId = 2, ProviderId = 1, ManufacturingDate = DateOnly.FromDateTime(new DateTime(2025, 01, 01)), ExpiryDate = DateOnly.FromDateTime(new DateTime(2027, 06, 30)) },
-                new Lot { LotId = 15, LotNumber = "LOT-P9-NHAP", ProductId = 9, Quantity = 50, WarehouseId = 1, ProviderId = 1, ManufacturingDate = DateOnly.FromDateTime(new DateTime(2025, 02, 01)), ExpiryDate = DateOnly.FromDateTime(new DateTime(2027, 02, 01)) }
-                );
-
-
-            modelBuilder.Entity<Outbound>().HasData(
-                new Outbound { OutboundId = 1, OutboundCode = "OUT-001", CustomerId = 1, ReceiverName = "Alice Nguyen", ReceiverPhone = "0901234567", ReceiverAddress = "123 ABC Street", OutboundOrderCode = null, TrackingNumber = null, Note = "Xuất toàn bộ lô LOT-001", OutboundDate = Instant.FromDateTimeUtc(new DateTime(2025, 03, 25, 0, 0, 0, DateTimeKind.Utc)), Status = OutboundStatus.Pending, AccountId = Guid.Parse("44444444-4444-4444-4444-444444444441") },
-                new Outbound { OutboundId = 2, OutboundCode = "OUT-002", CustomerId = 2, ReceiverName = "Bob Tran", ReceiverPhone = "0912345678", ReceiverAddress = "456 DEF Avenue", OutboundOrderCode = null, TrackingNumber = null, Note = "Xuất 200 đơn vị từ lô LOT-002 (trong tổng số 450)", OutboundDate = Instant.FromDateTimeUtc(new DateTime(2025, 03, 26, 0, 0, 0, DateTimeKind.Utc)), Status = OutboundStatus.Completed, AccountId = Guid.Parse("44444444-4444-4444-4444-444444444441") },
-                new Outbound { OutboundId = 3, OutboundCode = "OUT-003", CustomerId = 3, ReceiverName = "Charlie Le", ReceiverPhone = "0923456789", ReceiverAddress = "789 GHI Blvd", OutboundOrderCode = null, TrackingNumber = null, Note = "Xuất toàn bộ lô LOT-003", OutboundDate = Instant.FromDateTimeUtc(new DateTime(2025, 03, 27, 0, 0, 0, DateTimeKind.Utc)), Status = OutboundStatus.Returned, AccountId = Guid.Parse("44444444-4444-4444-4444-444444444441") },
-                new Outbound { OutboundId = 4, OutboundCode = "OUT-004", CustomerId = 4, ReceiverName = "David Pham", ReceiverPhone = "0934567890", ReceiverAddress = "101 JKL Road", OutboundOrderCode = null, TrackingNumber = null, Note = "Xuất 300 đơn vị từ lô LOT-004 (trong tổng số 460)", OutboundDate = Instant.FromDateTimeUtc(new DateTime(2025, 03, 28, 0, 0, 0, DateTimeKind.Utc)), Status = OutboundStatus.Pending, AccountId = Guid.Parse("44444444-4444-4444-4444-444444444441") },
-                new Outbound { OutboundId = 5, OutboundCode = "OUT-005", CustomerId = 5, ReceiverName = "Eva Hoang", ReceiverPhone = "0945678901", ReceiverAddress = "202 MNO Lane", OutboundOrderCode = null, TrackingNumber = null, Note = "Xuất toàn bộ lô LOT-005", OutboundDate = Instant.FromDateTimeUtc(new DateTime(2025, 03, 29, 0, 0, 0, DateTimeKind.Utc)), Status = OutboundStatus.Pending, AccountId = Guid.Parse("44444444-4444-4444-4444-444444444441") },
-                new Outbound { OutboundId = 6, OutboundCode = "OUT-006", CustomerId = 3, ReceiverName = "Frank Vu", ReceiverPhone = "0956789012", ReceiverAddress = "303 PQR Terrace", OutboundOrderCode = null, TrackingNumber = null, Note = "Xuất toàn bộ lô LOT-P10-KHO2", OutboundDate = Instant.FromDateTimeUtc(new DateTime(2025, 03, 30, 0, 0, 0, DateTimeKind.Utc)), Status = OutboundStatus.Completed, AccountId = Guid.Parse("44444444-4444-4444-4444-444444444441") },
-                new Outbound { OutboundId = 7, OutboundCode = "OUT-007", CustomerId = 2, ReceiverName = "Grace Dao", ReceiverPhone = "0967890123", ReceiverAddress = "404 STU Street", OutboundOrderCode = null, TrackingNumber = null, Note = "Xuất toàn bộ lô LOT-P9-NHAP", OutboundDate = Instant.FromDateTimeUtc(new DateTime(2025, 03, 31, 0, 0, 0, DateTimeKind.Utc)), Status = OutboundStatus.Returned, AccountId = Guid.Parse("44444444-4444-4444-4444-444444444441") }
-            );
-
-            modelBuilder.Entity<OutboundDetails>().HasData(
-                 new OutboundDetails { OutboundDetailsId = 1, OutboundId = 1, LotId = 1, Quantity = 180, UnitPrice = 20000M, TotalPrice = 180 * 20000M },
-                 new OutboundDetails { OutboundDetailsId = 2, OutboundId = 2, LotId = 2, Quantity = 200, UnitPrice = 30000M, TotalPrice = 200 * 30000M },
-                 new OutboundDetails { OutboundDetailsId = 3, OutboundId = 3, LotId = 3, Quantity = 250, UnitPrice = 35000M, TotalPrice = 250 * 35000M },
-                 new OutboundDetails { OutboundDetailsId = 4, OutboundId = 4, LotId = 4, Quantity = 300, UnitPrice = 25000M, TotalPrice = 300 * 25000M },
-                 new OutboundDetails { OutboundDetailsId = 5, OutboundId = 5, LotId = 5, Quantity = 280, UnitPrice = 40000M, TotalPrice = 280 * 40000M },
-                 new OutboundDetails { OutboundDetailsId = 6, OutboundId = 6, LotId = 16, Quantity = 250, UnitPrice = 50000M, TotalPrice = 250 * 50000M },
-                 new OutboundDetails { OutboundDetailsId = 7, OutboundId = 7, LotId = 15, Quantity = 50, UnitPrice = 15000M, TotalPrice = 50 * 15000M }
-            );
-
-
-            modelBuilder.Entity<LotTransfer>().HasData(
-                new LotTransfer { LotTransferId = 1, LotTransferCode = "LT-001", FromWareHouseId = 1, ToWareHouseId = 2, AccountId = Guid.Parse("44444444-4444-4444-4444-444444444442"), CreatedAt = Instant.FromDateTimeUtc(new DateTime(2025, 03, 03, 0, 0, 0, DateTimeKind.Utc)), LotTransferStatus = LotTransferStatus.Completed },
-                new LotTransfer { LotTransferId = 2, LotTransferCode = "LT-002", FromWareHouseId = 1, ToWareHouseId = 3, AccountId = Guid.Parse("44444444-4444-4444-4444-444444444442"), CreatedAt = Instant.FromDateTimeUtc(new DateTime(2025, 03, 07, 0, 0, 0, DateTimeKind.Utc)), LotTransferStatus = LotTransferStatus.Completed },
-                new LotTransfer { LotTransferId = 3, LotTransferCode = "LT-003", FromWareHouseId = 2, ToWareHouseId = 1, AccountId = Guid.Parse("44444444-4444-4444-4444-444444444442"), CreatedAt = Instant.FromDateTimeUtc(new DateTime(2025, 03, 12, 0, 0, 0, DateTimeKind.Utc)), LotTransferStatus = LotTransferStatus.Completed },
-                new LotTransfer { LotTransferId = 4, LotTransferCode = "LT-004", FromWareHouseId = 3, ToWareHouseId = 1, AccountId = Guid.Parse("44444444-4444-4444-4444-444444444442"), CreatedAt = Instant.FromDateTimeUtc(new DateTime(2025, 03, 17, 0, 0, 0, DateTimeKind.Utc)), LotTransferStatus = LotTransferStatus.Completed },
-                new LotTransfer { LotTransferId = 6, LotTransferCode = "LT-P10-IN", FromWareHouseId = 2, ToWareHouseId = 1, AccountId = Guid.Parse("44444444-4444-4444-4444-444444444442"), CreatedAt = Instant.FromDateTimeUtc(new DateTime(2025, 03, 08, 0, 0, 0, DateTimeKind.Utc)), LotTransferStatus = LotTransferStatus.Completed }
-
-
-
-                );
-            modelBuilder.Entity<LotTransferDetail>().HasData(
-                new LotTransferDetail { LotTransferDetailId = 1, LotTransferId = 1, LotId = 1, Quantity = 50 },
-                new LotTransferDetail { LotTransferDetailId = 2, LotTransferId = 1, LotId = 2, Quantity = 100 },
-                new LotTransferDetail { LotTransferDetailId = 3, LotTransferId = 2, LotId = 3, Quantity = 75 },
-                new LotTransferDetail { LotTransferDetailId = 4, LotTransferId = 3, LotId = 4, Quantity = 150 },
-                new LotTransferDetail { LotTransferDetailId = 6, LotTransferId = 6, LotId = 16, Quantity = 250 }
-                );
+         
 
         }
         private string HashPassword(string password)

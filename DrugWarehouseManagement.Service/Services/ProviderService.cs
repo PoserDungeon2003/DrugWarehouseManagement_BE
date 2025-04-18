@@ -35,7 +35,7 @@ namespace DrugWarehouseManagement.Service.Services
                                         .FirstOrDefaultAsync();
             if (provider != null)
             {
-                throw new Exception("Provider already exist.");
+                throw new Exception("Nhà cung cấp này đã tồn tại");
             }
 
             var existedDocumentNumber = await _unitOfWork.ProviderRepository
@@ -44,7 +44,7 @@ namespace DrugWarehouseManagement.Service.Services
 
             if(existedDocumentNumber != null && existedDocumentNumber.DocumentNumber == request.DocumentNumber)
             {
-                throw new Exception("Document number already exist.");
+                throw new Exception("Số chứng từ này đã tồn tại.");
             }
             // Map the DTO to the Provider entity
             provider = request.Adapt<Provider>();
@@ -56,7 +56,7 @@ namespace DrugWarehouseManagement.Service.Services
             return new BaseResponse
             {
                 Code = (int)HttpStatusCode.OK,
-                Message = "Provider created successfully."
+                Message = "Tạo nhà cung cấp thành công."
             };
         }
 
@@ -67,7 +67,7 @@ namespace DrugWarehouseManagement.Service.Services
                   .FirstOrDefaultAsync();
             if (provider == null)
             {
-                throw new Exception("Provider not found.");
+                throw new Exception("Không tìm thấy nhà cung cấp hoặc nhà cung cấp đã bị xóa trước đó.");
             }
             provider.Status = ProviderStatus.Deleted;
             await _unitOfWork.ProviderRepository.UpdateAsync(provider);
@@ -75,7 +75,7 @@ namespace DrugWarehouseManagement.Service.Services
             return new BaseResponse
             {
                 Code = (int)HttpStatusCode.OK,
-                Message = "Provider deleted successfully."
+                Message = "Xóa nhà cung cấp thành công."
             };
         }
 
@@ -85,7 +85,7 @@ namespace DrugWarehouseManagement.Service.Services
                  .GetByWhere(x => x.ProviderId == providerId).FirstOrDefaultAsync();
             if (provider == null)
             {
-                throw new Exception("Provider not found.");
+                throw new Exception("Không tìm thấy nhà cung cấp.");
             }
             return provider.Adapt<ProviderResponse>();
         }
@@ -140,7 +140,7 @@ namespace DrugWarehouseManagement.Service.Services
 
             if (provider == null)
             {
-                throw new Exception("Provider not found.");
+                throw new Exception("Không tìm thấy nhà cung cấp.");
             }
             if (!string.IsNullOrEmpty(request.Status))
             {
@@ -150,7 +150,7 @@ namespace DrugWarehouseManagement.Service.Services
                 }
                 else
                 {
-                    throw new Exception("Status is invalid.");
+                    throw new Exception("Trạng thái không hợp lệ.");
                 }
             }
             request.Adapt(provider);
@@ -160,7 +160,7 @@ namespace DrugWarehouseManagement.Service.Services
             return new BaseResponse
             {
                 Code = (int)HttpStatusCode.OK,
-                Message = "Provider updated successfully."
+                Message = "Cập nhật thành công."
             };
         }
     }

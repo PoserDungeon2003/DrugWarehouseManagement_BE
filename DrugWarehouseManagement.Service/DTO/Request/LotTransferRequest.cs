@@ -12,8 +12,6 @@ namespace DrugWarehouseManagement.Service.DTO.Request
     public class LotTransferRequest
     {
         [Required]
-        public string LotTransferCode { get; set; } = null!;
-        [Required]
         [Range(1, int.MaxValue, ErrorMessage = "FromWareHouseId must be a positive number.")]
         public int FromWareHouseId { get; set; }
         [Required]

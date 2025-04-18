@@ -1,6 +1,7 @@
 ﻿using DrugWarehouseManagement.Service.DTO.Request;
 using DrugWarehouseManagement.Service.DTO.Response;
 using DrugWarehouseManagement.Service.Interface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Runtime.CompilerServices;
 
@@ -10,12 +11,13 @@ namespace DrugWarehouseManagement.API.Controllers
     [ApiController]
     public class ProviderController : ControllerBase
     {
-        private readonly IProviderService _providerService;   
+        private readonly IProviderService _providerService;
         public ProviderController(IProviderService providerService)
         {
             _providerService = providerService;
         }
         [HttpPost]
+        [Authorize(Roles = "Sale Admin")]
         public async Task<IActionResult> CreateProdivder([FromBody] CreateProviderRequest request)
         {
             try
@@ -33,6 +35,7 @@ namespace DrugWarehouseManagement.API.Controllers
             }
         }
         [HttpDelete("{providerId}")]
+        [Authorize(Roles = "Sale Admin")]
         public async Task<IActionResult> DeleteProvider(int providerId)
         {
             try
@@ -50,6 +53,7 @@ namespace DrugWarehouseManagement.API.Controllers
             }
         }
         [HttpPut("{providerId}")]
+        [Authorize(Roles = "Sale Admin")]
         public async Task<IActionResult> UpdateProvider(int providerId, [FromBody] UpdateProviderRequest request)
         {
             try
@@ -67,6 +71,7 @@ namespace DrugWarehouseManagement.API.Controllers
             }
         }
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> SearchProviders([FromQuery] QueryPaging queryPaging)
         {
             try
@@ -85,6 +90,7 @@ namespace DrugWarehouseManagement.API.Controllers
         }
 
         [HttpGet("{providerId}")]
+        [Authorize]
         public async Task<IActionResult> GetProvider(int providerId)
         {
             try

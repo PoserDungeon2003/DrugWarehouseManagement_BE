@@ -1,6 +1,7 @@
 ﻿using DrugWarehouseManagement.Service.DTO.Response;
 using DrugWarehouseManagement.Service.Interface;
 using DrugWarehouseManagement.Service.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NodaTime.Text;
 
@@ -15,8 +16,8 @@ namespace DrugWarehouseManagement.API.Controllers
         {
             _reportService = reportService;
         }
-        
         [HttpGet("export")]
+        [Authorize]
         public async Task <IActionResult> ExportInventoryReportPdf(
            [FromQuery] int warehouseId,
            [FromQuery] string from,
@@ -51,6 +52,7 @@ namespace DrugWarehouseManagement.API.Controllers
         }
 
         [HttpGet("export-stockcard")]
+        [Authorize]
         public async Task<IActionResult> ExportStockCardPdf(
             [FromQuery] int warehouseId,
             [FromQuery] int productId,

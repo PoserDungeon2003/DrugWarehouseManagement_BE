@@ -195,7 +195,7 @@ namespace DrugWarehouseManagement.Service.Services
             return category.Adapt<ViewCategories>();
         }
 
-        public async Task<PaginatedResult<ViewCategories>> GetListCategories(QueryPaging query)
+        public async Task<PaginatedResult<ViewCategories>> GetListCategories(CategoriesQueryPaging query)
         {
             var categories = _unitOfWork.CategoriesRepository.GetAll()
                                     .Include(c => c.ParentCategory)
@@ -204,6 +204,18 @@ namespace DrugWarehouseManagement.Service.Services
                                     .ThenByDescending(lt => lt.UpdatedAt)
                                     .ThenByDescending(lt => lt.CreatedAt)
                                     .AsQueryable();
+
+            if (query.IsMainCategory != null)
+            {
+                if (query.IsMainCategory == true)
+                {
+                    categories = categories.Where(c => c.ParentCategoryId == null);
+                }
+                else
+                {
+                    categories = categories.Where(c => c.ParentCategoryId != null);
+                }
+            }
 
             if (!string.IsNullOrEmpty(query.Search))
             {

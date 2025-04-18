@@ -26,12 +26,24 @@ namespace DrugWarehouseManagement.Service.Services
 
         public async Task<BaseResponse> CreateCustomerAsync(CreateCustomerRequest request)
         {
+            var existedCustomer = await _unitOfWork.CustomerRepository
+                .GetByWhere(c => c.PhoneNumber == request.PhoneNumber)
+                .FirstOrDefaultAsync();
+            if (existedCustomer != null && existedCustomer.PhoneNumber == request.PhoneNumber)
+            {
+                throw new Exception("Khách hàng với số điện thoại này đã tồn tại.");
+            }
+            var existedDocumentNumber = await _unitOfWork.CustomerRepository
+                .GetByWhere(c => c.DocumentNumber == request.DocumentNumber)
+                .FirstOrDefaultAsync();
+            if (existedDocumentNumber != null && existedDocumentNumber.DocumentNumber == request.DocumentNumber)
+            {
+                throw new Exception(" Khách hàng với Số chứng từ này đã tồn tại.");
+            }
             var customer = request.Adapt<Customer>();
             await _unitOfWork.CustomerRepository.CreateAsync(customer);
             await _unitOfWork.SaveChangesAsync();
             return new BaseResponse { Message = "Tạo khách hàng thành công" };
-
-
         }
 
         public async Task<BaseResponse> DeleteCustomerAsync(int customerId)
@@ -41,7 +53,7 @@ namespace DrugWarehouseManagement.Service.Services
                 .FirstOrDefaultAsync(c => c.CustomerId == customerId);
             if (customer == null || customer.Status == CustomerStatus.Inactive)
             {
-                throw new Exception("Customer not found or already inactive.");
+                throw new Exception("Không tìm thấy khác hàng hoặc đã bị xóa .");
             }
             customer.Status = CustomerStatus.Inactive;
             await _unitOfWork.SaveChangesAsync();
@@ -55,7 +67,7 @@ namespace DrugWarehouseManagement.Service.Services
                 .FirstOrDefaultAsync(c => c.CustomerId == customerId);
             if (customer == null || customer.Status == CustomerStatus.Inactive)
             {
-                throw new Exception("Customer not found or inactive.");
+                throw new Exception("Không tìm thấy khách hàng.");
             }
             return customer.Adapt<CustomerResponse>();
         }

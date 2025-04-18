@@ -84,6 +84,7 @@ namespace DrugWarehouseManagement.API.Controllers
         /// Example: GET api/outbounds/search?page=1&pageSize=10&search=OUTB-1234
         /// </summary>
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> SearchOutbounds([FromQuery] SearchOutboundRequest request)
         {
             try
@@ -103,6 +104,7 @@ namespace DrugWarehouseManagement.API.Controllers
         }
         
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<IActionResult> GetOutboundById(int id)
         {
             try
