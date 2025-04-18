@@ -48,7 +48,7 @@ namespace DrugWarehouseManagement.Service.Services
 
             if (account == null)
             {
-                throw new Exception("Account not found");
+                throw new Exception("Không tìm thấy tài khoản");
             }
 
             account.Status = AccountStatus.Active;
@@ -56,7 +56,7 @@ namespace DrugWarehouseManagement.Service.Services
             return new BaseResponse
             {
                 Code = 200,
-                Message = "Account activated successfully"
+                Message = "Tài khoản đã được kích hoạt thành công"
             };
         }
 
@@ -65,7 +65,7 @@ namespace DrugWarehouseManagement.Service.Services
             var account = await _unitOfWork.AccountRepository.GetByIdAsync(accountId);
             if (account == null)
             {
-                throw new Exception("Account not found");
+                throw new Exception("Không tìm thấy tài khoản");
             }
 
             account.tOTPSecretKey = null;
@@ -79,7 +79,7 @@ namespace DrugWarehouseManagement.Service.Services
             return new BaseResponse
             {
                 Code = 200,
-                Message = "Two factor authenticator reset successfully"
+                Message = "Tài khoản đã được reset 2FA thành công"
             };
         }
 
@@ -89,14 +89,14 @@ namespace DrugWarehouseManagement.Service.Services
 
             if (account == null)
             {
-                throw new Exception("Account not found");
+                throw new Exception("Không tìm thấy tài khoản");
             }
 
             var verifyPassword = _passwordHelper.VerifyHashedPassword(account, account.PasswordHash, request.OldPassword);
 
             if (verifyPassword == PasswordVerificationResult.Failed)
             {
-                throw new Exception("Old password is incorrect");
+                throw new Exception("Mật khẩu cũ không chính xác");
             }
 
             var hashedPassword = _passwordHelper.HashPassword(account, request.NewPassword);
@@ -106,7 +106,7 @@ namespace DrugWarehouseManagement.Service.Services
             return new BaseResponse
             {
                 Code = 200,
-                Message = "Password changed successfully"
+                Message = "Đổi mật khẩu thành công",
             };
         }
 
@@ -116,24 +116,24 @@ namespace DrugWarehouseManagement.Service.Services
 
             if (account == null)
             {
-                throw new Exception("Account not found");
+                throw new Exception("Không tìm thấy tài khoản");
             }
 
             if (account.TwoFactorAuthenticatorStatus == TwoFactorAuthenticatorSetupStatus.Completed)
             {
-                throw new Exception("Two factor authenticator is already confirmed");
+                throw new Exception("Xác thực 2FA đã hoàn tất");
             }
 
             var verifyCode = VerifyTwoFactorCode(account.tOTPSecretKey, request.OTPCode.Trim());
 
             if (!verifyCode)
             {
-                throw new Exception("Two factor code is incorrect");
+                throw new Exception("Mã xác thực 2FA không chính xác");
             }
 
             if (account.OTPCode != null && request.OTPCode == Utils.Base64Decode(account.OTPCode))
             {
-                throw new Exception("Two factor code is already used");
+                throw new Exception("Mã xác thực 2FA đã được sử dụng trước đó");
             }
 
             account.OTPCode = Utils.Base64Encode(request.OTPCode.Trim());
@@ -144,7 +144,7 @@ namespace DrugWarehouseManagement.Service.Services
             return new BaseResponse
             {
                 Code = 200,
-                Message = "Two factor authenticator confirmed successfully"
+                Message = "Xác thực 2FA thành công",
             };
         }
 
@@ -159,7 +159,7 @@ namespace DrugWarehouseManagement.Service.Services
 
             if (existedAccount != null)
             {
-                throw new Exception("Account already existed");
+                throw new Exception("Tài khoản đã tồn tại");
             }
 
             var account = request.Adapt<Account>();
@@ -176,7 +176,7 @@ namespace DrugWarehouseManagement.Service.Services
             htmlTemplate = htmlTemplate.Replace("{{Username}}", account.UserName)
                                        .Replace("{{Password}}", randomPassword);
 
-            await _emailService.SendEmailAsync(account.Email, "Account Created", htmlTemplate);
+            await _emailService.SendEmailAsync(account.Email, "Tài khoản đã được tạo", htmlTemplate);
             
             await _unitOfWork.AccountRepository.CreateAsync(account);
             await _unitOfWork.SaveChangesAsync();
@@ -186,7 +186,7 @@ namespace DrugWarehouseManagement.Service.Services
             return new BaseResponse
             {
                 Code = 200,
-                Message = "Account created successfully, please check your (spam) inbox for login credentials",
+                Message = "Tài khoản đã được tạo thành công, vui lòng kiểm tra email để biết thông tin đăng nhập",
             };
         }
 
@@ -196,7 +196,7 @@ namespace DrugWarehouseManagement.Service.Services
 
             if (account == null)
             {
-                throw new Exception("Account not found");
+                throw new Exception("Tài khoản không tồn tại");
             }
 
             account.Status = AccountStatus.Inactive;
@@ -204,7 +204,7 @@ namespace DrugWarehouseManagement.Service.Services
             return new BaseResponse
             {
                 Code = 200,
-                Message = "Account deactivated successfully"
+                Message = "Tài khoản đã được vô hiệu hóa thành công"
             };
         }
 
@@ -214,7 +214,7 @@ namespace DrugWarehouseManagement.Service.Services
 
             if (account == null)
             {
-                throw new Exception("Account not found");
+                throw new Exception("Tài khoản không tồn tại");
             }
 
             account.Status = AccountStatus.Deleted;
@@ -222,7 +222,7 @@ namespace DrugWarehouseManagement.Service.Services
             return new BaseResponse
             {
                 Code = 200,
-                Message = "Account deleted successfully"
+                Message = "Tài khoản đã được xóa thành công"
             };
         }
 
@@ -234,7 +234,7 @@ namespace DrugWarehouseManagement.Service.Services
 
             if (account == null)
             {
-                throw new Exception("Account not found");
+                throw new Exception("Tài khoản không tồn tại");
             }
 
             return account.Adapt<ViewAccount>();
@@ -260,36 +260,36 @@ namespace DrugWarehouseManagement.Service.Services
 
             if (account == null)
             {
-                throw new Exception("Account not found");
+                throw new Exception("Tài khoản không tồn tại");
             }
 
             if (account.Status == AccountStatus.Inactive)
             {
-                throw new Exception("Account is inactive, please contact your administrator to re-active your account");
+                throw new Exception("Tài khoản đã bị vô hiệu hóa, vui lòng liên hệ với quản trị viên để kích hoạt lại tài khoản");
             }
 
             if (account.Status == AccountStatus.Deleted)
             {
-                throw new Exception("Account is deleted, please contact your administrator to re-active your account");
+                throw new Exception("Tài khoản đã bị xóa, vui lòng liên hệ với quản trị viên để biết thêm thông tin");
             }
 
             if (account.TwoFactorEnabled)
             {
                 if (request.OTPCode == null)
                 {
-                    throw new Exception("Two factor code is required");
+                    throw new Exception("Mã xác thực 2FA là bắt buộc");
                 }
 
                 var verify = VerifyTwoFactorCode(account.tOTPSecretKey, request.OTPCode.Trim());
 
                 if (!verify)
                 {
-                    throw new Exception("Two factor code is incorrect");
+                    throw new Exception("Mã xác thực 2FA không chính xác");
                 }
 
                 if (!String.IsNullOrEmpty(account.OTPCode) && request.OTPCode == Utils.Base64Decode(account.OTPCode))
                 {
-                    throw new Exception("Two factor code is already used");
+                    throw new Exception("Mã xác thực 2FA đã được sử dụng trước đó");
                 }
 
                 account.OTPCode = Utils.Base64Encode(request.OTPCode.Trim());
@@ -342,7 +342,7 @@ namespace DrugWarehouseManagement.Service.Services
 
             if (verifyPassword == PasswordVerificationResult.Failed)
             {
-                throw new Exception("Password is incorrect");
+                throw new Exception("Mật khẩu không chính xác");
             }
 
             account.ConcurrencyStamp = Guid.NewGuid().ToString();
@@ -363,7 +363,7 @@ namespace DrugWarehouseManagement.Service.Services
             var principal = _tokenHandler.ValidateRefreshToken(request.RefreshToken);
             if (principal == null)
             {
-                throw new UnauthorizedAccessException("Invalid refresh token");
+                throw new UnauthorizedAccessException("Refresh token không hợp lệ hoặc đã hết hạn");
             }
 
             var accountId = principal.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -373,7 +373,7 @@ namespace DrugWarehouseManagement.Service.Services
                                                             .FirstOrDefaultAsync();
             if (account == null)
             {
-                throw new Exception("Account not found");
+                throw new Exception("Tài khoản không tồn tại");
             }
 
             account.ConcurrencyStamp = Guid.NewGuid().ToString();
@@ -393,7 +393,7 @@ namespace DrugWarehouseManagement.Service.Services
 
             if (account == null)
             {
-                throw new Exception("Account not found");
+                throw new Exception("Tài khoản không tồn tại");
             }
 
             var randomPassword = Utils.GenerateRandomPassword();
@@ -406,13 +406,13 @@ namespace DrugWarehouseManagement.Service.Services
             htmlTemplate = htmlTemplate.Replace("{{Username}}", account.UserName)
                                        .Replace("{{Password}}", randomPassword);
 
-            await _emailService.SendEmailAsync(account.Email, "Reset Password", htmlTemplate);
+            await _emailService.SendEmailAsync(account.Email, "Đặt lại mật khẩu", htmlTemplate);
             await _unitOfWork.SaveChangesAsync();
 
             return new BaseResponse
             {
                 Code = 200,
-                Message = "Password reset successfully, please check your (spam) inbox for new login credentials",
+                Message = "Mật khẩu đã được đặt lại thành công, vui lòng kiểm tra email để biết thông tin đăng nhập",
             };
         }
 
@@ -422,12 +422,12 @@ namespace DrugWarehouseManagement.Service.Services
 
             if (account == null)
             {
-                throw new Exception("Account not found");
+                throw new Exception("Tài khoản không tồn tại");
             }
 
             if (account.TwoFactorEnabled)
             {
-                throw new Exception("Two factor authenticator is already setup");
+                throw new Exception("Tài khoản đã được kích hoạt xác thực 2FA trước đó");
                 //setupCode = _twoFactorAuthenticator.GenerateSetupCode("DrugWarehouse", email, account.tOTPSecretKey);
                 //return new SetupTwoFactorAuthenticatorResponse
                 //{
@@ -464,7 +464,7 @@ namespace DrugWarehouseManagement.Service.Services
 
             if (account == null)
             {
-                throw new Exception("Account not found");
+                throw new Exception("Tài khoản không tồn tại");
             }
 
             request.Adapt(account);
@@ -473,7 +473,7 @@ namespace DrugWarehouseManagement.Service.Services
             return new BaseResponse
             {
                 Code = 200,
-                Message = "Account updated successfully"
+                Message = "Cập nhật tài khoản thành công",
             };
         }
 
@@ -483,7 +483,7 @@ namespace DrugWarehouseManagement.Service.Services
 
             if (account == null)
             {
-                throw new Exception("Account not found");
+                throw new Exception("Tài khoản không tồn tại");
             }
 
             if (account.AccountSettings == null)
@@ -493,7 +493,7 @@ namespace DrugWarehouseManagement.Service.Services
 
             if (request.PreferredLanguage != null && !Regex.Match(request.PreferredLanguage, @"^[a-zA-Z]{2}$").Success)
             {
-                throw new Exception("Preferred language must be exactly 2 alphabetic characters");
+                throw new Exception("Ngôn ngữ không hợp lệ, vui lòng nhập mã ngôn ngữ 2 ký tự (ví dụ: 'en', 'vi')");
             }
 
             request.Adapt(account.AccountSettings);
@@ -504,7 +504,7 @@ namespace DrugWarehouseManagement.Service.Services
             return new BaseResponse
             {
                 Code = 200,
-                Message = "Account settings updated successfully"
+                Message = "Cập nhật cài đặt tài khoản thành công",
             };
         }
 
