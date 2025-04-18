@@ -24,8 +24,8 @@ namespace DrugWarehouseManagement.API.Middleware
 
         public async Task Invoke(HttpContext context, IUnitOfWork unitOfWork)
         {
-            if (!context.Request.Headers.ContainsKey("Authorization") || 
-                context.Request.Path.ToString().Contains("login", StringComparison.OrdinalIgnoreCase) || 
+            if (!context.Request.Headers.ContainsKey("Authorization") ||
+                context.Request.Path.ToString().Contains("login", StringComparison.OrdinalIgnoreCase) ||
                 context.Request.Path.ToString().Contains("refreshToken", StringComparison.OrdinalIgnoreCase))
             {
                 await _next(context);
@@ -49,7 +49,7 @@ namespace DrugWarehouseManagement.API.Middleware
                 var response = new BaseResponse
                 {
                     Code = StatusCodes.Status409Conflict,
-                    Message = "User not found.",
+                    Message = "Không tìm thấy tài khoản.",
                 };
 
                 var responseText = System.Text.Json.JsonSerializer.Serialize(response);
@@ -60,7 +60,16 @@ namespace DrugWarehouseManagement.API.Middleware
             if (user.ConcurrencyStamp != tokenConcurrencyStamp)
             {
                 _logger.LogInformation($"Concurrency conflict detected for user {userId}.");
-                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                context.Response.StatusCode = StatusCodes.Status409Conflict;
+                context.Response.ContentType = "application/json";
+                var response = new BaseResponse
+                {
+                    Code = StatusCodes.Status409Conflict,
+                    Message = "Có người khác đã đăng nhập tài khoản này. Vui lòng đăng nhập lại.",
+                };
+
+                var responseText = System.Text.Json.JsonSerializer.Serialize(response);
+                await context.Response.WriteAsync(responseText);
                 return;
             }
 
