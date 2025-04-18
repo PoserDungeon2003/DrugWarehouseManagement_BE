@@ -704,7 +704,7 @@ namespace DrugWarehouseManagement.UnitTest
                 .Returns(mockAccounts);
             _unitOfWorkMock.Setup(uow => uow.SaveChangesAsync())
                            .Returns(Task.CompletedTask);
-            _emailServiceMock.Setup(es => es.SendEmailAsync(account.Email, "Reset Password", It.IsAny<string>()))
+            _emailServiceMock.Setup(es => es.SendEmailAsync(account.Email, "Đặt lại mật khẩu", It.IsAny<string>()))
                              .Returns(Task.CompletedTask);
 
             // Act
@@ -714,7 +714,7 @@ namespace DrugWarehouseManagement.UnitTest
             Assert.Equal(200, response.Code);
             Assert.Equal("Mật khẩu đã được đặt lại thành công, vui lòng kiểm tra email để biết thông tin đăng nhập", response.Message);
             _unitOfWorkMock.Verify(uow => uow.SaveChangesAsync(), Times.Once);
-            _emailServiceMock.Verify(es => es.SendEmailAsync(account.Email, "Reset Password", It.IsAny<string>()), Times.Once);
+            _emailServiceMock.Verify(es => es.SendEmailAsync(account.Email, "Đặt lại mật khẩu", It.IsAny<string>()), Times.Once);
         }
 
         [Fact]
