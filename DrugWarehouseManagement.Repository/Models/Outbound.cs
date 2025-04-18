@@ -19,7 +19,7 @@ namespace DrugWarehouseManagement.Repository.Models
         public string? OutboundOrderCode { get; set; }
         public string? TrackingNumber { get; set; }
         public string? Note { get; set; }
-        public Instant? OutboundDate { get; set; } = SystemClock.Instance.GetCurrentInstant();
+        public Instant? OutboundDate { get; set; } 
         public OutboundStatus Status { get; set; } = OutboundStatus.Pending;
         public Guid AccountId { get; set; }
 

@@ -120,7 +120,6 @@
         WaitingForDirectorApproval = 2,
         InProgress = 3,
         WaitingForSaleAdminApproval = 4,
-        WaitingForImport = 5,
         Completed = 6,
         Cancelled = 7,
     }

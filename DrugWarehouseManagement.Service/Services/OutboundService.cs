@@ -86,7 +86,6 @@ namespace DrugWarehouseManagement.Service.Services
             // Map request sang Outbound entity
             var outbound = request.Adapt<Outbound>();
             outbound.OutboundCode = generatedOutboundCode;
-            outbound.OutboundDate = SystemClock.Instance.GetCurrentInstant();
             outbound.Status = OutboundStatus.Pending;
             outbound.AccountId = accountId;
 
@@ -296,6 +295,7 @@ namespace DrugWarehouseManagement.Service.Services
                         throw new Exception("Chỉ được phép chuyển từ InProgress sang Completed.");
                     }
                     outbound.Status = OutboundStatus.Completed;
+                    outbound.OutboundDate = SystemClock.Instance.GetCurrentInstant();
                 }
                 else
                 {
