@@ -38,7 +38,7 @@ namespace DrugWarehouseManagement.API.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Sale Admin")]
+        [Authorize(Roles = "Sale Admin, Admin")]
         public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryRequest createCategoryRequest)
         {
             try
@@ -57,7 +57,7 @@ namespace DrugWarehouseManagement.API.Controllers
         }
 
         [HttpPut]
-        [Authorize(Roles = "Sale Admin")]
+        [Authorize(Roles = "Sale Admin, Admin")]
         public async Task<IActionResult> UpdateCategory([FromBody] UpdateCategoryRequest updateCategoryRequest)
         {
             try
@@ -76,7 +76,7 @@ namespace DrugWarehouseManagement.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Sale Admin")]
+        [Authorize(Roles = "Sale Admin, Admin")]
         public async Task<IActionResult> DeleteCategory([FromRoute] int id)
         {
             try
@@ -95,7 +95,7 @@ namespace DrugWarehouseManagement.API.Controllers
         }
 
         [HttpPost("active/{id}")]
-        [Authorize(Roles = "Sale Admin")]
+        [Authorize(Roles = "Sale Admin, Admin")]
         public async Task<IActionResult> ActiveCategory([FromRoute] int id)
         {
             try
