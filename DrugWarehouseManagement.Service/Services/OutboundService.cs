@@ -81,7 +81,7 @@ namespace DrugWarehouseManagement.Service.Services
             }
 
             // Sinh outbound code
-            var generatedOutboundCode = $"OUTB-{DateTimeOffset.Now.ToUnixTimeMilliseconds()}";
+            var generatedOutboundCode = $"OUTB-{DateTime.Now.ToString("yyyyMMddHHmmss")}";
 
             // Map request sang Outbound entity
             var outbound = request.Adapt<Outbound>();
