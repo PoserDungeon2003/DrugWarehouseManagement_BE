@@ -219,8 +219,6 @@ namespace DrugWarehouseManagement.Service.Services
             }
 
             var result = inbound.Adapt<ViewInbound>();
-            result.InboundDate = InstantPattern.ExtendedIso.Parse(result.InboundDate)
-                .Value.ToString("dd/MM/yyyy HH:mm", null);
 
             return result;
         }
@@ -309,12 +307,6 @@ namespace DrugWarehouseManagement.Service.Services
 
             foreach (var viewInbound in viewInbounds)
             {
-                if (viewInbound.InboundDate != null)
-                {
-                    viewInbound.InboundDate = InstantPattern.ExtendedIso.Parse(viewInbound.InboundDate)
-                        .Value.ToString("dd/MM/yyyy HH:mm", null);
-                }
-
                 // Map pending InboundReport using Adapt
                 viewInbound.Report = pendingReports
                     .Where(ir => ir.InboundId == viewInbound.InboundId)
