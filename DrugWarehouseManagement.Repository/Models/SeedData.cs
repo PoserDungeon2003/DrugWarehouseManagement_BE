@@ -137,13 +137,7 @@ namespace DrugWarehouseManagement.Repository.Models
                 
                 new Categories { CategoriesId = (int)SystemConfigEnum.SKUId, CategoryName = "Đơn vị tính", ParentCategoryId = null, Description = "Các danh mục sản phẩm khác.", Status = CategoriesStatus.Active }
             );
-            modelBuilder.Entity<ProductCategories>().HasData(
-                new ProductCategories { CategoriesId = 201, ProductId = 1 },
-                new ProductCategories { CategoriesId = 201, ProductId = 2 },
-                new ProductCategories { CategoriesId = 201, ProductId = 3 },
-                new ProductCategories { CategoriesId = 207, ProductId = 4 },
-                new ProductCategories { CategoriesId = 201, ProductId = 5 }
-            );
+          
             // 4. Seed Warehouses
             modelBuilder.Entity<Warehouse>().HasData(
                 new Warehouse { WarehouseId = 1, WarehouseCode = "KVN-01", WarehouseName = "Kho Việt Nam", Address = "Số 10 Đường Cộng Hòa, Phường 13, Quận Tân Bình, TP.HCM", Status = WarehouseStatus.Active, DocumentNumber = "K20250409-001" },
@@ -153,24 +147,7 @@ namespace DrugWarehouseManagement.Repository.Models
                 new Warehouse { WarehouseId = 5, WarehouseCode = "KTH-01", WarehouseName = "Kho Trung Hạnh", Address = "Số 88 Đường 3 Tháng 2, Phường 11, Quận 10, TP.HCM", Status = WarehouseStatus.Active, DocumentNumber = "KTH20250409-005" },
                 new Warehouse { WarehouseId = 6, WarehouseCode = "KTAMTHOI-01", WarehouseName = "Kho Tạm", Address = "Số 95 Đường 3 Tháng 2, Phường 11, Quận 10, TP.HCM", Status = WarehouseStatus.Active, DocumentNumber = "KTAMTHOI20250409-006" }  
             );
-            // 5. Seed Products
-            modelBuilder.Entity<Product>().HasData(
-                new Product { ProductId = 1, ProductName = "Paracetamol Stella 500mg", ProductCode = "STP001", SKU = "Viên nén", MadeFrom = "Hóa dược" },
-                new Product { ProductId = 2, ProductName = "Aspirin PH8 500mg", ProductCode = "ASP002", SKU = "Viên sủi", MadeFrom = "Hóa dược" },
-                new Product { ProductId = 3, ProductName = "Ibuprofen STADA 400mg", ProductCode = "IBU003", SKU = "Viên nang mềm", MadeFrom = "Hóa dược" },
-                new Product { ProductId = 4, ProductName = "Vitamin C 500mg (Traphaco)", ProductCode = "VITC004", SKU = "Viên nén sủi", MadeFrom = "Tổng hợp" },
-                new Product { ProductId = 5, ProductName = "Thuốc ho Prospan Forte", ProductCode = "TSP005", SKU = "Siro", MadeFrom = "Thảo dược" },
-                new Product { ProductId = 6, ProductName = "Amoxicillin 500mg (Pymepharco)", ProductCode = "AMO006", SKU = "Viên nang", MadeFrom = "Bán tổng hợp" },
-                new Product { ProductId = 7, ProductName = "Cetirizine Stella 10mg", ProductCode = "CET007", SKU = "Viên nén bao phim", MadeFrom = "Hóa dược" },
-                new Product { ProductId = 8, ProductName = "Men vi sinh Biolac Extra", ProductCode = "BIO008", SKU = "Gói bột", MadeFrom = "Vi sinh" },
-                new Product { ProductId = 9, ProductName = "Kem dưỡng da BENEW Snail Repair Cream", ProductCode = "SKB009", SKU = "Kem", MadeFrom = "Thiên nhiên" },
-                new Product { ProductId = 10, ProductName = "Trà Atiso túi lọc (Ladophar)", ProductCode = "TEA010", SKU = "Túi lọc", MadeFrom = "Thảo dược" },
-                new Product { ProductId = 11, ProductName = "Panadol Extra", ProductCode = "PAN011", SKU = "Viên nén sủi", MadeFrom = "Hóa dược" },
-                new Product { ProductId = 12, ProductName = "Efferalgan 500mg", ProductCode = "EFF012", SKU = "Viên sủi", MadeFrom = "Hóa dược" },
-                new Product { ProductId = 13, ProductName = "Nurofen 200mg", ProductCode = "NUR013", SKU = "Viên nén bao phim", MadeFrom = "Hóa dược" },
-                new Product { ProductId = 14, ProductName = "Berocca Performance Cam", ProductCode = "BER014", SKU = "Viên sủi", MadeFrom = "Tổng hợp" },
-                new Product { ProductId = 15, ProductName = "Eugica Forte", ProductCode = "EUG015", SKU = "Viên nang mềm", MadeFrom = "Thảo dược" }
-            );
+
             modelBuilder.Entity<Customer>().HasData(
                 new Customer { CustomerId = 1, CustomerName = "Nguyễn Văn An", Address = "123 Đường Cộng Hòa, Phường 12, Quận Tân Bình, TP. Hồ Chí Minh", PhoneNumber = "0903123456", Email = "nguyen.van.an@gmail.com", IsLoyal = true, Status = CustomerStatus.Active, DocumentNumber = "KH-NVAN-250409-001" },
                 new Customer { CustomerId = 2, CustomerName = "Lê Thị Bình", Address = "456 Đường 3 Tháng 2, Phường 10, Quận 10, TP. Hồ Chí Minh", PhoneNumber = "0938987654", Email = "le.thi.binh79@yahoo.com.vn", IsLoyal = false, Status = CustomerStatus.Active, DocumentNumber = "KH-LTBI-250409-002" },
