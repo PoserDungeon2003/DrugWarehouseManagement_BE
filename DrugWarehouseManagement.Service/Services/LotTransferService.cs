@@ -40,45 +40,6 @@ namespace DrugWarehouseManagement.Service.Services
             _minioService = minioService;
         }
 
-        public async Task<BaseResponse> CancelLotTransfer(Guid accountId, int lotTransferId)
-        {
-            var lotTransfer = await _unitOfWork.LotTransferRepository.GetByIdAsync(lotTransferId);
-
-            if (lotTransfer == null)
-            {
-                throw new Exception("Lot transfer not found");
-            }
-
-            if (lotTransfer.LotTransferStatus == Common.LotTransferStatus.Cancelled)
-            {
-                throw new Exception("Lot transfer is already cancelled");
-            }
-
-            if (lotTransfer.LotTransferStatus != LotTransferStatus.Pending)
-            {
-                throw new Exception("Can't cancel lot with status not Pending");
-            }
-
-            if (lotTransfer.LotTransferDetails != null && lotTransfer.LotTransferDetails.Any())
-            {
-                foreach (var detail in lotTransfer.LotTransferDetails)
-                {
-                    var lot = await _unitOfWork.LotRepository.GetByIdAsync(detail.LotId);
-                    lot.Quantity += detail.Quantity; // Trả lại số lượng lô hàng
-                    await _unitOfWork.LotRepository.UpdateAsync(lot);
-                }
-            }
-
-            lotTransfer.LotTransferStatus = Common.LotTransferStatus.Cancelled;
-            await _unitOfWork.SaveChangesAsync();
-
-            return new BaseResponse
-            {
-                Code = (int)HttpStatusCode.OK,
-                Message = $"Cancel transfer order (Code: {lotTransfer.LotTransferCode}) successfully",
-            };
-        }
-
         public async Task<BaseResponse> CreateLotTransfer(Guid accountId, LotTransferRequest request)
         {
             var account = await _unitOfWork.AccountRepository.GetByIdAsync(accountId);
@@ -388,7 +349,7 @@ namespace DrugWarehouseManagement.Service.Services
             {
                 lotTransfers = lotTransfers.Where(lt => lt.LotTransferStatus == queryPaging.Status);
             }
-            
+
             var result = await lotTransfers.ToPaginatedResultAsync(queryPaging.Page, queryPaging.PageSize);
 
             return result.Adapt<PaginatedResult<ViewLotTransfer>>();
@@ -411,6 +372,34 @@ namespace DrugWarehouseManagement.Service.Services
                 throw new Exception("Lot transfer not found");
             }
 
+            if (request.LotTransferStatus != null)
+            {
+                if (request.LotTransferStatus == LotTransferStatus.Cancelled)
+                {
+                    if (lotTransfer.LotTransferStatus == Common.LotTransferStatus.Cancelled)
+                    {
+                        throw new Exception("Lot transfer is already cancelled");
+                    }
+
+                    if (lotTransfer.LotTransferStatus != LotTransferStatus.Pending)
+                    {
+                        throw new Exception("Can't cancel lot with status not Pending");
+                    }
+
+                    if (lotTransfer.LotTransferDetails != null && lotTransfer.LotTransferDetails.Any())
+                    {
+                        foreach (var detail in lotTransfer.LotTransferDetails)
+                        {
+                            var lot = await _unitOfWork.LotRepository.GetByIdAsync(detail.LotId);
+                            lot.Quantity += detail.Quantity; // Trả lại số lượng lô hàng
+                            await _unitOfWork.LotRepository.UpdateAsync(lot);
+                        }
+                    }
+
+                    lotTransfer.LotTransferStatus = Common.LotTransferStatus.Cancelled;
+                }
+
+            }
             lotTransfer.UpdatedAt = SystemClock.Instance.GetCurrentInstant();
             request.Adapt(lotTransfer);
 
