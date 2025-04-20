@@ -101,6 +101,7 @@ namespace DrugWarehouseManagement.Service.Services
 
             // 4) Cập nhật Outbound.Status = Returned
             outbound.Status = OutboundStatus.Returned;
+            outbound.UpdatedAt = SystemClock.Instance.GetCurrentInstant();
             await _unitOfWork.OutboundRepository.UpdateAsync(outbound);
             await _unitOfWork.SaveChangesAsync();
 
@@ -121,8 +122,10 @@ namespace DrugWarehouseManagement.Service.Services
                     AccountId = outbound.AccountId,
                     WarehouseId = TEMPORARY_WAREHOUSE_ID, // Kho chỉ định (tạm thời)
                     InboundRequestId = null, // Nhập trả hàng
-                    InboundDetails = new List<InboundDetails>()
+                    InboundDetails = new List<InboundDetails>(),
+                    CreatedAt = SystemClock.Instance.GetCurrentInstant(),
                 };
+
 
                 // Thêm danh sách InboundDetails tương ứng vào phiếu Inbound
                 foreach (var detail in detailsForProvider)
@@ -175,7 +178,7 @@ namespace DrugWarehouseManagement.Service.Services
                         ProviderId = inbound.ProviderId,
                         Quantity = inboundDetail.Quantity
                     };
-
+                    
                     await _unitOfWork.LotRepository.CreateAsync(newLot);
                 }
             }

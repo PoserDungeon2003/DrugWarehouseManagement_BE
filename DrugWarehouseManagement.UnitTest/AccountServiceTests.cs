@@ -59,7 +59,7 @@ namespace DrugWarehouseManagement.UnitTest
 
             // Act & Assert
             var exception = await Assert.ThrowsAsync<Exception>(() => _accountService.LoginWithUsername(request));
-            Assert.Equal("Account not found", exception.Message);
+            Assert.Equal("Tài khoản không tồn tại", exception.Message);
         }
 
         [Fact]
@@ -74,7 +74,7 @@ namespace DrugWarehouseManagement.UnitTest
 
             // Act & Assert
             var exception = await Assert.ThrowsAsync<Exception>(() => _accountService.LoginWithUsername(request));
-            Assert.Equal("Account is inactive, please contact your administrator to re-active your account", exception.Message);
+            Assert.Equal("Tài khoản đã bị vô hiệu hóa, vui lòng liên hệ với quản trị viên để kích hoạt lại tài khoản", exception.Message);
         }
 
         [Fact]
@@ -94,7 +94,7 @@ namespace DrugWarehouseManagement.UnitTest
 
             // Act & Assert
             var exception = await Assert.ThrowsAsync<Exception>(() => _accountService.LoginWithUsername(request));
-            Assert.Equal("Two factor code is required", exception.Message);
+            Assert.Equal("Mã xác thực 2FA là bắt buộc", exception.Message);
         }
 
         [Fact]
@@ -117,7 +117,7 @@ namespace DrugWarehouseManagement.UnitTest
 
             // Act & Assert
             var exception = await Assert.ThrowsAsync<Exception>(() => _accountService.LoginWithUsername(request));
-            Assert.Equal("Two factor code is incorrect", exception.Message);
+            Assert.Equal("Mã xác thực 2FA không chính xác", exception.Message);
         }
 
         [Fact]
@@ -140,7 +140,7 @@ namespace DrugWarehouseManagement.UnitTest
 
             // Act & Assert
             var exception = await Assert.ThrowsAsync<Exception>(() => _accountService.LoginWithUsername(request));
-            Assert.Equal("Two factor code is already used", exception.Message);
+            Assert.Equal("Mã xác thực 2FA đã được sử dụng trước đó", exception.Message);
         }
 
         [Fact]
@@ -161,7 +161,7 @@ namespace DrugWarehouseManagement.UnitTest
 
             // Act & Assert
             var exception = await Assert.ThrowsAsync<Exception>(() => _accountService.LoginWithUsername(request));
-            Assert.Equal("Password is incorrect", exception.Message);
+            Assert.Equal("Mật khẩu không chính xác", exception.Message);
         }
 
         [Fact]
@@ -214,7 +214,7 @@ namespace DrugWarehouseManagement.UnitTest
 
             // Act & Assert
             var exception = await Assert.ThrowsAsync<Exception>(() => _accountService.CreateAccount(request));
-            Assert.Equal("Account already existed", exception.Message);
+            Assert.Equal("Tài khoản đã tồn tại", exception.Message);
         }
 
         [Fact]
@@ -241,7 +241,7 @@ namespace DrugWarehouseManagement.UnitTest
             // Assert
             Assert.NotNull(response);
             Assert.Equal(200, response.Code);
-            Assert.Equal("Account created successfully, please check your (spam) inbox for login credentials", response.Message);
+            Assert.Equal("Tài khoản đã được tạo thành công, vui lòng kiểm tra email để biết thông tin đăng nhập", response.Message);
             _unitOfWorkMock.Verify(u => u.AccountRepository.CreateAsync(It.IsAny<Account>()), Times.Once);
             _unitOfWorkMock.Verify(u => u.SaveChangesAsync(), Times.Once);
             _emailServiceMock.Verify(e => e.SendEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
@@ -258,7 +258,7 @@ namespace DrugWarehouseManagement.UnitTest
 
             // Act & Assert
             var exception = await Assert.ThrowsAsync<Exception>(() => _accountService.SetupTwoFactorAuthenticator(accountId));
-            Assert.Equal("Account not found", exception.Message);
+            Assert.Equal("Tài khoản không tồn tại", exception.Message);
         }
 
         [Fact]
@@ -277,7 +277,7 @@ namespace DrugWarehouseManagement.UnitTest
 
             // Act & Assert
             var exception = await Assert.ThrowsAsync<Exception>(() => _accountService.SetupTwoFactorAuthenticator(account.Id));
-            Assert.Equal("Two factor authenticator is already setup", exception.Message);
+            Assert.Equal("Tài khoản đã được kích hoạt xác thực 2FA trước đó", exception.Message);
         }
 
         [Fact]
@@ -319,7 +319,7 @@ namespace DrugWarehouseManagement.UnitTest
 
             // Act & Assert
             var exception = await Assert.ThrowsAsync<Exception>(() => _accountService.GetAccountById(accountId));
-            Assert.Equal("Account not found", exception.Message);
+            Assert.Equal("Tài khoản không tồn tại", exception.Message);
         }
 
         [Fact]
@@ -363,7 +363,7 @@ namespace DrugWarehouseManagement.UnitTest
 
             // Act & Assert
             var exception = await Assert.ThrowsAsync<Exception>(() => _accountService.UpdateAccount(accountId, request));
-            Assert.Equal("Account not found", exception.Message);
+            Assert.Equal("Tài khoản không tồn tại", exception.Message);
         }
 
         [Fact]
@@ -396,7 +396,7 @@ namespace DrugWarehouseManagement.UnitTest
 
             // Assert
             Assert.Equal(200, response.Code);
-            Assert.Equal("Account updated successfully", response.Message);
+            Assert.Equal("Cập nhật tài khoản thành công", response.Message);
             Assert.Equal(request.UserName, account.UserName);
             Assert.Equal(request.Email, account.Email);
             Assert.Equal(request.FullName, account.FullName);
@@ -415,7 +415,7 @@ namespace DrugWarehouseManagement.UnitTest
 
             // Act & Assert
             var exception = await Assert.ThrowsAsync<Exception>(() => _accountService.UpdateAccountSettings(accountId, request));
-            Assert.Equal("Account not found", exception.Message);
+            Assert.Equal("Tài khoản không tồn tại", exception.Message);
         }
 
         [Fact]
@@ -437,7 +437,7 @@ namespace DrugWarehouseManagement.UnitTest
 
             // Act & Assert
             var exception = await Assert.ThrowsAsync<Exception>(() => _accountService.UpdateAccountSettings(accountId, request));
-            Assert.Equal("Preferred language must be exactly 2 alphabetic characters", exception.Message);
+            Assert.Equal("Ngôn ngữ không hợp lệ, vui lòng nhập mã ngôn ngữ 2 ký tự (ví dụ: 'en', 'vi')", exception.Message);
         }
 
         [Fact]
@@ -464,7 +464,7 @@ namespace DrugWarehouseManagement.UnitTest
 
             // Assert
             Assert.Equal(200, response.Code);
-            Assert.Equal("Account settings updated successfully", response.Message);
+            Assert.Equal("Cập nhật cài đặt tài khoản thành công", response.Message);
             Assert.Equal(request.PreferredLanguage, account.AccountSettings.PreferredLanguage);
             _unitOfWorkMock.Verify(uow => uow.SaveChangesAsync(), Times.Once);
         }
@@ -567,7 +567,7 @@ namespace DrugWarehouseManagement.UnitTest
 
             // Act & Assert
             var exception = await Assert.ThrowsAsync<Exception>(() => _accountService.DeactiveAccount(accountId));
-            Assert.Equal("Account not found", exception.Message);
+            Assert.Equal("Tài khoản không tồn tại", exception.Message);
         }
 
         [Fact]
@@ -590,7 +590,7 @@ namespace DrugWarehouseManagement.UnitTest
 
             // Assert
             Assert.Equal(200, response.Code);
-            Assert.Equal("Account deactivated successfully", response.Message);
+            Assert.Equal("Tài khoản đã được vô hiệu hóa thành công", response.Message);
             Assert.Equal(AccountStatus.Inactive, account.Status);
             _unitOfWorkMock.Verify(uow => uow.SaveChangesAsync(), Times.Once);
         }
@@ -605,7 +605,7 @@ namespace DrugWarehouseManagement.UnitTest
 
             // Act & Assert
             var exception = await Assert.ThrowsAsync<Exception>(() => _accountService.DeleteAccount(accountId));
-            Assert.Equal("Account not found", exception.Message);
+            Assert.Equal("Tài khoản không tồn tại", exception.Message);
         }
 
         [Fact]
@@ -628,7 +628,7 @@ namespace DrugWarehouseManagement.UnitTest
 
             // Assert
             Assert.Equal(200, response.Code);
-            Assert.Equal("Account deleted successfully", response.Message);
+            Assert.Equal("Tài khoản đã được xóa thành công", response.Message);
             Assert.Equal(AccountStatus.Deleted, account.Status);
             _unitOfWorkMock.Verify(uow => uow.SaveChangesAsync(), Times.Once);
         }
@@ -643,7 +643,7 @@ namespace DrugWarehouseManagement.UnitTest
 
             // Act & Assert
             var exception = await Assert.ThrowsAsync<Exception>(() => _accountService.ActiveAccount(accountId));
-            Assert.Equal("Account not found", exception.Message);
+            Assert.Equal("Không tìm thấy tài khoản", exception.Message);
         }
 
         [Fact]
@@ -666,7 +666,7 @@ namespace DrugWarehouseManagement.UnitTest
 
             // Assert
             Assert.Equal(200, response.Code);
-            Assert.Equal("Account activated successfully", response.Message);
+            Assert.Equal("Tài khoản đã được kích hoạt thành công", response.Message);
             Assert.Equal(AccountStatus.Active, account.Status);
             _unitOfWorkMock.Verify(uow => uow.SaveChangesAsync(), Times.Once);
         }
@@ -682,7 +682,7 @@ namespace DrugWarehouseManagement.UnitTest
 
             // Act & Assert
             var exception = await Assert.ThrowsAsync<Exception>(() => _accountService.ResetPassword(accountId));
-            Assert.Equal("Account not found", exception.Message);
+            Assert.Equal("Tài khoản không tồn tại", exception.Message);
         }
 
         [Fact]
@@ -704,7 +704,7 @@ namespace DrugWarehouseManagement.UnitTest
                 .Returns(mockAccounts);
             _unitOfWorkMock.Setup(uow => uow.SaveChangesAsync())
                            .Returns(Task.CompletedTask);
-            _emailServiceMock.Setup(es => es.SendEmailAsync(account.Email, "Reset Password", It.IsAny<string>()))
+            _emailServiceMock.Setup(es => es.SendEmailAsync(account.Email, "Đặt lại mật khẩu", It.IsAny<string>()))
                              .Returns(Task.CompletedTask);
 
             // Act
@@ -712,9 +712,9 @@ namespace DrugWarehouseManagement.UnitTest
 
             // Assert
             Assert.Equal(200, response.Code);
-            Assert.Equal("Password reset successfully, please check your (spam) inbox for new login credentials", response.Message);
+            Assert.Equal("Mật khẩu đã được đặt lại thành công, vui lòng kiểm tra email để biết thông tin đăng nhập", response.Message);
             _unitOfWorkMock.Verify(uow => uow.SaveChangesAsync(), Times.Once);
-            _emailServiceMock.Verify(es => es.SendEmailAsync(account.Email, "Reset Password", It.IsAny<string>()), Times.Once);
+            _emailServiceMock.Verify(es => es.SendEmailAsync(account.Email, "Đặt lại mật khẩu", It.IsAny<string>()), Times.Once);
         }
 
         [Fact]
@@ -727,7 +727,7 @@ namespace DrugWarehouseManagement.UnitTest
 
             // Act & Assert
             var exception = await Assert.ThrowsAsync<Exception>(() => _accountService.ChangePassword(accountId, request));
-            Assert.Equal("Account not found", exception.Message);
+            Assert.Equal("Không tìm thấy tài khoản", exception.Message);
         }
 
         [Fact]
@@ -744,7 +744,7 @@ namespace DrugWarehouseManagement.UnitTest
 
             // Act & Assert
             var exception = await Assert.ThrowsAsync<Exception>(() => _accountService.ChangePassword(accountId, request));
-            Assert.Equal("Old password is incorrect", exception.Message);
+            Assert.Equal("Mật khẩu cũ không chính xác", exception.Message);
         }
 
         [Fact]
@@ -765,7 +765,7 @@ namespace DrugWarehouseManagement.UnitTest
 
             // Assert
             Assert.Equal(200, response.Code);
-            Assert.Equal("Password changed successfully", response.Message);
+            Assert.Equal("Đổi mật khẩu thành công", response.Message);
             _unitOfWorkMock.Verify(u => u.SaveChangesAsync(), Times.Once);
             Assert.Equal("newHashedPassword", account.PasswordHash);
         }
@@ -825,7 +825,7 @@ namespace DrugWarehouseManagement.UnitTest
 
             // Assert
             Assert.Equal(200, result.Code);
-            Assert.Equal("Two factor authenticator confirmed successfully", result.Message);
+            Assert.Equal("Xác thực 2FA thành công", result.Message);
             _unitOfWorkMock.Verify(u => u.SaveChangesAsync(), Times.Once);
         }
 

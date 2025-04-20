@@ -64,27 +64,6 @@ namespace DrugWarehouseManagement.API.Controllers
 
         }
 
-        [HttpPost("cancel/{id}")]
-        [Authorize(Roles = "Sale Admin, Inventory Manager")]
-        public async Task<IActionResult> CancelLotTransfer([FromRoute] int id)
-        {
-            var accountId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            try
-            {
-                var response = await _lotTransferService.CancelLotTransfer(Guid.Parse(accountId), id);
-                return Ok(response);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new BaseResponse
-                {
-                    Code = 400,
-                    Message = ex.Message,
-                });
-            }
-        }
-
         [HttpGet]
         [Authorize]
         public async Task<IActionResult> GetLotTransfers([FromQuery] LotTransferQueryPaging request)
