@@ -21,7 +21,7 @@ namespace DrugWarehouseManagement.API.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Sale Admin, Inventory Manager")]
+        [Authorize(Roles = "Accountant")]
         public async Task<IActionResult> CreateInbound([FromBody] CreateInboundRequest request)
         {
             try
@@ -41,7 +41,7 @@ namespace DrugWarehouseManagement.API.Controllers
         }
 
         [HttpPut]
-        [Authorize(Roles = "Sale Admin, Inventory Manager")]
+        [Authorize(Roles = "Accountant")]
         public async Task<IActionResult> UpdateInbound([FromBody] UpdateInboundRequest request)
         {
             try
@@ -61,7 +61,7 @@ namespace DrugWarehouseManagement.API.Controllers
         }
 
         [HttpPut("status")]
-        [Authorize(Roles = "Sale Admin, Inventory Manager")]
+        [Authorize(Roles = "Accountant")]
         public async Task<IActionResult> UpdateInboundStatus([FromBody] UpdateInboundStatusRequest request)
         {
             try
