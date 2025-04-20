@@ -15,15 +15,15 @@ namespace DrugWarehouseManagement.Service.DTO.Response
         public decimal TotalInboundValue { get; set; }        // tổng giá tiền nhập hàng
         public decimal TotalOutboundValue { get; set; }       // tổng giá tiền xuất hàng
                                  
-        public ProductStatisticDto BestStockedProduct { get; set; }
+        public ProductStatisticDto ?BestStockedProduct { get; set; }
 
         public int OutboundCancelledCount { get; set; }
         public int OutboundSampleCount { get; set; }
         public int OutboundReturnedCount { get; set; }
 
         // Sản phẩm xuất - nhập nhiều nhất
-        public ProductStatisticDto BestExportedProduct { get; set; }
-        public ProductStatisticDto BestImportedProduct { get; set; }
+        public ProductStatisticDto? BestExportedProduct { get; set; }
+        public ProductStatisticDto? BestImportedProduct { get; set; }
 
         // Phân loại đơn nhập
         public InboundClassificationDto InboundClassification { get; set; }
@@ -31,9 +31,9 @@ namespace DrugWarehouseManagement.Service.DTO.Response
       
 
         // Danh sách sản phẩm dưới mức quy định
-        public List<ProductLowStockDto> LowStockProducts { get; set; }
+        public List<ProductLowStockDto>? LowStockProducts { get; set; }
         // Danh sách đơn hàng theo trạng thái
-        public OrderSummaryDto OrderSummary { get; set; }
+        public OrderSummaryDto? OrderSummary { get; set; }
 
   
 
@@ -53,33 +53,33 @@ namespace DrugWarehouseManagement.Service.DTO.Response
         public class DocumentStatusDto
         {
             public int DocumentId { get; set; }
-            public string DocumentType { get; set; }  // "Inbound", "Outbound", "LotTransfer", v.v.
-            public string DocumentCode { get; set; }
-            public string Status { get; set; }
+            public string DocumentType { get; set; } = string.Empty;// "Inbound", "Outbound", "LotTransfer", v.v.
+            public string DocumentCode { get; set; } = string.Empty;
+            public string Status { get; set; } = string.Empty;
             public DateTime CreatedAt { get; set; }
         }
-        public List<DocumentStatusDto> NewDocuments { get; set; }
+        public List<DocumentStatusDto> NewDocuments { get; set; } = new();
 
 
         public class ProductLowStockDto
         {
             public int ProductId { get; set; }
-            public string ProductName { get; set; }
+            public string ProductName { get; set; } = string.Empty;
             public int CurrentStock { get; set; }
             public int Threshold { get; set; }
         }
 
         public class OrderSummaryDto
         {
-            public List<OrderDto> NewOrders { get; set; }
-            public List<OrderDto> ProcessingOrders { get; set; }
+            public List<OrderDto> NewOrders { get; set; } = new();
+            public List<OrderDto> ProcessingOrders { get; set; } = new();
         }
 
         public class OrderDto
         {
             public int OrderId { get; set; }
-            public string OrderCode { get; set; }
-            public string Status { get; set; }
+            public string OrderCode { get; set; } = string.Empty;
+            public string Status { get; set; } = string.Empty;
             public DateTime CreatedAt { get; set; }
         }
 

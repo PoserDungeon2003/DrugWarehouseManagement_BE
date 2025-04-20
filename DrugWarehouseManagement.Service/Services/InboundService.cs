@@ -323,7 +323,6 @@ namespace DrugWarehouseManagement.Service.Services
 
             foreach (var viewInbound in viewInbounds)
             {
-
                 // Map pending InboundReport using Adapt
                 viewInbound.Report = pendingReports
                     .Where(ir => ir.InboundId == viewInbound.InboundId)

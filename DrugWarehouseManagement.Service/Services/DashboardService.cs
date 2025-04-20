@@ -210,12 +210,15 @@ namespace DrugWarehouseManagement.Service.Services
             var lowStockProducts = new List<ProductLowStockDto>();
             foreach (var p in allProducts)
             {
-                // Tính tổng số lượng tồn trong tất cả các kho cho sản phẩm này
-                int totalStock = (await _unitOfWork.LotRepository
+                var lots = await _unitOfWork.LotRepository
                     .GetAll()
-                    .Where(l => l.ProductId == p.ProductId)
-                    .ToListAsync())
-                    .Sum(l => l.Quantity);
+                    .Include(l => l.Warehouse)
+                    .Where(l => l.ProductId == p.ProductId
+                             && l.Warehouse.WarehouseId != 6  // kho tạm 
+                             && l.Warehouse.WarehouseId != 2) // kho hủy
+                    .ToListAsync();
+
+                int totalStock = lots.Sum(l => l.Quantity);
                 if (totalStock < lowStockThreshold)
                 {
                     lowStockProducts.Add(new ProductLowStockDto
@@ -305,26 +308,15 @@ namespace DrugWarehouseManagement.Service.Services
                     // Admin & Director see all
                     break;
 
-                case "Inventory Manager":
-                    // Hide sales & order details
-                    dashboard.TotalOutboundValue = 0;
-                    dashboard.OutboundCancelledCount = 0;
-                    dashboard.OutboundReturnedCount = 0;
-                    dashboard.OutboundSampleCount = 0;
-                    dashboard.BestExportedProduct = null;
-                    dashboard.BestImportedProduct = null;
-                    dashboard.OrderSummary = null;
-                    break;
+             
 
                 case "Accountant":
                     // Show financials, hide order lists
                     dashboard.OrderSummary = null;
                     break;
 
+                case "Inventory Manager":
                 case "Sale Admin":
-                    // Show orders & sales, hide detailed stock
-                    dashboard.LowStockProducts = null;
-                    dashboard.InboundClassification = null;
                     break;
             }
 
