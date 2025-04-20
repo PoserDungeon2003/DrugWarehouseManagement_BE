@@ -497,7 +497,7 @@ namespace DrugWarehouseManagement.Service.Services
                                 table.Cell().Element(CellStyle).Text(detail.Product?.ProductName ?? "N/A");
                                 table.Cell().Element(CellStyle).Text(detail.LotNumber);
                                 table.Cell().Element(CellStyle).Text(detail.ExpiryDate?.ToString("dd/MM/yyyy") ?? "N/A");
-                                table.Cell().Element(CellStyle).Text("HỘP").AlignCenter(); // Đơn vị tính
+                                table.Cell().Element(CellStyle).Text(detail.Product?.SKU ?? "N/A").AlignCenter(); // Đơn vị tính
                                 table.Cell().Element(CellStyle).Text(detail.Quantity.ToString()).AlignCenter();
                                 table.Cell().Element(CellStyle).Text($"{unitPrice:N0}").AlignRight();
                                 table.Cell().Element(CellStyle).Text($"{amount:N0}").AlignRight();
