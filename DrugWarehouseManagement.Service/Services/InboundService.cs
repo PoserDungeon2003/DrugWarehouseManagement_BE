@@ -78,6 +78,20 @@ namespace DrugWarehouseManagement.Service.Services
             inbound.InboundDate = SystemClock.Instance.GetCurrentInstant();
             inbound.UpdatedAt = SystemClock.Instance.GetCurrentInstant();
 
+            if (request.InboundStatus == InboundStatus.Completed)
+            {
+                var inboundReport = await _unitOfWork.InboundReportRepository
+                .GetByWhere(ir => ir.InboundId == inbound.InboundId && ir.Status == InboundReportStatus.Pending)
+                .FirstOrDefaultAsync();
+
+                if (inboundReport != null)
+                {
+                    inboundReport.Status = InboundReportStatus.Completed;
+                    await _unitOfWork.InboundReportRepository.UpdateAsync(inboundReport);
+                    await _unitOfWork.SaveChangesAsync();
+                }
+            }
+
             await _unitOfWork.InboundRepository.UpdateAsync(inbound);
 
             // If status is Completed, create or update Lot entries
