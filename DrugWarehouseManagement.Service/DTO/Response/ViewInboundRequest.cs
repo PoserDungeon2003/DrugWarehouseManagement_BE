@@ -41,5 +41,6 @@ namespace DrugWarehouseManagement.Service.DTO.Response
         public string Status { get; set; } = null!;
         public Guid AccountId { get; set; }
         public int CategoryId { get; set; }
+        public string? ContentType { get; set; }
     }
 }

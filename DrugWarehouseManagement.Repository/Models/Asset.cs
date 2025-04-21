@@ -19,6 +19,7 @@ namespace DrugWarehouseManagement.Repository.Models
         public string FileName { get; set; } = null!;
         public string FileExtension { get; set; } = null!;
         public long FileSize { get; set; }
+        public string? ContentType { get; set; }
         public Instant UploadedAt { get; set; } = SystemClock.Instance.GetCurrentInstant();
         public AssetStatus Status { get; set; } = AssetStatus.Active;
         public Guid AccountId { get; set; }
