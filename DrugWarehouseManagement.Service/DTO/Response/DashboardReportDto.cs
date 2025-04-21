@@ -12,8 +12,8 @@ namespace DrugWarehouseManagement.Service.DTO.Response
         public int TotalInboundOrders { get; set; }
         public int TotalLotTransferOrders { get; set; }
         // **MỚI** Tổng giá tiền
-        public decimal TotalInboundValue { get; set; }        // tổng giá tiền nhập hàng
-        public decimal TotalOutboundValue { get; set; }       // tổng giá tiền xuất hàng
+        public decimal? TotalInboundValue { get; set; }        // tổng giá tiền nhập hàng
+        public decimal? TotalOutboundValue { get; set; }       // tổng giá tiền xuất hàng
                                  
         public ProductStatisticDto ?BestStockedProduct { get; set; }
 
