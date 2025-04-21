@@ -10,6 +10,7 @@ using DrugWarehouseManagement.Service.Wrapper.Interface;
 using Mapster;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -25,6 +26,7 @@ namespace DrugWarehouseManagement.Service.Services
         private readonly ILogger<IAccountService> _logger;
         private readonly IEmailService _emailService;
         private readonly IPasswordWrapper _passwordHelper;
+        private readonly IConfiguration _configuration;
 
         public AccountService(
             IUnitOfWork unitOfWork,
@@ -32,7 +34,8 @@ namespace DrugWarehouseManagement.Service.Services
             ILogger<IAccountService> logger,
             IEmailService emailService,
             ITwoFactorAuthenticatorWrapper twoFactorAuthenticatorWrapper,
-            IPasswordWrapper passwordHelper)
+            IPasswordWrapper passwordHelper,
+            IConfiguration configuration)
         {
             _unitOfWork = unitOfWork;
             _passwordHelper = passwordHelper;
@@ -40,6 +43,7 @@ namespace DrugWarehouseManagement.Service.Services
             _twoFactorAuthenticator ??= twoFactorAuthenticatorWrapper;
             _logger = logger;
             _emailService = emailService;
+            _configuration = configuration;
         }
 
         public async Task<BaseResponse> ActiveAccount(Guid accountId)
@@ -172,9 +176,11 @@ namespace DrugWarehouseManagement.Service.Services
 
 
             var htmlTemplate = Consts.htmlCreateAccountTemplate;
+            var loginPage = $"{_configuration.GetValue<string>("WebsiteUrl")}/login";
 
             htmlTemplate = htmlTemplate.Replace("{{Username}}", account.UserName)
-                                       .Replace("{{Password}}", randomPassword);
+                                       .Replace("{{Password}}", randomPassword)
+                                       .Replace("{{WEBSITE_URL}}", loginPage);
 
             await _emailService.SendEmailAsync(account.Email, "Tài khoản đã được tạo", htmlTemplate);
             
@@ -402,9 +408,11 @@ namespace DrugWarehouseManagement.Service.Services
             account.PasswordHash = hashedPassword;
 
             var htmlTemplate = Consts.htmlResetPasswordTemplate;
+            var loginPage = $"{_configuration.GetValue<string>("WebsiteUrl")}/login";
 
             htmlTemplate = htmlTemplate.Replace("{{Username}}", account.UserName)
-                                       .Replace("{{Password}}", randomPassword);
+                                       .Replace("{{Password}}", randomPassword)
+                                       .Replace("{{WEBSITE_URL}}", loginPage);
 
             await _emailService.SendEmailAsync(account.Email, "Đặt lại mật khẩu", htmlTemplate);
             await _unitOfWork.SaveChangesAsync();
