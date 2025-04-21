@@ -307,15 +307,15 @@ namespace DrugWarehouseManagement.Service.Services
                 case "Director":
                     // Admin & Director see all
                     break;
-
-             
-
                 case "Accountant":
                     // Show financials, hide order lists
                     dashboard.OrderSummary = null;
                     break;
 
                 case "Inventory Manager":
+                    dashboard.TotalInboundValue = null;
+                    dashboard.TotalOutboundValue = null;
+                    break;
                 case "Sale Admin":
                     break;
             }
