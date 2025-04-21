@@ -350,6 +350,15 @@ namespace DrugWarehouseManagement.API
                            .AllowAnyHeader();
                 });
             });
+            services.AddCors(options =>
+            {
+                options.AddPolicy("Limited", builder =>
+                {
+                    builder.WithOrigins("https://trung-hanh-management-fe.vercel.app")
+                           .AllowAnyMethod()
+                           .AllowAnyHeader();
+                });
+            });
         }
 
         private static void InitializeFirebase()
