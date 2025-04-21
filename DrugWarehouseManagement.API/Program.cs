@@ -50,11 +50,15 @@ namespace DrugWarehouseManagement.API
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
+                app.UseCors("AllowAll");
+            }
+            else
+            {
+                app.UseCors("Limited");
             }
 
             app.UseMiddleware<AuditLoggingMiddleware>();
             app.UseMiddleware<GlobalExceptionMiddleware>();
-            app.UseCors("AllowAll");
             app.UseHangfireDashboard("/hangfire");
             app.UseAuthentication();
             app.UseMiddleware<ConcurrencyMiddleware>();
