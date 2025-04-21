@@ -28,7 +28,7 @@ namespace DrugWarehouseManagement.UnitTest
         private readonly Mock<IPasswordWrapper> _passwordHelperMock;
         private readonly IPasswordHasher<Account> _passwordHasher;
         private readonly IAccountService _accountService;
-        private readonly Mock<IConfiguration> _configurationMock;
+        private readonly IConfiguration _configuration;
 
         public AccountServiceTests()
         {
@@ -39,6 +39,12 @@ namespace DrugWarehouseManagement.UnitTest
             _loggerMock = new Mock<ILogger<IAccountService>>();
             _emailServiceMock = new Mock<IEmailService>();
             _passwordHasher ??= new PasswordHasher<Account>();
+            _configuration = new ConfigurationBuilder()
+                .AddInMemoryCollection(new Dictionary<string, string?>
+                {
+                    {"WebsiteUrl", "https://trung-hanh-management-fe.vercel.app/login"},
+                })
+                .Build();
 
             _accountService = new AccountService(
                 _unitOfWorkMock.Object,
@@ -47,7 +53,7 @@ namespace DrugWarehouseManagement.UnitTest
                 _emailServiceMock.Object,
                 _twoFactorAuthenticatorMock.Object,
                 _passwordHelperMock.Object,
-                _configurationMock.Object
+                _configuration
             );
         }
 
