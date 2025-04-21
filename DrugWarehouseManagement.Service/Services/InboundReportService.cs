@@ -33,43 +33,55 @@ namespace DrugWarehouseManagement.Service.Services
         }
         public async Task<BaseResponse> CreateInboundReport(Guid accountId, CreateInboundReportRequest request)
         {
-            var account = await _unitOfWork.AccountRepository.GetByIdAsync(accountId);
-            if (account == null)
+            try
             {
-                return new BaseResponse { Code = 404, Message = "Account not found" };
-            }
-
-            var inboundReport = request.Adapt<InboundReport>();
-            inboundReport.AccountId = accountId;
-            inboundReport.UpdatedAt = SystemClock.Instance.GetCurrentInstant();
-            inboundReport.Assets = new List<Asset>();
-
-            // Handle image uploads if present
-            if (request.Images != null && request.Images.Any())
-            {
-                try
+                var account = await _unitOfWork.AccountRepository.GetByIdAsync(accountId);
+                if (account == null)
                 {
-                    var uploadedAssets = await UploadFiles(request.Images, accountId);
-                    inboundReport.Assets.AddRange(uploadedAssets);
+                    return new BaseResponse { Code = 404, Message = "Account not found" };
                 }
-                catch (Exception ex)
+
+                var inboundReport = request.Adapt<InboundReport>();
+                inboundReport.AccountId = accountId;
+                inboundReport.UpdatedAt = SystemClock.Instance.GetCurrentInstant();
+                inboundReport.Assets = new List<Asset>();
+
+                // Handle image uploads if present
+                if (request.Images != null && request.Images.Any())
                 {
-                    return new BaseResponse
+                    try
                     {
-                        Code = 500,
-                        Message = "Error uploading files: " + ex.Message
-                    };
+                        var uploadedAssets = await UploadFiles(request.Images, accountId);
+                        inboundReport.Assets.AddRange(uploadedAssets);
+                    }
+                    catch (Exception ex)
+                    {
+                        return new BaseResponse
+                        {
+                            Code = 500,
+                            Message = "Error uploading files: " + ex.Message
+                        };
+                    }
                 }
+
+                await _unitOfWork.InboundReportRepository.CreateAsync(inboundReport);
+                await _unitOfWork.SaveChangesAsync();
+
+                return new BaseResponse
+                {
+                    Code = 200,
+                    Message = "Inbound Request record created successfully",
+                };
+            } 
+            catch (DbUpdateException ex)
+            {
+                return new BaseResponse { Code = 500, Message = $"{ex}" };
+            }
+            catch (Exception ex)
+            {
+                return new BaseResponse { Code =  500, Message = $"{ex}" };
             }
 
-            await _unitOfWork.InboundReportRepository.CreateAsync(inboundReport);
-            await _unitOfWork.SaveChangesAsync();
-
-            return new BaseResponse
-            {
-                Code = 200,
-                Message = "Inbound Request record created successfully",
-            };
         }
 
         public async Task<List<ViewInboundReport>> GetInboundReportByInboundId(int inboundId)
@@ -114,10 +126,10 @@ namespace DrugWarehouseManagement.Service.Services
             inboundReport.Status = InboundReportStatus.Completed;
             inboundReport.UpdatedAt = SystemClock.Instance.GetCurrentInstant();
 
-            if (request.InboundReportStatus == InboundReportStatus.Completed)
-            {
-                await _inboundService.UpdateInboundStatus(accountId, new UpdateInboundStatusRequest { InboundId = inboundReport.InboundId, InboundStatus = InboundStatus.Completed });
-            }
+            //if (request.InboundReportStatus == InboundReportStatus.Completed)
+            //{
+            //    await _inboundService.UpdateInboundStatus(accountId, new UpdateInboundStatusRequest { InboundId = inboundReport.InboundId, InboundStatus = InboundStatus.Completed });
+            //}
 
             // Handle image uploads if present
             if (request.Images != null && request.Images.Any())

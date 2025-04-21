@@ -82,6 +82,7 @@ namespace DrugWarehouseManagement.Service.Services
             {
                 var inboundReport = await _unitOfWork.InboundReportRepository
                 .GetByWhere(ir => ir.InboundId == inbound.InboundId && ir.Status == InboundReportStatus.Pending)
+                .OrderByDescending(ir => ir.ReportDate)
                 .FirstOrDefaultAsync();
 
                 if (inboundReport != null)
@@ -234,7 +235,13 @@ namespace DrugWarehouseManagement.Service.Services
                 return new ViewInbound();
             }
 
+            var inboundReport = await _unitOfWork.InboundReportRepository
+                .GetByWhere(ir => ir.InboundId == inbound.InboundId)
+                .OrderByDescending(ir => ir.ReportDate)
+                .FirstOrDefaultAsync();
+
             var result = inbound.Adapt<ViewInbound>();
+            result.Report = inboundReport.Adapt<ViewInboundReport>();
 
             return result;
         }
@@ -326,6 +333,7 @@ namespace DrugWarehouseManagement.Service.Services
                 // Map pending InboundReport using Adapt
                 viewInbound.Report = pendingReports
                     .Where(ir => ir.InboundId == viewInbound.InboundId)
+                    .OrderByDescending(ir => ir.ReportDate)
                     .FirstOrDefault()
                     ?.Adapt<ViewInboundReport>();
             }
