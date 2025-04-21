@@ -349,9 +349,6 @@ namespace DrugWarehouseManagement.API
                            .AllowAnyMethod()
                            .AllowAnyHeader();
                 });
-            });
-            services.AddCors(options =>
-            {
                 options.AddPolicy("Limited", builder =>
                 {
                     builder.WithOrigins("https://trung-hanh-management-fe.vercel.app")

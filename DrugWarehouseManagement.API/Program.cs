@@ -46,6 +46,8 @@ namespace DrugWarehouseManagement.API
             ServiceRegister.RegisterServices(builder.Services, builder.Configuration);
 
             var app = builder.Build();
+            
+            app.UseRouting();
             if (!app.Environment.IsProduction())
             {
                 app.UseSwagger();
