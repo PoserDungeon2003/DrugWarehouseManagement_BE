@@ -237,6 +237,7 @@ namespace DrugWarehouseManagement.Service.Services
 
             var inboundReport = await _unitOfWork.InboundReportRepository
                 .GetByWhere(ir => ir.InboundId == inbound.InboundId)
+                .Include(a => a.Assets)
                 .OrderByDescending(ir => ir.ReportDate)
                 .FirstOrDefaultAsync();
 
