@@ -259,9 +259,6 @@ namespace DrugWarehouseManagement.API
                 .IgnoreNullValues(true)
                 .Map(dest => dest.ParentCategoryId, src => src.ParentCategoryId);
 
-            // Set up time zone (example: UTC+7 for Vietnam)
-            DateTimeZone timeZone = DateTimeZoneProviders.Tzdb["Asia/Ho_Chi_Minh"];
-
             TypeAdapterConfig<Inbound, ViewInbound>
                 .NewConfig()
                 .Map(dest => dest.CreateBy, src => src.Account.FullName)
@@ -271,7 +268,6 @@ namespace DrugWarehouseManagement.API
             // Configure InboundReport to ViewInboundReport
             TypeAdapterConfig<InboundReport, ViewInboundReport>.NewConfig()
                 .Map(dest => dest.InboundReportId, src => src.InboundReportId)
-                .Map(dest => dest.ReportDate, src => src.ReportDate.ToString("dd/MM/yyyy HH:mm", null))
                 .Map(dest => dest.Status, src => src.Status.ToString())
                 .Map(dest => dest.ProblemDescription, src => src.ProblemDescription);
 
