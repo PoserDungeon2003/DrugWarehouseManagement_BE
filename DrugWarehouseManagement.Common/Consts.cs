@@ -70,7 +70,7 @@
                 <body>
                     <div class='email-container'>
                         <div class='email-header'>
-                            Welcome to Our Platform!
+                            Welcome to Trung Hanh Warehouse Management Platform!
                         </div>
                         <div class='email-body'>
                             <p>Hi <strong>{{Username}}</strong>,</p>
@@ -80,11 +80,11 @@
                                 <li><strong>Password:</strong> {{Password}}</li>
                             </ul>
                             <p>Please make sure to change your password after your first login.</p>
-                            <a href='https://yourwebsite.com/login' class='button'>Login to Your Account</a>
+                            <a href={{WEBSITE_URL}} class='button'>Login to Your Account</a>
                             <p>If you have any questions or need assistance, feel free to contact our support team.</p>
                         </div>
                         <div class='email-footer'>
-                            &copy; 2025 Your Company. All rights reserved.<br>
+                            &copy; 2025 Trung Hanh Company. All rights reserved.<br>
                             Please do not reply to this email.
                         </div>
                     </div>
@@ -158,7 +158,7 @@
                 <body>
                     <div class='email-container'>
                         <div class='email-header'>
-                            Welcome to Our Platform!
+                            Welcome to Trung Hanh Warehouse Management Platform!
                         </div>
                         <div class='email-body'>
                             <p>Hi <strong>{{Username}}</strong>,</p>
@@ -168,11 +168,11 @@
                                 <li><strong>Password:</strong> {{Password}}</li>
                             </ul>
                             <p>Please make sure to change your password after your first login.</p>
-                            <a href='https://yourwebsite.com/login' class='button'>Login to Your Account</a>
+                            <a href={{WEBSITE_URL}} class='button'>Login to Your Account</a>
                             <p>If you have any questions or need assistance, feel free to contact our support team.</p>
                         </div>
                         <div class='email-footer'>
-                            &copy; 2025 Your Company. All rights reserved.<br>
+                            &copy; 2025 Trung Hanh Company. All rights reserved.<br>
                             Please do not reply to this email.
                         </div>
                     </div>
