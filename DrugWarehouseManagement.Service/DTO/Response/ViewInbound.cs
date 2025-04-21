@@ -19,7 +19,7 @@ namespace DrugWarehouseManagement.Service.DTO.Response
         public string? WarehouseName { get; set; }
         public string? CreateBy { get; set; }
         public string? Note { get; set; }
-        public string? InboundDate { get; set; } // Ngày nhập kho
+        public Instant? InboundDate { get; set; } // Ngày nhập kho
         public string Status { get; set; }
         public List<InboundDetailResponse> InboundDetails { get; set; }
         public ViewInboundReport? Report { get; set; }
