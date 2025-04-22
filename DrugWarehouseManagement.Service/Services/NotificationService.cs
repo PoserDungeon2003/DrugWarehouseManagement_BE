@@ -1,4 +1,5 @@
 ﻿using DrugWarehouseManagement.Service.Hubs;
+using DrugWarehouseManagement.Service.Interface;
 using Microsoft.AspNetCore.SignalR;
 using System;
 using System.Collections.Generic;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace DrugWarehouseManagement.Service.Services
 {
-    public class NotificationService
+    public class NotificationService : INotificationService
     { 
         private readonly IHubContext<NotificationHub> _notificationHubContext; 
         public NotificationService(IHubContext<NotificationHub> notificationHubContext)

@@ -70,8 +70,6 @@ namespace DrugWarehouseManagement.API
             }
 
             services.AddSingleton<VideoDetectionService>(provider => new VideoDetectionService(modelPath));
-            services.AddSingleton<NotificationService>(provider =>
-                new NotificationService(provider.GetRequiredService<IHubContext<NotificationHub>>()));
 
             services.AddHangfire((provider, config) =>
             {
@@ -135,6 +133,7 @@ namespace DrugWarehouseManagement.API
             //services.AddScoped<IInventoryReportService, InventoryReportService>();
             services.AddScoped<IDeviceService, DeviceService>();
             services.AddScoped<IInboundRequestService, InboundRequestService>();
+            services.AddScoped<INotificationService, NotificationService>();
         }
 
         public static IServiceCollection AddAuthorizeService(this IServiceCollection services, IConfiguration configuration)

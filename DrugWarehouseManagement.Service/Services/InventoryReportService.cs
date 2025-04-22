@@ -208,7 +208,7 @@ namespace DrugWarehouseManagement.Service.Services
                 int outboundLostQty = outboundLostDict.ContainsKey(pid) ? outboundLostDict[pid] : 0;
 
                 // Lưu ý: Công thức tính tồn của kho đích chỉ cộng nhập mua và chuyển nhập (từ các kho khác)
-                int remain = beginning + (buyQty + transNormalQty + transReturnQty) - (sellQty + outTransQty + outboundDamageQty + outboundLostQty);
+                int remain = beginning + (buyQty + transNormalQty + transReturnQty) - (sellQty + outTransQty + outboundLostQty);
 
                 reportData.Add(new InventoryReportRow
                 {

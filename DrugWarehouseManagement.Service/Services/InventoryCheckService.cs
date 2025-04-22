@@ -67,12 +67,7 @@ namespace DrugWarehouseManagement.Service.Services
                         {
                             case InventoryCheckStatus.Damaged:
                                 inventoryDetail.CheckQuantity = detail.Quantity;
-                                inventoryDetail.Reason = detail.Reason ?? "Hàng bị hư hại";
-
-                                lotExist.Quantity -= detail.Quantity;
-                                await _unitOfWork.LotRepository.UpdateAsync(lotExist);
-                                await _unitOfWork.SaveChangesAsync();
-
+                                ////inventoryDetail.Reason = detail.Reason ?? "Hàng bị hư hại";
                                 break;
 
                             case InventoryCheckStatus.Excess:

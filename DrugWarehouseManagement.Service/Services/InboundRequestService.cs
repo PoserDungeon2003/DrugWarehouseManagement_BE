@@ -27,9 +27,9 @@ namespace DrugWarehouseManagement.Service.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMinioService _minioService;
         private readonly string BucketName = "inboundrequest";
-        private readonly NotificationService _notificationService;
+        private readonly INotificationService _notificationService;
         private readonly ILogger<InboundRequestService> _logger; 
-        public InboundRequestService(IUnitOfWork unitOfWork, IMinioService minioService, ILogger<InboundRequestService> logger, NotificationService notificationService)
+        public InboundRequestService(IUnitOfWork unitOfWork, IMinioService minioService, ILogger<InboundRequestService> logger, INotificationService notificationService)
         {
             _unitOfWork = unitOfWork;
             _minioService = minioService;
