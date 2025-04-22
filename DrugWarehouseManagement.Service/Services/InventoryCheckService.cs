@@ -51,8 +51,8 @@ namespace DrugWarehouseManagement.Service.Services
                 {
                     foreach (var detail in request.Details)
                     {
-                        var lot = await _unitOfWork.LotRepository.GetByIdAsync(detail.LotId);
-                        if (lot == null)
+                        var lotExist = await _unitOfWork.LotRepository.GetByIdAsync(detail.LotId);
+                        if (lotExist == null)
                         {
                             return new BaseResponse
                             {
@@ -69,8 +69,8 @@ namespace DrugWarehouseManagement.Service.Services
                                 inventoryDetail.CheckQuantity = detail.Quantity;
                                 inventoryDetail.Reason = detail.Reason ?? "Hàng bị hư hại";
 
-                                lot.Quantity -= detail.Quantity;
-                                await _unitOfWork.LotRepository.UpdateAsync(lot);
+                                lotExist.Quantity -= detail.Quantity;
+                                await _unitOfWork.LotRepository.UpdateAsync(lotExist);
                                 await _unitOfWork.SaveChangesAsync();
 
                                 break;
@@ -84,14 +84,14 @@ namespace DrugWarehouseManagement.Service.Services
                                 inventoryDetail.CheckQuantity = detail.Quantity;
                                 inventoryDetail.Reason = detail.Reason ?? "Hàng mất";
 
-                                lot.Quantity -= detail.Quantity;
-                                await _unitOfWork.LotRepository.UpdateAsync(lot);
+                                lotExist.Quantity -= detail.Quantity;
+                                await _unitOfWork.LotRepository.UpdateAsync(lotExist);
                                 await _unitOfWork.SaveChangesAsync();
                                 break;
 
                             case InventoryCheckStatus.Found:
 
-                                var nearestLot = await _unitOfWork.InventoryCheckDetailRepository
+                                var lostLots = await _unitOfWork.InventoryCheckDetailRepository
                                     .GetByWhere(ic => ic.LotId == detail.LotId && ic.Status == InventoryCheckStatus.Lost)
                                     .Join(_unitOfWork.InventoryCheckRepository.GetAll(),
                                         icd => icd.InventoryCheckId,
@@ -99,26 +99,59 @@ namespace DrugWarehouseManagement.Service.Services
                                         (icd, ic) => new { Detail = icd, CheckDate = ic.CheckDate })
                                     .OrderByDescending(x => x.CheckDate)
                                     .Select(x => x.Detail)
-                                    .FirstOrDefaultAsync();
+                                    .ToListAsync();
 
-                                if (nearestLot == null || nearestLot.CheckQuantity < detail.Quantity)
+                                // Validate if any records exist
+                                if (lostLots == null || !lostLots.Any())
+                                {
+                                    return new BaseResponse
+                                    {
+                                        Code = 404,
+                                        Message = $"Không tìm thấy bản ghi kiểm kê cho lô {lotExist.LotNumber} với trạng thái mất."
+                                    };
+                                }
+
+                                // Check if total available quantity is sufficient
+                                var totalAvailableQuantity = lostLots.Sum(lot => lot.CheckQuantity);
+                                if (totalAvailableQuantity < detail.Quantity)
                                 {
                                     return new BaseResponse
                                     {
                                         Code = 400,
-                                        Message = $"Không thể tìm thấy số lượng {detail.Quantity} cho lô {lot.LotNumber} với số lượng {nearestLot.CheckQuantity}."
+                                        Message = $"Tổng số lượng mất ({totalAvailableQuantity}) không thể tìm thấy với số lượng lớn hơn là {detail.Quantity} cho lô {lotExist.LotNumber}."
                                     };
                                 }
 
-                                // Deduct quantity from nearest lot
-                                nearestLot.CheckQuantity -= detail.Quantity;
-                                await _unitOfWork.InventoryCheckDetailRepository.UpdateAsync(nearestLot);
+                                int remainingQuantityToDeduct = detail.Quantity;
+                                foreach (var lot in lostLots)
+                                {
+                                    if (remainingQuantityToDeduct <= 0)
+                                        break;
+
+                                    // Calculate how much to deduct from this lot
+                                    int quantityToDeduct = Math.Min(lot.CheckQuantity ?? 0, remainingQuantityToDeduct);
+                                    lot.CheckQuantity -= quantityToDeduct;
+                                    remainingQuantityToDeduct -= quantityToDeduct;
+
+                                    await _unitOfWork.InventoryCheckDetailRepository.UpdateAsync(lot);
+                                    await _unitOfWork.SaveChangesAsync();
+
+                                    // Validate to prevent negative quantities (shouldn't happen due to Math.Min, but added for safety)
+                                    if (lot.CheckQuantity < 0)
+                                    {
+                                        return new BaseResponse
+                                        {
+                                            Code = 400,
+                                            Message = $"Số lượng kiểm kê sau khi trừ sẽ âm ({lot.CheckQuantity}) cho lô {lotExist.LotNumber}."
+                                        };
+                                    }
+                                }
 
                                 inventoryDetail.CheckQuantity = detail.Quantity;
                                 inventoryDetail.Reason = detail.Reason ?? "Hàng mất đã tìm thấy";
 
-                                lot.Quantity += detail.Quantity;
-                                await _unitOfWork.LotRepository.UpdateAsync(lot);
+                                lotExist.Quantity += detail.Quantity;
+                                await _unitOfWork.LotRepository.UpdateAsync(lotExist);
                                 await _unitOfWork.SaveChangesAsync();
 
                                 break;
@@ -127,7 +160,7 @@ namespace DrugWarehouseManagement.Service.Services
                                 return new BaseResponse
                                 {
                                     Code = 400,
-                                    Message = $"Invalid status for lot {lot.LotNumber}."
+                                    Message = $"Invalid status for lot {lotExist.LotNumber}."
                                 };
                         }
                         inventory.InventoryCheckDetails.Add(inventoryDetail);
@@ -321,7 +354,7 @@ namespace DrugWarehouseManagement.Service.Services
                 if (int.TryParse(searchTerm, out int inventoryCheckId))
                 {
                     query = query.Where(i =>
-                        i.InventoryCheckId == inventoryCheckId ||
+                        //i.InventoryCheckId == inventoryCheckId ||
                         EF.Functions.Like(i.Title.ToLower(), $"%{searchTerm}%") ||
                         i.InventoryCheckDetails.Any(d => EF.Functions.Like(d.Lot.LotNumber.ToLower(), $"%{searchTerm}%") ||
                         i.InventoryCheckDetails.Any(d => EF.Functions.Like(d.Lot.LotId.ToString(), $"%{searchTerm}%"))));

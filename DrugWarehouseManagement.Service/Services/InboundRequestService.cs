@@ -27,12 +27,14 @@ namespace DrugWarehouseManagement.Service.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMinioService _minioService;
         private readonly string BucketName = "inboundrequest";
+        private readonly NotificationService _notificationService;
         private readonly ILogger<InboundRequestService> _logger; 
-        public InboundRequestService(IUnitOfWork unitOfWork, IMinioService minioService, ILogger<InboundRequestService> logger)
+        public InboundRequestService(IUnitOfWork unitOfWork, IMinioService minioService, ILogger<InboundRequestService> logger, NotificationService notificationService)
         {
             _unitOfWork = unitOfWork;
             _minioService = minioService;
             _logger = logger;
+            _notificationService = notificationService;
         }
 
         public async Task<BaseResponse> CreateInboundRequest(Guid accountId, CreateInboundOrderRequest request)
@@ -79,7 +81,9 @@ namespace DrugWarehouseManagement.Service.Services
                 }
             }
 
-
+            // Send notification to relevant roles
+            var notificationMessage = $"New Inbound Request created with code {inboundRequestCode} for account";
+            await _notificationService.NotifyRoleAsync("Accountant" , notificationMessage);
 
             await _unitOfWork.InboundRequestRepository.CreateAsync(inboundRequest);
             await _unitOfWork.SaveChangesAsync();

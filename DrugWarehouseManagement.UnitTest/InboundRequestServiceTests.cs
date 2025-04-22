@@ -28,13 +28,14 @@ namespace DrugWarehouseManagement.UnitTest
         private readonly Mock<IMinioService> _minioServiceMock;
         private readonly Mock<ILogger<InboundRequestService>> _loggerMock;
         private readonly InboundRequestService _inboundRequestService;
+        private readonly NotificationService _notificationService;
 
         public InboundRequestServiceTests()
         {
             _unitOfWorkMock = new Mock<IUnitOfWork>();
             _minioServiceMock = new Mock<IMinioService>();
             _loggerMock = new Mock<ILogger<InboundRequestService>>();
-            _inboundRequestService = new InboundRequestService(_unitOfWorkMock.Object, _minioServiceMock.Object, _loggerMock.Object);
+            _inboundRequestService = new InboundRequestService(_unitOfWorkMock.Object, _minioServiceMock.Object, _loggerMock.Object, _notificationService);
         }
 
         [Fact]

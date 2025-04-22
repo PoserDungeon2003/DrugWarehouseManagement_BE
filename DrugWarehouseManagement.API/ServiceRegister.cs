@@ -27,6 +27,8 @@ using Minio.DataModel.Args;
 using System;
 using NodaTime;
 using StackExchange.Redis;
+using DrugWarehouseManagement.Service.Hubs;
+using Microsoft.AspNetCore.SignalR;
 
 namespace DrugWarehouseManagement.API
 {
@@ -68,7 +70,8 @@ namespace DrugWarehouseManagement.API
             }
 
             services.AddSingleton<VideoDetectionService>(provider => new VideoDetectionService(modelPath));
-
+            services.AddSingleton<NotificationService>(provider =>
+                new NotificationService(provider.GetRequiredService<IHubContext<NotificationHub>>()));
 
             services.AddHangfire((provider, config) =>
             {
