@@ -250,7 +250,13 @@ namespace DrugWarehouseManagement.API
                 .IgnoreNullValues(true);
             TypeAdapterConfig<UpdateOutboundRequest, Outbound>
                 .NewConfig()
-                .IgnoreNullValues(true);
+                 .Map(dest => dest.ReceiverName, src => src.CustomerName)
+                 .Map(dest => dest.ReceiverPhone, src => src.PhoneNumber)
+                 .Map(dest => dest.ReceiverAddress, src => src.Address)
+                 .Map(dest => dest.OutboundOrderCode, src => src.OutboundOrderCode)
+                 .Map(dest => dest.Note, src => src.Note)
+                 .IgnoreNullValues(true)
+                 .Ignore(dest => dest.Status);
             TypeAdapterConfig<Categories, ViewCategories>
                 .NewConfig()
                 .Map(dest => dest.ParentCategoryName, src => src.ParentCategory.CategoryName);

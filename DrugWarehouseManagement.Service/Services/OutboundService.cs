@@ -293,16 +293,7 @@ namespace DrugWarehouseManagement.Service.Services
                 }
             }
 
-            if (!string.IsNullOrWhiteSpace(request.CustomerName))
-                outbound.ReceiverName = request.CustomerName;
-            if (!string.IsNullOrWhiteSpace(request.PhoneNumber))
-                outbound.ReceiverPhone = request.PhoneNumber;
-            if (!string.IsNullOrWhiteSpace(request.Address))
-                outbound.ReceiverAddress = request.Address;
-            if (!string.IsNullOrWhiteSpace(request.OutboundOrderCode))
-                outbound.OutboundOrderCode = request.OutboundOrderCode;
-            if (!string.IsNullOrWhiteSpace(request.Note))
-                outbound.Note = request.Note;
+            request.Adapt(outbound);
             outbound.UpdatedAt = SystemClock.Instance.GetCurrentInstant();
             await _unitOfWork.OutboundRepository.UpdateAsync(outbound);
             await _unitOfWork.SaveChangesAsync();
