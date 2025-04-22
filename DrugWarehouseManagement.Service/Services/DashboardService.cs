@@ -308,7 +308,6 @@ namespace DrugWarehouseManagement.Service.Services
                     // Admin & Director see all
                     break;
                 case "Accountant":
-                    // Show financials, hide order lists
                     dashboard.OrderSummary = null;
                     break;
 
