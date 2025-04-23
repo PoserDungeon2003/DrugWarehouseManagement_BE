@@ -237,7 +237,6 @@ namespace DrugWarehouseManagement.Service.Services
             var newOrders = await _unitOfWork.OutboundRepository
                 .GetAll()
                 .Where(o =>
-         // compare the EF‐stored CreatedAt instant directly
                      o.CreatedAt >= startInstant &&
                      o.CreatedAt <= endInstant &&
                      o.Status == OutboundStatus.Pending)
