@@ -26,31 +26,6 @@ namespace DrugWarehouseManagement.Service.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<BaseResponse> ActiveCategory(int categoryId)
-        {
-            var category = await _unitOfWork.CategoriesRepository.GetByIdAsync(categoryId);
-            if (category == null)
-            {
-                throw new Exception("Category not found");
-            }
-
-            if (category.Status == Common.CategoriesStatus.Active)
-            {
-                throw new Exception("Category is already actived");
-            }
-
-            category.Status = Common.CategoriesStatus.Active;
-
-            //await _unitOfWork.CategoriesRepository.UpdateAsync(category);
-            await _unitOfWork.SaveChangesAsync();
-
-            return new BaseResponse
-            {
-                Code = 200,
-                Message = "Category actived successfully"
-            };
-        }
-
         public async Task<BaseResponse> CreateCategory(CreateCategoryRequest createCategoryRequest)
         {
             if (createCategoryRequest.ParentCategoryId.HasValue)
@@ -61,7 +36,7 @@ namespace DrugWarehouseManagement.Service.Services
 
                 if (parentCategory == null)
                 {
-                    throw new Exception($"Parent category with ID {createCategoryRequest.ParentCategoryId.Value} not found");
+                    throw new Exception($"Ko tìm thấy danh mục cha với ID {createCategoryRequest.ParentCategoryId.Value}");
                 }
 
                 // Check if main category name already exists
@@ -70,7 +45,7 @@ namespace DrugWarehouseManagement.Service.Services
 
                 if (existingCategory)
                 {
-                    throw new Exception("Category name already exists");
+                    throw new Exception("Tên danh muc đã tồn tại");
                 }
 
                 // Create the new subcategory
@@ -94,13 +69,13 @@ namespace DrugWarehouseManagement.Service.Services
                 }
 
                 // Prepare response message
-                string message = "Subcategory created successfully";
+                string message = "Danh mục con được tạo thành công";
                 if (subcategoryResult.NewCount > 0)
                 {
-                    message += $" with {subcategoryResult.NewCount} new nested subcategories";
+                    message += $" với {subcategoryResult.NewCount} danh mục con mới được thêm vào";
                     if (subcategoryResult.ExistingCount > 0)
                     {
-                        message += $" and {subcategoryResult.ExistingCount} existing subcategories linked as children";
+                        message += $" và {subcategoryResult.ExistingCount} danh mục con đã tồn tại được liên kết làm con";
                     }
                 }
 
@@ -117,7 +92,7 @@ namespace DrugWarehouseManagement.Service.Services
 
                 if (existingCategory)
                 {
-                    throw new Exception("Category name already exists");
+                    throw new Exception("Tên danh muc đã tồn tại");
                 }
 
                 // Handle subcategories
@@ -138,13 +113,13 @@ namespace DrugWarehouseManagement.Service.Services
                     subcategoryResult = await ProcessSubcategories(createCategoryRequest.SubCategories, parentCategory.CategoriesId);
                 }
 
-                string message = "Category created successfully";
+                string message = "Tạo danh mục thành công";
                 if (createCategoryRequest.SubCategories != null && createCategoryRequest.SubCategories.Any())
                 {
-                    message += $" with {subcategoryResult.NewCount} new subcategories";
+                    message += $" với {subcategoryResult.NewCount} danh mục con mới";
                     if (subcategoryResult.ExistingCount > 0)
                     {
-                        message += $" and {subcategoryResult.ExistingCount} existing subcategories linked as children";
+                        message += $" và {subcategoryResult.ExistingCount} danh mục con đã tồn tại được liên kết làm danh mục con";
                     }
                 }
                 return new BaseResponse
@@ -153,31 +128,6 @@ namespace DrugWarehouseManagement.Service.Services
                     Message = message
                 };
             }
-        }
-
-        public async Task<BaseResponse> DeleteCategory(int categoryId)
-        {
-            var category = await _unitOfWork.CategoriesRepository.GetByIdAsync(categoryId);
-            if (category == null)
-            {
-                throw new Exception("Category not found");
-            }
-
-            if (category.Status == Common.CategoriesStatus.Inactive)
-            {
-                throw new Exception("Category is already deleted");
-            }
-
-            category.Status = Common.CategoriesStatus.Inactive;
-
-            //await _unitOfWork.CategoriesRepository.UpdateAsync(category);
-            await _unitOfWork.SaveChangesAsync();
-
-            return new BaseResponse
-            {
-                Code = 200,
-                Message = "Category deleted successfully"
-            };
         }
 
         public async Task<ViewCategories> GetCategoryById(int categoryId)
@@ -189,7 +139,7 @@ namespace DrugWarehouseManagement.Service.Services
 
             if (category == null)
             {
-                throw new Exception("Category not found");
+                throw new Exception("Không tìm thấy danh mục");
             }
 
             return category.Adapt<ViewCategories>();
@@ -232,7 +182,7 @@ namespace DrugWarehouseManagement.Service.Services
                 var dateFrom = InstantPattern.ExtendedIso.Parse(query.DateFrom);
                 if (!dateFrom.Success)
                 {
-                    throw new Exception("DateFrom is invalid ISO format");
+                    throw new Exception("Ngày bắt đầu (DateFrom) không đúng định dạng ISO");
                 }
                 categories = categories.Where(lt => lt.CreatedAt >= dateFrom.Value);
             }
@@ -242,7 +192,7 @@ namespace DrugWarehouseManagement.Service.Services
                 var dateTo = InstantPattern.ExtendedIso.Parse(query.DateTo);
                 if (!dateTo.Success)
                 {
-                    throw new Exception("DateTo is invalid ISO format");
+                    throw new Exception("Ngày kết thúc (DateTo) không đúng định dạng ISO");
                 }
                 categories = categories.Where(lt => lt.CreatedAt <= dateTo.Value);
             }
@@ -258,7 +208,17 @@ namespace DrugWarehouseManagement.Service.Services
 
             if (category == null)
             {
-                throw new Exception("Category not found");
+                throw new Exception("Không tìm thấy danh mục");
+            }
+
+            if (updateCategoryRequest.Status == Common.CategoriesStatus.Inactive)
+            {
+                throw new Exception("Danh mục đã bị xóa");
+            }
+
+            if (updateCategoryRequest.Status == Common.CategoriesStatus.Active)
+            {
+                throw new Exception("Danh mục đã được kích hoạt");
             }
 
             updateCategoryRequest.Adapt(category);
@@ -268,10 +228,10 @@ namespace DrugWarehouseManagement.Service.Services
                 var parentCategory = await _unitOfWork.CategoriesRepository.GetByIdAsync(updateCategoryRequest.ParentCategoryId);
                 if (parentCategory == null)
                 {
-                    throw new Exception("Parent category not found");
+                    throw new Exception("Không tìm thấy danh mục cha");
                 }
             }
-            category.ParentCategoryId = updateCategoryRequest.ParentCategoryId;
+            //category.ParentCategoryId = updateCategoryRequest.ParentCategoryId;
 
             await _unitOfWork.CategoriesRepository.UpdateAsync(category);
             await _unitOfWork.SaveChangesAsync();
@@ -279,7 +239,7 @@ namespace DrugWarehouseManagement.Service.Services
             return new BaseResponse
             {
                 Code = 200,
-                Message = "Category updated successfully",
+                Message = "Cập nhật danh mục thành công",
             };
         }
 
@@ -298,7 +258,7 @@ namespace DrugWarehouseManagement.Service.Services
 
             if (duplicateSubcategoryNames.Any())
             {
-                throw new Exception($"Duplicate subcategory name(s) in request: {string.Join(", ", duplicateSubcategoryNames)}");
+                throw new Exception($"Tên danh mục con bị trùng trong yêu cầu: {string.Join(", ", duplicateSubcategoryNames)}");
             }
 
             // Get existing subcategories from database

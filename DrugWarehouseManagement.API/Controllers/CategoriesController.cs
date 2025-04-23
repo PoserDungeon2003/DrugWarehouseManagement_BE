@@ -75,44 +75,6 @@ namespace DrugWarehouseManagement.API.Controllers
             }
         }
 
-        [HttpDelete("{id}")]
-        [Authorize(Roles = "Sale Admin, Admin")]
-        public async Task<IActionResult> DeleteCategory([FromRoute] int id)
-        {
-            try
-            {
-                var result = await _categoriesService.DeleteCategory(id);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new BaseResponse
-                {
-                    Code = 400,
-                    Message = ex.Message
-                });
-            }
-        }
-
-        [HttpPost("active/{id}")]
-        [Authorize(Roles = "Sale Admin, Admin")]
-        public async Task<IActionResult> ActiveCategory([FromRoute] int id)
-        {
-            try
-            {
-                var result = await _categoriesService.ActiveCategory(id);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new BaseResponse
-                {
-                    Code = 400,
-                    Message = ex.Message
-                });
-            }
-        }
-
         [HttpGet("{id}")]
         [Authorize]
         public async Task<IActionResult> GetCategoryById([FromRoute] int id)
