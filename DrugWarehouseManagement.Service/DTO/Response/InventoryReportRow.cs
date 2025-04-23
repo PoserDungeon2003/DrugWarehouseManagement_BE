@@ -24,5 +24,7 @@ namespace DrugWarehouseManagement.Service.DTO.Response
         public int FoundQty { get; set; }        // Tổng số đã tìm thấy lại
         public int NetLostQty => LostQty - FoundQty;   // Còn mất
         public int SampleExportQty { get; set; }
+        public int OutboundDamage { get; set; }
+        public int OutboundLost {  get; set; }
     }
 }

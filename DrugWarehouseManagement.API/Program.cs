@@ -6,6 +6,7 @@ using DrugWarehouseManagement.Service.Services;
 using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
+using DrugWarehouseManagement.Service.Hubs;
 
 namespace DrugWarehouseManagement.API
 {
@@ -66,6 +67,7 @@ namespace DrugWarehouseManagement.API
             app.UseAuthentication();
             app.UseMiddleware<ConcurrencyMiddleware>();
             app.UseAuthorization();
+            app.MapHub<NotificationHub>("/notificationHub");
 
             app.MapControllers();
             ConfigureHangfireJobs(app);

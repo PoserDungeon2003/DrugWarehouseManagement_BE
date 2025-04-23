@@ -16,6 +16,7 @@ using QuestPDF.Fluent;
 using DrugWarehouseManagement.Service.DTO.Response;
 using QuestPDF.Helpers;
 using DrugWarehouseManagement.Repository.Models;
+using OpenCvSharp.Detail;
 
 namespace DrugWarehouseManagement.Service.Services
 {
@@ -145,29 +146,39 @@ namespace DrugWarehouseManagement.Service.Services
                 .GroupBy(od => od.Lot.ProductId)
                 .Select(g => new { ProductId = g.Key, Qty = g.Sum(x => x.Quantity) })
                 .ToListAsync();
-            // Lấy tổng “lost” cho tất cả product trong kho và trong kỳ
-            var lostDict = await _unitOfWork.InventoryCheckDetailRepository
-                .GetAll()
-                .Include(d => d.InventoryCheck)
-                .Where(d => d.InventoryCheck.WarehouseId == warehouseId
-                            && d.InventoryCheck.CheckDate >= startDate
-                            && d.InventoryCheck.CheckDate <= endDate
-                            && d.Status == InventoryCheckStatus.Lost)
-                .GroupBy(d => d.Lot.ProductId)              // Group theo ProductId
-                .Select(g => new { ProductId = g.Key, Lost = g.Sum(x => x.CheckQuantity ?? 0) })
-                .ToDictionaryAsync(x => x.ProductId, x => x.Lost);
+            // (d4) Xuất Hư (Báo cáo kiểm kê hàng hư)
+            var outboundDamage = await _unitOfWork.InventoryCheckRepository
+                .GetByWhere(ic => ic.WarehouseId == warehouseId &&
+                      ic.CheckDate >= startDate &&
+                      ic.CheckDate <= endDate)
+                .Include(ic => ic.InventoryCheckDetails)
+                .ThenInclude(icd => icd.Lot)
+                .SelectMany(ic => ic.InventoryCheckDetails)
+                .Where(icd => icd.Status == InventoryCheckStatus.Damaged)
+                .GroupBy(icd => icd.Lot.ProductId)
+                .Select(g => new
+                    {
+                        ProductId = g.Key,
+                        Qty = g.Sum(icd => icd.CheckQuantity ?? 0)
+                    })
+                .ToListAsync();
+            // (d5) Xuất Mất (Báo cáo kiểm kê hàng mất)
+            var outboundLost = await _unitOfWork.InventoryCheckRepository
+                .GetByWhere(ic => ic.WarehouseId == warehouseId &&
+                      ic.CheckDate >= startDate &&
+                      ic.CheckDate <= endDate)
+                .Include(ic => ic.InventoryCheckDetails)
+                .ThenInclude(icd => icd.Lot)
+                .SelectMany(ic => ic.InventoryCheckDetails)
+                .Where(icd => icd.Status == InventoryCheckStatus.Lost)
+                .GroupBy(icd => icd.Lot.ProductId)
+                .Select(g => new
+                {
+                    ProductId = g.Key,
+                    Qty = g.Sum(icd => icd.CheckQuantity ?? 0)
+                })
+                .ToListAsync();
 
-            // Lấy tổng “found” cho tất cả product
-            var foundDict = await _unitOfWork.InventoryCheckDetailRepository
-                .GetAll()
-                .Include(d => d.InventoryCheck)
-                .Where(d => d.InventoryCheck.WarehouseId == warehouseId
-                            && d.InventoryCheck.CheckDate >= startDate
-                            && d.InventoryCheck.CheckDate <= endDate
-                            && d.Status == InventoryCheckStatus.Found)
-                .GroupBy(d => d.Lot.ProductId)
-                .Select(g => new { ProductId = g.Key, Found = g.Sum(x => x.CheckQuantity ?? 0) })
-                .ToDictionaryAsync(x => x.ProductId, x => x.Found);
             // ------------------------ Tạo dictionary ------------------------
 
             var buyDict = inboundBuy.ToDictionary(x => x.ProductId, x => x.Qty);
@@ -176,6 +187,8 @@ namespace DrugWarehouseManagement.Service.Services
             var sellDict = outboundSell.ToDictionary(x => x.ProductId, x => x.Qty);
             var transferOutDict = transferOut.ToDictionary(x => x.ProductId, x => x.Qty);
             var sampleExportDict = sampleExport.ToDictionary(x => x.ProductId, x => x.Qty);
+            var outboundDamageDict = outboundDamage.ToDictionary(x => x.ProductId, x => x.Qty);
+            var outboundLostDict = outboundLost.ToDictionary(x => x.ProductId, x => x.Qty);
 
             // ------------------------ Build list<InventoryReportRow> ------------------------
             var reportData = new List<InventoryReportRow>();
@@ -183,9 +196,6 @@ namespace DrugWarehouseManagement.Service.Services
             foreach (var p in products)
             {
                 int pid = p.ProductId;
-                int lostQty = lostDict.ContainsKey(pid) ? lostDict[pid] : 0;
-                int foundQty = foundDict.ContainsKey(pid) ? foundDict[pid] : 0;
-                int netLost = Math.Max(0, lostQty - foundQty);  // trừ Found vào Lost
                 int beginning = openingStockDict.ContainsKey(pid) ? (openingStockDict[pid] ?? 0) : 0;
                 int buyQty = buyDict.ContainsKey(pid) ? buyDict[pid] : 0;
                 int transNormalQty = transferInNormalDict.ContainsKey(pid) ? transferInNormalDict[pid] : 0;
@@ -193,13 +203,11 @@ namespace DrugWarehouseManagement.Service.Services
                 int sellQty = sellDict.ContainsKey(pid) ? sellDict[pid] : 0;
                 int outTransQty = transferOutDict.ContainsKey(pid) ? transferOutDict[pid] : 0;
                 int sampleQty = sampleExportDict.ContainsKey(pid) ? sampleExportDict[pid] : 0;
+                int outboundDamageQty = outboundDamageDict.ContainsKey(pid) ? outboundDamageDict[pid] : 0;
+                int outboundLostQty = outboundLostDict.ContainsKey(pid) ? outboundLostDict[pid] : 0;
 
                 // Lưu ý: Công thức tính tồn của kho đích chỉ cộng nhập mua và chuyển nhập (từ các kho khác)
-                int remain = beginning
-                 + (buyQty + transNormalQty + transReturnQty)
-                 - (sellQty + outTransQty+ sampleQty)
-                 - netLost;
-
+                int remain = beginning + (buyQty + transNormalQty + transReturnQty) - (sellQty + outTransQty + outboundLostQty);
 
                 reportData.Add(new InventoryReportRow
                 {
@@ -213,8 +221,9 @@ namespace DrugWarehouseManagement.Service.Services
                     SellQty = sellQty,
                     TransferOutQty = outTransQty,
                     SampleExportQty = sampleQty,
-                    LostQty = lostQty,
-                    Remain = remain
+                    Remain = remain - sampleQty,
+                    OutboundDamage = outboundDamageQty,
+                    OutboundLost = outboundLostQty
                 });
             }
 
@@ -276,6 +285,8 @@ namespace DrugWarehouseManagement.Service.Services
                                 columns.RelativeColumn(1);  // Mua
                                 columns.RelativeColumn(1);  // Chuyển (Nhập)
                                 columns.RelativeColumn(1);  // Trả về (Nhập)
+                                columns.RelativeColumn(1);  // Hư (Kiểm kê)
+                                columns.RelativeColumn(1);  // Mất (Kiểm kê)
                                 columns.RelativeColumn(1);  // Bán
                                 columns.RelativeColumn(1);  // Chuyển (Xuất)
                                 columns.RelativeColumn(1);  // Tồn
@@ -293,10 +304,11 @@ namespace DrugWarehouseManagement.Service.Services
                                 header.Cell().Border(1).AlignCenter().Text("Mua").Bold();
                                 header.Cell().Border(1).AlignCenter().Text("Chuyển\n(Nhập)").Bold();
                                 header.Cell().Border(1).AlignCenter().Text("Trả về").Bold();
+                                header.Cell().Border(1).AlignCenter().Text("Hư").Bold();
+                                header.Cell().Border(1).AlignCenter().Text("Mất").Bold();
                                 header.Cell().Border(1).AlignCenter().Text("Bán").Bold();
                                 header.Cell().Border(1).AlignCenter().Text("Chuyển\n(Xuất)").Bold();
                                 header.Cell().Border(1).AlignCenter().Text("Tồn").Bold();
-                                header.Cell().Border(1).AlignCenter().Text("Mất").Bold();
                                 header.Cell().Border(1).AlignCenter().Text("Xuất mẫu").Bold();
                             });
 
@@ -311,10 +323,11 @@ namespace DrugWarehouseManagement.Service.Services
                                 table.Cell().Border(1).AlignRight().Text(r.BuyQty.ToString("N0"));
                                 table.Cell().Border(1).AlignRight().Text(r.TransferInQty.ToString("N0"));
                                 table.Cell().Border(1).AlignRight().Text(r.ReturnInQty.ToString("N0"));
+                                table.Cell().Border(1).AlignRight().Text(r.OutboundDamage.ToString("N0"));
+                                table.Cell().Border(1).AlignRight().Text(r.OutboundLost.ToString("N0"));
                                 table.Cell().Border(1).AlignRight().Text(r.SellQty.ToString("N0"));
                                 table.Cell().Border(1).AlignRight().Text(r.TransferOutQty.ToString("N0"));
                                 table.Cell().Border(1).AlignRight().Text(r.Remain.ToString("N0"));
-                                table.Cell().Border(1).AlignRight().Text(r.LostQty.ToString("N0"));
                                 table.Cell().Border(1).AlignRight().Text(r.SampleExportQty.ToString("N0"));
                                 stt++;
                             }
