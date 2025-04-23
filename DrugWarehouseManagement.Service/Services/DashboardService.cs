@@ -19,7 +19,7 @@ namespace DrugWarehouseManagement.Service.Services
         {
             _unitOfWork = unitOfWork;
         }
-        public async Task<DashboardReportDto> GetDashboardReportAsync(string role,TimeFilterOption filterOption)
+        public async Task<DashboardReportDto> GetDashboardReportAsync(string role, TimeFilterOption filterOption)
         {
             var (startInstant, endInstant) = DateTimeHelper.GetInstantRange(filterOption);
             var dashboard = new DashboardReportDto();
@@ -31,13 +31,13 @@ namespace DrugWarehouseManagement.Service.Services
                     o.CreatedAt >= startInstant &&
                     o.CreatedAt <= endInstant)
                  .CountAsync();
-                        dashboard.TotalOutboundOrders = totalOrdersCreated;
+            dashboard.TotalOutboundOrders = totalOrdersCreated;
             //số đơn nhập được tạo trong kỳ
             var inboundList = await _unitOfWork.InboundRepository
                   .GetAll()
                   .Where(i =>
                       i.CreatedAt >= startInstant &&
-                      i.CreatedAt <= endInstant 
+                      i.CreatedAt <= endInstant
                   )
                   .CountAsync();
             //số đơn chuyển kho được tạo trong kỳ
@@ -237,7 +237,6 @@ namespace DrugWarehouseManagement.Service.Services
             var newOrders = await _unitOfWork.OutboundRepository
                 .GetAll()
                 .Where(o =>
-         // compare the EF‐stored CreatedAt instant directly
                      o.CreatedAt >= startInstant &&
                      o.CreatedAt <= endInstant &&
                      o.Status == OutboundStatus.Pending)
@@ -247,7 +246,7 @@ namespace DrugWarehouseManagement.Service.Services
                      OrderCode = o.OutboundCode,
                      Status = o.Status.ToString(),
                      CreatedAt = o.CreatedAt.ToDateTimeUtc()  // still UTC timestamp
-                     })
+                 })
                      .ToListAsync();
 
             var processingOrders = await _unitOfWork.OutboundRepository
@@ -272,43 +271,53 @@ namespace DrugWarehouseManagement.Service.Services
                 ProcessingOrders = processingOrders
             }; ;
 
-            //dach sách đơn inbound đợi duyệt
-            var newInboundOrders = await _unitOfWork.InboundRepository
-                 .GetAll()
-                 .Where(o => o.CreatedAt.ToDateTimeUtc() >= now.AddDays(-1) && o.Status == InboundStatus.Pending)
-                 .Select(o => new OrderDto
-                 {
-                     OrderId = o.InboundId,
-                     OrderCode = o.InboundCode,
-                     Status = o.Status.ToString(),
-                     CreatedAt = o.CreatedAt.ToDateTimeUtc()
-                 })
-                    .ToListAsync();
-            
-            // --- Danh sách đơn hàng chờ kế toán duyệt ---
-            var accountantInboundRequestOrders = await _unitOfWork.InboundRequestRepository
-                 .GetAll()
-                 .Where(o => o.CreatedAt.ToDateTimeUtc() >= now.AddDays(-1) && o.Status == InboundRequestStatus.WaitingForAccountantApproval)
-                 .Select(o => new OrderDto
-                 {
-                     OrderId = o.InboundRequestId,
-                     OrderCode = o.InboundRequestCode,
-                     Status = o.Status.ToString(),
-                     CreatedAt = o.CreatedAt.ToDateTimeUtc()
-                 })
-                    .ToListAsync();
-            //danh sách inbound request chờ giám đốc phê duyệt
-            var directorInboundRequestOrders = await _unitOfWork.InboundRequestRepository
-                 .GetAll()
-                 .Where(o => o.CreatedAt.ToDateTimeUtc() >= now.AddDays(-1) && o.Status == InboundRequestStatus.WaitingForDirectorApproval)
-                 .Select(o => new OrderDto
-                 {
-                     OrderId = o.InboundRequestId,
-                     OrderCode = o.InboundRequestCode,
-                     Status = o.Status.ToString(),
-                     CreatedAt = o.CreatedAt.ToDateTimeUtc()
-                 })
-                    .ToListAsync();
+            //danh sach inbound dang pending 
+
+            dashboard.NewInboundOrders = await _unitOfWork.InboundRepository
+                .GetAll()
+                .Where(o =>
+                    o.CreatedAt >= startInstant &&
+                    o.CreatedAt <= endInstant &&
+                    o.Status == InboundStatus.Pending)
+                .Select(o => new DashboardReportDto.OrderDto
+                {
+                    OrderId = o.InboundId,
+                    OrderCode = o.InboundCode,
+                    Status = o.Status.ToString(),
+                    CreatedAt = o.CreatedAt.ToDateTimeUtc()
+                })
+                .ToListAsync();
+
+            dashboard.AccountantInboundOrders = await _unitOfWork.InboundRequestRepository
+               .GetAll()
+               .Where(o =>
+                   o.CreatedAt >= startInstant &&
+                   o.CreatedAt <= endInstant &&
+                   o.Status == InboundRequestStatus.WaitingForAccountantApproval)
+               .Select(o => new DashboardReportDto.OrderDto
+               {
+                   OrderId = o.InboundRequestId,
+                   OrderCode = o.InboundRequestCode,
+                   Status = o.Status.ToString(),
+                   CreatedAt = o.CreatedAt.ToDateTimeUtc()
+               })
+               .ToListAsync();
+
+            //danh sach inbound dang waiting for director approval
+            dashboard.DirectorInboundOrders = await _unitOfWork.InboundRequestRepository
+                .GetAll()
+                .Where(o =>
+                    o.CreatedAt >= startInstant &&
+                    o.CreatedAt <= endInstant &&
+                    o.Status == InboundRequestStatus.WaitingForDirectorApproval)
+                .Select(o => new DashboardReportDto.OrderDto
+                {
+                    OrderId = o.InboundRequestId,
+                    OrderCode = o.InboundRequestCode,
+                    Status = o.Status.ToString(),
+                    CreatedAt = o.CreatedAt.ToDateTimeUtc()
+                })
+                .ToListAsync();
             switch (role)
             {
                 case "Admin":

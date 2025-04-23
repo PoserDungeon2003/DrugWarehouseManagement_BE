@@ -60,7 +60,14 @@ namespace DrugWarehouseManagement.Service.DTO.Response
         }
         public List<DocumentStatusDto> NewDocuments { get; set; } = new();
 
+        //inbound orders awaiting creation approval
+        public List<OrderDto> NewInboundOrders { get; set; } = new();
 
+        // Inbound‐request orders waiting for accountant
+        public List<OrderDto> AccountantInboundOrders { get; set; } = new();
+
+        //Inbound‐request orders waiting for director
+        public List<OrderDto> DirectorInboundOrders { get; set; } = new();
         public class ProductLowStockDto
         {
             public int ProductId { get; set; }
