@@ -14,8 +14,6 @@ namespace DrugWarehouseManagement.Service.Interface
         public Task<PaginatedResult<ViewCategories>> GetListCategories(CategoriesQueryPaging query);
         public Task<BaseResponse> CreateCategory(CreateCategoryRequest createCategoryRequest);
         public Task<BaseResponse> UpdateCategory(UpdateCategoryRequest updateCategoryRequest);
-        public Task<BaseResponse> DeleteCategory(int categoryId);
-        public Task<BaseResponse> ActiveCategory(int categoryId);
         public Task<ViewCategories> GetCategoryById(int categoryId);
     }
 }

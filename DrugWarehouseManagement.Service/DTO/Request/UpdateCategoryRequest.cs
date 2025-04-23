@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DrugWarehouseManagement.Common;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -14,5 +15,6 @@ namespace DrugWarehouseManagement.Service.DTO.Request
         public string? CategoryName { get; set; }
         public int? ParentCategoryId { get; set; }
         public string? Description { get; set; }
+        public CategoriesStatus? Status { get; set; }
     }
 }
