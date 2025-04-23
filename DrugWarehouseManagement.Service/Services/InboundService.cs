@@ -88,6 +88,8 @@ namespace DrugWarehouseManagement.Service.Services
                 if (inboundReport != null)
                 {
                     inboundReport.Status = InboundReportStatus.Completed;
+                    inboundReport.UpdatedAt = SystemClock.Instance.GetCurrentInstant();
+                    inboundReport.ProblemDescription = "Đơn không có hàng lỗi";
                     await _unitOfWork.InboundReportRepository.UpdateAsync(inboundReport);
                     await _unitOfWork.SaveChangesAsync();
                 }
