@@ -354,7 +354,7 @@ namespace DrugWarehouseManagement.Service.Services
         {
             var uniqueId = Guid.NewGuid().ToString("N").Substring(0, 4).ToUpper();
             string dateDigits = DateTime.Now.ToString("MMdd");
-            return $"IC{uniqueId}{dateDigits}";
+            return $"IC{DateTime.Now.ToString("yyyyMMddHHmmss")}";
         }
 
         public async Task<byte[]> GenerateInboundPdfAsync(int inboundId)
