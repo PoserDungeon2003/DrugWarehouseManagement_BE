@@ -63,7 +63,7 @@ namespace DrugWarehouseManagement.Service.Services
                 .FirstOrDefaultAsync(o => o.OutboundId == outboundId);
             if (outbound == null)
             {
-                throw new Exception("Outbound not found.");
+                throw new Exception("Không tìm thấy đơn xuất.");
             }
             var outboundResponse = outbound.Adapt<OutboundResponse>();
             return outboundResponse;
@@ -196,7 +196,7 @@ namespace DrugWarehouseManagement.Service.Services
                 }
                 else
                 {
-                    throw new Exception("Status is invalid.");
+                    throw new Exception("Trạng thái không hợp lệ.");
                 }
             }
             if (!string.IsNullOrEmpty(request.Search))
@@ -249,7 +249,7 @@ namespace DrugWarehouseManagement.Service.Services
             if (outbound.Status == OutboundStatus.Cancelled)
                 throw new Exception("Đơn xuất đã bị hủy, không thể cập nhật.");
             if (outbound == null)
-                throw new Exception("Outbound not found.");
+                throw new Exception("Không tìm thấy đơn xuất.");
             if (request.Status.HasValue)
             {
                 var newStatus = request.Status.Value;
@@ -300,7 +300,7 @@ namespace DrugWarehouseManagement.Service.Services
             return new BaseResponse
             {
                 Code = (int)HttpStatusCode.OK,
-                Message = "Outbound updated successfully"
+                Message = "Cập nhật đơn xuất thành công"
             };
         }
 
@@ -320,7 +320,7 @@ namespace DrugWarehouseManagement.Service.Services
             // 1) Load the outbound with details
             var outbound = await GetOutboundByIdWithDetailsAsync(outboundId);
             if (outbound == null)
-                throw new Exception("Outbound not found.");
+                throw new Exception("Không tìm thấy đơn xuất.");
             Settings.License = LicenseType.Community;
             // 2) Build the PDF document
             var document = Document.Create(container =>

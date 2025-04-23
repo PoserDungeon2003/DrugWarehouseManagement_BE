@@ -235,34 +235,42 @@ namespace DrugWarehouseManagement.Service.Services
             // --- Danh sách đơn hàng ---
             DateTime now = DateTime.UtcNow;
             var newOrders = await _unitOfWork.OutboundRepository
-           .GetAll()
-           .Where(o => o.CreatedAt.ToDateTimeUtc() >= now.AddDays(-1) && o.Status == OutboundStatus.Pending)
-           .Select(o => new OrderDto
-           {
-               OrderId = o.OutboundId,
-               OrderCode = o.OutboundCode,
-               Status = o.Status.ToString(),
-               CreatedAt = o.CreatedAt.ToDateTimeUtc()
-           })
-           .ToListAsync();
+                .GetAll()
+                .Where(o =>
+         // compare the EF‐stored CreatedAt instant directly
+                     o.CreatedAt >= startInstant &&
+                     o.CreatedAt <= endInstant &&
+                     o.Status == OutboundStatus.Pending)
+                 .Select(o => new DashboardReportDto.OrderDto
+                 {
+                     OrderId = o.OutboundId,
+                     OrderCode = o.OutboundCode,
+                     Status = o.Status.ToString(),
+                     CreatedAt = o.CreatedAt.ToDateTimeUtc()  // still UTC timestamp
+                     })
+                     .ToListAsync();
 
             var processingOrders = await _unitOfWork.OutboundRepository
-            .GetAll()
-            .Where(o => o.Status == OutboundStatus.InProgress)
-            .Select(o => new OrderDto
-            {
-                OrderId = o.OutboundId,
-                OrderCode = o.OutboundCode,
-                Status = o.Status.ToString(),
-                CreatedAt = o.CreatedAt.ToDateTimeUtc()
-            })
-            .ToListAsync();
+                        .GetAll()
+                        .Where(o =>
+                            o.CreatedAt >= startInstant &&
+                            o.CreatedAt <= endInstant &&
+                            o.Status == OutboundStatus.InProgress)
+                        .Select(o => new DashboardReportDto.OrderDto
+                        {
+                            OrderId = o.OutboundId,
+                            OrderCode = o.OutboundCode,
+                            Status = o.Status.ToString(),
+                            CreatedAt = o.CreatedAt.ToDateTimeUtc()
+                        })
+                        .ToListAsync();
+
 
             dashboard.OrderSummary = new OrderSummaryDto
             {
                 NewOrders = newOrders,
-                ProcessingOrders = processingOrders,
-            };
+                ProcessingOrders = processingOrders
+            }; ;
 
             //dach sách đơn inbound đợi duyệt
             var newInboundOrders = await _unitOfWork.InboundRepository
