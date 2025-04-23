@@ -27,6 +27,8 @@ using Minio.DataModel.Args;
 using System;
 using NodaTime;
 using StackExchange.Redis;
+using DrugWarehouseManagement.Service.Hubs;
+using Microsoft.AspNetCore.SignalR;
 
 namespace DrugWarehouseManagement.API
 {
@@ -68,7 +70,6 @@ namespace DrugWarehouseManagement.API
             }
 
             services.AddSingleton<VideoDetectionService>(provider => new VideoDetectionService(modelPath));
-
 
             services.AddHangfire((provider, config) =>
             {
@@ -132,6 +133,7 @@ namespace DrugWarehouseManagement.API
             //services.AddScoped<IInventoryReportService, InventoryReportService>();
             services.AddScoped<IDeviceService, DeviceService>();
             services.AddScoped<IInboundRequestService, InboundRequestService>();
+            services.AddScoped<INotificationService, NotificationService>();
         }
 
         public static IServiceCollection AddAuthorizeService(this IServiceCollection services, IConfiguration configuration)
@@ -250,7 +252,13 @@ namespace DrugWarehouseManagement.API
                 .IgnoreNullValues(true);
             TypeAdapterConfig<UpdateOutboundRequest, Outbound>
                 .NewConfig()
-                .IgnoreNullValues(true);
+                 .Map(dest => dest.ReceiverName, src => src.CustomerName)
+                 .Map(dest => dest.ReceiverPhone, src => src.PhoneNumber)
+                 .Map(dest => dest.ReceiverAddress, src => src.Address)
+                 .Map(dest => dest.OutboundOrderCode, src => src.OutboundOrderCode)
+                 .Map(dest => dest.Note, src => src.Note)
+                 .IgnoreNullValues(true)
+                 .Ignore(dest => dest.Status);
             TypeAdapterConfig<Categories, ViewCategories>
                 .NewConfig()
                 .Map(dest => dest.ParentCategoryName, src => src.ParentCategory.CategoryName);

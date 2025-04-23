@@ -6,6 +6,7 @@ using DrugWarehouseManagement.Service.Services;
 using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
+using DrugWarehouseManagement.Service.Hubs;
 
 namespace DrugWarehouseManagement.API
 {
@@ -28,6 +29,7 @@ namespace DrugWarehouseManagement.API
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+            builder.Services.AddSignalR();
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddControllersWithViews()
                 .AddNewtonsoftJson(options =>
@@ -65,6 +67,7 @@ namespace DrugWarehouseManagement.API
             app.UseAuthentication();
             app.UseMiddleware<ConcurrencyMiddleware>();
             app.UseAuthorization();
+            app.MapHub<NotificationHub>("/notificationHub");
 
             app.MapControllers();
             ConfigureHangfireJobs(app);

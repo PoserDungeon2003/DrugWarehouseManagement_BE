@@ -119,11 +119,11 @@ namespace DrugWarehouseManagement.Service.Services
 
             if (inboundReport.Status == InboundReportStatus.Completed)
             {
-                return new BaseResponse { Code = 200, Message = "Inbound report is completed and can't be update" };
+                return new BaseResponse { Code = 400, Message = "Inbound report is completed and can't be update" };
             }
 
             request.Adapt(inboundReport);
-            inboundReport.Status = InboundReportStatus.Completed;
+            inboundReport.Status = request.InboundReportStatus;
             inboundReport.UpdatedAt = SystemClock.Instance.GetCurrentInstant();
 
             //if (request.InboundReportStatus == InboundReportStatus.Completed)

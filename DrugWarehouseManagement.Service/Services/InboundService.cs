@@ -279,12 +279,12 @@ namespace DrugWarehouseManagement.Service.Services
                 {
                     query = query.Where(i =>
                         i.InboundId == inboundId ||
-                        EF.Functions.Like(i.InboundCode.ToLower(), $"%{searchTerm}%"));
+                        i.InboundCode != null && i.InboundCode.IndexOf(searchTerm, StringComparison.OrdinalIgnoreCase) >= 0);
                 }
                 else
                 {
                     query = query.Where(i =>
-                        EF.Functions.Like(i.InboundId.ToString(), $"%{searchTerm}%"));
+                        i.InboundCode != null && i.InboundCode.IndexOf(searchTerm, StringComparison.OrdinalIgnoreCase) >= 0);
                 }
             }
 

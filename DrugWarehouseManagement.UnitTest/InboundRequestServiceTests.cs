@@ -19,6 +19,8 @@ using NodaTime;
 using DrugWarehouseManagement.Service.DTO.Response;
 using NodaTime.Text;
 using DrugWarehouseManagement.Repository.Interface;
+using DrugWarehouseManagement.Service.Hubs;
+using Microsoft.AspNetCore.SignalR;
 
 namespace DrugWarehouseManagement.UnitTest
 {
@@ -28,13 +30,14 @@ namespace DrugWarehouseManagement.UnitTest
         private readonly Mock<IMinioService> _minioServiceMock;
         private readonly Mock<ILogger<InboundRequestService>> _loggerMock;
         private readonly InboundRequestService _inboundRequestService;
-
+        private readonly Mock<INotificationService> _notificationServiceMock;
         public InboundRequestServiceTests()
         {
             _unitOfWorkMock = new Mock<IUnitOfWork>();
             _minioServiceMock = new Mock<IMinioService>();
             _loggerMock = new Mock<ILogger<InboundRequestService>>();
-            _inboundRequestService = new InboundRequestService(_unitOfWorkMock.Object, _minioServiceMock.Object, _loggerMock.Object);
+            _notificationServiceMock = new Mock<INotificationService>();
+            _inboundRequestService = new InboundRequestService(_unitOfWorkMock.Object, _minioServiceMock.Object, _loggerMock.Object, _notificationServiceMock.Object);
         }
 
         [Fact]
@@ -86,6 +89,8 @@ namespace DrugWarehouseManagement.UnitTest
                 .Returns(Task.CompletedTask);
             _unitOfWorkMock.Setup(uow => uow.SaveChangesAsync())
                 .Returns(Task.CompletedTask);
+            _notificationServiceMock.Setup(ns => ns.NotifyRoleAsync("Accountant", It.IsAny<string>()))
+                .Returns(Task.CompletedTask);
 
             // Act
             var response = await _inboundRequestService.CreateInboundRequest(accountId, request);
@@ -95,6 +100,8 @@ namespace DrugWarehouseManagement.UnitTest
             Assert.Equal("Inbound Request record created successfully", response.Message);
             _unitOfWorkMock.Verify(uow => uow.InboundRequestRepository.CreateAsync(It.Is<InboundRequest>(ir => ir.Price == 100 && ir.Assets.Count == 1)), Times.Once);
             _unitOfWorkMock.Verify(uow => uow.SaveChangesAsync(), Times.Once);
+            _notificationServiceMock.Verify(ns => 
+                ns.NotifyRoleAsync("Accountant", It.Is<string>(msg => msg.Contains("New Inbound Request"))), Times.Once);
         }
 
         [Fact]
@@ -445,4 +452,15 @@ namespace DrugWarehouseManagement.UnitTest
             _unitOfWorkMock.Verify(uow => uow.SaveChangesAsync(), Times.Once);
         }
     }
+
+    public class TestNotificationService
+{
+    public List<(string Role, string Message)> Notifications { get; } = new List<(string, string)>();
+
+    public Task NotifyRoleAsync(string role, string message)
+    {
+        Notifications.Add((role, message));
+        return Task.CompletedTask;
+    }
+}
 }

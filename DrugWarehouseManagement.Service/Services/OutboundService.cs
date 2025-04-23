@@ -63,7 +63,7 @@ namespace DrugWarehouseManagement.Service.Services
                 .FirstOrDefaultAsync(o => o.OutboundId == outboundId);
             if (outbound == null)
             {
-                throw new Exception("Outbound not found.");
+                throw new Exception("Không tìm thấy đơn xuất.");
             }
             var outboundResponse = outbound.Adapt<OutboundResponse>();
             return outboundResponse;
@@ -196,7 +196,7 @@ namespace DrugWarehouseManagement.Service.Services
                 }
                 else
                 {
-                    throw new Exception("Status is invalid.");
+                    throw new Exception("Trạng thái không hợp lệ.");
                 }
             }
             if (!string.IsNullOrEmpty(request.Search))
@@ -246,72 +246,61 @@ namespace DrugWarehouseManagement.Service.Services
                 .GetByWhere(o => o.OutboundId == outboundId)
                 .Include(o => o.OutboundDetails)
                 .FirstOrDefaultAsync(o => o.OutboundId == outboundId);
-
+            if (outbound.Status == OutboundStatus.Cancelled)
+                throw new Exception("Đơn xuất đã bị hủy, không thể cập nhật.");
             if (outbound == null)
-            {
-                throw new Exception("Outbound not found.");
-            }
-
-            // Nếu có giá trị cập nhật trạng thái trong request
+                throw new Exception("Không tìm thấy đơn xuất.");
             if (request.Status.HasValue)
             {
                 var newStatus = request.Status.Value;
+                if (newStatus != outbound.Status)
+                {
+                    switch (newStatus)
+                    {
+                        case OutboundStatus.Cancelled:
+                            if (outbound.Status != OutboundStatus.Pending && outbound.Status != OutboundStatus.InProgress)
+                                throw new Exception("Chỉ được phép hủy đơn xuất khi đang ở trạng thái Pending hoặc InProgress.");
+                            foreach (var detail in outbound.OutboundDetails)
+                            {
+                                var lot = await _unitOfWork.LotRepository
+                                    .GetByWhere(l => l.LotId == detail.LotId)
+                                    .FirstOrDefaultAsync();
+                                if (lot != null)
+                                {
+                                    lot.Quantity += detail.Quantity;
+                                    await _unitOfWork.LotRepository.UpdateAsync(lot);
+                                }
+                            }
+                            outbound.Status = OutboundStatus.Cancelled;
+                            break;
 
-                if (newStatus == OutboundStatus.Cancelled)
-                {
-                    // Cho phép hủy từ Pending hoặc InProgress
-                    if (outbound.Status != OutboundStatus.Pending && outbound.Status != OutboundStatus.InProgress)
-                    {
-                        throw new Exception("Chỉ được phép hủy đơn xuất khi đang ở trạng thái Pending hoặc InProgress.");
-                    }
+                        case OutboundStatus.InProgress:
+                            if (outbound.Status != OutboundStatus.Pending)
+                                throw new Exception("Chỉ được phép chuyển từ Pending sang InProgress.");
+                            outbound.Status = OutboundStatus.InProgress;
+                            break;
 
-                    // Cộng lại số lượng sản phẩm vào kho khi hủy đơn
-                    foreach (var detail in outbound.OutboundDetails)
-                    {
-                        var lot = await _unitOfWork.LotRepository
-                            .GetByWhere(l => l.LotId == detail.LotId)
-                            .FirstOrDefaultAsync();
+                        case OutboundStatus.Completed:
+                            if (outbound.Status != OutboundStatus.InProgress)
+                                throw new Exception("Chỉ được phép chuyển từ InProgress sang Completed.");
+                            outbound.Status = OutboundStatus.Completed;
+                            outbound.OutboundDate = SystemClock.Instance.GetCurrentInstant();
+                            break;
 
-                        if (lot != null)
-                        {
-                            lot.Quantity += detail.Quantity;
-                            await _unitOfWork.LotRepository.UpdateAsync(lot);
-                        }
+                        default:
+                            throw new Exception("Trạng thái cập nhật không hợp lệ.");
                     }
-                    outbound.Status = OutboundStatus.Cancelled;
-                }
-                else if (newStatus == OutboundStatus.InProgress)
-                {
-                    if (outbound.Status != OutboundStatus.Pending)
-                    {
-                        throw new Exception("Chỉ được phép chuyển từ Pending sang InProgress.");
-                    }
-                    outbound.Status = OutboundStatus.InProgress;
-                }
-                else if (newStatus == OutboundStatus.Completed)
-                {
-                    if (outbound.Status != OutboundStatus.InProgress)
-                    {
-                        throw new Exception("Chỉ được phép chuyển từ InProgress sang Completed.");
-                    }
-                    outbound.Status = OutboundStatus.Completed;
-                    outbound.OutboundDate = SystemClock.Instance.GetCurrentInstant();
-                }
-                else
-                {
-                    throw new Exception("Trạng thái cập nhật không hợp lệ.");
                 }
             }
+
             request.Adapt(outbound);
             outbound.UpdatedAt = SystemClock.Instance.GetCurrentInstant();
-
             await _unitOfWork.OutboundRepository.UpdateAsync(outbound);
             await _unitOfWork.SaveChangesAsync();
-
             return new BaseResponse
             {
                 Code = (int)HttpStatusCode.OK,
-                Message = "Outbound updated successfully"
+                Message = "Cập nhật đơn xuất thành công"
             };
         }
 
@@ -331,7 +320,7 @@ namespace DrugWarehouseManagement.Service.Services
             // 1) Load the outbound with details
             var outbound = await GetOutboundByIdWithDetailsAsync(outboundId);
             if (outbound == null)
-                throw new Exception("Outbound not found.");
+                throw new Exception("Không tìm thấy đơn xuất.");
             Settings.License = LicenseType.Community;
             // 2) Build the PDF document
             var document = Document.Create(container =>
