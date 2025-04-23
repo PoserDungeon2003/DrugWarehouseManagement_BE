@@ -438,7 +438,7 @@ namespace DrugWarehouseManagement.Service.Services
                     TransferDate = g.First().LotTransfer.CreatedAt,
                     CustomerDocNumber = g.First().LotTransfer.FromWareHouse.DocumentNumber,
                     CustomerName = g.First().LotTransfer.FromWareHouse.WarehouseName,
-                    Note = $"Chuyển từ kho {g.First().LotTransfer.FromWareHouse.WarehouseName} sang kho {g.First().LotTransfer.ToWareHouse.WarehouseName}",
+                    Note = $"Chuyển từ  {g.First().LotTransfer.FromWareHouse.WarehouseName} sang  {g.First().LotTransfer.ToWareHouse.WarehouseName}",
                     Qty = g.Sum(x => x.Quantity)
                 })
                 .ToListAsync();
