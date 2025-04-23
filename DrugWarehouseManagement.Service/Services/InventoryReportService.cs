@@ -503,9 +503,14 @@ namespace DrugWarehouseManagement.Service.Services
                 .GetByWhere(w => w.WarehouseId == warehouseId)
                 .FirstOrDefaultAsync();
             string warehouseNameForCard = warehouseEntity?.WarehouseName ?? "N/A";
+            var serverTimeZone = TimeZoneInfo.Local;
+            var startDateUtc = startDate.ToDateTimeUtc();
+            var startDateLocal = TimeZoneInfo.ConvertTimeFromUtc(startDateUtc, serverTimeZone);
+            string startDateStrCard = startDateLocal.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture);
+            var endDateUtc = endDate.ToDateTimeUtc();
+            var endDateLocal = TimeZoneInfo.ConvertTimeFromUtc(endDateUtc, serverTimeZone);
+            string endDateStrCard = endDateLocal.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture);
 
-            string startDateStrCard = startDate.ToDateTimeUtc().ToString("dd/MM/yyyy", CultureInfo.InvariantCulture);
-            string endDateStrCard = endDate.ToDateTimeUtc().ToString("dd/MM/yyyy", CultureInfo.InvariantCulture);
 
             Settings.License = LicenseType.Community;
             var pdfBytes = Document.Create(container =>
