@@ -146,7 +146,6 @@ namespace DrugWarehouseManagement.Service.Services
                 .GroupBy(od => od.Lot.ProductId)
                 .Select(g => new { ProductId = g.Key, Qty = g.Sum(x => x.Quantity) })
                 .ToListAsync();
-
             // (d4) Xuất Hư (Báo cáo kiểm kê hàng hư)
             var outboundDamage = await _unitOfWork.InventoryCheckRepository
                 .GetByWhere(ic => ic.WarehouseId == warehouseId &&
@@ -214,10 +213,9 @@ namespace DrugWarehouseManagement.Service.Services
                 {
                     ProductCode = p.ProductCode,
                     ProductName = p.ProductName,
-                    SKU = p.SKU,  // hoặc p.UnitName, tuỳ logic
+                    SKU = p.SKU,
                     Beginning = beginning,
                     BuyQty = buyQty,
-                    // Hiển thị riêng cột "Chuyển (Nhập)" và "Trả về (Nhập)"
                     TransferInQty = transNormalQty,
                     ReturnInQty = transReturnQty,
                     SellQty = sellQty,
@@ -484,7 +482,7 @@ namespace DrugWarehouseManagement.Service.Services
                     TransferDate = g.First().LotTransfer.CreatedAt,
                     CustomerDocNumber = g.First().LotTransfer.FromWareHouse.DocumentNumber,
                     CustomerName = g.First().LotTransfer.FromWareHouse.WarehouseName,
-                    Note = $"Chuyển từ kho {g.First().LotTransfer.FromWareHouse.WarehouseName} sang kho {g.First().LotTransfer.ToWareHouse.WarehouseName}",
+                    Note = $"Chuyển từ  {g.First().LotTransfer.FromWareHouse.WarehouseName} sang  {g.First().LotTransfer.ToWareHouse.WarehouseName}",
                     Qty = g.Sum(x => x.Quantity)
                 })
                 .ToListAsync();
@@ -549,9 +547,14 @@ namespace DrugWarehouseManagement.Service.Services
                 .GetByWhere(w => w.WarehouseId == warehouseId)
                 .FirstOrDefaultAsync();
             string warehouseNameForCard = warehouseEntity?.WarehouseName ?? "N/A";
+            var serverTimeZone = TimeZoneInfo.Local;
+            var startDateUtc = startDate.ToDateTimeUtc();
+            var startDateLocal = TimeZoneInfo.ConvertTimeFromUtc(startDateUtc, serverTimeZone);
+            string startDateStrCard = startDateLocal.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture);
+            var endDateUtc = endDate.ToDateTimeUtc();
+            var endDateLocal = TimeZoneInfo.ConvertTimeFromUtc(endDateUtc, serverTimeZone);
+            string endDateStrCard = endDateLocal.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture);
 
-            string startDateStrCard = startDate.ToDateTimeUtc().ToString("dd/MM/yyyy", CultureInfo.InvariantCulture);
-            string endDateStrCard = endDate.ToDateTimeUtc().ToString("dd/MM/yyyy", CultureInfo.InvariantCulture);
 
             Settings.License = LicenseType.Community;
             var pdfBytes = Document.Create(container =>

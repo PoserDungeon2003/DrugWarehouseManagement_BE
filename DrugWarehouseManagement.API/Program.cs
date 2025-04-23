@@ -48,15 +48,21 @@ namespace DrugWarehouseManagement.API
             ServiceRegister.RegisterServices(builder.Services, builder.Configuration);
 
             var app = builder.Build();
+            
+            app.UseRouting();
             if (!app.Environment.IsProduction())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
+                app.UseCors("AllowAll");
+            }
+            else
+            {
+                app.UseCors("Limited");
             }
 
             app.UseMiddleware<AuditLoggingMiddleware>();
             app.UseMiddleware<GlobalExceptionMiddleware>();
-            app.UseCors("AllowAll");
             app.UseHangfireDashboard("/hangfire");
             app.UseAuthentication();
             app.UseMiddleware<ConcurrencyMiddleware>();

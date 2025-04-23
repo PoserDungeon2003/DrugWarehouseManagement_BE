@@ -9,6 +9,7 @@ using DrugWarehouseManagement.Service.Wrapper.Interface;
 using Google.Authenticator;
 using Mapster;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
 using MockQueryable;
@@ -27,6 +28,7 @@ namespace DrugWarehouseManagement.UnitTest
         private readonly Mock<IPasswordWrapper> _passwordHelperMock;
         private readonly IPasswordHasher<Account> _passwordHasher;
         private readonly IAccountService _accountService;
+        private readonly IConfiguration _configuration;
 
         public AccountServiceTests()
         {
@@ -37,6 +39,12 @@ namespace DrugWarehouseManagement.UnitTest
             _loggerMock = new Mock<ILogger<IAccountService>>();
             _emailServiceMock = new Mock<IEmailService>();
             _passwordHasher ??= new PasswordHasher<Account>();
+            _configuration = new ConfigurationBuilder()
+                .AddInMemoryCollection(new Dictionary<string, string?>
+                {
+                    {"WebsiteUrl", "https://trung-hanh-management-fe.vercel.app/login"},
+                })
+                .Build();
 
             _accountService = new AccountService(
                 _unitOfWorkMock.Object,
@@ -44,7 +52,8 @@ namespace DrugWarehouseManagement.UnitTest
                 _loggerMock.Object,
                 _emailServiceMock.Object,
                 _twoFactorAuthenticatorMock.Object,
-                _passwordHelperMock.Object
+                _passwordHelperMock.Object,
+                _configuration
             );
         }
 

@@ -252,7 +252,13 @@ namespace DrugWarehouseManagement.API
                 .IgnoreNullValues(true);
             TypeAdapterConfig<UpdateOutboundRequest, Outbound>
                 .NewConfig()
-                .IgnoreNullValues(true);
+                 .Map(dest => dest.ReceiverName, src => src.CustomerName)
+                 .Map(dest => dest.ReceiverPhone, src => src.PhoneNumber)
+                 .Map(dest => dest.ReceiverAddress, src => src.Address)
+                 .Map(dest => dest.OutboundOrderCode, src => src.OutboundOrderCode)
+                 .Map(dest => dest.Note, src => src.Note)
+                 .IgnoreNullValues(true)
+                 .Ignore(dest => dest.Status);
             TypeAdapterConfig<Categories, ViewCategories>
                 .NewConfig()
                 .Map(dest => dest.ParentCategoryName, src => src.ParentCategory.CategoryName);
@@ -261,9 +267,6 @@ namespace DrugWarehouseManagement.API
                 .NewConfig()
                 .IgnoreNullValues(true)
                 .Map(dest => dest.ParentCategoryId, src => src.ParentCategoryId);
-
-            // Set up time zone (example: UTC+7 for Vietnam)
-            DateTimeZone timeZone = DateTimeZoneProviders.Tzdb["Asia/Ho_Chi_Minh"];
 
             TypeAdapterConfig<Inbound, ViewInbound>
                 .NewConfig()
@@ -274,7 +277,6 @@ namespace DrugWarehouseManagement.API
             // Configure InboundReport to ViewInboundReport
             TypeAdapterConfig<InboundReport, ViewInboundReport>.NewConfig()
                 .Map(dest => dest.InboundReportId, src => src.InboundReportId)
-                .Map(dest => dest.ReportDate, src => src.ReportDate.ToString("dd/MM/yyyy HH:mm", null))
                 .Map(dest => dest.Status, src => src.Status.ToString())
                 .Map(dest => dest.ProblemDescription, src => src.ProblemDescription);
 
@@ -348,6 +350,12 @@ namespace DrugWarehouseManagement.API
                 options.AddPolicy("AllowAll", builder =>
                 {
                     builder.AllowAnyOrigin()
+                           .AllowAnyMethod()
+                           .AllowAnyHeader();
+                });
+                options.AddPolicy("Limited", builder =>
+                {
+                    builder.WithOrigins("https://trung-hanh-management-fe.vercel.app")
                            .AllowAnyMethod()
                            .AllowAnyHeader();
                 });

@@ -88,6 +88,8 @@ namespace DrugWarehouseManagement.Service.Services
                 if (inboundReport != null)
                 {
                     inboundReport.Status = InboundReportStatus.Completed;
+                    inboundReport.UpdatedAt = SystemClock.Instance.GetCurrentInstant();
+                    inboundReport.ProblemDescription = "Đơn không có hàng lỗi";
                     await _unitOfWork.InboundReportRepository.UpdateAsync(inboundReport);
                     await _unitOfWork.SaveChangesAsync();
                 }
@@ -237,6 +239,7 @@ namespace DrugWarehouseManagement.Service.Services
 
             var inboundReport = await _unitOfWork.InboundReportRepository
                 .GetByWhere(ir => ir.InboundId == inbound.InboundId)
+                .Include(a => a.Assets)
                 .OrderByDescending(ir => ir.ReportDate)
                 .FirstOrDefaultAsync();
 
@@ -351,7 +354,7 @@ namespace DrugWarehouseManagement.Service.Services
         {
             var uniqueId = Guid.NewGuid().ToString("N").Substring(0, 4).ToUpper();
             string dateDigits = DateTime.Now.ToString("MMdd");
-            return $"IC{uniqueId}{dateDigits}";
+            return $"IC{DateTime.Now.ToString("yyyyMMddHHmmss")}";
         }
 
         public async Task<byte[]> GenerateInboundPdfAsync(int inboundId)
