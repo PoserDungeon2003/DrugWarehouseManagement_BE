@@ -114,46 +114,27 @@ namespace DrugWarehouseManagement.Service.Services
                     .Where(pc => !requestedCategoryIds.Contains(pc.CategoriesId))
                     .ToList();
 
-                // Remove categories that are not in the request
-                foreach (var categoryToDelete in categoriesToDelete)
+                if (categoriesToDelete.Any())
                 {
-                    product.ProductCategories.Remove(categoryToDelete);
+                    await _unitOfWork.ProductCategoriesRepository.DeleteRangeAsync(categoriesToDelete);
                 }
 
-                // Add new categories that don't exist
-                foreach (var categoryId in requestedCategoryIds)
+                // Batch add new categories
+                var newCategoryIds = requestedCategoryIds
+                    .Except(existingCategoryIds)
+                    .ToList();
+
+                if (newCategoryIds.Any())
                 {
-                    if (!existingCategoryIds.Contains(categoryId))
-                    {
-                        product.ProductCategories.Add(new ProductCategories
+                    var newProductCategories = newCategoryIds
+                        .Select(catId => new ProductCategories
                         {
                             ProductId = productId,
-                            CategoriesId = categoryId
-                        });
-                    }
+                            CategoriesId = catId
+                        }).ToList();
+
+                    await _unitOfWork.ProductCategoriesRepository.AddRangeAsync(newProductCategories);
                 }
-
-                // if (categoriesToDelete.Any())
-                // {
-                //     await _unitOfWork.ProductCategoriesRepository.DeleteRangeAsync(categoriesToDelete);
-                // }
-
-                // // Batch add new categories
-                // var newCategoryIds = requestedCategoryIds
-                //     .Except(existingCategoryIds)
-                //     .ToList();
-
-                // if (newCategoryIds.Any())
-                // {
-                //     var newProductCategories = newCategoryIds
-                //         .Select(catId => new ProductCategories
-                //         {
-                //             ProductId = productId,
-                //             CategoriesId = catId
-                //         }).ToList();
-
-                //     await _unitOfWork.ProductCategoriesRepository.AddRangeAsync(newProductCategories);
-                // }
             }
 
             // Update product properties
