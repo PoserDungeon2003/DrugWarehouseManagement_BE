@@ -114,34 +114,59 @@ namespace DrugWarehouseManagement.Service.Services
                     .Where(pc => !requestedCategoryIds.Contains(pc.CategoriesId))
                     .ToList();
 
-                if (categoriesToDelete.Any())
+                // Remove categories that are not in the request
+                foreach (var categoryToDelete in categoriesToDelete)
                 {
-                    await _unitOfWork.ProductCategoriesRepository.DeleteRangeAsync(categoriesToDelete);
+                    product.ProductCategories.Remove(categoryToDelete);
                 }
 
-                // Batch add new categories
-                var newCategoryIds = requestedCategoryIds
-                    .Except(existingCategoryIds)
-                    .ToList();
-
-                if (newCategoryIds.Any())
+                // Add new categories that don't exist
+                foreach (var categoryId in requestedCategoryIds)
                 {
-                    var newProductCategories = newCategoryIds
-                        .Select(catId => new ProductCategories
+                    if (!existingCategoryIds.Contains(categoryId))
+                    {
+                        product.ProductCategories.Add(new ProductCategories
                         {
                             ProductId = productId,
-                            CategoriesId = catId
-                        }).ToList();
-
-                    await _unitOfWork.ProductCategoriesRepository.AddRangeAsync(newProductCategories);
+                            CategoriesId = categoryId
+                        });
+                    }
                 }
-                product.ProductCategories = null;
+
+                // if (categoriesToDelete.Any())
+                // {
+                //     await _unitOfWork.ProductCategoriesRepository.DeleteRangeAsync(categoriesToDelete);
+                // }
+
+                // // Batch add new categories
+                // var newCategoryIds = requestedCategoryIds
+                //     .Except(existingCategoryIds)
+                //     .ToList();
+
+                // if (newCategoryIds.Any())
+                // {
+                //     var newProductCategories = newCategoryIds
+                //         .Select(catId => new ProductCategories
+                //         {
+                //             ProductId = productId,
+                //             CategoriesId = catId
+                //         }).ToList();
+
+                //     await _unitOfWork.ProductCategoriesRepository.AddRangeAsync(newProductCategories);
+                // }
             }
 
             // Update product properties
             request.Adapt(product);
 
-            await _unitOfWork.ProductRepository.UpdateAsync(product);
+            await _unitOfWork.ProductRepository.UpdateAsync(new Product
+            {
+                ProductId = productId,
+                ProductName = product.ProductName,
+                ProductCode = product.ProductCode,
+                SKU = product.SKU,
+                MadeFrom = product.MadeFrom,
+            });
             await _unitOfWork.SaveChangesAsync();
             return new BaseResponse
             {
