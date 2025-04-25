@@ -218,6 +218,7 @@ namespace DrugWarehouseManagement.Service.Services
             // 1. Sum quantities per product, excluding warehouse 2 and 6
             var lowStockQuery = await _unitOfWork.LotRepository
                 .GetAll()
+                .Include(l => l.Warehouse)
                 .Where(l => l.Warehouse.WarehouseId != 6
                          && l.Warehouse.WarehouseId != 2)
                 .GroupBy(l => l.ProductId)

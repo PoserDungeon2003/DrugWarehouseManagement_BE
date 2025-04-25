@@ -283,12 +283,12 @@ namespace DrugWarehouseManagement.Service.Services
                                 columns.RelativeColumn(2);  // ĐVT
                                 columns.RelativeColumn(1);  // Đầu kỳ
                                 columns.RelativeColumn(1);  // Mua
-                                columns.RelativeColumn(1);  // Chuyển (Nhập)
+                                columns.RelativeColumn(2);  // Chuyển (Nhập)
                                 columns.RelativeColumn(1);  // Trả về (Nhập)
                                 columns.RelativeColumn(1);  // Hư (Kiểm kê)
                                 columns.RelativeColumn(1);  // Mất (Kiểm kê)
                                 columns.RelativeColumn(1);  // Bán
-                                columns.RelativeColumn(1);  // Chuyển (Xuất)
+                                columns.RelativeColumn(2);  // Chuyển (Xuất)
                                 columns.RelativeColumn(1);  // Tồn
                                 columns.RelativeColumn(1);  // Xuất mẫu 
                             });
