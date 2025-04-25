@@ -212,7 +212,8 @@ namespace DrugWarehouseManagement.API
                 .IgnoreNullValues(true);
             TypeAdapterConfig<UpdateProductRequest, Product>
                 .NewConfig()
-                .IgnoreNullValues(true);
+                .IgnoreNullValues(true)
+                .Ignore(dest => dest.ProductCategories);
             TypeAdapterConfig<AuditLogs, ViewAuditLogs>
                 .NewConfig()
                 .Map(dest => dest.UserName, src => src.Account.UserName)

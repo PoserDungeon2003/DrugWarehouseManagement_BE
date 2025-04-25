@@ -96,18 +96,20 @@ namespace DrugWarehouseManagement.Service.Services
                 throw new Exception("Không tìm thấy sản phẩm.");
             }
 
-            if (request.ProductCategories != null)
+            // Process categories more efficiently
+            if (request.ProductCategories != null && request.ProductCategories.Any())
             {
+                // Get existing category IDs in one query
                 var existingCategoryIds = product.ProductCategories
                     .Select(pc => pc.CategoriesId)
                     .ToHashSet();
 
                 var requestedCategoryIds = request.ProductCategories
-                    .GroupBy(c => new { c.CategoriesId })
-                    .Select(c => c.Key.CategoriesId)
+                    .Select(c => c.CategoriesId)
+                    .Distinct()
                     .ToHashSet();
 
-                // DELETE: Remove categories no longer in request
+                // Batch delete categories
                 var categoriesToDelete = product.ProductCategories
                     .Where(pc => !requestedCategoryIds.Contains(pc.CategoriesId))
                     .ToList();
@@ -117,7 +119,7 @@ namespace DrugWarehouseManagement.Service.Services
                     await _unitOfWork.ProductCategoriesRepository.DeleteRangeAsync(categoriesToDelete);
                 }
 
-                // ADD: Add only new categories that don't exist in DB
+                // Batch add new categories
                 var newCategoryIds = requestedCategoryIds
                     .Except(existingCategoryIds)
                     .ToList();
@@ -134,14 +136,9 @@ namespace DrugWarehouseManagement.Service.Services
                     await _unitOfWork.ProductCategoriesRepository.AddRangeAsync(newProductCategories);
                 }
             }
-            // Prevent overwriting navigation property
-            var productCategoriesBackup = request.ProductCategories;
-            request.ProductCategories = null;
 
-            request.Adapt(product); // Mapster will now skip ProductCategories
-
-            request.ProductCategories = productCategoriesBackup; // restore if needed later
-
+            // Update product properties
+            request.Adapt(product);
 
             await _unitOfWork.ProductRepository.UpdateAsync(product);
             await _unitOfWork.SaveChangesAsync();
