@@ -88,7 +88,6 @@ namespace DrugWarehouseManagement.Service.Services
             var product = await _unitOfWork.ProductRepository
                                 .GetByWhere(p => p.ProductId == productId)
                                 .Include(pc => pc.ProductCategories)
-                                .Include(c => c.Categories)
                                 .FirstOrDefaultAsync();
 
             if (product == null)
