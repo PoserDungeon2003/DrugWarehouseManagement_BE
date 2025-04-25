@@ -132,10 +132,10 @@ namespace DrugWarehouseManagement.Service.Services
                             ProductId = productId,
                             CategoriesId = catId
                         }).ToList();
-                    product.ProductCategories.AddRange(newProductCategories);
 
-                    // await _unitOfWork.ProductCategoriesRepository.AddRangeAsync(newProductCategories);
+                    await _unitOfWork.ProductCategoriesRepository.AddRangeAsync(newProductCategories);
                 }
+                product.ProductCategories = null;
             }
 
             // Update product properties
