@@ -149,6 +149,7 @@ namespace DrugWarehouseManagement.Service.Services
             {
                 dashboard.BestImportedProduct = new ProductStatisticDto();
             }
+            
             // 1. Phân loại đơn nhập:
             // - Đơn trả về (InboundRequestId == null)
             dashboard.InboundClassification = new InboundClassificationDto();
@@ -200,7 +201,7 @@ namespace DrugWarehouseManagement.Service.Services
                 .OrderByDescending(r => r.CreatedAt)
                 .Take(10)
                 .ToListAsync();
-
+   
             dashboard.NewDocuments = inboundReports
                 .Select(r => new DocumentStatusDto
                 {
