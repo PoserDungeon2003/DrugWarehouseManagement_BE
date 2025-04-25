@@ -141,7 +141,7 @@ namespace DrugWarehouseManagement.Service.Services
 
             await _unitOfWork.ProductRepository.UpdateAsync(new Product
             {
-                ProductId = productId,
+                ProductId = product.ProductId,
                 ProductName = product.ProductName,
                 ProductCode = product.ProductCode,
                 SKU = product.SKU,
