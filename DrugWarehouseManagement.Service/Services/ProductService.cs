@@ -135,13 +135,19 @@ namespace DrugWarehouseManagement.Service.Services
 
                     await _unitOfWork.ProductCategoriesRepository.AddRangeAsync(newProductCategories);
                 }
-                product.ProductCategories = null;
             }
 
             // Update product properties
             request.Adapt(product);
 
-            await _unitOfWork.ProductRepository.UpdateAsync(product);
+            await _unitOfWork.ProductRepository.UpdateAsync(new Product
+            {
+                ProductId = productId,
+                ProductName = product.ProductName,
+                ProductCode = product.ProductCode,
+                SKU = product.SKU,
+                MadeFrom = product.MadeFrom,
+            });
             await _unitOfWork.SaveChangesAsync();
             return new BaseResponse
             {
