@@ -92,15 +92,16 @@ namespace DrugWarehouseManagement.Service.Services
             // Lấy danh sách Lot dựa trên các LotId được gửi từ request
             var lotIds = request.OutboundDetails.Select(d => d.LotId).ToList();
             var lots = await _unitOfWork.LotRepository
-                            .GetByWhere(l => lotIds.Contains(l.LotId))
+                            .GetByWhere(l => lotIds.Contains(l.LotId))                       
+                            .Include(l => l.Warehouse)           // include warehouse
                             .ToListAsync();
-
             if (lots.Count != lotIds.Count)
             {
                 throw new Exception("Không tìm thấy lô hàng.");
             }
 
             // Danh sách chứa các chi tiết đơn xuất
+            var today = DateOnly.FromDateTime(DateTime.Now);
             var detailsList = new List<OutboundDetails>();
 
             // Kiểm tra số lượng trong lô và tạo chi tiết đơn xuất
@@ -112,7 +113,20 @@ namespace DrugWarehouseManagement.Service.Services
                 {
                     throw new Exception($"Lô hàng yêu cầu: {detailRequest.LotId} không tìm thấy.");
                 }
+                if (lot.ExpiryDate < today) 
+                {
+                    throw new Exception($"Lô {lot.LotNumber} đã hết hạn dùng ({lot.ExpiryDate:dd/MM/yyyy})."); 
+                }
 
+                if (lot.WarehouseId == 2)
+                {
+                    throw new Exception($"Lô {lot.LotNumber} đang ở kho hủy, không được phép xuất.");
+                }
+                
+                if(lot.WarehouseId == 6)
+                {
+                    throw new Exception($"Lô {lot.LotNumber} đang ở kho tạm, không được phép xuất.");
+                }
                 // Kiểm tra số lượng trong lô có đủ không
                 if (lot.Quantity < detailRequest.Quantity)
                 {
