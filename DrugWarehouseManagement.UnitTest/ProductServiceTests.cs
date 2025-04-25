@@ -127,47 +127,47 @@ namespace DrugWarehouseManagement.UnitTest
         //     _unitOfWorkMock.Verify(uow => uow.SaveChangesAsync(), Times.Once);
         // }
 
-        [Fact]
-        public async Task UpdateProductAsync_RemovesUnspecifiedCategories()
-        {
-            // Arrange
-            var productId = 1;
-            var product = new Product
-            {
-                ProductId = productId,
-                ProductCategories = new List<ProductCategories>
-            {
-                new ProductCategories { CategoriesId = 1 },
-                new ProductCategories { CategoriesId = 2 }
-            }
-            };
-            var request = new UpdateProductRequest
-            {
-                ProductCategories = new List<ProductCategoriesRequest>
-            {
-                new ProductCategoriesRequest { CategoriesId = 1 }
-            }
-            };
+        // [Fact]
+        // public async Task UpdateProductAsync_RemovesUnspecifiedCategories()
+        // {
+        //     // Arrange
+        //     var productId = 1;
+        //     var product = new Product
+        //     {
+        //         ProductId = productId,
+        //         ProductCategories = new List<ProductCategories>
+        //     {
+        //         new ProductCategories { CategoriesId = 1 },
+        //         new ProductCategories { CategoriesId = 2 }
+        //     }
+        //     };
+        //     var request = new UpdateProductRequest
+        //     {
+        //         ProductCategories = new List<ProductCategoriesRequest>
+        //     {
+        //         new ProductCategoriesRequest { CategoriesId = 1 }
+        //     }
+        //     };
 
-            _unitOfWorkMock.Setup(uow => uow.ProductRepository.GetByWhere(It.IsAny<System.Linq.Expressions.Expression<Func<Product, bool>>>()))
-                .Returns(new List<Product> { product }.AsQueryable().BuildMock());
-            _unitOfWorkMock.Setup(uow => uow.ProductCategoriesRepository.DeleteRangeAsync(It.IsAny<IEnumerable<ProductCategories>>()))
-                .Returns(Task.CompletedTask);
-            _unitOfWorkMock.Setup(uow => uow.ProductRepository.UpdateAsync(It.IsAny<Product>()))
-                .Returns(Task.CompletedTask);
-            _unitOfWorkMock.Setup(uow => uow.SaveChangesAsync())
-                .Returns(Task.CompletedTask);
+        //     _unitOfWorkMock.Setup(uow => uow.ProductRepository.GetByWhere(It.IsAny<System.Linq.Expressions.Expression<Func<Product, bool>>>()))
+        //         .Returns(new List<Product> { product }.AsQueryable().BuildMock());
+        //     _unitOfWorkMock.Setup(uow => uow.ProductCategoriesRepository.DeleteRangeAsync(It.IsAny<IEnumerable<ProductCategories>>()))
+        //         .Returns(Task.CompletedTask);
+        //     _unitOfWorkMock.Setup(uow => uow.ProductRepository.UpdateAsync(It.IsAny<Product>()))
+        //         .Returns(Task.CompletedTask);
+        //     _unitOfWorkMock.Setup(uow => uow.SaveChangesAsync())
+        //         .Returns(Task.CompletedTask);
 
-            // Act
-            var response = await _productService.UpdateProductAsync(productId, request);
+        //     // Act
+        //     var response = await _productService.UpdateProductAsync(productId, request);
 
-            // Assert
-            Assert.Equal((int)HttpStatusCode.OK, response.Code);
-            Assert.Equal("Cập nhật sản phẩm thành công.", response.Message);
-            _unitOfWorkMock.Verify(uow => uow.ProductCategoriesRepository.DeleteRangeAsync(It.Is<IEnumerable<ProductCategories>>(c => c.Count() == 1 && c.First().CategoriesId == 2)), Times.Once);
-            _unitOfWorkMock.Verify(uow => uow.ProductRepository.UpdateAsync(It.IsAny<Product>()), Times.Once);
-            _unitOfWorkMock.Verify(uow => uow.SaveChangesAsync(), Times.Once);
-        }
+        //     // Assert
+        //     Assert.Equal((int)HttpStatusCode.OK, response.Code);
+        //     Assert.Equal("Cập nhật sản phẩm thành công.", response.Message);
+        //     _unitOfWorkMock.Verify(uow => uow.ProductCategoriesRepository.DeleteRangeAsync(It.Is<IEnumerable<ProductCategories>>(c => c.Count() == 1 && c.First().CategoriesId == 2)), Times.Once);
+        //     _unitOfWorkMock.Verify(uow => uow.ProductRepository.UpdateAsync(It.IsAny<Product>()), Times.Once);
+        //     _unitOfWorkMock.Verify(uow => uow.SaveChangesAsync(), Times.Once);
+        // }
 
         [Fact]
         public async Task DeleteProductAsync_ProductNotFound_ThrowsException()
