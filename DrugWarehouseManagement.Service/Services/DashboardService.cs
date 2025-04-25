@@ -149,6 +149,7 @@ namespace DrugWarehouseManagement.Service.Services
             {
                 dashboard.BestImportedProduct = new ProductStatisticDto();
             }
+            
             // 1. Phân loại đơn nhập:
             // - Đơn trả về (InboundRequestId == null)
             dashboard.InboundClassification = new InboundClassificationDto();
@@ -200,7 +201,7 @@ namespace DrugWarehouseManagement.Service.Services
                 .OrderByDescending(r => r.CreatedAt)
                 .Take(10)
                 .ToListAsync();
-
+   
             dashboard.NewDocuments = inboundReports
                 .Select(r => new DocumentStatusDto
                 {
@@ -217,6 +218,7 @@ namespace DrugWarehouseManagement.Service.Services
             // 1. Sum quantities per product, excluding warehouse 2 and 6
             var lowStockQuery = await _unitOfWork.LotRepository
                 .GetAll()
+                .Include(l => l.Warehouse)
                 .Where(l => l.Warehouse.WarehouseId != 6
                          && l.Warehouse.WarehouseId != 2)
                 .GroupBy(l => l.ProductId)
