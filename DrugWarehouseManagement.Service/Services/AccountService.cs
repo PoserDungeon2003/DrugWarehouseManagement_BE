@@ -287,7 +287,7 @@ namespace DrugWarehouseManagement.Service.Services
 
             if (account.TwoFactorEnabled)
             {
-                if (request.ForgotBackupCode)
+                if (request.ForgotBackupCode != null && request.ForgotBackupCode == true)
                 {
                     if (request.BackupCode == null) 
                     {

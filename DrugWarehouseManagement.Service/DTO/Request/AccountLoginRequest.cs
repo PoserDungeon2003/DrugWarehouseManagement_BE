@@ -10,6 +10,6 @@ namespace DrugWarehouseManagement.Service.DTO.Request
         public string Password { get; set; } = null!;
         public string? OTPCode { get; set; }
         public string? BackupCode { get; set; }
-        public bool ForgotBackupCode { get; set; } = false;
+        public bool? ForgotBackupCode { get; set; } = false;
     }
 }
