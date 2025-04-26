@@ -68,19 +68,66 @@ namespace DrugWarehouseManagement.Service.Services
         {
             try
             {
-                var memoryStream = new MemoryStream();
-
-                // Download file from MinIO and copy to memory stream
+                var ms = new MemoryStream();
                 var args = new GetObjectArgs()
                     .WithBucket(bucketName)
                     .WithObject(objectName)
-                    .WithCallbackStream(async stream => await stream.CopyToAsync(memoryStream));
+                    .WithCallbackStream(async stream =>
+                    {
+                        await stream.CopyToAsync(ms);
+                        ms.Position = 0;
+                    });
 
                 await _minioClient.GetObjectAsync(args);
+                return ms;
+                // // Get object stats to determine size
+                // var statArgs = new StatObjectArgs()
+                //     .WithBucket(bucketName)
+                //     .WithObject(objectName);
 
-                // Reset stream position before returning
-                memoryStream.Position = 0;
-                return memoryStream;
+                // var stats = await _minioClient.StatObjectAsync(statArgs);
+                // var fileSize = stats.Size;
+
+                // // Set up chunk sizes for parallel downloading
+                // int chunkSize = 5 * 1024 * 1024; // 5MB chunks
+                // int numChunks = (int)Math.Ceiling((double)fileSize / chunkSize);
+
+                // var finalStream = new MemoryStream(new byte[fileSize]);
+                // var tasks = new List<Task>();
+
+                // for (int i = 0; i < numChunks; i++)
+                // {
+                //     int chunkIndex = i;
+                //     long startPosition = chunkIndex * chunkSize;
+                //     long length = Math.Min(chunkSize, fileSize - startPosition);
+
+                //     tasks.Add(Task.Run(async () =>
+                //     {
+                //         var chunkStream = new MemoryStream();
+                //         var getArgs = new GetObjectArgs()
+                //             .WithBucket(bucketName)
+                //             .WithObject(objectName)
+                //             .WithCallbackStream(async stream =>
+                //             {
+                //                 await stream.CopyToAsync(chunkStream);
+                //                 chunkStream.Position = 0;
+                //             })
+                //             .WithOffsetAndLength(startPosition, length);  // Using WithOffsetAndLength instead
+
+                //         await _minioClient.GetObjectAsync(getArgs);
+
+                //         // Copy to the correct position in the final stream
+                //         lock (finalStream)
+                //         {
+                //             finalStream.Position = startPosition;
+                //             chunkStream.CopyTo(finalStream);
+                //         }
+                //     }));
+                // }
+
+                // await Task.WhenAll(tasks);
+                // finalStream.Position = 0;
+                // return finalStream;
             }
             catch (Exception)
             {
