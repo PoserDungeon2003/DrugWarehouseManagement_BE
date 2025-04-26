@@ -143,12 +143,18 @@ namespace DrugWarehouseManagement.Service.Services
             account.OTPCode = Utils.Base64Encode(request.OTPCode.Trim());
             account.TwoFactorEnabled = true;
             account.TwoFactorAuthenticatorStatus = TwoFactorAuthenticatorSetupStatus.Completed;
+            var backupCode = Utils.Generate2FABackupCode(16);
+            account.BackupCode = _passwordHelper.HashValue(backupCode);
 
             await _unitOfWork.SaveChangesAsync();
             return new BaseResponse
             {
                 Code = 200,
                 Message = "Xác thực 2FA thành công",
+                Result = new
+                {
+                    BackupCode = backupCode,
+                }
             };
         }
 
@@ -183,7 +189,7 @@ namespace DrugWarehouseManagement.Service.Services
                                        .Replace("{{WEBSITE_URL}}", loginPage);
 
             await _emailService.SendEmailAsync(account.Email, "Tài khoản đã được tạo", htmlTemplate);
-            
+
             await _unitOfWork.AccountRepository.CreateAsync(account);
             await _unitOfWork.SaveChangesAsync();
 
@@ -281,24 +287,41 @@ namespace DrugWarehouseManagement.Service.Services
 
             if (account.TwoFactorEnabled)
             {
-                if (request.OTPCode == null)
+                if (request.ForgotBackupCode)
                 {
-                    throw new Exception("Mã xác thực 2FA là bắt buộc");
+                    if (request.BackupCode == null) 
+                    {
+                        throw new Exception("Mã dự phòng là bắt buộc");
+                    }
+                    var verify = _passwordHelper.VerifyHashedValue(account.BackupCode, request.BackupCode.Trim());
+
+                    if (verify == PasswordVerificationResult.Failed)
+                    {
+                        throw new Exception("Mã dự phòng không chính xác");
+                    }
                 }
-
-                var verify = VerifyTwoFactorCode(account.tOTPSecretKey, request.OTPCode.Trim());
-
-                if (!verify)
+                else
                 {
-                    throw new Exception("Mã xác thực 2FA không chính xác");
-                }
+                    if (request.OTPCode == null)
+                    {
+                        throw new Exception("Mã xác thực 2FA là bắt buộc");
+                    }
 
-                if (!String.IsNullOrEmpty(account.OTPCode) && request.OTPCode == Utils.Base64Decode(account.OTPCode))
-                {
-                    throw new Exception("Mã xác thực 2FA đã được sử dụng trước đó");
-                }
+                    var verify = VerifyTwoFactorCode(account.tOTPSecretKey, request.OTPCode.Trim());
 
-                account.OTPCode = Utils.Base64Encode(request.OTPCode.Trim());
+                    if (!verify)
+                    {
+                        throw new Exception("Mã xác thực 2FA không chính xác");
+                    }
+
+                    if (!String.IsNullOrEmpty(account.OTPCode) && request.OTPCode == Utils.Base64Decode(account.OTPCode))
+                    {
+                        throw new Exception("Mã xác thực 2FA đã được sử dụng trước đó");
+                    }
+
+                    account.OTPCode = Utils.Base64Encode(request.OTPCode.Trim());
+
+                }
             }
 
             //if (account.TwoFactorEnabled) // Đang suy nghĩ luồng backup code
@@ -448,7 +471,6 @@ namespace DrugWarehouseManagement.Service.Services
             RandomNumberGenerator.Fill(secretKey);
 
             var setupCode = _twoFactorAuthenticator.GenerateSetupCode("DrugWarehouse", account.Email, secretKey);
-            var backupCode = Utils.Generate2FABackupCode(16);
 
             account.tOTPSecretKey = secretKey;
             // account.BackupCode = _passwordHelper.HashValue(backupCode);
@@ -462,7 +484,6 @@ namespace DrugWarehouseManagement.Service.Services
             {
                 ImageUrlQrCode = setupCode.QrCodeSetupImageUrl,
                 ManualEntryKey = setupCode.ManualEntryKey,
-                BackupCode = backupCode
             };
         }
 
