@@ -56,7 +56,6 @@ namespace DrugWarehouseManagement.API.Controllers
             }
             return Ok(returnOutbound);
         }
-
         [HttpGet]
         [Authorize]
         public async Task<IActionResult> GetAllReturnOutbound()
@@ -64,5 +63,7 @@ namespace DrugWarehouseManagement.API.Controllers
             var returnOutbound = await _returnOutboundService.GetAllReturnOutboundDetailsAsync();
             return Ok(returnOutbound);
         }
+
+
     }
 }

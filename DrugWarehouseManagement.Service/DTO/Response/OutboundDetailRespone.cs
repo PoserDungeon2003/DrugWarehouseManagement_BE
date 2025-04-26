@@ -14,6 +14,11 @@ namespace DrugWarehouseManagement.Service.DTO.Response
         public string UnitType { get; set; } = null!;
         public string? ProductName { get; set; }
         public DateOnly ExpiryDate { get; set; }
+
+        public int WarehouseId { get; set; }
+        public string WarehouseCode { get; set; } = null!;
+        public string WarehouseName { get; set; } = null!;
+        public List<ReturnOutboundDetailsResponse> Returns { get; set; } = new();
     }
     public class OutboundResponse
     {
