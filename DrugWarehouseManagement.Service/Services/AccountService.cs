@@ -285,11 +285,25 @@ namespace DrugWarehouseManagement.Service.Services
                 throw new Exception("Tài khoản đã bị xóa, vui lòng liên hệ với quản trị viên để biết thêm thông tin");
             }
 
+            var verifyPassword = _passwordHelper.VerifyHashedPassword(account, account.PasswordHash, request.Password);
+
+            if (verifyPassword == PasswordVerificationResult.Failed)
+            {
+                throw new Exception("Mật khẩu không chính xác");
+            }
+
             if (account.TwoFactorEnabled)
             {
-                if (request.LostOTPCode != null && request.LostOTPCode == true)
+                if (request.OTPCode == null && (request.LostOTPCode != true || request.BackupCode == null))
                 {
-                    if (request.BackupCode == null) 
+                    return new AccountLoginResponse
+                    {
+                        RequiresTwoFactor = true,
+                    };
+                }
+                if (request.LostOTPCode == true)
+                {
+                    if (request.BackupCode == null)
                     {
                         throw new Exception("Mã dự phòng là bắt buộc");
                     }
@@ -366,13 +380,6 @@ namespace DrugWarehouseManagement.Service.Services
             //        throw new Exception("Invalid two factor code or backup code");
             //    }
             //}
-
-            var verifyPassword = _passwordHelper.VerifyHashedPassword(account, account.PasswordHash, request.Password);
-
-            if (verifyPassword == PasswordVerificationResult.Failed)
-            {
-                throw new Exception("Mật khẩu không chính xác");
-            }
 
             account.ConcurrencyStamp = Guid.NewGuid().ToString();
 
