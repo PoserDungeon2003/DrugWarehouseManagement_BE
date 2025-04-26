@@ -12,6 +12,5 @@ namespace DrugWarehouseManagement.Service.Interface
     {
         Task CreateReturnOutboundAsync(CreateReturnOutboundRequest request);
         Task<List<ReturnOutboundDetailsResponse>> GetReturnOutboundByOutboundIdAsync(int outboundId);
-        Task<List<ReturnOutboundDetailsResponse>> GetAllReturnOutboundDetailsAsync();
     }
 }
