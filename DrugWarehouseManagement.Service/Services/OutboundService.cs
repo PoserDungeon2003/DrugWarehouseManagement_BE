@@ -93,7 +93,6 @@ namespace DrugWarehouseManagement.Service.Services
             var lotIds = request.OutboundDetails.Select(d => d.LotId).ToList();
             var lots = await _unitOfWork.LotRepository
                             .GetByWhere(l => lotIds.Contains(l.LotId))                       
-                            .Include(l => l.Warehouse)           // include warehouse
                             .ToListAsync();
             if (lots.Count != lotIds.Count)
             {
