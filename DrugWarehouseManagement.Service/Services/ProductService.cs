@@ -98,51 +98,51 @@ namespace DrugWarehouseManagement.Service.Services
             // Update product properties
             request.Adapt(product);
 
-            // Process categories more efficiently
-            if (request.ProductCategories != null && request.ProductCategories.Any())
+            // Handle product categories if they're provided
+            if (request.ProductCategories != null)
             {
-                // Get existing category IDs in one query
-                var existingCategories = product.ProductCategories?.ToList() ?? new List<ProductCategories>();
-                var existingCategoryIds = existingCategories
-                    .Select(pc => pc.CategoriesId)
-                    .ToHashSet();
+                // Get current categories
+                var currentProductCategories = product.ProductCategories?.ToList() ?? new List<ProductCategories>();
 
-                var requestedCategoryIds = request.ProductCategories
-                    .Where(c => c != null)
+                // Extract category IDs from request
+                var requestCategoryIds = request.ProductCategories
+                    .Where(c => c != null && c.CategoriesId > 0)
                     .Select(c => c.CategoriesId)
                     .Distinct()
                     .ToHashSet();
 
-                // Remove categories not in the request
-                var categoriesToRemove = existingCategories
-                    .Where(pc => !requestedCategoryIds.Contains(pc.CategoriesId))
+                // Determine which categories to remove
+                var categoriesToRemove = currentProductCategories
+                    .Where(pc => !requestCategoryIds.Contains(pc.CategoriesId))
                     .ToList();
 
-                foreach (var category in categoriesToRemove)
+                // Remove categories not in the request
+                foreach (var categoryToRemove in categoriesToRemove)
                 {
-                    product.ProductCategories.Remove(category);
+                    product.ProductCategories.Remove(categoryToRemove);
                 }
 
-                // Add new categories
-                var newCategoryIds = requestedCategoryIds
-                    .Except(existingCategoryIds)
-                    .ToList();
+                // Determine which categories to add
+                var existingCategoryIds = currentProductCategories
+                    .Select(pc => pc.CategoriesId)
+                    .ToHashSet();
 
-                foreach (var categoryId in newCategoryIds)
-                {
-                    product.ProductCategories.Add(new ProductCategories
+                var categoriesToAdd = requestCategoryIds
+                    .Except(existingCategoryIds)
+                    .Select(catId => new ProductCategories
                     {
                         ProductId = productId,
-                        CategoriesId = categoryId
-                    });
+                        CategoriesId = catId
+                    })
+                    .ToList();
+
+                // Add new categories
+                foreach (var categoryToAdd in categoriesToAdd)
+                {
+                    product.ProductCategories.Add(categoryToAdd);
                 }
             }
-            else if (request.ProductCategories != null && !request.ProductCategories.Any())
-            {
-                // If empty list is provided, clear all categories
-                product.ProductCategories.Clear();
-            }
-            
+
             await _unitOfWork.ProductRepository.UpdateAsync(product);
             await _unitOfWork.SaveChangesAsync();
             return new BaseResponse
