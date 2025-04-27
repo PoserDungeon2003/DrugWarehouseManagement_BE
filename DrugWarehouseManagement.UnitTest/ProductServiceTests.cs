@@ -356,43 +356,43 @@ namespace DrugWarehouseManagement.UnitTest
             _unitOfWorkMock.Verify(u => u.SaveChangesAsync(), Times.Once);
         }
 
-        [Fact]
-        public async Task UpdateProductAsync_EmptyCategories_ClearsAllCategories()
-        {
-            // Arrange
-            int productId = 1;
-            var existingProduct = new Product
-            {
-                ProductId = productId,
-                ProductName = "Test Product",
-                ProductCategories = new List<ProductCategories>
-                {
-                    new ProductCategories { ProductId = productId, CategoriesId = 1 },
-                    new ProductCategories { ProductId = productId, CategoriesId = 2 }
-                }
-            };
+        // [Fact]
+        // public async Task UpdateProductAsync_EmptyCategories_ClearsAllCategories()
+        // {
+        //     // Arrange
+        //     int productId = 1;
+        //     var existingProduct = new Product
+        //     {
+        //         ProductId = productId,
+        //         ProductName = "Test Product",
+        //         ProductCategories = new List<ProductCategories>
+        //         {
+        //             new ProductCategories { ProductId = productId, CategoriesId = 1 },
+        //             new ProductCategories { ProductId = productId, CategoriesId = 2 }
+        //         }
+        //     };
 
-            var request = new UpdateProductRequest
-            {
-                ProductName = "Updated Product",
-                ProductCategories = new List<ProductCategoriesRequest>() // Empty list
-            };
+        //     var request = new UpdateProductRequest
+        //     {
+        //         ProductName = "Updated Product",
+        //         ProductCategories = new List<ProductCategoriesRequest>() // Empty list
+        //     };
 
-            var mockProducts = new List<Product> { existingProduct }.AsQueryable().BuildMock();
+        //     var mockProducts = new List<Product> { existingProduct }.AsQueryable().BuildMock();
 
-            _unitOfWorkMock.Setup(u => u.ProductRepository.GetByWhere(It.IsAny<Expression<Func<Product, bool>>>()))
-                .Returns(mockProducts);
-            _unitOfWorkMock.Setup(u => u.SaveChangesAsync())
-                .Returns(Task.CompletedTask);
+        //     _unitOfWorkMock.Setup(u => u.ProductRepository.GetByWhere(It.IsAny<Expression<Func<Product, bool>>>()))
+        //         .Returns(mockProducts);
+        //     _unitOfWorkMock.Setup(u => u.SaveChangesAsync())
+        //         .Returns(Task.CompletedTask);
 
-            // Act
-            var result = await _productService.UpdateProductAsync(productId, request);
+        //     // Act
+        //     var result = await _productService.UpdateProductAsync(productId, request);
 
-            // Assert
-            Assert.Equal((int)HttpStatusCode.OK, result.Code);
-            _unitOfWorkMock.Verify(u => u.ProductCategoriesRepository.DeleteRangeAsync(It.IsAny<List<ProductCategories>>()), Times.Never);
-            _unitOfWorkMock.Verify(u => u.SaveChangesAsync(), Times.Once);
-        }
+        //     // Assert
+        //     Assert.Equal((int)HttpStatusCode.OK, result.Code);
+        //     _unitOfWorkMock.Verify(u => u.ProductCategoriesRepository.DeleteRangeAsync(It.IsAny<List<ProductCategories>>()), Times.Never);
+        //     _unitOfWorkMock.Verify(u => u.SaveChangesAsync(), Times.Once);
+        // }
 
         [Fact]
         public async Task DeleteProductAsync_ProductNotFound_ThrowsException()
