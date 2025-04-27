@@ -139,15 +139,15 @@ namespace DrugWarehouseManagement.Service.Services
             // Update product properties
             request.Adapt(product);
             // var tempProductId = product.ProductId;
-
-            // await _unitOfWork.ProductRepository.UpdateAsync(new Product
-            // {
-            //     ProductId = tempProductId,
-            //     ProductName = product.ProductName,
-            //     ProductCode = product.ProductCode,
-            //     SKU = product.SKU,
-            //     MadeFrom = product.MadeFrom,
-            // });
+            var updatedProduct = new Product
+            {
+                ProductId = product.ProductId,
+                ProductName = product.ProductName,
+                ProductCode = product.ProductCode,
+                SKU = product.SKU,
+                MadeFrom = product.MadeFrom,
+            };
+            await _unitOfWork.ProductRepository.UpdateAsync(updatedProduct);
             await _unitOfWork.SaveChangesAsync();
             return new BaseResponse
             {
