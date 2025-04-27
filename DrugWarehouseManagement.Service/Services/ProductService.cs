@@ -87,7 +87,6 @@ namespace DrugWarehouseManagement.Service.Services
         {
             var product = await _unitOfWork.ProductRepository
                                 .GetByWhere(p => p.ProductId == productId)
-                                .Include(pc => pc.ProductCategories)
                                 .FirstOrDefaultAsync();
 
             if (product == null)
@@ -97,38 +96,40 @@ namespace DrugWarehouseManagement.Service.Services
 
             // Update product properties
             request.Adapt(product);
+            await _unitOfWork.ProductRepository.UpdateAsync(product);
+            await _unitOfWork.SaveChangesAsync();
 
-            // Handle product categories if they're provided
-            if (request.ProductCategories != null)
+            // Now handle categories separately with explicit SQL operations if needed
+            if (request.ProductCategories != null && request.ProductCategories.Any())
             {
-                // Get current categories
-                var currentProductCategories = product.ProductCategories?.ToList() ?? new List<ProductCategories>();
+                // Get all existing product-category relationships
+                var existingRelations = await _unitOfWork.ProductCategoriesRepository
+                    .GetByWhere(pc => pc.ProductId == productId)
+                    .ToListAsync();
 
-                // Extract category IDs from request
-                var requestCategoryIds = request.ProductCategories
-                    .Where(c => c != null && c.CategoriesId > 0)
+                // Extract requested category IDs
+                var requestedCategoryIds = request.ProductCategories
+                    .Where(c => c != null)
                     .Select(c => c.CategoriesId)
                     .Distinct()
-                    .ToHashSet();
-
-                // Determine which categories to remove
-                var categoriesToRemove = currentProductCategories
-                    .Where(pc => !requestCategoryIds.Contains(pc.CategoriesId))
                     .ToList();
 
-                // Remove categories not in the request
-                foreach (var categoryToRemove in categoriesToRemove)
+                // Find categories to remove
+                var categoriesToRemove = existingRelations
+                    .Where(pc => !requestedCategoryIds.Contains(pc.CategoriesId))
+                    .ToList();
+
+                // Remove categories that are not in the request
+                if (categoriesToRemove.Any())
                 {
-                    product.ProductCategories.Remove(categoryToRemove);
+                    await _unitOfWork.ProductCategoriesRepository.DeleteRangeAsync(categoriesToRemove);
+                    await _unitOfWork.SaveChangesAsync();
                 }
 
-                // Determine which categories to add
-                var existingCategoryIds = currentProductCategories
-                    .Select(pc => pc.CategoriesId)
-                    .ToHashSet();
-
-                var categoriesToAdd = requestCategoryIds
-                    .Except(existingCategoryIds)
+                // Find categories to add
+                var existingCategoryIds = existingRelations.Select(pc => pc.CategoriesId).ToHashSet();
+                var categoriesToAdd = requestedCategoryIds
+                    .Where(id => !existingCategoryIds.Contains(id))
                     .Select(catId => new ProductCategories
                     {
                         ProductId = productId,
@@ -137,14 +138,25 @@ namespace DrugWarehouseManagement.Service.Services
                     .ToList();
 
                 // Add new categories
-                foreach (var categoryToAdd in categoriesToAdd)
+                if (categoriesToAdd.Any())
                 {
-                    product.ProductCategories.Add(categoryToAdd);
+                    await _unitOfWork.ProductCategoriesRepository.AddRangeAsync(categoriesToAdd);
+                    await _unitOfWork.SaveChangesAsync();
                 }
             }
+            else if (request.ProductCategories != null) // Empty list provided - remove all categories
+            {
+                var existingRelations = await _unitOfWork.ProductCategoriesRepository
+                    .GetByWhere(pc => pc.ProductId == productId)
+                    .ToListAsync();
 
-            await _unitOfWork.ProductRepository.UpdateAsync(product);
-            await _unitOfWork.SaveChangesAsync();
+                if (existingRelations.Any())
+                {
+                    await _unitOfWork.ProductCategoriesRepository.DeleteRangeAsync(existingRelations);
+                    await _unitOfWork.SaveChangesAsync();
+                }
+            }
+            
             return new BaseResponse
             {
                 Code = (int)HttpStatusCode.OK,
