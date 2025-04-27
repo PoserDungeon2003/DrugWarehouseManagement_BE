@@ -99,10 +99,9 @@ namespace DrugWarehouseManagement.UnitTest
                 ProductCode = "UP001"
             };
 
-            var mockProducts = new List<Product>().AsQueryable().BuildMock();
-
+            var emptyProductList = new List<Product>().AsQueryable().BuildMock();
             _unitOfWorkMock.Setup(u => u.ProductRepository.GetByWhere(It.IsAny<Expression<Func<Product, bool>>>()))
-                .Returns(mockProducts);
+                .Returns(emptyProductList);
 
             // Act & Assert
             var exception = await Assert.ThrowsAsync<Exception>(
@@ -112,33 +111,32 @@ namespace DrugWarehouseManagement.UnitTest
         }
 
         [Fact]
-        public async Task UpdateProductAsync_BasicUpdate_SuccessfullyUpdatesProduct()
+        public async Task UpdateProductAsync_BasicProperties_UpdatesSuccessfully()
         {
             // Arrange
             int productId = 1;
-            var existingProduct = new Product
+            var product = new Product
             {
                 ProductId = productId,
                 ProductName = "Original Product",
                 ProductCode = "OP001",
-                SKU = "SKU001",
-                MadeFrom = "Country A",
-                Status = ProductStatus.Active,
-                ProductCategories = new List<ProductCategories>()
+                SKU = "SKU001"
             };
 
             var request = new UpdateProductRequest
             {
                 ProductName = "Updated Product",
                 ProductCode = "UP001",
-                SKU = "SKU002",
-                MadeFrom = "Country B"
+                SKU = "SKU002"
             };
 
-            var mockProducts = new List<Product> { existingProduct }.AsQueryable().BuildMock();
-
+            var productList = new List<Product> { product }.AsQueryable().BuildMock();
             _unitOfWorkMock.Setup(u => u.ProductRepository.GetByWhere(It.IsAny<Expression<Func<Product, bool>>>()))
-                .Returns(mockProducts);
+                .Returns(productList);
+
+            _unitOfWorkMock.Setup(u => u.ProductRepository.UpdateAsync(It.IsAny<Product>()))
+                .Returns(Task.CompletedTask);
+
             _unitOfWorkMock.Setup(u => u.SaveChangesAsync())
                 .Returns(Task.CompletedTask);
 
@@ -148,26 +146,28 @@ namespace DrugWarehouseManagement.UnitTest
             // Assert
             Assert.Equal((int)HttpStatusCode.OK, result.Code);
             Assert.Equal("Cập nhật sản phẩm thành công.", result.Message);
-            Assert.Equal("Updated Product", existingProduct.ProductName);
-            Assert.Equal("UP001", existingProduct.ProductCode);
-            Assert.Equal("SKU002", existingProduct.SKU);
-            Assert.Equal("Country B", existingProduct.MadeFrom);
+            Assert.Equal("Updated Product", product.ProductName);
+            Assert.Equal("UP001", product.ProductCode);
+            Assert.Equal("SKU002", product.SKU);
+
+            _unitOfWorkMock.Verify(u => u.ProductRepository.UpdateAsync(product), Times.Once);
             _unitOfWorkMock.Verify(u => u.SaveChangesAsync(), Times.Once);
         }
 
         [Fact]
-        public async Task UpdateProductAsync_AddCategories_SuccessfullyAddsNewCategories()
+        public async Task UpdateProductAsync_AddCategories_AddsNewCategories()
         {
             // Arrange
             int productId = 1;
-            var existingProduct = new Product
+            var product = new Product
             {
                 ProductId = productId,
-                ProductName = "Test Product",
-                ProductCategories = new List<ProductCategories>
-                {
-                    new ProductCategories { ProductId = productId, CategoriesId = 1 }
-                }
+                ProductName = "Test Product"
+            };
+
+            var existingRelations = new List<ProductCategories>
+            {
+                new ProductCategories { ProductId = productId, CategoriesId = 1 }
             };
 
             var request = new UpdateProductRequest
@@ -176,18 +176,26 @@ namespace DrugWarehouseManagement.UnitTest
                 ProductCategories = new List<ProductCategoriesRequest>
                 {
                     new ProductCategoriesRequest { CategoriesId = 1 }, // Existing category
-                    new ProductCategoriesRequest { CategoriesId = 2 }, // New category
-                    new ProductCategoriesRequest { CategoriesId = 3 }  // New category
+                    new ProductCategoriesRequest { CategoriesId = 2 }  // New category
                 }
             };
 
-            var mockProducts = new List<Product> { existingProduct }.AsQueryable().BuildMock();
+            var productList = new List<Product> { product }.AsQueryable().BuildMock();
+            var relationsList = existingRelations.AsQueryable().BuildMock();
 
             _unitOfWorkMock.Setup(u => u.ProductRepository.GetByWhere(It.IsAny<Expression<Func<Product, bool>>>()))
-                .Returns(mockProducts);
-            _unitOfWorkMock.Setup(u => u.ProductCategoriesRepository.AddRangeAsync(It.IsAny<List<ProductCategories>>()))
+                .Returns(productList);
+
+            _unitOfWorkMock.Setup(u => u.ProductCategoriesRepository.GetByWhere(It.IsAny<Expression<Func<ProductCategories, bool>>>()))
+                .Returns(relationsList);
+
+            _unitOfWorkMock.Setup(u => u.ProductRepository.UpdateAsync(It.IsAny<Product>()))
                 .Returns(Task.CompletedTask);
+
             _unitOfWorkMock.Setup(u => u.SaveChangesAsync())
+                .Returns(Task.CompletedTask);
+
+            _unitOfWorkMock.Setup(u => u.ProductCategoriesRepository.AddRangeAsync(It.IsAny<List<ProductCategories>>()))
                 .Returns(Task.CompletedTask);
 
             // Act
@@ -195,30 +203,32 @@ namespace DrugWarehouseManagement.UnitTest
 
             // Assert
             Assert.Equal((int)HttpStatusCode.OK, result.Code);
+
             _unitOfWorkMock.Verify(u => u.ProductCategoriesRepository.AddRangeAsync(
                 It.Is<List<ProductCategories>>(list =>
-                    list.Count == 2 &&
-                    list.Any(pc => pc.CategoriesId == 2) &&
-                    list.Any(pc => pc.CategoriesId == 3))),
-                Times.Once);
-            _unitOfWorkMock.Verify(u => u.SaveChangesAsync(), Times.Once);
+                    list.Count == 1 && list[0].CategoriesId == 2)), Times.Once);
+
+            _unitOfWorkMock.Verify(u => u.ProductCategoriesRepository.DeleteRangeAsync(
+                It.IsAny<List<ProductCategories>>()), Times.Never);
+
+            _unitOfWorkMock.Verify(u => u.SaveChangesAsync(), Times.Exactly(2));
         }
 
         [Fact]
-        public async Task UpdateProductAsync_RemoveCategories_SuccessfullyRemovesCategories()
+        public async Task UpdateProductAsync_RemoveCategories_RemovesExistingCategories()
         {
             // Arrange
             int productId = 1;
-            var existingProduct = new Product
+            var product = new Product
             {
                 ProductId = productId,
-                ProductName = "Test Product",
-                ProductCategories = new List<ProductCategories>
-                {
-                    new ProductCategories { ProductId = productId, CategoriesId = 1 },
-                    new ProductCategories { ProductId = productId, CategoriesId = 2 },
-                    new ProductCategories { ProductId = productId, CategoriesId = 3 }
-                }
+                ProductName = "Test Product"
+            };
+
+            var existingRelations = new List<ProductCategories>
+            {
+                new ProductCategories { ProductId = productId, CategoriesId = 1 },
+                new ProductCategories { ProductId = productId, CategoriesId = 2 }
             };
 
             var request = new UpdateProductRequest
@@ -226,17 +236,26 @@ namespace DrugWarehouseManagement.UnitTest
                 ProductName = "Test Product",
                 ProductCategories = new List<ProductCategoriesRequest>
                 {
-                    new ProductCategoriesRequest { CategoriesId = 2 } // Keep only category 2
+                    new ProductCategoriesRequest { CategoriesId = 1 } // Keep only category 1
                 }
             };
 
-            var mockProducts = new List<Product> { existingProduct }.AsQueryable().BuildMock();
+            var productList = new List<Product> { product }.AsQueryable().BuildMock();
+            var relationsList = existingRelations.AsQueryable().BuildMock();
 
             _unitOfWorkMock.Setup(u => u.ProductRepository.GetByWhere(It.IsAny<Expression<Func<Product, bool>>>()))
-                .Returns(mockProducts);
-            _unitOfWorkMock.Setup(u => u.ProductCategoriesRepository.DeleteRangeAsync(It.IsAny<List<ProductCategories>>()))
+                .Returns(productList);
+
+            _unitOfWorkMock.Setup(u => u.ProductCategoriesRepository.GetByWhere(It.IsAny<Expression<Func<ProductCategories, bool>>>()))
+                .Returns(relationsList);
+
+            _unitOfWorkMock.Setup(u => u.ProductRepository.UpdateAsync(It.IsAny<Product>()))
                 .Returns(Task.CompletedTask);
+
             _unitOfWorkMock.Setup(u => u.SaveChangesAsync())
+                .Returns(Task.CompletedTask);
+
+            _unitOfWorkMock.Setup(u => u.ProductCategoriesRepository.DeleteRangeAsync(It.IsAny<List<ProductCategories>>()))
                 .Returns(Task.CompletedTask);
 
             // Act
@@ -244,30 +263,32 @@ namespace DrugWarehouseManagement.UnitTest
 
             // Assert
             Assert.Equal((int)HttpStatusCode.OK, result.Code);
+
             _unitOfWorkMock.Verify(u => u.ProductCategoriesRepository.DeleteRangeAsync(
                 It.Is<List<ProductCategories>>(list =>
-                    list.Count == 2 &&
-                    list.Any(pc => pc.CategoriesId == 1) &&
-                    list.Any(pc => pc.CategoriesId == 3))),
-                Times.Once);
-            _unitOfWorkMock.Verify(u => u.SaveChangesAsync(), Times.Once);
+                    list.Count == 1 && list[0].CategoriesId == 2)), Times.Once);
+
+            _unitOfWorkMock.Verify(u => u.ProductCategoriesRepository.AddRangeAsync(
+                It.IsAny<List<ProductCategories>>()), Times.Never);
+
+            _unitOfWorkMock.Verify(u => u.SaveChangesAsync(), Times.Exactly(2));
         }
 
         [Fact]
-        public async Task UpdateProductAsync_ComplexCategoryChanges_HandlesBothAddAndRemove()
+        public async Task UpdateProductAsync_MixedCategoryOperations_AddsAndRemovesCategories()
         {
             // Arrange
             int productId = 1;
-            var existingProduct = new Product
+            var product = new Product
             {
                 ProductId = productId,
-                ProductName = "Test Product",
-                ProductCategories = new List<ProductCategories>
-                {
-                    new ProductCategories { ProductId = productId, CategoriesId = 1 },
-                    new ProductCategories { ProductId = productId, CategoriesId = 2 },
-                    new ProductCategories { ProductId = productId, CategoriesId = 3 }
-                }
+                ProductName = "Test Product"
+            };
+
+            var existingRelations = new List<ProductCategories>
+            {
+                new ProductCategories { ProductId = productId, CategoriesId = 1 },
+                new ProductCategories { ProductId = productId, CategoriesId = 2 }
             };
 
             var request = new UpdateProductRequest
@@ -275,101 +296,65 @@ namespace DrugWarehouseManagement.UnitTest
                 ProductName = "Updated Test Product",
                 ProductCategories = new List<ProductCategoriesRequest>
                 {
-                    new ProductCategoriesRequest { CategoriesId = 2 }, // Keep
-                    new ProductCategoriesRequest { CategoriesId = 4 }, // Add
-                    new ProductCategoriesRequest { CategoriesId = 5 }  // Add
+                    new ProductCategoriesRequest { CategoriesId = 1 }, // Keep
+                    new ProductCategoriesRequest { CategoriesId = 3 }  // Add
                 }
             };
 
-            var mockProducts = new List<Product> { existingProduct }.AsQueryable().BuildMock();
+            var productList = new List<Product> { product }.AsQueryable().BuildMock();
+            var relationsList = existingRelations.AsQueryable().BuildMock();
 
             _unitOfWorkMock.Setup(u => u.ProductRepository.GetByWhere(It.IsAny<Expression<Func<Product, bool>>>()))
-                .Returns(mockProducts);
+                .Returns(productList);
+
+            _unitOfWorkMock.Setup(u => u.ProductCategoriesRepository.GetByWhere(It.IsAny<Expression<Func<ProductCategories, bool>>>()))
+                .Returns(relationsList);
+
+            _unitOfWorkMock.Setup(u => u.ProductRepository.UpdateAsync(It.IsAny<Product>()))
+                .Returns(Task.CompletedTask);
+
+            _unitOfWorkMock.Setup(u => u.SaveChangesAsync())
+                .Returns(Task.CompletedTask);
+
             _unitOfWorkMock.Setup(u => u.ProductCategoriesRepository.DeleteRangeAsync(It.IsAny<List<ProductCategories>>()))
                 .Returns(Task.CompletedTask);
+
             _unitOfWorkMock.Setup(u => u.ProductCategoriesRepository.AddRangeAsync(It.IsAny<List<ProductCategories>>()))
                 .Returns(Task.CompletedTask);
-            _unitOfWorkMock.Setup(u => u.SaveChangesAsync())
-                .Returns(Task.CompletedTask);
 
             // Act
             var result = await _productService.UpdateProductAsync(productId, request);
 
             // Assert
             Assert.Equal((int)HttpStatusCode.OK, result.Code);
+
             _unitOfWorkMock.Verify(u => u.ProductCategoriesRepository.DeleteRangeAsync(
                 It.Is<List<ProductCategories>>(list =>
-                    list.Count == 2 &&
-                    list.Any(pc => pc.CategoriesId == 1) &&
-                    list.Any(pc => pc.CategoriesId == 3))),
-                Times.Once);
+                    list.Count == 1 && list[0].CategoriesId == 2)), Times.Once);
+
             _unitOfWorkMock.Verify(u => u.ProductCategoriesRepository.AddRangeAsync(
                 It.Is<List<ProductCategories>>(list =>
-                    list.Count == 2 &&
-                    list.Any(pc => pc.CategoriesId == 4) &&
-                    list.Any(pc => pc.CategoriesId == 5))),
-                Times.Once);
-            _unitOfWorkMock.Verify(u => u.SaveChangesAsync(), Times.Once);
-            Assert.Equal("Updated Test Product", existingProduct.ProductName);
+                    list.Count == 1 && list[0].CategoriesId == 3)), Times.Once);
+
+            _unitOfWorkMock.Verify(u => u.SaveChangesAsync(), Times.Exactly(3));
+            Assert.Equal("Updated Test Product", product.ProductName);
         }
 
         [Fact]
-        public async Task UpdateProductAsync_NoCategories_OnlyUpdatesProductProperties()
+        public async Task UpdateProductAsync_EmptyCategoryList_RemovesAllCategories()
         {
             // Arrange
             int productId = 1;
-            var existingProduct = new Product
+            var product = new Product
             {
                 ProductId = productId,
-                ProductName = "Original Product",
-                ProductCode = "OP001",
-                ProductCategories = new List<ProductCategories>
-                {
-                    new ProductCategories { ProductId = productId, CategoriesId = 1 }
-                }
+                ProductName = "Test Product"
             };
 
-            var request = new UpdateProductRequest
+            var existingRelations = new List<ProductCategories>
             {
-                ProductName = "Updated Product",
-                ProductCode = "UP001",
-                ProductCategories = null // No categories specified
-            };
-
-            var mockProducts = new List<Product> { existingProduct }.AsQueryable().BuildMock();
-
-            _unitOfWorkMock.Setup(u => u.ProductRepository.GetByWhere(It.IsAny<Expression<Func<Product, bool>>>()))
-                .Returns(mockProducts);
-            _unitOfWorkMock.Setup(u => u.SaveChangesAsync())
-                .Returns(Task.CompletedTask);
-
-            // Act
-            var result = await _productService.UpdateProductAsync(productId, request);
-
-            // Assert
-            Assert.Equal((int)HttpStatusCode.OK, result.Code);
-            Assert.Equal("Updated Product", existingProduct.ProductName);
-            Assert.Equal("UP001", existingProduct.ProductCode);
-            // Categories should remain unchanged
-            _unitOfWorkMock.Verify(u => u.ProductCategoriesRepository.DeleteRangeAsync(It.IsAny<List<ProductCategories>>()), Times.Never);
-            _unitOfWorkMock.Verify(u => u.ProductCategoriesRepository.AddRangeAsync(It.IsAny<List<ProductCategories>>()), Times.Never);
-            _unitOfWorkMock.Verify(u => u.SaveChangesAsync(), Times.Once);
-        }
-
-        [Fact]
-        public async Task UpdateProductAsync_EmptyCategories_ClearsAllCategories()
-        {
-            // Arrange
-            int productId = 1;
-            var existingProduct = new Product
-            {
-                ProductId = productId,
-                ProductName = "Test Product",
-                ProductCategories = new List<ProductCategories>
-                {
-                    new ProductCategories { ProductId = productId, CategoriesId = 1 },
-                    new ProductCategories { ProductId = productId, CategoriesId = 2 }
-                }
+                new ProductCategories { ProductId = productId, CategoriesId = 1 },
+                new ProductCategories { ProductId = productId, CategoriesId = 2 }
             };
 
             var request = new UpdateProductRequest
@@ -378,10 +363,62 @@ namespace DrugWarehouseManagement.UnitTest
                 ProductCategories = new List<ProductCategoriesRequest>() // Empty list
             };
 
-            var mockProducts = new List<Product> { existingProduct }.AsQueryable().BuildMock();
+            var productList = new List<Product> { product }.AsQueryable().BuildMock();
+            var relationsList = existingRelations.AsQueryable().BuildMock();
 
             _unitOfWorkMock.Setup(u => u.ProductRepository.GetByWhere(It.IsAny<Expression<Func<Product, bool>>>()))
-                .Returns(mockProducts);
+                .Returns(productList);
+
+            _unitOfWorkMock.Setup(u => u.ProductCategoriesRepository.GetByWhere(It.IsAny<Expression<Func<ProductCategories, bool>>>()))
+                .Returns(relationsList);
+
+            _unitOfWorkMock.Setup(u => u.ProductRepository.UpdateAsync(It.IsAny<Product>()))
+                .Returns(Task.CompletedTask);
+
+            _unitOfWorkMock.Setup(u => u.SaveChangesAsync())
+                .Returns(Task.CompletedTask);
+
+            _unitOfWorkMock.Setup(u => u.ProductCategoriesRepository.DeleteRangeAsync(It.IsAny<List<ProductCategories>>()))
+                .Returns(Task.CompletedTask);
+
+            // Act
+            var result = await _productService.UpdateProductAsync(productId, request);
+
+            // Assert
+            Assert.Equal((int)HttpStatusCode.OK, result.Code);
+
+            _unitOfWorkMock.Verify(u => u.ProductCategoriesRepository.DeleteRangeAsync(
+                It.Is<List<ProductCategories>>(list => list.Count == 2)), Times.Once);
+
+            _unitOfWorkMock.Verify(u => u.SaveChangesAsync(), Times.Exactly(2));
+            Assert.Equal("Updated Product", product.ProductName);
+        }
+
+        [Fact]
+        public async Task UpdateProductAsync_NullCategoryList_DoesNotModifyCategories()
+        {
+            // Arrange
+            int productId = 1;
+            var product = new Product
+            {
+                ProductId = productId,
+                ProductName = "Original Product"
+            };
+
+            var request = new UpdateProductRequest
+            {
+                ProductName = "Updated Product",
+                ProductCategories = null // Null list
+            };
+
+            var productList = new List<Product> { product }.AsQueryable().BuildMock();
+
+            _unitOfWorkMock.Setup(u => u.ProductRepository.GetByWhere(It.IsAny<Expression<Func<Product, bool>>>()))
+                .Returns(productList);
+
+            _unitOfWorkMock.Setup(u => u.ProductRepository.UpdateAsync(It.IsAny<Product>()))
+                .Returns(Task.CompletedTask);
+
             _unitOfWorkMock.Setup(u => u.SaveChangesAsync())
                 .Returns(Task.CompletedTask);
 
@@ -390,7 +427,13 @@ namespace DrugWarehouseManagement.UnitTest
 
             // Assert
             Assert.Equal((int)HttpStatusCode.OK, result.Code);
+            Assert.Equal("Updated Product", product.ProductName);
+
+            // Verify that no category operations were performed
             _unitOfWorkMock.Verify(u => u.ProductCategoriesRepository.DeleteRangeAsync(It.IsAny<List<ProductCategories>>()), Times.Never);
+            _unitOfWorkMock.Verify(u => u.ProductCategoriesRepository.AddRangeAsync(It.IsAny<List<ProductCategories>>()), Times.Never);
+
+            // Only one save for the product update
             _unitOfWorkMock.Verify(u => u.SaveChangesAsync(), Times.Once);
         }
 
