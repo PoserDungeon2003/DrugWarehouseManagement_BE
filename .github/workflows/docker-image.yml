@@ -33,6 +33,6 @@ jobs:
         chmod 600 key.pem
         ssh -o StrictHostKeyChecking=no -i key.pem root@103.90.227.104 << 'EOF'
           cd DrugWarehouseManagement_BE/
-          ./dc pull api && ./dc up api -d
+          ./dc -f docker-compose.production.yml pull api && ./dc -f docker-compose.production.yml up api -d
         EOF
       shell: bash
