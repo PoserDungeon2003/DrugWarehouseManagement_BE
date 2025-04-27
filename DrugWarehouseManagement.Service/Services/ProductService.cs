@@ -95,6 +95,9 @@ namespace DrugWarehouseManagement.Service.Services
                 throw new Exception("Không tìm thấy sản phẩm.");
             }
 
+            // Update product properties
+            request.Adapt(product);
+
             // Process categories more efficiently
             if (request.ProductCategories != null && request.ProductCategories.Any())
             {
@@ -139,9 +142,6 @@ namespace DrugWarehouseManagement.Service.Services
                 // If empty list is provided, clear all categories
                 product.ProductCategories.Clear();
             }
-
-            // Update product properties
-            request.Adapt(product);
             
             await _unitOfWork.ProductRepository.UpdateAsync(product);
             await _unitOfWork.SaveChangesAsync();
