@@ -27,3 +27,12 @@ jobs:
       run: |
         IMAGE_TAG=${{ secrets.DOCKER_USERNAME }}/drugwarehouse-api:latest
         docker push $IMAGE_TAG
+    - name: SSH and run build on remote server
+        run: |
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > key.pem
+          chmod 600 key.pem
+          ssh -o StrictHostKeyChecking=no -i key.pem root@103.90.227.104 << 'EOF'
+            cd DrugWarehouseManagement_BE/
+            ./dc pull api && ./dc up api -d
+          EOF
+        shell: bash
