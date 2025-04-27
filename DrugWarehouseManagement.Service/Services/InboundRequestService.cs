@@ -82,8 +82,12 @@ namespace DrugWarehouseManagement.Service.Services
             }
 
             // Send notification to relevant roles
-            var notificationMessage = $"New Inbound Request created with code {inboundRequestCode} for account";
-            await _notificationService.NotifyRoleAsync("Accountant" , notificationMessage);
+            var noti = new Repository.Models.Notification
+            {
+                Title = "New Inbound Request",
+                Content = "A new inbound request has been created.",
+            };
+            await _notificationService.PushNotificationToRole("Accountant" , noti);
 
             await _unitOfWork.InboundRequestRepository.CreateAsync(inboundRequest);
             await _unitOfWork.SaveChangesAsync();

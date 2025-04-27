@@ -33,5 +33,6 @@ namespace DrugWarehouseManagement.Repository
         IDeviceRepository DeviceRepository { get; }
         IProductCategoriesRepository ProductCategoriesRepository { get; }
         IAssetRepository AssetRepository { get; }
+        INotificationRepository NotificationRepository { get; }
     }
 }

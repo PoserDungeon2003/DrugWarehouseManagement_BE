@@ -202,6 +202,7 @@ namespace DrugWarehouseManagement.Repository.Models
         public DbSet<InboundReport> InboundReports { get; set; }
         public DbSet<InboundRequest> InboundRequests { get; set; }
         public DbSet<ReturnOutboundDetails> ReturnOutboundDetails { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
         public DbSet<Asset> Assets { get; set; }
         public DbSet<Device> Devices { get; set; }
     }
