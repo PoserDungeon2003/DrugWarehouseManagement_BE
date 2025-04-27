@@ -99,55 +99,51 @@ namespace DrugWarehouseManagement.Service.Services
             if (request.ProductCategories != null && request.ProductCategories.Any())
             {
                 // Get existing category IDs in one query
-                var existingCategoryIds = product.ProductCategories
+                var existingCategories = product.ProductCategories?.ToList() ?? new List<ProductCategories>();
+                var existingCategoryIds = existingCategories
                     .Select(pc => pc.CategoriesId)
                     .ToHashSet();
 
                 var requestedCategoryIds = request.ProductCategories
+                    .Where(c => c != null)
                     .Select(c => c.CategoriesId)
                     .Distinct()
                     .ToHashSet();
 
-                // Batch delete categories
-                var categoriesToDelete = product.ProductCategories
+                // Remove categories not in the request
+                var categoriesToRemove = existingCategories
                     .Where(pc => !requestedCategoryIds.Contains(pc.CategoriesId))
                     .ToList();
 
-                if (categoriesToDelete.Any())
+                foreach (var category in categoriesToRemove)
                 {
-                    await _unitOfWork.ProductCategoriesRepository.DeleteRangeAsync(categoriesToDelete);
+                    product.ProductCategories.Remove(category);
                 }
 
-                // Batch add new categories
+                // Add new categories
                 var newCategoryIds = requestedCategoryIds
                     .Except(existingCategoryIds)
                     .ToList();
 
-                if (newCategoryIds.Any())
+                foreach (var categoryId in newCategoryIds)
                 {
-                    var newProductCategories = newCategoryIds
-                        .Select(catId => new ProductCategories
-                        {
-                            ProductId = productId,
-                            CategoriesId = catId
-                        }).ToList();
-
-                    await _unitOfWork.ProductCategoriesRepository.AddRangeAsync(newProductCategories);
+                    product.ProductCategories.Add(new ProductCategories
+                    {
+                        ProductId = productId,
+                        CategoriesId = categoryId
+                    });
                 }
+            }
+            else if (request.ProductCategories != null && !request.ProductCategories.Any())
+            {
+                // If empty list is provided, clear all categories
+                product.ProductCategories.Clear();
             }
 
             // Update product properties
             request.Adapt(product);
-            // var tempProductId = product.ProductId;
-            var updatedProduct = new Product
-            {
-                ProductId = product.ProductId,
-                ProductName = product.ProductName,
-                ProductCode = product.ProductCode,
-                SKU = product.SKU,
-                MadeFrom = product.MadeFrom,
-            };
-            await _unitOfWork.ProductRepository.UpdateAsync(updatedProduct);
+            
+            await _unitOfWork.ProductRepository.UpdateAsync(product);
             await _unitOfWork.SaveChangesAsync();
             return new BaseResponse
             {
