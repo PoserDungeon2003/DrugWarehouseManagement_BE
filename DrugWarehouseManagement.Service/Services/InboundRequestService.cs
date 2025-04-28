@@ -87,7 +87,7 @@ namespace DrugWarehouseManagement.Service.Services
                 Title = "New Inbound Request",
                 Content = "A new inbound request has been created.",
             };
-            await _notificationService.PushNotificationToRole("Accountant" , noti);
+            var test = await _notificationService.PushNotificationToRole("Accountants" , noti);
 
             await _unitOfWork.InboundRequestRepository.CreateAsync(inboundRequest);
             await _unitOfWork.SaveChangesAsync();

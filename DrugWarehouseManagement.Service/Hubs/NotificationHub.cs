@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace DrugWarehouseManagement.Service.Hubs
 {
-    public class NotificationHub : Hub
+    public class NotificationHub : Hub<INotificationHub>
     {
         private readonly string[] _relevantRoles = { "Sale Admin", "Inventory Manager", "Accountant", "Director" };
         private readonly ILogger<NotificationHub> _logger;
@@ -60,6 +60,18 @@ namespace DrugWarehouseManagement.Service.Hubs
 
             await base.OnDisconnectedAsync(exception);
         }
+
+
+
+        // 3 Test Func
+        public async Task SendToAllUser()
+        {
+            await Clients.All.ReceiveMessage("Admin", "Hello, everyone!");
+        }
+        public async Task SendMessageToCaller(string user, string message)
+            => await Clients.Caller.ReceiveMessage(user, message);
+        public async Task SendMessageToGroup(string user, string message)
+            => await Clients.Group("Sale Admins").ReceiveMessage(user, message);
     }
 }
 

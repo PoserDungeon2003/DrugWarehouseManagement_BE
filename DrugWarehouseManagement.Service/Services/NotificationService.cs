@@ -78,7 +78,7 @@ namespace DrugWarehouseManagement.Service.Services
 
                 _logger.LogInformation($"Notification sent to role {role}: {notification.Title}");
 
-                await _notificationHubContext.Clients.Group(role.ToString()).SendAsync("ReceiveMessage");
+                await _notificationHubContext.Clients.Group(role.ToString()).SendAsync("ReceiveMessage", noti);
                 return noti;
             }
             catch (Exception ex)
