@@ -43,23 +43,58 @@ namespace DrugWarehouseManagement.Service.Services
                 .Distinct();
             var products = await productsQuery.ToListAsync();
 
-            // (b) Đầu kỳ (OpeningStock) - inbound có InboundRequestId != null, trước startDate
-            var openingStockDict = await _unitOfWork.InboundDetailRepository
+            // 1. Tồn đầu kỳ: với mỗi Lot, chọn Quantity của transaction lần cuối <= startDate
+            var openingByLot = await _unitOfWork.InventoryTransactionRepository
                 .GetAll()
-                .Include(d => d.Inbound)
-                .Where(d => d.Inbound.WarehouseId == warehouseId
-                            && d.Inbound.InboundDate < startDate
-                            && d.Inbound.Status == InboundStatus.Completed
-                            && d.Inbound.InboundRequestId != null)
-                .GroupBy(d => d.ProductId)
+                .Where(t => t.Lot.WarehouseId == warehouseId
+                         && t.CreatedAt <= startDate)
+                .GroupBy(t => t.LotId)
                 .Select(g => new
                 {
-                    ProductId = g.Key,
-                    // Lấy OpeningStock của lần inbound gần nhất
-                    OpeningStock = g.OrderByDescending(x => x.Inbound.InboundDate)
-                                    .FirstOrDefault().OpeningStock
+                    LotId = g.Key,
+                    // lấy Quantity của record mới nhất
+                    Quantity = g.OrderByDescending(x => x.CreatedAt)
+                                .ThenByDescending(x => x.Id)
+                                .FirstOrDefault().Quantity
                 })
-                .ToDictionaryAsync(x => x.ProductId, x => x.OpeningStock);
+                .ToListAsync();
+            // Chuyển từ per-lot thành per-product
+            var openingStockDict = openingByLot
+                .GroupBy(x => _unitOfWork.LotRepository
+                                    .GetAll()
+                                    .Where(l => l.LotId == x.LotId)
+                                    .Select(l => l.ProductId)
+                                    .FirstOrDefault())
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.Sum(x => x.Quantity)
+                );
+
+            // 2. Tồn cuối kỳ: tương tự, mốc endDate
+            var closingByLot = await _unitOfWork.InventoryTransactionRepository
+                .GetAll()
+                .Where(t => t.Lot.WarehouseId == warehouseId
+                         && t.CreatedAt <= endDate)
+                .GroupBy(t => t.LotId)
+                .Select(g => new
+                {
+                    LotId = g.Key,
+                    Quantity = g.OrderByDescending(x => x.CreatedAt)
+                                .ThenByDescending(x => x.Id)
+                                .FirstOrDefault().Quantity
+                })
+                .ToListAsync();
+
+            var closingStockDict = closingByLot
+                .GroupBy(x => _unitOfWork.LotRepository
+                                    .GetAll()
+                                    .Where(l => l.LotId == x.LotId)
+                                    .Select(l => l.ProductId)
+                                    .FirstOrDefault())
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.Sum(x => x.Quantity)
+                );
 
             // ------------------------ NHẬP ------------------------
 
@@ -196,8 +231,7 @@ namespace DrugWarehouseManagement.Service.Services
             foreach (var p in products)
             {
                 int pid = p.ProductId;
-                int beginning = openingStockDict.ContainsKey(pid) ? (openingStockDict[pid] ?? 0) : 0;
-                int buyQty = buyDict.ContainsKey(pid) ? buyDict[pid] : 0;
+                int beginning = openingStockDict.GetValueOrDefault(pid, 0); int buyQty = buyDict.ContainsKey(pid) ? buyDict[pid] : 0;
                 int transNormalQty = transferInNormalDict.ContainsKey(pid) ? transferInNormalDict[pid] : 0;
                 int transReturnQty = transferInReturnDict.ContainsKey(pid) ? transferInReturnDict[pid] : 0;
                 int sellQty = sellDict.ContainsKey(pid) ? sellDict[pid] : 0;
@@ -206,8 +240,7 @@ namespace DrugWarehouseManagement.Service.Services
                 int outboundDamageQty = outboundDamageDict.ContainsKey(pid) ? outboundDamageDict[pid] : 0;
                 int outboundLostQty = outboundLostDict.ContainsKey(pid) ? outboundLostDict[pid] : 0;
 
-                // Lưu ý: Công thức tính tồn của kho đích chỉ cộng nhập mua và chuyển nhập (từ các kho khác)
-                int remain = beginning + (buyQty + transNormalQty + transReturnQty) - (sellQty + outTransQty + outboundLostQty);
+                int remain = closingStockDict.GetValueOrDefault(pid, 0);
 
                 reportData.Add(new InventoryReportRow
                 {
@@ -221,7 +254,7 @@ namespace DrugWarehouseManagement.Service.Services
                     SellQty = sellQty,
                     TransferOutQty = outTransQty,
                     SampleExportQty = sampleQty,
-                    Remain = remain - sampleQty,
+                    Remain = remain,
                     OutboundDamage = outboundDamageQty,
                     OutboundLost = outboundLostQty
                 });

@@ -32,6 +32,7 @@ namespace DrugWarehouseManagement.Repository
         public IDeviceRepository DeviceRepository { get; private set; }
         public IProductCategoriesRepository ProductCategoriesRepository { get; private set; }
         public IAssetRepository AssetRepository { get; private set; }
+        public IInventoryTransactionRepository InventoryTransactionRepository { get; private set; }
 
         public UnitOfWork(DrugWarehouseContext context)
         {
@@ -61,6 +62,7 @@ namespace DrugWarehouseManagement.Repository
             DeviceRepository ??= new DeviceRepository(_context);
             ProductCategoriesRepository ??= new ProductCategoriesRepository(_context);
             AssetRepository ??= new AssetRepository(_context);
+            InventoryTransactionRepository ??= new InventoryTransactionRepository(_context);
         }
 
         public async Task BeginTransaction()

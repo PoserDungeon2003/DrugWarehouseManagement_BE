@@ -31,7 +31,6 @@ namespace DrugWarehouseManagement.Service.DTO.Response
         public string LotNumber { get; set; } = null!;
         public int? ProductId {  get; set; }
         public string? ProductName { get; set; }
-        public int? OpeningStock {  get; set; }
         public DateOnly? ManufacturingDate { get; set; }
         public DateOnly? ExpiryDate { get; set; }
         public int Quantity { get; set; }
