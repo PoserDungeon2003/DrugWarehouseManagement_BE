@@ -54,6 +54,13 @@ namespace DrugWarehouseManagement.Service.Services
             dashboard.TotalLotTransferOrders = lotTransferList;
 
             // --- Đơn xuất theo trạng thái ---
+            dashboard.OutboundCompletedCount = await _unitOfWork.OutboundRepository
+                   .GetAll()
+                   .CountAsync(o =>
+                               o.Status == OutboundStatus.Completed &&
+                               o.OutboundDate >= startInstant &&
+                               o.OutboundDate <= endInstant);
+
             dashboard.OutboundCancelledCount = await _unitOfWork.OutboundRepository
                     .GetAll()
                     .CountAsync(o =>
@@ -142,6 +149,7 @@ namespace DrugWarehouseManagement.Service.Services
             {
                 dashboard.BestImportedProduct = new ProductStatisticDto();
             }
+            
             // 1. Phân loại đơn nhập:
             // - Đơn trả về (InboundRequestId == null)
             dashboard.InboundClassification = new InboundClassificationDto();
@@ -193,7 +201,7 @@ namespace DrugWarehouseManagement.Service.Services
                 .OrderByDescending(r => r.CreatedAt)
                 .Take(10)
                 .ToListAsync();
-
+   
             dashboard.NewDocuments = inboundReports
                 .Select(r => new DocumentStatusDto
                 {
@@ -206,31 +214,34 @@ namespace DrugWarehouseManagement.Service.Services
                 .ToList();
             // --- Danh sách sản phẩm dưới mức quy định hoặc sắp hết hàng ---
             int lowStockThreshold = 30;
-            var allProducts = await _unitOfWork.ProductRepository.GetAll().ToListAsync();
-            var lowStockProducts = new List<ProductLowStockDto>();
-            foreach (var p in allProducts)
-            {
-                var lots = await _unitOfWork.LotRepository
-                    .GetAll()
-                    .Include(l => l.Warehouse)
-                    .Where(l => l.ProductId == p.ProductId
-                             && l.Warehouse.WarehouseId != 6  // kho tạm 
-                             && l.Warehouse.WarehouseId != 2) // kho hủy
-                    .ToListAsync();
 
-                int totalStock = lots.Sum(l => l.Quantity);
-                if (totalStock < lowStockThreshold)
-                {
-                    lowStockProducts.Add(new ProductLowStockDto
-                    {
-                        ProductId = p.ProductId,
-                        ProductName = p.ProductName,
-                        CurrentStock = totalStock,
-                        Threshold = lowStockThreshold
-                    });
-                }
-            }
-            dashboard.LowStockProducts = lowStockProducts;
+            // 1. Sum quantities per product, excluding warehouse 2 and 6
+            var lowStockQuery = await _unitOfWork.LotRepository
+                .GetAll()
+                .Include(l => l.Warehouse)
+                .Where(l => l.Warehouse.WarehouseId != 6
+                         && l.Warehouse.WarehouseId != 2)
+                .GroupBy(l => l.ProductId)
+                .Select(g => new {
+                    ProductId = g.Key,
+                    TotalStock = g.Sum(x => x.Quantity)
+                })
+                // 2. Keep only those below threshold
+                .Where(x => x.TotalStock < lowStockThreshold)
+                // 3. Join back to Products to get name, code, etc.
+                .Join(_unitOfWork.ProductRepository.GetAll(),
+                      stock => stock.ProductId,
+                      prod => prod.ProductId,
+                      (stock, prod) => new ProductLowStockDto
+                      {
+                          ProductId = prod.ProductId,
+                          ProductName = prod.ProductName,
+                          CurrentStock = stock.TotalStock,
+                          Threshold = lowStockThreshold
+                      })
+                .ToListAsync();
+
+            dashboard.LowStockProducts = lowStockQuery;
 
             // --- Danh sách đơn hàng ---
             DateTime now = DateTime.UtcNow;

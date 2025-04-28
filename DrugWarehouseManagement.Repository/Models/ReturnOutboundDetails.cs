@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NodaTime;
 
 namespace DrugWarehouseManagement.Repository.Models
 {
@@ -17,7 +18,6 @@ namespace DrugWarehouseManagement.Repository.Models
         public int OutboundDetailsId { get; set; }
         public int ReturnedQuantity { get; set; } // Số lượng bị trả về
         public string? Note { get; set; } // Ghi chú lý do trả hàng
-
         public virtual OutboundDetails OutboundDetails { get; set; } = null!;
 
     }

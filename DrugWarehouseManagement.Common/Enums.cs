@@ -25,15 +25,7 @@
         Active = 1,
         Inactive = 2,
     }
-    public enum SupplierStatus
-    {
-        Active = 1,           // Supplier is active and available for transactions
-        Inactive = 2,         // Supplier is temporarily unavailable
-        Blacklisted = 3,      // Supplier is blacklisted
-        PendingApproval = 4,  // Supplier is awaiting approval
-        Approved = 5,         // Supplier has been approved
-        Rejected = 6,         // Supplier's application was rejected
-    }
+ 
     public enum InboundDetailStatus
     {
         Pending = 1,           // Stock-in/stock-out request is pending
@@ -64,27 +56,6 @@
     }
 
 
-
-    public enum ContainerLoadStatus
-    {
-        InStock = 1,           // Item is available in inventory
-        OutOfStock = 2,        // Item is not available
-        Damaged = 3,           // Item is damaged
-        Expired = 4,           // Item has expired
-        Missing = 5,           // Item is missing
-
-    }
-
-    public enum OrderStatus
-    {
-        Pending = 1,           // Order is pending approval or processing
-        Approved = 2,          // Order has been approved
-        Rejected = 3,          // Order was rejected
-        Shipped = 4,           // Order has been shipped
-        Delivered = 5,         // Order has been delivered
-        Cancelled = 6,         // Order has been cancelled
-        Returned = 7,          // Order was returned
-    }
 
     public enum ProductStatus
     {

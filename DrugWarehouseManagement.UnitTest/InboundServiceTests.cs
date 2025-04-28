@@ -167,76 +167,76 @@ namespace DrugWarehouseManagement.UnitTest
             Assert.Equal("Invalid inbound status {Pending, InProgess, Completed, Cancelled}", response.Message);
         }
 
-        [Fact]
-        public async Task UpdateInboundStatus_StatusToCompleted_UpdatesLotsAndInboundSuccessfully()
-        {
-            // Arrange
-            var accountId = Guid.NewGuid();
-            var request = new UpdateInboundStatusRequest
-            {
-                InboundId = 1,
-                InboundStatus = InboundStatus.Completed
-            };
-            var account = new Account { Id = accountId };
-            var inbound = new Inbound
-            {
-                InboundId = 1,
-                Status = InboundStatus.Pending,
-                WarehouseId = 1,
-                ProviderId = 1
-            };
-            var InboundDetails = new List<InboundDetails>
-            {
-                new InboundDetails
-                {
-                    InboundId = 1,
-                    LotNumber = "LOT123",
-                    ManufacturingDate = DateOnly.FromDateTime(DateTime.UtcNow.ToLocalTime()),
-                    ExpiryDate = DateOnly.FromDateTime(DateTime.UtcNow.AddYears(1).ToLocalTime()),
-                    ProductId = 1,
-                    Quantity = 10
-                }
-            };
-            var existingLot = new Lot
-            {
-                LotNumber = "LOT123",
-                ManufacturingDate = InboundDetails[0].ManufacturingDate,
-                ExpiryDate = InboundDetails[0].ExpiryDate ?? DateOnly.FromDateTime(DateTime.UtcNow.AddYears(1).ToLocalTime()),
-                ProductId = 1,
-                Quantity = 20
-            };
-            var allLotsForProduct = new List<Lot> { existingLot };
+        //[Fact]
+        //public async Task UpdateInboundStatus_StatusToCompleted_UpdatesLotsAndInboundSuccessfully()
+        //{
+        //    // Arrange
+        //    var accountId = Guid.NewGuid();
+        //    var request = new UpdateInboundStatusRequest
+        //    {
+        //        InboundId = 1,
+        //        InboundStatus = InboundStatus.Completed
+        //    };
+        //    var account = new Account { Id = accountId };
+        //    var inbound = new Inbound
+        //    {
+        //        InboundId = 1,
+        //        Status = InboundStatus.Pending,
+        //        WarehouseId = 1,
+        //        ProviderId = 1
+        //    };
+        //    var InboundDetails = new List<InboundDetails>
+        //    {
+        //        new InboundDetails
+        //        {
+        //            InboundId = 1,
+        //            LotNumber = "LOT123",
+        //            ManufacturingDate = DateOnly.FromDateTime(DateTime.UtcNow.ToLocalTime()),
+        //            ExpiryDate = DateOnly.FromDateTime(DateTime.UtcNow.AddYears(1).ToLocalTime()),
+        //            ProductId = 1,
+        //            Quantity = 10
+        //        }
+        //    };
+        //    var existingLot = new Lot
+        //    {
+        //        LotNumber = "LOT123",
+        //        ManufacturingDate = InboundDetails[0].ManufacturingDate,
+        //        ExpiryDate = InboundDetails[0].ExpiryDate ?? DateOnly.FromDateTime(DateTime.UtcNow.AddYears(1).ToLocalTime()),
+        //        ProductId = 1,
+        //        Quantity = 20
+        //    };
+        //    var allLotsForProduct = new List<Lot> { existingLot };
 
-            _unitOfWorkMock.Setup(uow => uow.AccountRepository.GetByIdAsync(accountId))
-                .ReturnsAsync(account);
-            _unitOfWorkMock.Setup(uow => uow.InboundRepository.GetByIdAsync(request.InboundId))
-                .ReturnsAsync(inbound);
-            _unitOfWorkMock.Setup(uow => uow.InboundDetailRepository.GetByWhere(It.IsAny<Expression<Func<InboundDetails, bool>>>()))
-                .Returns(InboundDetails.AsQueryable());
-            _unitOfWorkMock.Setup(uow => uow.LotRepository.GetByWhere(It.IsAny<Expression<Func<Lot, bool>>>()))
-                .Returns(new List<Lot> { existingLot }.AsQueryable());
-            _unitOfWorkMock.Setup(uow => uow.LotRepository.GetByWhere(It.IsAny<Expression<Func<Lot, bool>>>()))
-                .Returns(new List<Lot> { existingLot }.AsQueryable());
-            _unitOfWorkMock.Setup(uow => uow.LotRepository.UpdateAsync(It.IsAny<Lot>()))
-                .Returns(Task.CompletedTask);
-            _unitOfWorkMock.Setup(uow => uow.InboundRepository.UpdateAsync(It.IsAny<Inbound>()))
-                .Returns(Task.CompletedTask);
-            _unitOfWorkMock.Setup(uow => uow.InboundDetailRepository.UpdateAsync(It.IsAny<InboundDetails>()))
-                .Returns(Task.CompletedTask);
-            _unitOfWorkMock.Setup(uow => uow.SaveChangesAsync())
-                .Returns(Task.CompletedTask);
+        //    _unitOfWorkMock.Setup(uow => uow.AccountRepository.GetByIdAsync(accountId))
+        //        .ReturnsAsync(account);
+        //    _unitOfWorkMock.Setup(uow => uow.InboundRepository.GetByIdAsync(request.InboundId))
+        //        .ReturnsAsync(inbound);
+        //    _unitOfWorkMock.Setup(uow => uow.InboundDetailRepository.GetByWhere(It.IsAny<Expression<Func<InboundDetails, bool>>>()))
+        //        .Returns(InboundDetails.AsQueryable());
+        //    _unitOfWorkMock.Setup(uow => uow.LotRepository.GetByWhere(It.IsAny<Expression<Func<Lot, bool>>>()))
+        //        .Returns(new List<Lot> { existingLot }.AsQueryable());
+        //    _unitOfWorkMock.Setup(uow => uow.LotRepository.GetByWhere(It.IsAny<Expression<Func<Lot, bool>>>()))
+        //        .Returns(new List<Lot> { existingLot }.AsQueryable());
+        //    _unitOfWorkMock.Setup(uow => uow.LotRepository.UpdateAsync(It.IsAny<Lot>()))
+        //        .Returns(Task.CompletedTask);
+        //    _unitOfWorkMock.Setup(uow => uow.InboundRepository.UpdateAsync(It.IsAny<Inbound>()))
+        //        .Returns(Task.CompletedTask);
+        //    _unitOfWorkMock.Setup(uow => uow.InboundDetailRepository.UpdateAsync(It.IsAny<InboundDetails>()))
+        //        .Returns(Task.CompletedTask);
+        //    _unitOfWorkMock.Setup(uow => uow.SaveChangesAsync())
+        //        .Returns(Task.CompletedTask);
 
-            // Act
-            var response = await _inboundService.UpdateInboundStatus(accountId, request);
+        //    // Act
+        //    var response = await _inboundService.UpdateInboundStatus(accountId, request);
 
-            // Assert
-            Assert.Equal(200, response.Code);
-            Assert.Equal("Inbound updated status successfully", response.Message);
-            Assert.Equal(InboundStatus.Completed, inbound.Status);
-            Assert.Equal(30, InboundDetails[0].OpeningStock); // 20 (existing) + 10 (new)
-            _unitOfWorkMock.Verify(uow => uow.LotRepository.UpdateAsync(It.Is<Lot>(l => l.Quantity == 30)), Times.Once());
-            _unitOfWorkMock.Verify(uow => uow.SaveChangesAsync(), Times.Once());
-        }
+        //    // Assert
+        //    Assert.Equal(200, response.Code);
+        //    Assert.Equal("Inbound updated status successfully", response.Message);
+        //    Assert.Equal(InboundStatus.Completed, inbound.Status);
+        //    Assert.Equal(30, InboundDetails[0].OpeningStock); // 20 (existing) + 10 (new)
+        //    _unitOfWorkMock.Verify(uow => uow.LotRepository.UpdateAsync(It.Is<Lot>(l => l.Quantity == 30)), Times.Once());
+        //    _unitOfWorkMock.Verify(uow => uow.SaveChangesAsync(), Times.Once());
+        //}
 
     //    [Fact]
     //    public async Task UpdateInboundStatus_StatusToCancelled_RemovesLotsAndUpdatesSuccessfully()

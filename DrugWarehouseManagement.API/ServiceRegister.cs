@@ -218,7 +218,10 @@ namespace DrugWarehouseManagement.API
             .NewConfig()
             .Map(dest => dest.ProductName, src => src.Lot.Product.ProductName)
             .Map(dest => dest.UnitType, src => src.Lot.Product.SKU)
-            .Map(dest => dest.LotNumber, src => src.Lot.LotNumber);  
+            .Map(dest => dest.LotNumber, src => src.Lot.LotNumber)
+              .Map(d => d.WarehouseId, src => src.Lot.Warehouse.WarehouseId)
+            .Map(d => d.WarehouseCode, src => src.Lot.Warehouse.WarehouseCode)
+            .Map(d => d.WarehouseName, src => src.Lot.Warehouse.WarehouseName);
             TypeAdapterConfig<Outbound, OutboundResponse>
             .NewConfig()
             .Map(dest => dest.CustomerName, src => src.Customer.CustomerName)
@@ -236,7 +239,8 @@ namespace DrugWarehouseManagement.API
                 .IgnoreNullValues(true);
             TypeAdapterConfig<UpdateProductRequest, Product>
                 .NewConfig()
-                .IgnoreNullValues(true);
+                .IgnoreNullValues(true)
+                .Ignore(dest => dest.ProductCategories);
             TypeAdapterConfig<AuditLogs, ViewAuditLogs>
                 .NewConfig()
                 .Map(dest => dest.UserName, src => src.Account.UserName)

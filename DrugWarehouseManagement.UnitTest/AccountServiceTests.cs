@@ -61,13 +61,16 @@ namespace DrugWarehouseManagement.UnitTest
         public async Task LoginWithUsername_AccountNotFound_ThrowsException()
         {
             // Arrange
-            var request = new AccountLoginRequest { Username = "testuser", Password = "password" };
+            var request = new AccountLoginRequest { Username = "nonexistent", Password = "password" };
             var mockAccounts = new List<Account>().AsQueryable().BuildMock();
+
             _unitOfWorkMock.Setup(u => u.AccountRepository.GetByWhere(It.IsAny<Expression<Func<Account, bool>>>()))
                 .Returns(mockAccounts);
 
             // Act & Assert
-            var exception = await Assert.ThrowsAsync<Exception>(() => _accountService.LoginWithUsername(request));
+            var exception = await Assert.ThrowsAsync<Exception>(
+                () => _accountService.LoginWithUsername(request)
+            );
             Assert.Equal("Tài khoản không tồn tại", exception.Message);
         }
 
@@ -75,135 +78,295 @@ namespace DrugWarehouseManagement.UnitTest
         public async Task LoginWithUsername_AccountInactive_ThrowsException()
         {
             // Arrange
-            var request = new AccountLoginRequest { Username = "testuser", Password = "password" };
-            var account = new Account { Status = AccountStatus.Inactive };
+            var request = new AccountLoginRequest { Username = "inactive", Password = "password" };
+            var account = new Account
+            {
+                UserName = "inactive",
+                Status = AccountStatus.Inactive,
+                Role = new Role { RoleName = "User" }
+            };
+
             var mockAccounts = new List<Account> { account }.AsQueryable().BuildMock();
+
             _unitOfWorkMock.Setup(u => u.AccountRepository.GetByWhere(It.IsAny<Expression<Func<Account, bool>>>()))
                 .Returns(mockAccounts);
 
             // Act & Assert
-            var exception = await Assert.ThrowsAsync<Exception>(() => _accountService.LoginWithUsername(request));
+            var exception = await Assert.ThrowsAsync<Exception>(
+                () => _accountService.LoginWithUsername(request)
+            );
             Assert.Equal("Tài khoản đã bị vô hiệu hóa, vui lòng liên hệ với quản trị viên để kích hoạt lại tài khoản", exception.Message);
         }
 
         [Fact]
-        public async Task LoginWithUsername_TwoFactorCodeRequired_ThrowsException()
+        public async Task LoginWithUsername_AccountDeleted_ThrowsException()
         {
             // Arrange
-            var request = new AccountLoginRequest { Username = "testuser", Password = "password" };
+            var request = new AccountLoginRequest { Username = "deleted", Password = "password" };
+            var account = new Account
+            {
+                UserName = "deleted",
+                Status = AccountStatus.Deleted,
+                Role = new Role { RoleName = "User" }
+            };
+
+            var mockAccounts = new List<Account> { account }.AsQueryable().BuildMock();
+
+            _unitOfWorkMock.Setup(u => u.AccountRepository.GetByWhere(It.IsAny<Expression<Func<Account, bool>>>()))
+                .Returns(mockAccounts);
+
+            // Act & Assert
+            var exception = await Assert.ThrowsAsync<Exception>(
+                () => _accountService.LoginWithUsername(request)
+            );
+            Assert.Equal("Tài khoản đã bị xóa, vui lòng liên hệ với quản trị viên để biết thêm thông tin", exception.Message);
+        }
+
+        [Fact]
+        public async Task LoginWithUsername_IncorrectPassword_ThrowsException()
+        {
+            // Arrange
+            var request = new AccountLoginRequest { Username = "testuser", Password = "wrongpassword" };
             var account = new Account
             {
                 UserName = "testuser",
                 Status = AccountStatus.Active,
-                TwoFactorEnabled = true,
+                Role = new Role { RoleName = "User" }
             };
+
             var mockAccounts = new List<Account> { account }.AsQueryable().BuildMock();
+
             _unitOfWorkMock.Setup(u => u.AccountRepository.GetByWhere(It.IsAny<Expression<Func<Account, bool>>>()))
                 .Returns(mockAccounts);
 
-            // Act & Assert
-            var exception = await Assert.ThrowsAsync<Exception>(() => _accountService.LoginWithUsername(request));
-            Assert.Equal("Mã xác thực 2FA là bắt buộc", exception.Message);
-        }
-
-        [Fact]
-        public async Task LoginWithUsername_TwoFactorCodeIncorrect_ThrowsException()
-        {
-            // Arrange
-            var request = new AccountLoginRequest { Username = "testuser", Password = "password", OTPCode = "123456" };
-            var account = new Account
-            {
-                Status = AccountStatus.Active,
-                TwoFactorEnabled = true,
-                tOTPSecretKey = new byte[16],
-            };
-            account.PasswordHash = HashPassword(account, "password");
-            var mockAccounts = new List<Account> { account }.AsQueryable().BuildMock();
-            _unitOfWorkMock.Setup(u => u.AccountRepository.GetByWhere(It.IsAny<Expression<Func<Account, bool>>>()))
-                .Returns(mockAccounts);
-            _twoFactorAuthenticatorMock.Setup(t => t.ValidateTwoFactorPIN(It.IsAny<byte[]>(), It.IsAny<string>(), It.IsAny<int>()))
-                .Returns(false);
-
-            // Act & Assert
-            var exception = await Assert.ThrowsAsync<Exception>(() => _accountService.LoginWithUsername(request));
-            Assert.Equal("Mã xác thực 2FA không chính xác", exception.Message);
-        }
-
-        [Fact]
-        public async Task LoginWithUsername_TwoFactorCodeUsed_ThrowsException()
-        {
-            // Arrange
-            var request = new AccountLoginRequest { Username = "testuser", Password = "password", OTPCode = "123456" };
-            var account = new Account
-            {
-                Status = AccountStatus.Active,
-                TwoFactorEnabled = true,
-                tOTPSecretKey = new byte[16],
-                OTPCode = Utils.Base64Encode("123456")
-            };
-            var mockAccounts = new List<Account> { account }.AsQueryable().BuildMock();
-            _unitOfWorkMock.Setup(u => u.AccountRepository.GetByWhere(It.IsAny<Expression<Func<Account, bool>>>()))
-                .Returns(mockAccounts);
-            _twoFactorAuthenticatorMock.Setup(t => t.ValidateTwoFactorPIN(It.IsAny<byte[]>(), It.IsAny<string>(), It.IsAny<int>()))
-                .Returns(true);
-
-            // Act & Assert
-            var exception = await Assert.ThrowsAsync<Exception>(() => _accountService.LoginWithUsername(request));
-            Assert.Equal("Mã xác thực 2FA đã được sử dụng trước đó", exception.Message);
-        }
-
-        [Fact]
-        public async Task LoginWithUsername_PasswordIncorrect_ThrowsException()
-        {
-            // Arrange
-            var request = new AccountLoginRequest { Username = "testuser", Password = "password" };
-            var account = new Account
-            {
-                Status = AccountStatus.Active,
-            };
-            account.PasswordHash = HashPassword(account, "hashedpassword");
-            var mockAccounts = new List<Account> { account }.AsQueryable().BuildMock();
-            _unitOfWorkMock.Setup(u => u.AccountRepository.GetByWhere(It.IsAny<Expression<Func<Account, bool>>>()))
-                .Returns(mockAccounts);
             _passwordHelperMock.Setup(p => p.VerifyHashedPassword(It.IsAny<Account>(), It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(PasswordVerificationResult.Failed);
 
             // Act & Assert
-            var exception = await Assert.ThrowsAsync<Exception>(() => _accountService.LoginWithUsername(request));
+            var exception = await Assert.ThrowsAsync<Exception>(
+                () => _accountService.LoginWithUsername(request)
+            );
             Assert.Equal("Mật khẩu không chính xác", exception.Message);
         }
 
         [Fact]
-        public async Task LoginWithUsername_SuccessfulLogin_ReturnsResponse()
+        public async Task LoginWithUsername_TwoFactorEnabledNoCode_RequiresTwoFactor()
         {
             // Arrange
-            var request = new AccountLoginRequest { Username = "testuser", Password = "hashedpassword" };
+            var request = new AccountLoginRequest
+            {
+                Username = "2fauser",
+                Password = "password"
+            };
+
             var account = new Account
             {
-                Id = Guid.NewGuid(),
-                UserName = "testuser",
+                UserName = "2fauser",
                 Status = AccountStatus.Active,
-                Role = new Role { RoleId = 1, RoleName = "Role" },
-                RoleId = 1,
+                TwoFactorEnabled = true,
+                Role = new Role { RoleName = "User" }
             };
-            account.PasswordHash = HashPassword(account, "hashedpassword");
+
             var mockAccounts = new List<Account> { account }.AsQueryable().BuildMock();
+
             _unitOfWorkMock.Setup(u => u.AccountRepository.GetByWhere(It.IsAny<Expression<Func<Account, bool>>>()))
                 .Returns(mockAccounts);
-            _unitOfWorkMock.Setup(u => u.AccountRepository.GetByIdAsync(It.IsAny<Guid>()))
-                .ReturnsAsync(new Account());
+
             _passwordHelperMock.Setup(p => p.VerifyHashedPassword(It.IsAny<Account>(), It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(PasswordVerificationResult.Success);
-            _tokenHandlerMock.Setup(t => t.GenerateJwtToken(It.IsAny<Account>()))
-                .Returns("Token");
 
             // Act
             var result = await _accountService.LoginWithUsername(request);
 
             // Assert
-            Assert.NotNull(result);
-            Assert.Equal("Role", result.Role);
-            Assert.Equal("Token", result.Token);
+            Assert.True(result.RequiresTwoFactor);
+            Assert.Null(result.Token);
+            Assert.Null(result.RefreshToken);
+        }
+
+        [Fact]
+        public async Task LoginWithUsername_TwoFactorEnabledWithBackupCode_SuccessfulLogin()
+        {
+            // Arrange
+            var request = new AccountLoginRequest
+            {
+                Username = "2fauser",
+                Password = "password",
+                LostOTPCode = true,
+                BackupCode = "backup123"
+            };
+
+            var account = new Account
+            {
+                Id = Guid.NewGuid(),
+                UserName = "2fauser",
+                Status = AccountStatus.Active,
+                TwoFactorEnabled = true,
+                BackupCode = "hashedBackupCode",
+                Role = new Role { RoleName = "User" }
+            };
+
+            var mockAccounts = new List<Account> { account }.AsQueryable().BuildMock();
+
+            _unitOfWorkMock.Setup(u => u.AccountRepository.GetByWhere(It.IsAny<Expression<Func<Account, bool>>>()))
+                .Returns(mockAccounts);
+
+            _passwordHelperMock.Setup(p => p.VerifyHashedPassword(It.IsAny<Account>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(PasswordVerificationResult.Success);
+
+            _passwordHelperMock.Setup(p => p.VerifyHashedValue(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(PasswordVerificationResult.Success);
+
+            _unitOfWorkMock.Setup(u => u.SaveChangesAsync())
+                .Returns(Task.CompletedTask);
+
+            _tokenHandlerMock.Setup(t => t.GenerateRefreshToken(account.Id))
+                .Returns("refreshToken123");
+
+            _tokenHandlerMock.Setup(t => t.GenerateJwtToken(account))
+                .Returns("jwtToken123");
+
+            // Act
+            var result = await _accountService.LoginWithUsername(request);
+
+            // Assert
+            Assert.Equal("User", result.Role);
+            Assert.Equal("refreshToken123", result.RefreshToken);
+            Assert.Equal("jwtToken123", result.Token);
+            Assert.False(result.RequiresTwoFactor);
+            _unitOfWorkMock.Verify(u => u.AccountRepository.UpdateAsync(It.IsAny<Account>()), Times.Once);
+            _unitOfWorkMock.Verify(u => u.SaveChangesAsync(), Times.Once);
+        }
+
+        [Fact]
+        public async Task LoginWithUsername_TwoFactorEnabledWithOTPCode_SuccessfulLogin()
+        {
+            // Arrange
+            var request = new AccountLoginRequest
+            {
+                Username = "2fauser",
+                Password = "password",
+                OTPCode = "123456"
+            };
+
+            var account = new Account
+            {
+                Id = Guid.NewGuid(),
+                UserName = "2fauser",
+                Status = AccountStatus.Active,
+                TwoFactorEnabled = true,
+                tOTPSecretKey = new byte[] { 1, 2, 3, 4, 5 },
+                Role = new Role { RoleName = "Admin" }
+            };
+
+            var mockAccounts = new List<Account> { account }.AsQueryable().BuildMock();
+
+            _unitOfWorkMock.Setup(u => u.AccountRepository.GetByWhere(It.IsAny<Expression<Func<Account, bool>>>()))
+                .Returns(mockAccounts);
+
+            _passwordHelperMock.Setup(p => p.VerifyHashedPassword(It.IsAny<Account>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(PasswordVerificationResult.Success);
+
+            _twoFactorAuthenticatorMock.Setup(t => t.ValidateTwoFactorPIN(It.IsAny<byte[]>(), It.IsAny<string>(), It.IsAny<int>()))
+                .Returns(true);
+
+            _unitOfWorkMock.Setup(u => u.SaveChangesAsync())
+                .Returns(Task.CompletedTask);
+
+            _tokenHandlerMock.Setup(t => t.GenerateRefreshToken(account.Id))
+                .Returns("refreshToken123");
+
+            _tokenHandlerMock.Setup(t => t.GenerateJwtToken(account))
+                .Returns("jwtToken123");
+
+            // Act
+            var result = await _accountService.LoginWithUsername(request);
+
+            // Assert
+            Assert.Equal("Admin", result.Role);
+            Assert.Equal("refreshToken123", result.RefreshToken);
+            Assert.Equal("jwtToken123", result.Token);
+            Assert.False(result.RequiresTwoFactor);
+            _unitOfWorkMock.Verify(u => u.AccountRepository.UpdateAsync(It.IsAny<Account>()), Times.Once);
+            _unitOfWorkMock.Verify(u => u.SaveChangesAsync(), Times.Once);
+        }
+
+        [Fact]
+        public async Task LoginWithUsername_TwoFactorEnabledWithInvalidOTPCode_ThrowsException()
+        {
+            // Arrange
+            var request = new AccountLoginRequest
+            {
+                Username = "2fauser",
+                Password = "password",
+                OTPCode = "123456"
+            };
+
+            var account = new Account
+            {
+                UserName = "2fauser",
+                Status = AccountStatus.Active,
+                TwoFactorEnabled = true,
+                tOTPSecretKey = new byte[] { 1, 2, 3, 4, 5 },
+                Role = new Role { RoleName = "User" }
+            };
+
+            var mockAccounts = new List<Account> { account }.AsQueryable().BuildMock();
+
+            _unitOfWorkMock.Setup(u => u.AccountRepository.GetByWhere(It.IsAny<Expression<Func<Account, bool>>>()))
+                .Returns(mockAccounts);
+
+            _passwordHelperMock.Setup(p => p.VerifyHashedPassword(It.IsAny<Account>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(PasswordVerificationResult.Success);
+
+            _twoFactorAuthenticatorMock.Setup(t => t.ValidateTwoFactorPIN(It.IsAny<byte[]>(), It.IsAny<string>(), It.IsAny<int>()))
+                .Returns(false);
+
+            // Act & Assert
+            var exception = await Assert.ThrowsAsync<Exception>(
+                () => _accountService.LoginWithUsername(request)
+            );
+            Assert.Equal("Mã xác thực 2FA không chính xác", exception.Message);
+        }
+
+        [Fact]
+        public async Task LoginWithUsername_TwoFactorEnabledWithPreviouslyUsedOTPCode_ThrowsException()
+        {
+            // Arrange
+            var otpCode = "123456";
+            var request = new AccountLoginRequest
+            {
+                Username = "2fauser",
+                Password = "password",
+                OTPCode = otpCode
+            };
+
+            var account = new Account
+            {
+                UserName = "2fauser",
+                Status = AccountStatus.Active,
+                TwoFactorEnabled = true,
+                tOTPSecretKey = new byte[] { 1, 2, 3, 4, 5 },
+                OTPCode = Utils.Base64Encode(otpCode),
+                Role = new Role { RoleName = "User" }
+            };
+
+            var mockAccounts = new List<Account> { account }.AsQueryable().BuildMock();
+
+            _unitOfWorkMock.Setup(u => u.AccountRepository.GetByWhere(It.IsAny<Expression<Func<Account, bool>>>()))
+                .Returns(mockAccounts);
+
+            _passwordHelperMock.Setup(p => p.VerifyHashedPassword(It.IsAny<Account>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(PasswordVerificationResult.Success);
+
+            _twoFactorAuthenticatorMock.Setup(t => t.ValidateTwoFactorPIN(It.IsAny<byte[]>(), It.IsAny<string>(), It.IsAny<int>()))
+                .Returns(true);
+
+            // Act & Assert
+            var exception = await Assert.ThrowsAsync<Exception>(
+                () => _accountService.LoginWithUsername(request)
+            );
+            Assert.Equal("Mã xác thực 2FA đã được sử dụng trước đó", exception.Message);
         }
 
         [Fact]

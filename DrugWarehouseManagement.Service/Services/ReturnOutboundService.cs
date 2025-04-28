@@ -47,7 +47,6 @@ namespace DrugWarehouseManagement.Service.Services
 
             // 2) Xử lý từng dòng trả hàng
             var returnDetailsList = new List<ReturnOutboundDetails>();
-            // Nhóm các InboundDetails theo từng Provider: key = ProviderId, value = list InboundDetails
             var inboundDetailsByProvider = new Dictionary<int, List<InboundDetails>>();
 
             foreach (var detailItem in request.Details)

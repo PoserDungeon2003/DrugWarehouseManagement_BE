@@ -87,8 +87,6 @@ namespace DrugWarehouseManagement.Service.Services
         {
             var product = await _unitOfWork.ProductRepository
                                 .GetByWhere(p => p.ProductId == productId)
-                                .Include(pc => pc.ProductCategories)
-                                .Include(c => c.Categories)
                                 .FirstOrDefaultAsync();
 
             if (product == null)
@@ -96,55 +94,69 @@ namespace DrugWarehouseManagement.Service.Services
                 throw new Exception("Không tìm thấy sản phẩm.");
             }
 
-            if (request.ProductCategories != null)
+            // Update product properties
+            request.Adapt(product);
+            await _unitOfWork.ProductRepository.UpdateAsync(product);
+            await _unitOfWork.SaveChangesAsync();
+
+            // Now handle categories separately with explicit SQL operations if needed
+            if (request.ProductCategories != null && request.ProductCategories.Any())
             {
-                var existingCategoryIds = product.ProductCategories
-                    .Select(pc => pc.CategoriesId)
-                    .ToHashSet();
+                // Get all existing product-category relationships
+                var existingRelations = await _unitOfWork.ProductCategoriesRepository
+                    .GetByWhere(pc => pc.ProductId == productId)
+                    .ToListAsync();
 
+                // Extract requested category IDs
                 var requestedCategoryIds = request.ProductCategories
-                    .GroupBy(c => new { c.CategoriesId })
-                    .Select(c => c.Key.CategoriesId)
-                    .ToHashSet();
+                    .Where(c => c != null)
+                    .Select(c => c.CategoriesId)
+                    .Distinct()
+                    .ToList();
 
-                // DELETE: Remove categories no longer in request
-                var categoriesToDelete = product.ProductCategories
+                // Find categories to remove
+                var categoriesToRemove = existingRelations
                     .Where(pc => !requestedCategoryIds.Contains(pc.CategoriesId))
                     .ToList();
 
-                if (categoriesToDelete.Any())
+                // Remove categories that are not in the request
+                if (categoriesToRemove.Any())
                 {
-                    await _unitOfWork.ProductCategoriesRepository.DeleteRangeAsync(categoriesToDelete);
+                    await _unitOfWork.ProductCategoriesRepository.DeleteRangeAsync(categoriesToRemove);
+                    await _unitOfWork.SaveChangesAsync();
                 }
 
-                // ADD: Add only new categories that don't exist in DB
-                var newCategoryIds = requestedCategoryIds
-                    .Except(existingCategoryIds)
+                // Find categories to add
+                var existingCategoryIds = existingRelations.Select(pc => pc.CategoriesId).ToHashSet();
+                var categoriesToAdd = requestedCategoryIds
+                    .Where(id => !existingCategoryIds.Contains(id))
+                    .Select(catId => new ProductCategories
+                    {
+                        ProductId = productId,
+                        CategoriesId = catId
+                    })
                     .ToList();
 
-                if (newCategoryIds.Any())
+                // Add new categories
+                if (categoriesToAdd.Any())
                 {
-                    var newProductCategories = newCategoryIds
-                        .Select(catId => new ProductCategories
-                        {
-                            ProductId = productId,
-                            CategoriesId = catId
-                        }).ToList();
-
-                    await _unitOfWork.ProductCategoriesRepository.AddRangeAsync(newProductCategories);
+                    await _unitOfWork.ProductCategoriesRepository.AddRangeAsync(categoriesToAdd);
+                    await _unitOfWork.SaveChangesAsync();
                 }
             }
-            // Prevent overwriting navigation property
-            var productCategoriesBackup = request.ProductCategories;
-            request.ProductCategories = null;
+            else if (request.ProductCategories != null) // Empty list provided - remove all categories
+            {
+                var existingRelations = await _unitOfWork.ProductCategoriesRepository
+                    .GetByWhere(pc => pc.ProductId == productId)
+                    .ToListAsync();
 
-            request.Adapt(product); // Mapster will now skip ProductCategories
-
-            request.ProductCategories = productCategoriesBackup; // restore if needed later
-
-
-            await _unitOfWork.ProductRepository.UpdateAsync(product);
-            await _unitOfWork.SaveChangesAsync();
+                if (existingRelations.Any())
+                {
+                    await _unitOfWork.ProductCategoriesRepository.DeleteRangeAsync(existingRelations);
+                    await _unitOfWork.SaveChangesAsync();
+                }
+            }
+            
             return new BaseResponse
             {
                 Code = (int)HttpStatusCode.OK,

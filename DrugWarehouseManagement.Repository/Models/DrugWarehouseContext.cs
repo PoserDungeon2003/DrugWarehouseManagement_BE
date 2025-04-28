@@ -10,6 +10,7 @@ namespace DrugWarehouseManagement.Repository.Models
 
         public DrugWarehouseContext(DbContextOptions<DrugWarehouseContext> options) : base(options)
         {
+
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -50,7 +51,7 @@ namespace DrugWarehouseManagement.Repository.Models
                 entity.Property(e => e.PhoneNumber)
                 .HasMaxLength(15);
 
-                entity.HasIndex(e => e.PhoneNumber,"IX_Customers_PhoneNumber")
+                entity.HasIndex(e => e.PhoneNumber, "IX_Customers_PhoneNumber")
                 .IsUnique();
                 entity.HasIndex(e => e.Email, "IX_Customers_Email")
                 .IsUnique();
@@ -87,7 +88,7 @@ namespace DrugWarehouseManagement.Repository.Models
                     .IsUnique();
             });
 
-            modelBuilder.Entity<InboundDetails>(entity => 
+            modelBuilder.Entity<InboundDetails>(entity =>
             {
                 entity.HasIndex(e => e.LotNumber, "IX_InboundDetails_LotNumber");
             });
@@ -160,6 +161,7 @@ namespace DrugWarehouseManagement.Repository.Models
                     .IsUnique();
             });
 
+
             modelBuilder.Entity<InboundRequest>(entity =>
             {
                 entity.HasIndex(e => e.InboundRequestCode, "IX_InboundRequest_InboundRequestCode")
@@ -183,9 +185,9 @@ namespace DrugWarehouseManagement.Repository.Models
 
         }
 
-
+        public DbSet<InventoryTransaction> InventoryTransactions { get; set; }
         public DbSet<Inbound> Inbounds { get; set; }
-        public DbSet<Customer> Customers { get; set; }  
+        public DbSet<Customer> Customers { get; set; }
         public DbSet<Outbound> Outbounds { get; set; }
         public DbSet<InboundDetails> InboundDetails { get; set; }
         public DbSet<OutboundDetails> OutboundDetails { get; set; }
@@ -205,5 +207,8 @@ namespace DrugWarehouseManagement.Repository.Models
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<Asset> Assets { get; set; }
         public DbSet<Device> Devices { get; set; }
+
     }
+
+
 }

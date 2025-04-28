@@ -94,7 +94,8 @@ namespace DrugWarehouseManagement.Service.Services
                 query = query.Where(c =>
                     c.CustomerName.ToLower().Contains(searchLower) ||
                     c.PhoneNumber.ToLower().Contains(searchLower) ||
-                    c.Email.ToLower().Contains(searchLower)
+                    c.Email.ToLower().Contains(searchLower)||
+                    c.DocumentNumber.ToLower().Contains(searchLower)
                 );
             }
             query = query.OrderBy(c => c.CustomerId);

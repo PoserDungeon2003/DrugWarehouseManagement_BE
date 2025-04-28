@@ -17,6 +17,7 @@ namespace DrugWarehouseManagement.Service.DTO.Response
                                  
         public ProductStatisticDto ?BestStockedProduct { get; set; }
 
+        public int OutboundCompletedCount { get; set; }
         public int OutboundCancelledCount { get; set; }
         public int OutboundSampleCount { get; set; }
         public int OutboundReturnedCount { get; set; }

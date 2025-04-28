@@ -10,6 +10,7 @@ namespace DrugWarehouseManagement.Service.DTO.Request
     {
         //tham chiếu OutboundId tổng thể (nếu 1 inbound trả lại nhiều detail)
         public int OutboundId { get; set; }
+        public int? ToWarehouseId { get; set; }
 
         // Danh sách dòng chi tiết trả về
         public List<ReturnOutboundDetailItem> Details { get; set; } = new();

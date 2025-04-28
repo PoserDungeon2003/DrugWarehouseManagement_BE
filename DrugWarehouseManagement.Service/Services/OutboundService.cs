@@ -1,4 +1,5 @@
-﻿using Azure.Core;
+﻿using Azure;
+using Azure.Core;
 using DrugWarehouseManagement.Common;
 using DrugWarehouseManagement.Repository;
 using DrugWarehouseManagement.Repository.Models;
@@ -60,6 +61,10 @@ namespace DrugWarehouseManagement.Service.Services
                 .Include(o => o.OutboundDetails)
                 .ThenInclude(od => od.Lot)
                 .ThenInclude(l => l.Product)
+
+                .Include(o => o.OutboundDetails)
+                .ThenInclude(od => od.Lot)
+                .ThenInclude(l => l.Warehouse)
                 .FirstOrDefaultAsync(o => o.OutboundId == outboundId);
             if (outbound == null)
             {
@@ -94,13 +99,21 @@ namespace DrugWarehouseManagement.Service.Services
             var lots = await _unitOfWork.LotRepository
                             .GetByWhere(l => lotIds.Contains(l.LotId))
                             .ToListAsync();
+            var distinctWarehouses = lots
+                            .Select(l => l.WarehouseId)
+                            .Distinct()
+                            .ToList();
+            if (distinctWarehouses.Count > 1)
+                throw new Exception("Các sản phẩm trong đơn phải cùng một kho.");
 
             if (lots.Count != lotIds.Count)
             {
                 throw new Exception("Không tìm thấy lô hàng.");
             }
 
+
             // Danh sách chứa các chi tiết đơn xuất
+            var today = DateOnly.FromDateTime(DateTime.Now);
             var detailsList = new List<OutboundDetails>();
 
             // Kiểm tra số lượng trong lô và tạo chi tiết đơn xuất
@@ -112,7 +125,20 @@ namespace DrugWarehouseManagement.Service.Services
                 {
                     throw new Exception($"Lô hàng yêu cầu: {detailRequest.LotId} không tìm thấy.");
                 }
+                if (lot.ExpiryDate < today)
+                {
+                    throw new Exception($"Lô {lot.LotNumber} đã hết hạn dùng ({lot.ExpiryDate:dd/MM/yyyy}).");
+                }
 
+                if (lot.WarehouseId == 2)
+                {
+                    throw new Exception($"Lô {lot.LotNumber} đang ở kho hủy, không được phép xuất.");
+                }
+
+                if (lot.WarehouseId == 6)
+                {
+                    throw new Exception($"Lô {lot.LotNumber} đang ở kho tạm, không được phép xuất.");
+                }
                 // Kiểm tra số lượng trong lô có đủ không
                 if (lot.Quantity < detailRequest.Quantity)
                 {
@@ -134,9 +160,9 @@ namespace DrugWarehouseManagement.Service.Services
                 decimal unitPrice;
                 if (detailRequest.UsePricingFormula)
                 {
-                    decimal baseCost = inboundDetail.UnitPrice; 
-                    decimal profitMargin = detailRequest.ProfitMargin ?? 0.2M; 
-                    decimal taxPercentage = detailRequest.TaxPercentage ?? 0.1M; 
+                    decimal baseCost = inboundDetail.UnitPrice;
+                    decimal profitMargin = detailRequest.ProfitMargin ?? 0.2M;
+                    decimal taxPercentage = detailRequest.TaxPercentage ?? 0.1M;
                     unitPrice = baseCost * (1 + profitMargin) * (1 + taxPercentage);
                 }
                 else
@@ -182,7 +208,10 @@ namespace DrugWarehouseManagement.Service.Services
                         .Include(o => o.Customer)
                         .Include(o => o.OutboundDetails)
                         .ThenInclude(od => od.Lot)
-                         .ThenInclude(l => l.Product)
+                        .ThenInclude(l => l.Product)
+                        .Include(o => o.OutboundDetails)
+                        .ThenInclude(od => od.Lot)
+                        .ThenInclude(l => l.Warehouse)
                         .AsQueryable();
             if (request.CustomerId.HasValue)
             {
@@ -207,7 +236,7 @@ namespace DrugWarehouseManagement.Service.Services
                     EF.Functions.Like(o.OutboundCode.ToLower(), $"%{searchTerm}%") ||
                     EF.Functions.Like(o.Customer.CustomerName.ToLower(), $"%{searchTerm}%") ||
                     EF.Functions.Like(o.Customer.PhoneNumber.ToLower(), $"%{searchTerm}%") ||
-                    EF.Functions.Like(o.OutboundOrderCode.ToLower(), $"%{searchTerm}%")               
+                    EF.Functions.Like(o.OutboundOrderCode.ToLower(), $"%{searchTerm}%")
                 );
             }
             if (request.DateFrom != null)
@@ -231,6 +260,40 @@ namespace DrugWarehouseManagement.Service.Services
             query = query.OrderByDescending(o => o.OutboundDate);
             var paginatedOutbounds = await query.ToPaginatedResultAsync(request.Page, request.PageSize);
             var outboundResponses = paginatedOutbounds.Items.Adapt<List<OutboundResponse>>();
+            // 3) Chuẩn bị danh sách tất cả detailId và trả về
+            var allDetailIds = paginatedOutbounds.Items
+                .SelectMany(o => o.OutboundDetails)
+                .Select(d => d.OutboundDetailsId)
+                .ToList();
+
+            var allReturns = await _unitOfWork.ReturnOutboundDetailsRepository
+                .GetAll()
+                .Where(r => allDetailIds.Contains(r.OutboundDetailsId))
+                .Include(r => r.OutboundDetails)
+                    .ThenInclude(od => od.Lot)
+                        .ThenInclude(l => l.Product)
+                .Include(r => r.OutboundDetails)
+                    .ThenInclude(od => od.Outbound)
+                .ToListAsync();
+            // 4) Gán Returns cho từng detail trong từng outbound response
+            foreach (var outboundDto in outboundResponses)
+            {
+                foreach (var d in outboundDto.OutboundDetails)
+                {
+                    d.Returns = allReturns
+                        .Where(r => r.OutboundDetailsId == d.OutboundDetailsId)
+                        .Select(r =>
+                        {
+                            var dto = r.Adapt<ReturnOutboundDetailsResponse>();
+                            dto.OutboundDetailId = r.OutboundDetailsId;
+                            dto.OutboundCode = r.OutboundDetails.Outbound.OutboundCode;
+                            dto.ProductCode = r.OutboundDetails.Lot.Product.ProductCode;
+                            dto.ProductName = r.OutboundDetails.Lot.Product.ProductName;
+                            return dto;
+                        })
+                        .ToList();
+                }
+            }
             // Create a new PaginatedResult with mapped DTOs.
             return new PaginatedResult<OutboundResponse>
             {

@@ -134,10 +134,10 @@ namespace DrugWarehouseManagement.Repository.Models
                 new Categories { CategoriesId = (int)SystemConfigEnum.OtherId, CategoryName = "Khác", ParentCategoryId = null, Description = "Các danh mục sản phẩm khác.", Status = CategoriesStatus.Active },
                     new Categories { CategoriesId = 601, CategoryName = "Vật tư Y tế Gia đình", ParentCategoryId = 600, Description = "Các vật tư y tế sử dụng tại nhà.", Status = CategoriesStatus.Active },
                     new Categories { CategoriesId = 602, CategoryName = "Sản phẩm Hỗ trợ Sức khỏe", ParentCategoryId = 600, Description = "Các sản phẩm hỗ trợ sức khỏe tổng thể.", Status = CategoriesStatus.Active },
-                
+
                 new Categories { CategoriesId = (int)SystemConfigEnum.SKUId, CategoryName = "Đơn vị tính", ParentCategoryId = null, Description = "Các danh mục sản phẩm khác.", Status = CategoriesStatus.Active }
             );
-          
+
             // 4. Seed Warehouses
             modelBuilder.Entity<Warehouse>().HasData(
                 new Warehouse { WarehouseId = 1, WarehouseCode = "KVN-01", WarehouseName = "Kho Việt Nam", Address = "Số 10 Đường Cộng Hòa, Phường 13, Quận Tân Bình, TP.HCM", Status = WarehouseStatus.Active, DocumentNumber = "K20250409-001" },
@@ -145,7 +145,7 @@ namespace DrugWarehouseManagement.Repository.Models
                 new Warehouse { WarehouseId = 3, WarehouseCode = "KTHU-01", WarehouseName = "Kho Thuốc", Address = "Số 3B Đường Nguyễn Văn Quá, Đông Hưng Thuận, Quận 12, TP.HCM", Status = WarehouseStatus.Active, DocumentNumber = "KT20250409-003" },
                 new Warehouse { WarehouseId = 4, WarehouseCode = "KMP-01", WarehouseName = "Kho Mỹ Phẩm", Address = "Số 1 Lê Duẩn, Bến Nghé, Quận 1, TP.HCM", Status = WarehouseStatus.Active, DocumentNumber = "KMP20250409-004" },
                 new Warehouse { WarehouseId = 5, WarehouseCode = "KTH-01", WarehouseName = "Kho Trung Hạnh", Address = "Số 88 Đường 3 Tháng 2, Phường 11, Quận 10, TP.HCM", Status = WarehouseStatus.Active, DocumentNumber = "KTH20250409-005" },
-                new Warehouse { WarehouseId = 6, WarehouseCode = "KTAMTHOI-01", WarehouseName = "Kho Tạm", Address = "Số 95 Đường 3 Tháng 2, Phường 11, Quận 10, TP.HCM", Status = WarehouseStatus.Active, DocumentNumber = "KTAMTHOI20250409-006" }  
+                new Warehouse { WarehouseId = 6, WarehouseCode = "KTAMTHOI-01", WarehouseName = "Kho Tạm", Address = "Số 95 Đường 3 Tháng 2, Phường 11, Quận 10, TP.HCM", Status = WarehouseStatus.Active, DocumentNumber = "KTAMTHOI20250409-006" }
             );
 
             modelBuilder.Entity<Customer>().HasData(
@@ -160,8 +160,8 @@ namespace DrugWarehouseManagement.Repository.Models
                 new Customer { CustomerId = 9, CustomerName = "Lâm Chấn Khang", Address = "852 Đường Kinh Dương Vương, Phường An Lạc, Quận Bình Tân, TP. Hồ Chí Minh", PhoneNumber = "0933224466", Email = "chankhang.lam@vitanet.vn", IsLoyal = true, Status = CustomerStatus.Active, DocumentNumber = "KH-LCKH-250409-009" },
                 new Customer { CustomerId = 10, CustomerName = "Trương Thị Mỹ Linh", Address = "951 Đường Trần Hưng Đạo, Phường 1, Quận 5, TP. Hồ Chí Minh", PhoneNumber = "0976543210", Email = "mylinh.truong@hcmtelecom.vn", IsLoyal = false, Status = CustomerStatus.Active, DocumentNumber = "KH-TTML-250409-010" }
             );
-         
 
+         
         }
         private string HashPassword(string password)
         {

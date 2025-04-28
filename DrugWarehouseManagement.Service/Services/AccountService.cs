@@ -143,12 +143,18 @@ namespace DrugWarehouseManagement.Service.Services
             account.OTPCode = Utils.Base64Encode(request.OTPCode.Trim());
             account.TwoFactorEnabled = true;
             account.TwoFactorAuthenticatorStatus = TwoFactorAuthenticatorSetupStatus.Completed;
+            var backupCode = Utils.Generate2FABackupCode(16);
+            account.BackupCode = _passwordHelper.HashValue(backupCode);
 
             await _unitOfWork.SaveChangesAsync();
             return new BaseResponse
             {
                 Code = 200,
                 Message = "Xác thực 2FA thành công",
+                Result = new
+                {
+                    BackupCode = backupCode,
+                }
             };
         }
 
@@ -183,7 +189,7 @@ namespace DrugWarehouseManagement.Service.Services
                                        .Replace("{{WEBSITE_URL}}", loginPage);
 
             await _emailService.SendEmailAsync(account.Email, "Tài khoản đã được tạo", htmlTemplate);
-            
+
             await _unitOfWork.AccountRepository.CreateAsync(account);
             await _unitOfWork.SaveChangesAsync();
 
@@ -279,26 +285,57 @@ namespace DrugWarehouseManagement.Service.Services
                 throw new Exception("Tài khoản đã bị xóa, vui lòng liên hệ với quản trị viên để biết thêm thông tin");
             }
 
+            var verifyPassword = _passwordHelper.VerifyHashedPassword(account, account.PasswordHash, request.Password);
+
+            if (verifyPassword == PasswordVerificationResult.Failed)
+            {
+                throw new Exception("Mật khẩu không chính xác");
+            }
+
             if (account.TwoFactorEnabled)
             {
-                if (request.OTPCode == null)
+                if (request.OTPCode == null && (request.LostOTPCode != true || request.BackupCode == null))
                 {
-                    throw new Exception("Mã xác thực 2FA là bắt buộc");
+                    return new AccountLoginResponse
+                    {
+                        RequiresTwoFactor = true,
+                    };
                 }
-
-                var verify = VerifyTwoFactorCode(account.tOTPSecretKey, request.OTPCode.Trim());
-
-                if (!verify)
+                if (request.LostOTPCode == true)
                 {
-                    throw new Exception("Mã xác thực 2FA không chính xác");
-                }
+                    if (request.BackupCode == null)
+                    {
+                        throw new Exception("Mã dự phòng là bắt buộc");
+                    }
+                    var verify = _passwordHelper.VerifyHashedValue(account.BackupCode, request.BackupCode.Trim());
 
-                if (!String.IsNullOrEmpty(account.OTPCode) && request.OTPCode == Utils.Base64Decode(account.OTPCode))
+                    if (verify == PasswordVerificationResult.Failed)
+                    {
+                        throw new Exception("Mã dự phòng không chính xác");
+                    }
+                }
+                else
                 {
-                    throw new Exception("Mã xác thực 2FA đã được sử dụng trước đó");
-                }
+                    if (request.OTPCode == null)
+                    {
+                        throw new Exception("Mã xác thực 2FA là bắt buộc");
+                    }
 
-                account.OTPCode = Utils.Base64Encode(request.OTPCode.Trim());
+                    var verify = VerifyTwoFactorCode(account.tOTPSecretKey, request.OTPCode.Trim());
+
+                    if (!verify)
+                    {
+                        throw new Exception("Mã xác thực 2FA không chính xác");
+                    }
+
+                    if (!String.IsNullOrEmpty(account.OTPCode) && request.OTPCode == Utils.Base64Decode(account.OTPCode))
+                    {
+                        throw new Exception("Mã xác thực 2FA đã được sử dụng trước đó");
+                    }
+
+                    account.OTPCode = Utils.Base64Encode(request.OTPCode.Trim());
+
+                }
             }
 
             //if (account.TwoFactorEnabled) // Đang suy nghĩ luồng backup code
@@ -343,13 +380,6 @@ namespace DrugWarehouseManagement.Service.Services
             //        throw new Exception("Invalid two factor code or backup code");
             //    }
             //}
-
-            var verifyPassword = _passwordHelper.VerifyHashedPassword(account, account.PasswordHash, request.Password);
-
-            if (verifyPassword == PasswordVerificationResult.Failed)
-            {
-                throw new Exception("Mật khẩu không chính xác");
-            }
 
             account.ConcurrencyStamp = Guid.NewGuid().ToString();
 
@@ -448,7 +478,6 @@ namespace DrugWarehouseManagement.Service.Services
             RandomNumberGenerator.Fill(secretKey);
 
             var setupCode = _twoFactorAuthenticator.GenerateSetupCode("DrugWarehouse", account.Email, secretKey);
-            var backupCode = Utils.Generate2FABackupCode(16);
 
             account.tOTPSecretKey = secretKey;
             // account.BackupCode = _passwordHelper.HashValue(backupCode);
@@ -462,7 +491,6 @@ namespace DrugWarehouseManagement.Service.Services
             {
                 ImageUrlQrCode = setupCode.QrCodeSetupImageUrl,
                 ManualEntryKey = setupCode.ManualEntryKey,
-                BackupCode = backupCode
             };
         }
 
