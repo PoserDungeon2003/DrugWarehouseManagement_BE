@@ -88,11 +88,11 @@ namespace DrugWarehouseManagement.Service.Services
             var noti = new Repository.Models.Notification
             {
                 Title = "Đơn yêu cầu nhập mới",
-                Content = "Đơn yêu cầu nhập mới được tạo",
+                Content = $"Đơn yêu cầu nhập {inboundRequest.InboundRequestCode} mới được tạo",
                 Type = NotificationType.ByRole,
-                Role = "Accountants"
+                Role = "Accountant"
             };
-            await _notificationService.PushNotificationToRole("Accountants", noti);
+            await _notificationService.PushNotificationToRole("Accountant", noti);
 
             return new BaseResponse
             {
@@ -298,11 +298,11 @@ namespace DrugWarehouseManagement.Service.Services
                     var noti = new Repository.Models.Notification
                     {
                         Title = "Đơn yêu cầu nhập mới",
-                        Content = "Đơn yêu cầu nhập đã được duyệt bởi kế toán",
+                        Content = $"Đơn yêu cầu nhập {inboundRequest.InboundRequestCode} đã được duyệt bởi kế toán",
                         Type = NotificationType.ByRole,
                         Role = "Director"
                     };
-                    await _notificationService.PushNotificationToRole("Directors", noti);
+                    await _notificationService.PushNotificationToRole("Director", noti);
                 }
                 else if (inboundRequest.Status == InboundRequestStatus.Completed)
                 {
@@ -310,11 +310,11 @@ namespace DrugWarehouseManagement.Service.Services
                     var noti = new Repository.Models.Notification
                     {
                         Title = "Đơn yêu cầu hoàn thành",
-                        Content = "Đơn yêu cầu nhập đã được duyệt bởi giám đốc",
+                        Content = $"Đơn yêu cầu nhập {inboundRequest.InboundRequestCode} đã được duyệt bởi giám đốc",
                         Type = NotificationType.ByRole,
                         Role = "Accountant"
                     };
-                    await _notificationService.PushNotificationToRole("Accountants", noti);
+                    await _notificationService.PushNotificationToRole("Accountant", noti);
                 }
 
                 return new BaseResponse { Code = 200, Message = "Inbound Request updated status successfully" };

@@ -15,10 +15,12 @@ namespace DrugWarehouseManagement.API.Controllers
     public class AccountController : ControllerBase
     {
         private readonly IAccountService _accountService;
+        private readonly INotificationService _notificationService;
 
-        public AccountController(IAccountService accountService)
+        public AccountController(IAccountService accountService, INotificationService notificationService)
         {
             _accountService = accountService;
+            _notificationService = notificationService;
         }
 
         [HttpPost("login")]
@@ -191,6 +193,46 @@ namespace DrugWarehouseManagement.API.Controllers
             try
             {
                 var response = await _accountService.ResetPassword(email);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    Code = 400,
+                    Message = ex.Message,
+                });
+            }
+        }
+
+        [HttpGet("notifications")]
+        [Authorize]
+        public async Task<IActionResult> GetNotificationsByRole([FromQuery] QueryPaging request)
+        {
+            var role = User.FindFirstValue(ClaimTypes.Role);
+            try
+            {
+                var response = await _notificationService.GetNotificationsByRole(request, role);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    Code = 400,
+                    Message = ex.Message,
+                });
+            }
+        }
+
+        [HttpPost("read-notifications")]
+        [Authorize]
+        public async Task<IActionResult> ReadAllNotifications()
+        {
+            var role = User.FindFirstValue(ClaimTypes.Role);
+            try
+            {
+                var response = await _notificationService.ReadAllNotifications(role);
                 return Ok(response);
             }
             catch (Exception ex)

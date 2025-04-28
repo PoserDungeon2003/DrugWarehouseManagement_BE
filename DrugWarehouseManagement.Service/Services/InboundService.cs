@@ -54,11 +54,11 @@ namespace DrugWarehouseManagement.Service.Services
                 var noti = new Repository.Models.Notification
                 {
                     Title = "Đơn nhập mới",
-                    Content = "Đơn nhập mới được tạo",
+                    Content = $"Đơn nhập {inbound.InboundCode} mới được tạo",
                     Type = NotificationType.ByRole,
                     Role = "Inventory Manager"
                 };
-                await _notificationService.PushNotificationToRole("Inventory Managers", noti);
+                await _notificationService.PushNotificationToRole("Inventory Manager", noti);
 
                 return new BaseResponse
                 {

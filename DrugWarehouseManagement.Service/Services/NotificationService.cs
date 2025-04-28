@@ -66,7 +66,7 @@ namespace DrugWarehouseManagement.Service.Services
 
                 _logger.LogInformation($"Notification sent to role {role}: {notification.Title}");
 
-                await _notificationHubContext.Clients.Group(role.ToString()).SendAsync("ReceiveMessage", noti);
+                await _notificationHubContext.Clients.Group($"{role.ToString()}s").SendAsync("ReceiveMessage", noti);
             }
             catch (Exception ex)
             {
@@ -76,22 +76,35 @@ namespace DrugWarehouseManagement.Service.Services
         }
 
         // Đánh dấu tất cả thông báo của một người dùng là đã đọc
-        public async Task ReadAllNotifications(string role)
+        public async Task<BaseResponse> ReadAllNotifications(string role)
         {
             try
             {
                 var notis = await _unitOfWork.NotificationRepository.GetByWhere(n => n.Role == role && n.IsRead == false).ToListAsync();
 
 
-                notis.ForEach(n => n.IsRead = true);
-                await _unitOfWork.NotificationRepository.AddRangeAsync(notis);
+                foreach (var noti in notis)
+                {
+                    noti.IsRead = true;
+                    await _unitOfWork.NotificationRepository.UpdateAsync(noti);
+                }
 
                 await _unitOfWork.SaveChangesAsync();
                 _logger.LogInformation($"All notifications for role {role} marked as read.");
+                return new BaseResponse
+                {
+                    Code = 200,
+                    Message = "All notifications marked as read successfully."
+                };
             }
             catch (Exception ex)
             {
                 _logger.LogError($"500 - Error marking notifications as read: {ex.Message}");
+                return new BaseResponse
+                {
+                    Code = 500,
+                    Message = "Internal server error"
+                };
                 throw;
             }
         }
@@ -124,25 +137,17 @@ namespace DrugWarehouseManagement.Service.Services
             }
         }
 
-        public async Task<PaginatedResult<ViewNotification>> GetNotificationsByRole(QueryPaging request)
+        public async Task<PaginatedResult<ViewNotification>> GetNotificationsByRole(QueryPaging request, string role)
         {
-            var query = _unitOfWork.InboundRequestRepository
+            var query = _unitOfWork.NotificationRepository
                         .GetAll()
-                        .Include(i => i.Assets)
-                        .Include(i => i.InboundRequestDetails)
-                        .ThenInclude(i => i.Product)
                         .AsQueryable();
 
             // Apply filters
             if (!string.IsNullOrEmpty(request.Search))
             {
-                query = query.Where(i => i.InboundRequestCode.Contains(request.Search));
+                query = query.Where(i => i.Title.Contains(request.Search));
             }
-
-            //if (Enum.IsDefined(typeof(InboundRequestStatus), request.InboundRequestStatus))
-            //{
-            //    query = query.Where(i => i.Status == request.InboundRequestStatus);
-            //}
 
             var pattern = InstantPattern.ExtendedIso;
 
@@ -166,19 +171,20 @@ namespace DrugWarehouseManagement.Service.Services
                 }
             }
 
-            query = query.OrderByDescending(i => i.CreatedAt);
+            query = query.Where(i => i.Role == role);
+            query = query.OrderByDescending(x => x.IsRead == false).ThenByDescending(i => i.CreatedAt);
 
             // Paginate the result
-            var paginatedInbounds = await query.ToPaginatedResultAsync(request.Page, request.PageSize);
+            var paginatedNotifications = await query.ToPaginatedResultAsync(request.Page, request.PageSize);
 
-            var viewInboundRequests = paginatedInbounds.Items.Adapt<List<ViewNotification>>();
+            var viewNotifications= paginatedNotifications.Items.Adapt<List<ViewNotification>>();
 
             return new PaginatedResult<ViewNotification>
             {
-                Items = viewInboundRequests,
-                TotalCount = paginatedInbounds.TotalCount,
-                PageSize = paginatedInbounds.PageSize,
-                CurrentPage = paginatedInbounds.CurrentPage
+                Items = viewNotifications,
+                TotalCount = paginatedNotifications.TotalCount,
+                PageSize = paginatedNotifications.PageSize,
+                CurrentPage = paginatedNotifications.CurrentPage
             };
         }
     }
