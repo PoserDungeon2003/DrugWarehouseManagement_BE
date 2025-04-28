@@ -18,6 +18,7 @@ namespace DrugWarehouseManagement.Repository.Models
         public int OutboundDetailsId { get; set; }
         public int ReturnedQuantity { get; set; } // Số lượng bị trả về
         public string? Note { get; set; } // Ghi chú lý do trả hàng
+
         public virtual OutboundDetails OutboundDetails { get; set; } = null!;
 
     }
