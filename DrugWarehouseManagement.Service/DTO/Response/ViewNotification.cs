@@ -1,4 +1,5 @@
 ﻿using DrugWarehouseManagement.Common;
+using NodaTime;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,5 +14,6 @@ namespace DrugWarehouseManagement.Service.DTO.Response
         public string Title { get; set; }
         public string Content { get; set; }
         public bool IsRead { get; set; }
+        public Instant CreatedAt { get; set; }
     }
 }

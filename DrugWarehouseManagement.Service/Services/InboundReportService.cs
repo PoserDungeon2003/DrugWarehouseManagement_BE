@@ -77,7 +77,7 @@ namespace DrugWarehouseManagement.Service.Services
                     Type = NotificationType.ByRole,
                     Role = "Accountant"
                 };
-                await _notificationService.PushNotificationToRole("Accountants", noti);
+                await _notificationService.PushNotificationToRole("Accountant", noti);
 
                 return new BaseResponse
                 {

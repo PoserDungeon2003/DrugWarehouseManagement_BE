@@ -487,7 +487,7 @@ namespace DrugWarehouseManagement.Service.Services
                     && ic.CheckDate <= endDate)
                 .SelectMany(ic => ic.InventoryCheckDetails)
                 .Where(icd => icd.Lot.ProductId == productId
-                    && icd.Status == InventoryCheckStatus.Lost)
+                    && icd.Status == InventoryCheckStatus.Lost && icd.CheckQuantity > 0)
                 .GroupBy(icd => icd.InventoryCheckId)
                 .Select(g => new
                 {

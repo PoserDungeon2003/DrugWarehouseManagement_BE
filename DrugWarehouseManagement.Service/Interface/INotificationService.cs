@@ -14,7 +14,7 @@ namespace DrugWarehouseManagement.Service.Interface
     {
         Task PushNotificationToAll(Notification notification);
         Task PushNotificationToRole(string role, Notification notification);
-        Task ReadAllNotifications(string role);
-        Task<PaginatedResult<ViewNotification>> GetNotificationsByRole(QueryPaging query);
+        Task<BaseResponse> ReadAllNotifications(string role);
+        Task<PaginatedResult<ViewNotification>> GetNotificationsByRole(QueryPaging query, string role);
     }
 }
