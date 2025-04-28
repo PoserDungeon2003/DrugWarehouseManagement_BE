@@ -22,11 +22,11 @@ services:
     networks:
       - drugmanagement-network
   api:
-    build:
-      context: .
+    image: poserdungeon/drugwarehouse-api:latest
     ports:
       - '5001:8080'
     container_name: drugmanagement-api
+    env_file: ".env"
     environment:
       - TZ=Asia/Ho_Chi_Minh
       - ASPNETCORE_ENVIRONMENT=Development
