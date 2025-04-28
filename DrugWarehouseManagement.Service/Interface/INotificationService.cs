@@ -1,4 +1,6 @@
-﻿using System;
+﻿using DrugWarehouseManagement.Repository.Models;
+using DrugWarehouseManagement.Service.DTO.Response;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,7 +10,9 @@ namespace DrugWarehouseManagement.Service.Interface
 {
     public interface INotificationService
     {
-        Task NotifyRelevantRolesAsync(string message);
-        Task NotifyRoleAsync(string role, string message);
+        Task<int> GetUnreadNotificationsCount(Guid userId);
+        Task<ViewNotification> PushNotificationToAll(Notification notification);
+        Task<ViewNotification> PushNotificationToRole(string role, Notification notification);
+        Task ReadAllNotifications(Guid userId);
     }
 }

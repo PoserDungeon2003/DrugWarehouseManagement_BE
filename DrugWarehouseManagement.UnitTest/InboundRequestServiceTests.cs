@@ -89,8 +89,8 @@ namespace DrugWarehouseManagement.UnitTest
                 .Returns(Task.CompletedTask);
             _unitOfWorkMock.Setup(uow => uow.SaveChangesAsync())
                 .Returns(Task.CompletedTask);
-            _notificationServiceMock.Setup(ns => ns.NotifyRoleAsync("Accountant", It.IsAny<string>()))
-                .Returns(Task.CompletedTask);
+            //_notificationServiceMock.Setup(ns => ns.NotifyRoleAsync("Accountant", It.IsAny<string>()))
+            //    .Returns(Task.CompletedTask);
 
             // Act
             var response = await _inboundRequestService.CreateInboundRequest(accountId, request);
@@ -100,8 +100,8 @@ namespace DrugWarehouseManagement.UnitTest
             Assert.Equal("Inbound Request record created successfully", response.Message);
             _unitOfWorkMock.Verify(uow => uow.InboundRequestRepository.CreateAsync(It.Is<InboundRequest>(ir => ir.Price == 100 && ir.Assets.Count == 1)), Times.Once);
             _unitOfWorkMock.Verify(uow => uow.SaveChangesAsync(), Times.Once);
-            _notificationServiceMock.Verify(ns => 
-                ns.NotifyRoleAsync("Accountant", It.Is<string>(msg => msg.Contains("New Inbound Request"))), Times.Once);
+            //_notificationServiceMock.Verify(ns => 
+            //    ns.NotifyRoleAsync("Accountant", It.Is<string>(msg => msg.Contains("New Inbound Request"))), Times.Once);
         }
 
         [Fact]

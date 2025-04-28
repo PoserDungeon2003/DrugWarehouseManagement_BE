@@ -475,7 +475,32 @@ namespace DrugWarehouseManagement.Service.Services
                 });
             }
 
-            // 4. Lấy danh sách Outbound (Xuất bán)
+            // =========================
+            // 4. Lấy danh sách Xuất Mất (Hàng mất)
+            // =========================
+            var outboundLost = await _unitOfWork.InventoryCheckRepository
+                .GetAll()
+                .Include(ic => ic.InventoryCheckDetails)
+                    .ThenInclude(icd => icd.Lot)
+                .Where(ic => ic.WarehouseId == warehouseId
+                    && ic.CheckDate >= startDate
+                    && ic.CheckDate <= endDate)
+                .SelectMany(ic => ic.InventoryCheckDetails)
+                .Where(icd => icd.Lot.ProductId == productId
+                    && icd.Status == InventoryCheckStatus.Lost)
+                .GroupBy(icd => icd.InventoryCheckId)
+                .Select(g => new
+                {
+                    InventoryCheckId = g.Key,
+                    CheckDate = g.First().InventoryCheck.CheckDate,
+                    CustomerDocNumber = g.First().InventoryCheck.Warehouse.DocumentNumber ?? "",
+                    CustomerName = g.First().InventoryCheck.Warehouse.WarehouseName,
+                    Note = "Hàng mất từ kiểm kho",
+                    Qty = g.Sum(icd => icd.CheckQuantity ?? 0)
+                })
+                .ToListAsync();
+
+            // 5. Lấy danh sách Outbound (Xuất bán)
             // Bao gồm cả các Outbound có trạng thái Completed hoặc Returned để đảm bảo nếu Outbound bị update thành Returned thì vẫn được tính vào "Xuất trong kỳ"
             var outboundList = await _unitOfWork.OutboundDetailsRepository
                 .GetAll()
@@ -499,7 +524,7 @@ namespace DrugWarehouseManagement.Service.Services
                 })
                 .ToListAsync();
 
-            // 5. Lấy danh sách LotTransfer (Xuất chuyển ra)
+            // 6. Lấy danh sách LotTransfer (Xuất chuyển ra)
             var transferOutList = await _unitOfWork.LotTransferDetailsRepository
                 .GetAll()
                 .Include(d => d.LotTransfer)
@@ -549,22 +574,6 @@ namespace DrugWarehouseManagement.Service.Services
                     OutQty = t.Qty
                 });
             }
-            var closingStockDict = await _unitOfWork.InventoryTransactionRepository
-               .GetAll()
-               .Include(t => t.Lot)
-               .Where(t => t.Lot.WarehouseId == warehouseId
-                        && t.CreatedAt <= endDate)
-               .GroupBy(t => t.Lot.ProductId)
-               .Select(g => new
-               {
-                   ProductId = g.Key,
-                   ClosingStock = g.OrderByDescending(x => x.CreatedAt)
-                                   .ThenByDescending(x => x.Id)
-                                   .FirstOrDefault().Quantity
-               })
-               .ToDictionaryAsync(x => x.ProductId, x => x.ClosingStock);
-            int beginningBalance = openingStockDict.GetValueOrDefault(productId, 0);
-            int endingBalance = closingStockDict.GetValueOrDefault(productId, beginningBalance);
             // 6. Gộp tất cả giao dịch và sắp xếp theo ngày 
             var allTransactions = inboundTransactions
                 .Concat(outboundTransactions)
@@ -595,7 +604,7 @@ namespace DrugWarehouseManagement.Service.Services
 
 
             // =========================
-            // 8. Xuất PDF bằng QuestPDF
+            // 9. Xuất PDF bằng QuestPDF
             // =========================
             var warehouseEntity = await _unitOfWork.WarehouseRepository
                 .GetByWhere(w => w.WarehouseId == warehouseId)

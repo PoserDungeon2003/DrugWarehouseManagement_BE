@@ -133,4 +133,11 @@
         Lost = 3,
         Found = 4
     }
+
+    public enum NotificationType
+    {
+        AllUsers = 1, // Thông báo cho tất cả
+        ByRole = 2, // Thông báo theo role
+        ByUser = 3, // Thông báo cho người dùng cụ thể
+    }
 }
