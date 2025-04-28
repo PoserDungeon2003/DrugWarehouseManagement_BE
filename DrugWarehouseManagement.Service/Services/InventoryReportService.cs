@@ -192,10 +192,10 @@ namespace DrugWarehouseManagement.Service.Services
                 .Where(icd => icd.Status == InventoryCheckStatus.Damaged)
                 .GroupBy(icd => icd.Lot.ProductId)
                 .Select(g => new
-                    {
-                        ProductId = g.Key,
-                        Qty = g.Sum(icd => icd.CheckQuantity ?? 0)
-                    })
+                {
+                    ProductId = g.Key,
+                    Qty = g.Sum(icd => icd.CheckQuantity ?? 0)
+                })
                 .ToListAsync();
             // (d5) Xuất Mất (Báo cáo kiểm kê hàng mất)
             var outboundLost = await _unitOfWork.InventoryCheckRepository
@@ -376,16 +376,20 @@ namespace DrugWarehouseManagement.Service.Services
         public async Task<byte[]> ExportStockCardPdf(int warehouseId, int productId, Instant startDate, Instant endDate)
         {
             // 1. Tính tồn đầu kỳ: Lấy OpeningStock của Inbound trước startDate
-            var beginningBalance = await _unitOfWork.InboundDetailRepository
+            var openingStockDict = await _unitOfWork.InventoryTransactionRepository
                  .GetAll()
-                 .Include(d => d.Inbound)
-                 .Where(d => d.ProductId == productId
-                             && d.Inbound.WarehouseId == warehouseId
-                             && d.Inbound.Status == InboundStatus.Completed
-                             && d.Inbound.InboundDate < startDate)
-                 .OrderByDescending(d => d.Inbound.InboundDate)
-                 .Select(d => d.OpeningStock)
-                 .FirstOrDefaultAsync() ?? 0;
+                 .Include(t => t.Lot)
+                 .Where(t => t.Lot.WarehouseId == warehouseId
+                          && t.CreatedAt <= startDate)
+                 .GroupBy(t => t.Lot.ProductId)
+                 .Select(g => new
+                 {
+                     ProductId = g.Key,
+                     OpeningStock = g.OrderByDescending(x => x.CreatedAt)
+                                     .ThenByDescending(x => x.Id)
+                                     .FirstOrDefault().Quantity
+                 })
+                 .ToDictionaryAsync(x => x.ProductId, x => x.OpeningStock);
 
             var productEntity = await _unitOfWork.ProductRepository
                  .GetByWhere(p => p.ProductId == productId)
@@ -545,14 +549,28 @@ namespace DrugWarehouseManagement.Service.Services
                     OutQty = t.Qty
                 });
             }
+            var closingStockDict = await _unitOfWork.InventoryTransactionRepository
+               .GetAll()
+               .Include(t => t.Lot)
+               .Where(t => t.Lot.WarehouseId == warehouseId
+                        && t.CreatedAt <= endDate)
+               .GroupBy(t => t.Lot.ProductId)
+               .Select(g => new
+               {
+                   ProductId = g.Key,
+                   ClosingStock = g.OrderByDescending(x => x.CreatedAt)
+                                   .ThenByDescending(x => x.Id)
+                                   .FirstOrDefault().Quantity
+               })
+               .ToDictionaryAsync(x => x.ProductId, x => x.ClosingStock);
+            int beginningBalance = openingStockDict.GetValueOrDefault(productId, 0);
+            int endingBalance = closingStockDict.GetValueOrDefault(productId, beginningBalance);
             // 6. Gộp tất cả giao dịch và sắp xếp theo ngày 
             var allTransactions = inboundTransactions
                 .Concat(outboundTransactions)
                 .OrderBy(t => t.Date)
                 .ToList();
 
-            // 7. Tính luỹ kế: Tồn cuối
-            // Công thức: Tồn cuối = Tồn đầu kỳ + (Tổng Nhập trong kỳ) – (Tổng Xuất trong kỳ)
             var stockCardLines = new List<StockCardDto>();
             int running = beginningBalance;
             foreach (var t in allTransactions)
@@ -572,6 +590,9 @@ namespace DrugWarehouseManagement.Service.Services
                 });
                 running = endBal;
             }
+
+
+
 
             // =========================
             // 8. Xuất PDF bằng QuestPDF
