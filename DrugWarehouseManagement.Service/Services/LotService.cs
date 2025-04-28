@@ -147,8 +147,8 @@ namespace DrugWarehouseManagement.Service.Services
                 }
             }
 
-            // Sắp xếp theo ngày tạo mới nhất
-            query = query.OrderByDescending(x => x.LotId);
+            // Sắp xếp ưu tiên cho kho hoạt động
+            query = query.OrderBy(x => x.Warehouse.WarehouseId == 2 || x.Warehouse.WarehouseId == 6).ThenBy(x => x.ExpiryDate);
 
             // Phân trang kết quả
             var paginatedLots = await query.ToPaginatedResultAsync(request.Page, request.PageSize);
