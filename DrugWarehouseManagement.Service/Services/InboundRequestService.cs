@@ -81,16 +81,18 @@ namespace DrugWarehouseManagement.Service.Services
                 }
             }
 
+            await _unitOfWork.InboundRequestRepository.CreateAsync(inboundRequest);
+            await _unitOfWork.SaveChangesAsync();
+
             // Send notification to relevant roles
             var noti = new Repository.Models.Notification
             {
-                Title = "New Inbound Request",
-                Content = "A new inbound request has been created.",
+                Title = "Đơn yêu cầu nhập mới",
+                Content = "Đơn yêu cầu nhập mới được tạo",
+                Type = NotificationType.ByRole,
+                Role = "Accountants"
             };
-            var test = await _notificationService.PushNotificationToRole("Accountants" , noti);
-
-            await _unitOfWork.InboundRequestRepository.CreateAsync(inboundRequest);
-            await _unitOfWork.SaveChangesAsync();
+            await _notificationService.PushNotificationToRole("Accountants", noti);
 
             return new BaseResponse
             {
@@ -186,101 +188,142 @@ namespace DrugWarehouseManagement.Service.Services
 
         public async Task<BaseResponse> UpdateInboundRequest(Guid accountId, UpdateInboundOrderRequest request)
         {
-            var account = await _unitOfWork.AccountRepository.GetByIdAsync(accountId);
-            if (account == null)
+            try
             {
-                return new BaseResponse { Code = 404, Message = "Account not found" };
-            }
-
-            // Validate if the inbound exists
-            var inboundRequest = await _unitOfWork.InboundRequestRepository
-                .GetByWhere(ir => ir.InboundRequestId == request.InboundOrderId)
-                .Include(ir => ir.Assets)
-                .FirstOrDefaultAsync();
-            if (inboundRequest == null)
-            {
-                return new BaseResponse { Code = 404, Message = "Inbound Request not found" };
-            }
-
-            if (inboundRequest.Status == InboundRequestStatus.Completed || inboundRequest.Status == InboundRequestStatus.Cancelled)
-            {
-                return new BaseResponse { Code = 200, Message = "Inbound Request is Completed or Cancelled that can not update" };
-            }
-
-            inboundRequest.AccountId = accountId;
-            inboundRequest.UpdatedAt = SystemClock.Instance.GetCurrentInstant();
-
-            request.Adapt(inboundRequest);
-
-            if (request.InboundRequestDetails != null && request.InboundRequestDetails.Any())
-            {
-                // Remove all existing details
-                var existingDetails = _unitOfWork.InboundRequestDetailsRepository.GetByWhere(x => x.InboundRequestId == inboundRequest.InboundRequestId);
-                await _unitOfWork.InboundRequestDetailsRepository.DeleteRangeAsync(existingDetails);
-
-                inboundRequest.Price = inboundRequest.InboundRequestDetails.Sum(x => x.TotalPrice); // Set the Price field
-            }
-            else
-            {
-                inboundRequest.Price = 0; // Set Price to 0 if there are no details
-            }
-
-            if (request.Images != null && request.Images.Any())
-            {
-                try
+                var account = await _unitOfWork.AccountRepository.GetByIdAsync(accountId);
+                if (account == null)
                 {
-                    // Remove all existing assets associated with this inbound report
-                    var existingAssets = _unitOfWork.InboundRequestAssetsRepository.GetByWhere(x => x.InboundRequestId == inboundRequest.InboundRequestId);
-                    await _unitOfWork.InboundRequestAssetsRepository.DeleteRangeAsync(existingAssets);
-
-                    // Upload new files and associate them with the inbound report
-                    var uploadedAssets = await UploadFiles(request.Images, accountId);
-                    inboundRequest.Assets.AddRange(uploadedAssets);
+                    return new BaseResponse { Code = 404, Message = "Account not found" };
                 }
-                catch (Exception ex)
+
+                // Validate if the inbound exists
+                var inboundRequest = await _unitOfWork.InboundRequestRepository
+                    .GetByWhere(ir => ir.InboundRequestId == request.InboundOrderId)
+                    .Include(ir => ir.Assets)
+                    .FirstOrDefaultAsync();
+                if (inboundRequest == null)
                 {
-                    return new BaseResponse
+                    return new BaseResponse { Code = 404, Message = "Inbound Request not found" };
+                }
+
+                if (inboundRequest.Status == InboundRequestStatus.Completed || inboundRequest.Status == InboundRequestStatus.Cancelled)
+                {
+                    return new BaseResponse { Code = 200, Message = "Inbound Request is Completed or Cancelled that can not update" };
+                }
+
+                inboundRequest.AccountId = accountId;
+                inboundRequest.UpdatedAt = SystemClock.Instance.GetCurrentInstant();
+
+                request.Adapt(inboundRequest);
+
+                if (request.InboundRequestDetails != null && request.InboundRequestDetails.Any())
+                {
+                    // Remove all existing details
+                    var existingDetails = _unitOfWork.InboundRequestDetailsRepository.GetByWhere(x => x.InboundRequestId == inboundRequest.InboundRequestId);
+                    await _unitOfWork.InboundRequestDetailsRepository.DeleteRangeAsync(existingDetails);
+
+                    inboundRequest.Price = inboundRequest.InboundRequestDetails.Sum(x => x.TotalPrice); // Set the Price field
+                }
+                else
+                {
+                    inboundRequest.Price = 0; // Set Price to 0 if there are no details
+                }
+
+                if (request.Images != null && request.Images.Any())
+                {
+                    try
                     {
-                        Code = 500,
-                        Message = "Error uploading files: " + ex.Message
-                    };
+                        // Remove all existing assets associated with this inbound report
+                        var existingAssets = _unitOfWork.InboundRequestAssetsRepository.GetByWhere(x => x.InboundRequestId == inboundRequest.InboundRequestId);
+                        await _unitOfWork.InboundRequestAssetsRepository.DeleteRangeAsync(existingAssets);
+
+                        // Upload new files and associate them with the inbound report
+                        var uploadedAssets = await UploadFiles(request.Images, accountId);
+                        inboundRequest.Assets.AddRange(uploadedAssets);
+                    }
+                    catch (Exception ex)
+                    {
+                        return new BaseResponse
+                        {
+                            Code = 500,
+                            Message = "Error uploading files: " + ex.Message
+                        };
+                    }
                 }
+
+                await _unitOfWork.InboundRequestRepository.UpdateAsync(inboundRequest);
+                await _unitOfWork.SaveChangesAsync();
+
+                return new BaseResponse { Code = 200, Message = "Inbound Request updated successfully" };
             }
-
-            await _unitOfWork.InboundRequestRepository.UpdateAsync(inboundRequest);
-            await _unitOfWork.SaveChangesAsync();
-
-            return new BaseResponse { Code = 200, Message = "Inbound Request updated successfully" };
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error updating inbound request: {ex.Message}");
+                return new BaseResponse { Code = 500, Message = "Internal server error" };
+            }
         }
 
         public async Task<BaseResponse> UpdateInboundRequestStatus(Guid accountId, UpdateInboundOrderStatusRequest request)
         {
-            var account = await _unitOfWork.AccountRepository.GetByIdAsync(accountId);
-            if (account == null)
+            try
             {
-                return new BaseResponse { Code = 404, Message = "Account not found" };
-            }
+                var account = await _unitOfWork.AccountRepository.GetByIdAsync(accountId);
+                if (account == null)
+                {
+                    return new BaseResponse { Code = 404, Message = "Account not found" };
+                }
 
-            var inboundRequest = await _unitOfWork.InboundRequestRepository.GetByIdAsync(request.InboundId);
-            if (inboundRequest == null)
+                var inboundRequest = await _unitOfWork.InboundRequestRepository.GetByIdAsync(request.InboundId);
+                if (inboundRequest == null)
+                {
+                    return new BaseResponse { Code = 404, Message = "Inbound Request not found" };
+                }
+
+                if (!Enum.IsDefined(typeof(InboundRequestStatus), request.InboundOrderStatus))
+                {
+                    return new BaseResponse { Code = 404, Message = "Invalid inbound request status {WaitingForAccountantApproval, WaitingForDirectorApproval, WaitingForSaleAdminApproval, InProgress, WaitingForImport, Completed, Cancelled}" };
+                }
+
+                // Update inbound request
+                inboundRequest.Status = request.InboundOrderStatus;
+                inboundRequest.AccountId = accountId;
+                inboundRequest.UpdatedAt = SystemClock.Instance.GetCurrentInstant();
+
+                await _unitOfWork.InboundRequestRepository.UpdateAsync(inboundRequest);
+                await _unitOfWork.SaveChangesAsync();
+
+                if (inboundRequest.Status == InboundRequestStatus.WaitingForDirectorApproval)
+                {
+                    // Send notification to relevant roles
+                    var noti = new Repository.Models.Notification
+                    {
+                        Title = "Đơn yêu cầu nhập mới",
+                        Content = "Đơn yêu cầu nhập đã được duyệt bởi kế toán",
+                        Type = NotificationType.ByRole,
+                        Role = "Director"
+                    };
+                    await _notificationService.PushNotificationToRole("Directors", noti);
+                }
+                else if (inboundRequest.Status == InboundRequestStatus.Completed)
+                {
+                    // Send notification to relevant roles
+                    var noti = new Repository.Models.Notification
+                    {
+                        Title = "Đơn yêu cầu hoàn thành",
+                        Content = "Đơn yêu cầu nhập đã được duyệt bởi giám đốc",
+                        Type = NotificationType.ByRole,
+                        Role = "Accountant"
+                    };
+                    await _notificationService.PushNotificationToRole("Accountants", noti);
+                }
+
+                return new BaseResponse { Code = 200, Message = "Inbound Request updated status successfully" };
+            }
+            catch (Exception ex)
             {
-                return new BaseResponse { Code = 404, Message = "Inbound Request not found" };
+                _logger.LogError($"Error updating inbound request status: {ex.Message}");
+                return new BaseResponse { Code = 500, Message = "Internal server error" };
             }
-
-            if (!Enum.IsDefined(typeof(InboundRequestStatus), request.InboundOrderStatus))
-            {
-                return new BaseResponse { Code = 404, Message = "Invalid inbound request status {WaitingForAccountantApproval, WaitingForDirectorApproval, WaitingForSaleAdminApproval, InProgress, WaitingForImport, Completed, Cancelled}" };
-            }
-
-            // Update inbound request
-            inboundRequest.Status = request.InboundOrderStatus;
-            inboundRequest.AccountId = accountId;
-            inboundRequest.UpdatedAt = SystemClock.Instance.GetCurrentInstant();
-
-            await _unitOfWork.InboundRequestRepository.UpdateAsync(inboundRequest);
-            await _unitOfWork.SaveChangesAsync();
-
-            return new BaseResponse { Code = 200, Message = "Inbound Request updated status successfully" };
         }
 
         private string GenerateInboundRequestCode()
