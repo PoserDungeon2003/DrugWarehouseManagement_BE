@@ -87,6 +87,12 @@ namespace DrugWarehouseManagement.Service.Services
                .GetAll()
                .Where(c => c.Status == CustomerStatus.Active) // ẩn khách hàng inactive
                .AsQueryable();
+
+            if (!request.ShowInactive)
+            {
+                query = query.Where(c => c.Status == CustomerStatus.Active);
+            }
+            
             if (!string.IsNullOrEmpty(request.Search))
             {
                 var searchLower = request.Search.Trim().ToLower();

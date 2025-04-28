@@ -1,7 +1,9 @@
 ﻿using DrugWarehouseManagement.Common;
 using DrugWarehouseManagement.Repository;
 using DrugWarehouseManagement.Repository.Models;
+using DrugWarehouseManagement.Service.DTO.Request;
 using DrugWarehouseManagement.Service.DTO.Response;
+using DrugWarehouseManagement.Service.Extenstions;
 using DrugWarehouseManagement.Service.Hubs;
 using DrugWarehouseManagement.Service.Interface;
 using Mapster;
@@ -9,6 +11,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using NodaTime.Text;
+using NodaTime;
 using OpenCvSharp;
 using System;
 using System.Collections.Generic;
@@ -30,22 +34,7 @@ namespace DrugWarehouseManagement.Service.Services
             _unitOfWork = unitOfWork;
         }
 
-        // Đếm số thông báo chưa đọc của một người dùng
-        public async Task<int> GetUnreadNotificationsCount(Guid accountId)
-        {
-            try
-            {
-                var notifications = await _unitOfWork.NotificationRepository.GetAll().ToListAsync();
-                return notifications.Count(n => n.AccountId == accountId && !n.IsRead);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"500 - Error fetching unread notifications: {ex.Message}");
-                throw;
-            }
-        }
-
-        public async Task<ViewNotification> PushNotificationToAll(Notification notification)
+        public async Task PushNotificationToAll(Notification notification)
         {
             try
             {
@@ -57,7 +46,6 @@ namespace DrugWarehouseManagement.Service.Services
                 await _notificationHubContext.Clients.All.SendAsync("ReceiveMessage");
 
                 _logger.LogInformation($"Notification sent to all users: {notification.Title}");
-                return noti;
             }
             catch (Exception ex)
             {
@@ -67,7 +55,7 @@ namespace DrugWarehouseManagement.Service.Services
         }
 
         // Push notification to a specific role
-        public async Task<ViewNotification> PushNotificationToRole(string role, Notification notification)
+        public async Task PushNotificationToRole(string role, Notification notification)
         {
             try
             {
@@ -79,7 +67,6 @@ namespace DrugWarehouseManagement.Service.Services
                 _logger.LogInformation($"Notification sent to role {role}: {notification.Title}");
 
                 await _notificationHubContext.Clients.Group(role.ToString()).SendAsync("ReceiveMessage", noti);
-                return noti;
             }
             catch (Exception ex)
             {
@@ -89,24 +76,18 @@ namespace DrugWarehouseManagement.Service.Services
         }
 
         // Đánh dấu tất cả thông báo của một người dùng là đã đọc
-        public async Task ReadAllNotifications(Guid userId)
+        public async Task ReadAllNotifications(string role)
         {
             try
             {
-                var notifications = await _unitOfWork.NotificationRepository.GetAll().ToListAsync();
-                var userNotifications = notifications.Where(n => n.AccountId == userId && !n.IsRead).ToList();
+                var notis = await _unitOfWork.NotificationRepository.GetByWhere(n => n.Role == role && n.IsRead == false).ToListAsync();
 
-                if (!userNotifications.Any())
-                {
-                    _logger.LogInformation($"No unread notifications for user {userId}.");
-                    return;
-                }
 
-                userNotifications.ForEach(n => n.IsRead = true);
-                await _unitOfWork.NotificationRepository.AddRangeAsync(userNotifications);
+                notis.ForEach(n => n.IsRead = true);
+                await _unitOfWork.NotificationRepository.AddRangeAsync(notis);
 
                 await _unitOfWork.SaveChangesAsync();
-                _logger.LogInformation($"All notifications for user {userId} marked as read.");
+                _logger.LogInformation($"All notifications for role {role} marked as read.");
             }
             catch (Exception ex)
             {
@@ -141,6 +122,64 @@ namespace DrugWarehouseManagement.Service.Services
                 _logger.LogError($"500 - Error reading notification: {ex.Message}");
                 throw;
             }
+        }
+
+        public async Task<PaginatedResult<ViewNotification>> GetNotificationsByRole(QueryPaging request)
+        {
+            var query = _unitOfWork.InboundRequestRepository
+                        .GetAll()
+                        .Include(i => i.Assets)
+                        .Include(i => i.InboundRequestDetails)
+                        .ThenInclude(i => i.Product)
+                        .AsQueryable();
+
+            // Apply filters
+            if (!string.IsNullOrEmpty(request.Search))
+            {
+                query = query.Where(i => i.InboundRequestCode.Contains(request.Search));
+            }
+
+            //if (Enum.IsDefined(typeof(InboundRequestStatus), request.InboundRequestStatus))
+            //{
+            //    query = query.Where(i => i.Status == request.InboundRequestStatus);
+            //}
+
+            var pattern = InstantPattern.ExtendedIso;
+
+            if (!string.IsNullOrEmpty(request.DateFrom))
+            {
+                var parseResult = pattern.Parse(request.DateFrom);
+                if (parseResult.Success)
+                {
+                    Instant dateFromInstant = parseResult.Value;
+                    query = query.Where(i => i.CreatedAt >= dateFromInstant);
+                }
+            }
+
+            if (!string.IsNullOrEmpty(request.DateTo))
+            {
+                var parseResult = pattern.Parse(request.DateTo);
+                if (parseResult.Success)
+                {
+                    Instant dateToInstant = parseResult.Value;
+                    query = query.Where(i => i.CreatedAt <= dateToInstant);
+                }
+            }
+
+            query = query.OrderByDescending(i => i.CreatedAt);
+
+            // Paginate the result
+            var paginatedInbounds = await query.ToPaginatedResultAsync(request.Page, request.PageSize);
+
+            var viewInboundRequests = paginatedInbounds.Items.Adapt<List<ViewNotification>>();
+
+            return new PaginatedResult<ViewNotification>
+            {
+                Items = viewInboundRequests,
+                TotalCount = paginatedInbounds.TotalCount,
+                PageSize = paginatedInbounds.PageSize,
+                CurrentPage = paginatedInbounds.CurrentPage
+            };
         }
     }
 }

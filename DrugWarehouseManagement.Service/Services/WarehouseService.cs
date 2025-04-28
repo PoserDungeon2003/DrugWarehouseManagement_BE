@@ -47,6 +47,11 @@ namespace DrugWarehouseManagement.Service.Services
                 .Where(w => w.Status == WarehouseStatus.Active)
                 .AsQueryable();
 
+            if (!request.ShowInactive)
+            {
+                query = query.Where(w => w.Status == WarehouseStatus.Active);
+            }
+
             if (!string.IsNullOrEmpty(request.Status))
             {
                 if (Enum.TryParse<WarehouseStatus>(request.Status, true, out var parsedStatus))

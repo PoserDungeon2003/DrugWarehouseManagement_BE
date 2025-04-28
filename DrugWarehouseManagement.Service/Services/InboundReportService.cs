@@ -25,11 +25,13 @@ namespace DrugWarehouseManagement.Service.Services
         private readonly IMinioService _minioService;
         private readonly IInboundService _inboundService;
         private readonly string BucketName = "inboundreport";
-        public InboundReportService(IUnitOfWork unitOfWork, IMinioService minioService, IInboundService inboundService)
+        private readonly INotificationService _notificationService;
+        public InboundReportService(IUnitOfWork unitOfWork, IMinioService minioService, IInboundService inboundService, INotificationService notificationService)
         {
             _unitOfWork = unitOfWork;
             _minioService = minioService;
             _inboundService = inboundService;
+            _notificationService = notificationService;
         }
         public async Task<BaseResponse> CreateInboundReport(Guid accountId, CreateInboundReportRequest request)
         {
@@ -66,6 +68,16 @@ namespace DrugWarehouseManagement.Service.Services
 
                 await _unitOfWork.InboundReportRepository.CreateAsync(inboundReport);
                 await _unitOfWork.SaveChangesAsync();
+
+                // Send notification to relevant roles
+                var noti = new Repository.Models.Notification
+                {
+                    Title = "Báo cáo nhập",
+                    Content = $"Báo cáo đơn {inboundReport.Inbound.InboundCode} với nội dung: {inboundReport.ProblemDescription ?? "Không có vấn đề"}",
+                    Type = NotificationType.ByRole,
+                    Role = "Accountant"
+                };
+                await _notificationService.PushNotificationToRole("Accountants", noti);
 
                 return new BaseResponse
                 {

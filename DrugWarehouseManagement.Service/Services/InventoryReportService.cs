@@ -574,6 +574,18 @@ namespace DrugWarehouseManagement.Service.Services
                     OutQty = t.Qty
                 });
             }
+            foreach (var lost in outboundLost)
+            {
+                outboundTransactions.Add(new StockCardLine
+                {
+                    Date = lost.CheckDate.ToDateTimeUtc(),
+                    DocumentNumber = lost.CustomerDocNumber ?? "",
+                    PartnerName = "Kiểm kho",
+                    Note = lost.Note,
+                    InQty = 0,
+                    OutQty = lost.Qty
+                });
+            }
             var closingStockDict = await _unitOfWork.InventoryTransactionRepository
                 .GetAll()
                 .Include(t => t.Lot)
