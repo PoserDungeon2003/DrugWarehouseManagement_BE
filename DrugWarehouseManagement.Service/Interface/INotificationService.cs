@@ -1,5 +1,7 @@
 ﻿using DrugWarehouseManagement.Repository.Models;
+using DrugWarehouseManagement.Service.DTO.Request;
 using DrugWarehouseManagement.Service.DTO.Response;
+using DrugWarehouseManagement.Service.Extenstions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,9 +12,9 @@ namespace DrugWarehouseManagement.Service.Interface
 {
     public interface INotificationService
     {
-        Task<int> GetUnreadNotificationsCount(Guid userId);
-        Task<ViewNotification> PushNotificationToAll(Notification notification);
-        Task<ViewNotification> PushNotificationToRole(string role, Notification notification);
-        Task ReadAllNotifications(Guid userId);
+        Task PushNotificationToAll(Notification notification);
+        Task PushNotificationToRole(string role, Notification notification);
+        Task ReadAllNotifications(string role);
+        Task<PaginatedResult<ViewNotification>> GetNotificationsByRole(QueryPaging query);
     }
 }

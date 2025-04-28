@@ -45,6 +45,17 @@ namespace DrugWarehouseManagement.Service.Services
                 }
 
                 var inventory = request.Adapt<InventoryCheck>();
+
+                var warehouse = await _unitOfWork.WarehouseRepository.GetByIdAsync(inventory.WarehouseId);
+                if (warehouse is null)
+                {
+                    return new BaseResponse
+                    {
+                        Code = 404,
+                        Message = $"Warehouse with id {inventory.WarehouseId} not found."
+                    };
+                }
+
                 inventory.AccountId = accountId;
 
                 if (request.Details != null && request.Details.Any())
@@ -81,7 +92,6 @@ namespace DrugWarehouseManagement.Service.Services
 
                                 lotExist.Quantity -= detail.Quantity;
                                 await _unitOfWork.LotRepository.UpdateAsync(lotExist);
-                                await _unitOfWork.SaveChangesAsync();
                                 break;
 
                             case InventoryCheckStatus.Found:
@@ -147,7 +157,7 @@ namespace DrugWarehouseManagement.Service.Services
 
                                 lotExist.Quantity += detail.Quantity;
                                 await _unitOfWork.LotRepository.UpdateAsync(lotExist);
-                                await _unitOfWork.SaveChangesAsync();
+                                //await _unitOfWork.SaveChangesAsync();
 
                                 break;
 

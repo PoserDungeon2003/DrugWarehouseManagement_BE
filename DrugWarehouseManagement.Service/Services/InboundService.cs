@@ -21,154 +21,181 @@ namespace DrugWarehouseManagement.Service.Services
     public class InboundService : IInboundService
     {
         private readonly IUnitOfWork _unitOfWork;
-        public InboundService(IUnitOfWork unitOfWork)
+        private readonly INotificationService _notificationService;
+        public InboundService(IUnitOfWork unitOfWork, INotificationService notificationService)
         {
             _unitOfWork = unitOfWork;
+            _notificationService = notificationService;
         }
 
         public async Task<BaseResponse> CreateInbound(Guid accountId, CreateInboundRequest request)
         {
-            var account = await _unitOfWork.AccountRepository.GetByIdAsync(accountId);
-            if (account == null)
+            try
             {
-                return new BaseResponse { Code = 404, Message = "Account not found" };
+                var account = await _unitOfWork.AccountRepository.GetByIdAsync(accountId);
+                if (account == null)
+                {
+                    return new BaseResponse { Code = 404, Message = "Account not found" };
+                }
+
+                var inboundCode = GenerateInboundCode();
+
+                var inbound = request.Adapt<Inbound>();
+                inbound.InboundCode = inboundCode;
+                inbound.AccountId = accountId;
+                inbound.InboundDate = SystemClock.Instance.GetCurrentInstant();
+                inbound.Status = InboundStatus.Pending;
+                inbound.UpdatedAt = SystemClock.Instance.GetCurrentInstant();
+
+                await _unitOfWork.InboundRepository.CreateAsync(inbound);
+                await _unitOfWork.SaveChangesAsync();
+
+                // Send notification to relevant roles
+                var noti = new Repository.Models.Notification
+                {
+                    Title = "Đơn nhập mới",
+                    Content = "Đơn nhập mới được tạo",
+                    Type = NotificationType.ByRole,
+                    Role = "Inventory Manager"
+                };
+                await _notificationService.PushNotificationToRole("Inventory Managers", noti);
+
+                return new BaseResponse
+                {
+                    Code = 200,
+                    Message = "Inbound record created successfully",
+                };
             }
-
-            var inboundCode = GenerateInboundCode();
-
-            var inbound = request.Adapt<Inbound>();
-            inbound.InboundCode = inboundCode;
-            inbound.AccountId = accountId;
-            inbound.InboundDate = SystemClock.Instance.GetCurrentInstant();
-            inbound.Status = InboundStatus.Pending;
-            inbound.UpdatedAt = SystemClock.Instance.GetCurrentInstant();
-
-            await _unitOfWork.InboundRepository.CreateAsync(inbound);
-            await _unitOfWork.SaveChangesAsync();
-
-            return new BaseResponse
+            catch
             {
-                Code = 200,
-                Message = "Inbound record created successfully",
-            };
+                return new BaseResponse { Code = 500, Message = "Internal server error" };
+            }
         }
 
         public async Task<BaseResponse> UpdateInboundStatus(Guid accountId, UpdateInboundStatusRequest request)
         {
-            var account = await _unitOfWork.AccountRepository.GetByIdAsync(accountId);
-            if (account == null)
+            try
             {
-                return new BaseResponse { Code = 404, Message = "Account not found" };
-            }
-
-            var inbound = await _unitOfWork.InboundRepository.GetByIdAsync(request.InboundId);
-            if (inbound == null)
-            {
-                return new BaseResponse { Code = 404, Message = "Inbound not found" };
-            }
-
-            if (!Enum.IsDefined(typeof(InboundStatus), request.InboundStatus))
-            {
-                return new BaseResponse { Code = 404, Message = "Invalid inbound status {Pending, InProgess, Completed, Cancelled}" };
-            }
-
-            // Update inbound details
-            inbound.Status = request.InboundStatus;
-            inbound.AccountId = accountId;
-            inbound.InboundDate = SystemClock.Instance.GetCurrentInstant();
-            inbound.UpdatedAt = SystemClock.Instance.GetCurrentInstant();
-
-            if (request.InboundStatus == InboundStatus.Completed)
-            {
-                var inboundReport = await _unitOfWork.InboundReportRepository
-                .GetByWhere(ir => ir.InboundId == inbound.InboundId && ir.Status == InboundReportStatus.Pending)
-                .OrderByDescending(ir => ir.ReportDate)
-                .FirstOrDefaultAsync();
-
-                if (inboundReport != null)
+                var account = await _unitOfWork.AccountRepository.GetByIdAsync(accountId);
+                if (account == null)
                 {
-                    inboundReport.Status = InboundReportStatus.Completed;
-                    inboundReport.UpdatedAt = SystemClock.Instance.GetCurrentInstant();
-                    inboundReport.ProblemDescription = "Đơn không có hàng lỗi";
-                    await _unitOfWork.InboundReportRepository.UpdateAsync(inboundReport);
-                    await _unitOfWork.SaveChangesAsync();
+                    return new BaseResponse { Code = 404, Message = "Account not found" };
                 }
-            }
 
-            await _unitOfWork.InboundRepository.UpdateAsync(inbound);
-
-            // If status is Completed, create or update Lot entries
-            if (request.InboundStatus == InboundStatus.Completed)
-            {
-                var inboundDetails = await _unitOfWork.InboundDetailRepository.GetAllByInboundIdAsync(inbound.InboundId);
-                if (inboundDetails.Any())
+                var inbound = await _unitOfWork.InboundRepository.GetByIdAsync(request.InboundId);
+                if (inbound == null)
                 {
-                    foreach (var detail in inboundDetails)
+                    return new BaseResponse { Code = 404, Message = "Inbound not found" };
+                }
+
+                if (!Enum.IsDefined(typeof(InboundStatus), request.InboundStatus))
+                {
+                    return new BaseResponse { Code = 404, Message = "Invalid inbound status {Pending, InProgess, Completed, Cancelled}" };
+                }
+
+                // Update inbound details
+                inbound.Status = request.InboundStatus;
+                inbound.AccountId = accountId;
+                inbound.InboundDate = SystemClock.Instance.GetCurrentInstant();
+                inbound.UpdatedAt = SystemClock.Instance.GetCurrentInstant();
+
+                if (request.InboundStatus == InboundStatus.Completed)
+                {
+                    var inboundReport = await _unitOfWork.InboundReportRepository
+                    .GetByWhere(ir => ir.InboundId == inbound.InboundId && ir.Status == InboundReportStatus.Pending)
+                    .OrderByDescending(ir => ir.ReportDate)
+                    .FirstOrDefaultAsync();
+
+                    if (inboundReport != null)
                     {
-                        var existingLot = await _unitOfWork.LotRepository
-                            .GetByWhere(l =>
-                                l.LotNumber == detail.LotNumber &&
-                                l.ManufacturingDate == detail.ManufacturingDate &&
-                                l.ExpiryDate == detail.ExpiryDate &&
-                                l.ProductId == detail.ProductId)
-                            .AsQueryable()
-                            .FirstOrDefaultAsync();
-
-                        if (existingLot != null)
-                        {
-                            existingLot.Quantity += detail.Quantity;
-                            await _unitOfWork.LotRepository.UpdateAsync(existingLot);
-                        }
-                        else
-                        {
-                            var newLot = detail.Adapt<Lot>();
-                            newLot.WarehouseId = inbound.WarehouseId;
-                            newLot.ProviderId = inbound.ProviderId;
-
-                            await _unitOfWork.LotRepository.CreateAsync(newLot);
-                        }                   
-                        await _unitOfWork.InboundDetailRepository.UpdateAsync(detail);
-
+                        inboundReport.Status = InboundReportStatus.Completed;
+                        inboundReport.UpdatedAt = SystemClock.Instance.GetCurrentInstant();
+                        inboundReport.ProblemDescription = "Đơn không có hàng lỗi";
+                        await _unitOfWork.InboundReportRepository.UpdateAsync(inboundReport);
+                        await _unitOfWork.SaveChangesAsync();
                     }
                 }
-            }
-            else if (request.InboundStatus == InboundStatus.Cancelled && inbound.Status == InboundStatus.Completed)
-            {
-                var inboundDetails = await _unitOfWork.InboundDetailRepository.GetAllByInboundIdAsync(inbound.InboundId);
-                if (inboundDetails.Any())
+
+                await _unitOfWork.InboundRepository.UpdateAsync(inbound);
+
+                // If status is Completed, create or update Lot entries
+                if (request.InboundStatus == InboundStatus.Completed)
                 {
-                    foreach (var detail in inboundDetails)
+                    var inboundDetails = await _unitOfWork.InboundDetailRepository.GetAllByInboundIdAsync(inbound.InboundId);
+                    if (inboundDetails.Any())
                     {
-                        var existingLot = await _unitOfWork.LotRepository
-                            .GetByWhere(l =>
-                                l.LotNumber == detail.LotNumber &&
-                                l.ManufacturingDate == detail.ManufacturingDate &&
-                                l.ExpiryDate == detail.ExpiryDate &&
-                                l.ProductId == detail.ProductId)
-                            .AsQueryable()
-                            .FirstOrDefaultAsync();
-
-                        if (existingLot != null)
+                        foreach (var detail in inboundDetails)
                         {
-                            existingLot.Quantity -= detail.Quantity;
+                            var existingLot = await _unitOfWork.LotRepository
+                                .GetByWhere(l =>
+                                    l.LotNumber == detail.LotNumber &&
+                                    l.ManufacturingDate == detail.ManufacturingDate &&
+                                    l.ExpiryDate == detail.ExpiryDate &&
+                                    l.ProductId == detail.ProductId)
+                                .AsQueryable()
+                                .FirstOrDefaultAsync();
 
-                            if (existingLot.Quantity <= 0)
+                            if (existingLot != null)
                             {
-                                await _unitOfWork.LotRepository.DeleteAsync(existingLot);
+                                existingLot.Quantity += detail.Quantity;
+                                await _unitOfWork.LotRepository.UpdateAsync(existingLot);
                             }
                             else
                             {
-                                await _unitOfWork.LotRepository.UpdateAsync(existingLot);
+                                var newLot = detail.Adapt<Lot>();
+                                newLot.WarehouseId = inbound.WarehouseId;
+                                newLot.ProviderId = inbound.ProviderId;
+
+                                await _unitOfWork.LotRepository.CreateAsync(newLot);
                             }
+                            await _unitOfWork.InboundDetailRepository.UpdateAsync(detail);
+
                         }
                     }
                 }
+                else if (request.InboundStatus == InboundStatus.Cancelled && inbound.Status == InboundStatus.Completed)
+                {
+                    var inboundDetails = await _unitOfWork.InboundDetailRepository.GetAllByInboundIdAsync(inbound.InboundId);
+                    if (inboundDetails.Any())
+                    {
+                        foreach (var detail in inboundDetails)
+                        {
+                            var existingLot = await _unitOfWork.LotRepository
+                                .GetByWhere(l =>
+                                    l.LotNumber == detail.LotNumber &&
+                                    l.ManufacturingDate == detail.ManufacturingDate &&
+                                    l.ExpiryDate == detail.ExpiryDate &&
+                                    l.ProductId == detail.ProductId)
+                                .AsQueryable()
+                                .FirstOrDefaultAsync();
 
+                            if (existingLot != null)
+                            {
+                                existingLot.Quantity -= detail.Quantity;
+
+                                if (existingLot.Quantity <= 0)
+                                {
+                                    await _unitOfWork.LotRepository.DeleteAsync(existingLot);
+                                }
+                                else
+                                {
+                                    await _unitOfWork.LotRepository.UpdateAsync(existingLot);
+                                }
+                            }
+                        }
+                    }
+
+                }
+
+                await _unitOfWork.SaveChangesAsync();
+
+                return new BaseResponse { Code = 200, Message = "Inbound updated status successfully" };
+            }
+            catch
+            {
+                return new BaseResponse { Code = 500, Message = "Internal server error" };
             }
 
-            await _unitOfWork.SaveChangesAsync();
-
-            return new BaseResponse { Code = 200, Message = "Inbound updated status successfully" };
         }
 
         public async Task<BaseResponse> UpdateInbound(Guid accountId, UpdateInboundRequest request)
