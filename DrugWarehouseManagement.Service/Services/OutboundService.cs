@@ -152,9 +152,6 @@ namespace DrugWarehouseManagement.Service.Services
                 if (inboundDetail == null)
                     throw new Exception($"Không tìm thấy giá vốn cho LotNumber {lot.LotNumber}");
 
-                // Nếu hợp lệ, trừ số lượng trong Lot
-                lot.Quantity -= detailRequest.Quantity;
-                await _unitOfWork.LotRepository.UpdateAsync(lot);
 
                 // Tính giá xuất
                 decimal unitPrice;
@@ -323,17 +320,7 @@ namespace DrugWarehouseManagement.Service.Services
                         case OutboundStatus.Cancelled:
                             if (outbound.Status != OutboundStatus.Pending && outbound.Status != OutboundStatus.InProgress)
                                 throw new Exception("Chỉ được phép hủy đơn xuất khi đang ở trạng thái Pending hoặc InProgress.");
-                            foreach (var detail in outbound.OutboundDetails)
-                            {
-                                var lot = await _unitOfWork.LotRepository
-                                    .GetByWhere(l => l.LotId == detail.LotId)
-                                    .FirstOrDefaultAsync();
-                                if (lot != null)
-                                {
-                                    lot.Quantity += detail.Quantity;
-                                    await _unitOfWork.LotRepository.UpdateAsync(lot);
-                                }
-                            }
+
                             outbound.Status = OutboundStatus.Cancelled;
                             break;
 
@@ -346,6 +333,14 @@ namespace DrugWarehouseManagement.Service.Services
                         case OutboundStatus.Completed:
                             if (outbound.Status != OutboundStatus.InProgress)
                                 throw new Exception("Chỉ được phép chuyển từ InProgress sang Completed.");
+                            foreach (var detail in outbound.OutboundDetails)
+                            {
+                                var lot = await _unitOfWork.LotRepository.GetByIdAsync(detail.LotId);
+                                if (lot.Quantity < detail.Quantity)
+                                    throw new Exception($"Lô {lot.LotNumber} không đủ tồn để hoàn thành đơn.");
+                                lot.Quantity -= detail.Quantity;
+                                await _unitOfWork.LotRepository.UpdateAsync(lot);
+                            }
                             outbound.Status = OutboundStatus.Completed;
                             outbound.OutboundDate = SystemClock.Instance.GetCurrentInstant();
                             break;
