@@ -1,0 +1,72 @@
+services:
+  postgres:
+    container_name: postgres
+    image: postgres:17.2-alpine
+    environment:
+      - POSTGRES_DB=nakama
+      - POSTGRES_PASSWORD=localdb
+    volumes:
+      - data:/var/lib/postgresql/data
+    expose:
+      - "8080"
+      - "5432"
+    ports:
+      - "5432:5432"
+      - "8082:8080"
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "postgres", "-d", "nakama" ]
+      interval: 3s
+      timeout: 3s
+      retries: 5
+    restart: always
+    networks:
+      - drugmanagement-network
+  api:
+    build:
+      context: .
+    ports:
+      - '5001:8080'
+    container_name: drugmanagement-api
+    environment:
+      - TZ=Asia/Ho_Chi_Minh
+      - ASPNETCORE_ENVIRONMENT=Development
+    depends_on:
+      - postgres
+    restart: unless-stopped
+    networks:
+      - drugmanagement-network
+  minio:
+    image: minio/minio:latest
+    container_name: minio-drugmanagement
+    environment:
+      - MINIO_ROOT_USER=admin
+      - MINIO_ROOT_PASSWORD=supersecret
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000" # MinIO API
+      - "9001:9001" # MinIO Console
+    volumes:
+      - minio_data:/data
+    restart: unless-stopped
+    depends_on:
+      - api
+      - postgres
+    networks:
+      - drugmanagement-network
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+volumes:
+  data:
+  sql_data:
+  minio_data:
+  pgadmin-data:
+  redis_data:
+networks:
+  drugmanagement-network:
