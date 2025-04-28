@@ -574,6 +574,22 @@ namespace DrugWarehouseManagement.Service.Services
                     OutQty = t.Qty
                 });
             }
+            var closingStockDict = await _unitOfWork.InventoryTransactionRepository
+                .GetAll()
+                .Include(t => t.Lot)
+                .Where(t => t.Lot.WarehouseId == warehouseId
+                         && t.CreatedAt <= endDate)
+                .GroupBy(t => t.Lot.ProductId)
+                .Select(g => new
+                {
+                    ProductId = g.Key,
+                    ClosingStock = g.OrderByDescending(x => x.CreatedAt)
+                                    .ThenByDescending(x => x.Id)
+                                    .FirstOrDefault().Quantity
+                })
+                .ToDictionaryAsync(x => x.ProductId, x => x.ClosingStock);
+            int beginningBalance = openingStockDict.GetValueOrDefault(productId, 0);
+            int endingBalance = closingStockDict.GetValueOrDefault(productId, beginningBalance);
             // 6. Gộp tất cả giao dịch và sắp xếp theo ngày 
             var allTransactions = inboundTransactions
                 .Concat(outboundTransactions)
