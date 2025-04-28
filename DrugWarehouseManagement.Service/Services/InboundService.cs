@@ -126,16 +126,7 @@ namespace DrugWarehouseManagement.Service.Services
                             newLot.ProviderId = inbound.ProviderId;
 
                             await _unitOfWork.LotRepository.CreateAsync(newLot);
-                        }
-
-                        // Update OpeningStock based on all Lots with the same ProductId
-                        var allLotsForProduct = await _unitOfWork.LotRepository
-                            .GetByWhere(l => l.ProductId == detail.ProductId)
-                            .ToListAsync();
-
-                        var totalStock = allLotsForProduct.Sum(l => l.Quantity) + detail.Quantity;
-
-                        detail.OpeningStock = totalStock;
+                        }                   
                         await _unitOfWork.InboundDetailRepository.UpdateAsync(detail);
 
                     }
