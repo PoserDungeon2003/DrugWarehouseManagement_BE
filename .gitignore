@@ -405,3 +405,5 @@ Migrations/
 .env
 *-credential[s].json
 .vscode
+INSTALL.MD
+docker-compose.[Pp]roduction.yml
