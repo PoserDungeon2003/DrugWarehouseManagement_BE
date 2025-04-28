@@ -95,6 +95,12 @@ namespace DrugWarehouseManagement.Service.Services
             var query = _unitOfWork.ProviderRepository
                 .GetByWhere(x => x.Status == ProviderStatus.Active)
                 .AsQueryable();
+
+            if (!queryPaging.ShowInactive)
+            {
+                query = query.Where(x => x.Status == ProviderStatus.Active);
+            }
+            
             if (!string.IsNullOrEmpty(queryPaging.Search))
             {
                 var searchTerm = queryPaging.Search.Trim().ToLower();

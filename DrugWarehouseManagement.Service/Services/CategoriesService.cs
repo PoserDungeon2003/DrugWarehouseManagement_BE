@@ -154,6 +154,10 @@ namespace DrugWarehouseManagement.Service.Services
                                     .ThenByDescending(lt => lt.UpdatedAt)
                                     .ThenByDescending(lt => lt.CreatedAt)
                                     .AsQueryable();
+            if (!query.ShowInactive)
+            {
+                categories = categories.Where(c => c.Status == Common.CategoriesStatus.Active);
+            }
 
             if (query.IsMainCategory != null)
             {
