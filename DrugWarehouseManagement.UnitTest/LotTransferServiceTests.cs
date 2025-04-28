@@ -51,8 +51,9 @@ namespace DrugWarehouseManagement.UnitTest
           .ReturnsAsync((Account)null);
 
       // Act & Assert
-      var exception = await Assert.ThrowsAsync<Exception>(() =>
-          _lotTransferService.CreateLotTransfer(accountId, request));
+      var exception = await Assert.ThrowsAsync<Exception>(
+          () => _lotTransferService.CreateLotTransfer(accountId, request)
+      );
       Assert.Equal("Account not found", exception.Message);
     }
 
@@ -71,12 +72,13 @@ namespace DrugWarehouseManagement.UnitTest
 
       _unitOfWorkMock.Setup(u => u.AccountRepository.GetByIdAsync(accountId))
           .ReturnsAsync(account);
-      _unitOfWorkMock.Setup(u => u.WarehouseRepository.GetByIdAsync(request.FromWareHouseId))
+      _unitOfWorkMock.Setup(u => u.WarehouseRepository.GetByIdAsync(1))
           .ReturnsAsync((Warehouse)null);
 
       // Act & Assert
-      var exception = await Assert.ThrowsAsync<Exception>(() =>
-          _lotTransferService.CreateLotTransfer(accountId, request));
+      var exception = await Assert.ThrowsAsync<Exception>(
+          () => _lotTransferService.CreateLotTransfer(accountId, request)
+      );
       Assert.Equal("Warehouse not found", exception.Message);
     }
 
@@ -97,14 +99,15 @@ namespace DrugWarehouseManagement.UnitTest
 
       _unitOfWorkMock.Setup(u => u.AccountRepository.GetByIdAsync(accountId))
           .ReturnsAsync(account);
-      _unitOfWorkMock.Setup(u => u.WarehouseRepository.GetByIdAsync(request.FromWareHouseId))
+      _unitOfWorkMock.Setup(u => u.WarehouseRepository.GetByIdAsync(1))
           .ReturnsAsync(fromWarehouse);
-      _unitOfWorkMock.Setup(u => u.WarehouseRepository.GetByIdAsync(request.ToWareHouseId))
+      _unitOfWorkMock.Setup(u => u.WarehouseRepository.GetByIdAsync(2))
           .ReturnsAsync(toWarehouse);
 
       // Act & Assert
-      var exception = await Assert.ThrowsAsync<Exception>(() =>
-          _lotTransferService.CreateLotTransfer(accountId, request));
+      var exception = await Assert.ThrowsAsync<Exception>(
+          () => _lotTransferService.CreateLotTransfer(accountId, request)
+      );
       Assert.Equal("Warehouse is inactive", exception.Message);
     }
 
@@ -128,16 +131,17 @@ namespace DrugWarehouseManagement.UnitTest
 
       _unitOfWorkMock.Setup(u => u.AccountRepository.GetByIdAsync(accountId))
           .ReturnsAsync(account);
-      _unitOfWorkMock.Setup(u => u.WarehouseRepository.GetByIdAsync(request.FromWareHouseId))
+      _unitOfWorkMock.Setup(u => u.WarehouseRepository.GetByIdAsync(1))
           .ReturnsAsync(fromWarehouse);
-      _unitOfWorkMock.Setup(u => u.WarehouseRepository.GetByIdAsync(request.ToWareHouseId))
+      _unitOfWorkMock.Setup(u => u.WarehouseRepository.GetByIdAsync(2))
           .ReturnsAsync(toWarehouse);
       _unitOfWorkMock.Setup(u => u.LotRepository.GetByIdAsync(1))
           .ReturnsAsync((Lot)null);
 
       // Act & Assert
-      var exception = await Assert.ThrowsAsync<Exception>(() =>
-          _lotTransferService.CreateLotTransfer(accountId, request));
+      var exception = await Assert.ThrowsAsync<Exception>(
+          () => _lotTransferService.CreateLotTransfer(accountId, request)
+      );
       Assert.Equal("Lot not found", exception.Message);
     }
 
@@ -149,7 +153,8 @@ namespace DrugWarehouseManagement.UnitTest
       var account = new Account { Id = accountId };
       var fromWarehouse = new Warehouse { WarehouseId = 1, Status = WarehouseStatus.Active };
       var toWarehouse = new Warehouse { WarehouseId = 2, Status = WarehouseStatus.Active };
-      var lot = new Lot { LotId = 1, Quantity = 50, WarehouseId = 1 };
+      var lot = new Lot { LotId = 1, WarehouseId = 1 };
+
       var request = new LotTransferRequest
       {
         FromWareHouseId = 1,
@@ -162,16 +167,17 @@ namespace DrugWarehouseManagement.UnitTest
 
       _unitOfWorkMock.Setup(u => u.AccountRepository.GetByIdAsync(accountId))
           .ReturnsAsync(account);
-      _unitOfWorkMock.Setup(u => u.WarehouseRepository.GetByIdAsync(request.FromWareHouseId))
+      _unitOfWorkMock.Setup(u => u.WarehouseRepository.GetByIdAsync(1))
           .ReturnsAsync(fromWarehouse);
-      _unitOfWorkMock.Setup(u => u.WarehouseRepository.GetByIdAsync(request.ToWareHouseId))
+      _unitOfWorkMock.Setup(u => u.WarehouseRepository.GetByIdAsync(2))
           .ReturnsAsync(toWarehouse);
       _unitOfWorkMock.Setup(u => u.LotRepository.GetByIdAsync(1))
           .ReturnsAsync(lot);
 
       // Act & Assert
-      var exception = await Assert.ThrowsAsync<Exception>(() =>
-          _lotTransferService.CreateLotTransfer(accountId, request));
+      var exception = await Assert.ThrowsAsync<Exception>(
+          () => _lotTransferService.CreateLotTransfer(accountId, request)
+      );
       Assert.Equal("Quantity must be greater than 0", exception.Message);
     }
 
@@ -183,7 +189,8 @@ namespace DrugWarehouseManagement.UnitTest
       var account = new Account { Id = accountId };
       var fromWarehouse = new Warehouse { WarehouseId = 1, Status = WarehouseStatus.Active };
       var toWarehouse = new Warehouse { WarehouseId = 2, Status = WarehouseStatus.Active };
-      var lot = new Lot { LotId = 1, Quantity = 5, WarehouseId = 1 };
+      var lot = new Lot { LotId = 1, WarehouseId = 1, Quantity = 5 };
+
       var request = new LotTransferRequest
       {
         FromWareHouseId = 1,
@@ -196,16 +203,17 @@ namespace DrugWarehouseManagement.UnitTest
 
       _unitOfWorkMock.Setup(u => u.AccountRepository.GetByIdAsync(accountId))
           .ReturnsAsync(account);
-      _unitOfWorkMock.Setup(u => u.WarehouseRepository.GetByIdAsync(request.FromWareHouseId))
+      _unitOfWorkMock.Setup(u => u.WarehouseRepository.GetByIdAsync(1))
           .ReturnsAsync(fromWarehouse);
-      _unitOfWorkMock.Setup(u => u.WarehouseRepository.GetByIdAsync(request.ToWareHouseId))
+      _unitOfWorkMock.Setup(u => u.WarehouseRepository.GetByIdAsync(2))
           .ReturnsAsync(toWarehouse);
       _unitOfWorkMock.Setup(u => u.LotRepository.GetByIdAsync(1))
           .ReturnsAsync(lot);
 
       // Act & Assert
-      var exception = await Assert.ThrowsAsync<Exception>(() =>
-          _lotTransferService.CreateLotTransfer(accountId, request));
+      var exception = await Assert.ThrowsAsync<Exception>(
+          () => _lotTransferService.CreateLotTransfer(accountId, request)
+      );
       Assert.Equal("Quantity not enough", exception.Message);
     }
 
@@ -216,11 +224,12 @@ namespace DrugWarehouseManagement.UnitTest
       var accountId = Guid.NewGuid();
       var account = new Account { Id = accountId };
       var warehouse = new Warehouse { WarehouseId = 1, Status = WarehouseStatus.Active };
-      var lot = new Lot { LotId = 1, Quantity = 50, WarehouseId = 1 };
+      var lot = new Lot { LotId = 1, WarehouseId = 1, Quantity = 20 };
+
       var request = new LotTransferRequest
       {
         FromWareHouseId = 1,
-        ToWareHouseId = 1,  // Same warehouse ID
+        ToWareHouseId = 1, // Same as source
         LotTransferDetails = new List<LotTransferDetailRequest>
                 {
                     new LotTransferDetailRequest { LotId = 1, Quantity = 10 }
@@ -229,217 +238,20 @@ namespace DrugWarehouseManagement.UnitTest
 
       _unitOfWorkMock.Setup(u => u.AccountRepository.GetByIdAsync(accountId))
           .ReturnsAsync(account);
-      _unitOfWorkMock.Setup(u => u.WarehouseRepository.GetByIdAsync(request.FromWareHouseId))
-          .ReturnsAsync(warehouse);
-      _unitOfWorkMock.Setup(u => u.WarehouseRepository.GetByIdAsync(request.ToWareHouseId))
+      _unitOfWorkMock.Setup(u => u.WarehouseRepository.GetByIdAsync(1))
           .ReturnsAsync(warehouse);
       _unitOfWorkMock.Setup(u => u.LotRepository.GetByIdAsync(1))
           .ReturnsAsync(lot);
 
       // Act & Assert
-      var exception = await Assert.ThrowsAsync<Exception>(() =>
-          _lotTransferService.CreateLotTransfer(accountId, request));
+      var exception = await Assert.ThrowsAsync<Exception>(
+          () => _lotTransferService.CreateLotTransfer(accountId, request)
+      );
       Assert.Equal("Transfer to the same warehouse", exception.Message);
     }
 
     [Fact]
-    public async Task CreateLotTransfer_UpdateExistingLot_Success()
-    {
-      // Arrange
-      var accountId = Guid.NewGuid();
-      var account = new Account { Id = accountId };
-      var fromWarehouse = new Warehouse
-      {
-        WarehouseId = 1,
-        Status = WarehouseStatus.Active,
-        WarehouseName = "Source Warehouse"
-      };
-      var toWarehouse = new Warehouse
-      {
-        WarehouseId = 2,
-        Status = WarehouseStatus.Active,
-        WarehouseName = "Target Warehouse"
-      };
-      var product = new Product { ProductId = 1 };
-      var provider = new Provider { ProviderId = 1 };
-      var sourceLot = new Lot
-      {
-        LotId = 1,
-        Quantity = 50,
-        WarehouseId = 1,
-        LotNumber = "LOT001",
-        ExpiryDate = DateOnly.FromDateTime(DateTime.Now).AddMonths(6),
-        ManufacturingDate = DateOnly.FromDateTime(DateTime.Now).AddMonths(-1),
-        ProductId = 1,
-        Product = product,
-        ProviderId = 1,
-        Provider = provider
-      };
-
-      var targetLot = new Lot
-      {
-        LotId = 2,
-        Quantity = 20,
-        WarehouseId = 2,
-        LotNumber = "LOT001",  // Same lot number
-        ExpiryDate = DateOnly.FromDateTime(DateTime.Now).AddMonths(6),
-        ManufacturingDate = DateOnly.FromDateTime(DateTime.Now).AddMonths(-1),
-        ProductId = 1,
-        Product = product,
-        ProviderId = 1,
-        Provider = provider
-      };
-
-      var request = new LotTransferRequest
-      {
-        FromWareHouseId = 1,
-        ToWareHouseId = 2,
-        LotTransferDetails = new List<LotTransferDetailRequest>
-                {
-                    new LotTransferDetailRequest { LotId = 1, Quantity = 10 }
-                }
-      };
-
-      _unitOfWorkMock.Setup(u => u.AccountRepository.GetByIdAsync(accountId))
-          .ReturnsAsync(account);
-      _unitOfWorkMock.Setup(u => u.WarehouseRepository.GetByIdAsync(request.FromWareHouseId))
-          .ReturnsAsync(fromWarehouse);
-      _unitOfWorkMock.Setup(u => u.WarehouseRepository.GetByIdAsync(request.ToWareHouseId))
-          .ReturnsAsync(toWarehouse);
-      _unitOfWorkMock.Setup(u => u.LotRepository.GetByIdAsync(1))
-          .ReturnsAsync(sourceLot);
-
-      // Mock the target lot query
-      var mockTargetLots = new List<Lot> { targetLot }.AsQueryable().BuildMock();
-      _unitOfWorkMock.Setup(u => u.LotRepository.GetByWhere(It.IsAny<Expression<Func<Lot, bool>>>()))
-          .Returns(mockTargetLots);
-
-      _unitOfWorkMock.Setup(u => u.LotRepository.UpdateAsync(It.IsAny<Lot>()))
-          .Returns(Task.CompletedTask);
-      _unitOfWorkMock.Setup(u => u.LotTransferRepository.CreateAsync(It.IsAny<LotTransfer>()))
-          .Returns(Task.CompletedTask);
-      _unitOfWorkMock.Setup(u => u.SaveChangesAsync())
-          .Returns(Task.CompletedTask);
-
-      // Act
-      var result = await _lotTransferService.CreateLotTransfer(accountId, request);
-
-      // Assert
-      Assert.Equal(200, result.Code);
-      Assert.Equal("Create transfer order successfully", result.Message);
-
-      // Verify source lot quantity was reduced
-      Assert.Equal(40, sourceLot.Quantity);
-
-      // Verify target lot quantity was increased
-      Assert.Equal(30, targetLot.Quantity);
-
-      // Verify repository calls
-      _unitOfWorkMock.Verify(u => u.LotRepository.UpdateAsync(sourceLot), Times.Once);
-      _unitOfWorkMock.Verify(u => u.LotRepository.UpdateAsync(targetLot), Times.Once);
-      _unitOfWorkMock.Verify(u => u.LotRepository.CreateAsync(It.IsAny<Lot>()), Times.Never);
-      _unitOfWorkMock.Verify(u => u.LotTransferRepository.CreateAsync(It.IsAny<LotTransfer>()), Times.Once);
-      _unitOfWorkMock.Verify(u => u.SaveChangesAsync(), Times.Once);
-    }
-
-    [Fact]
-    public async Task CreateLotTransfer_CreateNewLot_Success()
-    {
-      // Arrange
-      var accountId = Guid.NewGuid();
-      var account = new Account { Id = accountId };
-      var fromWarehouse = new Warehouse
-      {
-        WarehouseId = 1,
-        Status = WarehouseStatus.Active,
-        WarehouseName = "Source Warehouse"
-      };
-      var toWarehouse = new Warehouse
-      {
-        WarehouseId = 2,
-        Status = WarehouseStatus.Active,
-        WarehouseName = "Target Warehouse"
-      };
-      var product = new Product { ProductId = 1 };
-      var provider = new Provider { ProviderId = 1 };
-      var sourceLot = new Lot
-      {
-        LotId = 1,
-        Quantity = 50,
-        WarehouseId = 1,
-        LotNumber = "LOT001",
-        ExpiryDate = DateOnly.FromDateTime(DateTime.Now).AddMonths(6),
-        ManufacturingDate = DateOnly.FromDateTime(DateTime.Now).AddMonths(-1),
-        ProductId = 1,
-        Product = product,
-        ProviderId = 1,
-        Provider = provider
-      };
-
-      var request = new LotTransferRequest
-      {
-        FromWareHouseId = 1,
-        ToWareHouseId = 2,
-        LotTransferDetails = new List<LotTransferDetailRequest>
-                {
-                    new LotTransferDetailRequest { LotId = 1, Quantity = 10 }
-                }
-      };
-
-      _unitOfWorkMock.Setup(u => u.AccountRepository.GetByIdAsync(accountId))
-          .ReturnsAsync(account);
-      _unitOfWorkMock.Setup(u => u.WarehouseRepository.GetByIdAsync(request.FromWareHouseId))
-          .ReturnsAsync(fromWarehouse);
-      _unitOfWorkMock.Setup(u => u.WarehouseRepository.GetByIdAsync(request.ToWareHouseId))
-          .ReturnsAsync(toWarehouse);
-      _unitOfWorkMock.Setup(u => u.LotRepository.GetByIdAsync(1))
-          .ReturnsAsync(sourceLot);
-
-      // Mock empty result for target lot query (no existing lot)
-      var emptyLotsList = new List<Lot>().AsQueryable().BuildMock();
-      _unitOfWorkMock.Setup(u => u.LotRepository.GetByWhere(It.IsAny<Expression<Func<Lot, bool>>>()))
-          .Returns(emptyLotsList);
-
-      _unitOfWorkMock.Setup(u => u.LotRepository.UpdateAsync(It.IsAny<Lot>()))
-          .Returns(Task.CompletedTask);
-      _unitOfWorkMock.Setup(u => u.LotRepository.CreateAsync(It.IsAny<Lot>()))
-          .Returns(Task.CompletedTask);
-      _unitOfWorkMock.Setup(u => u.LotTransferRepository.CreateAsync(It.IsAny<LotTransfer>()))
-          .Returns(Task.CompletedTask);
-      _unitOfWorkMock.Setup(u => u.SaveChangesAsync())
-          .Returns(Task.CompletedTask);
-
-      // Act
-      var result = await _lotTransferService.CreateLotTransfer(accountId, request);
-
-      // Assert
-      Assert.Equal(200, result.Code);
-      Assert.Equal("Create transfer order successfully", result.Message);
-
-      // Verify source lot quantity was reduced
-      Assert.Equal(40, sourceLot.Quantity);
-
-      // Verify repository calls
-      _unitOfWorkMock.Verify(u => u.LotRepository.UpdateAsync(sourceLot), Times.Once);
-      _unitOfWorkMock.Verify(u => u.LotRepository.CreateAsync(It.IsAny<Lot>()), Times.Once);
-      _unitOfWorkMock.Verify(u => u.LotTransferRepository.CreateAsync(It.IsAny<LotTransfer>()), Times.Once);
-      _unitOfWorkMock.Verify(u => u.SaveChangesAsync(), Times.Once);
-
-      // Verify the new lot properties
-      _unitOfWorkMock.Verify(u => u.LotRepository.CreateAsync(
-          It.Is<Lot>(l =>
-              l.ProductId == sourceLot.ProductId &&
-              l.Quantity == 10 &&
-              l.ExpiryDate == sourceLot.ExpiryDate &&
-              l.WarehouseId == 2 &&
-              l.LotNumber == sourceLot.LotNumber &&
-              l.ManufacturingDate == sourceLot.ManufacturingDate &&
-              l.ProviderId == sourceLot.ProviderId)
-      ), Times.Once);
-    }
-
-    [Fact]
-    public async Task CreateLotTransfer_MultipleDetails_GroupsAndProcessesCorrectly()
+    public async Task CreateLotTransfer_UpdateExistingLotInDestination_Success()
     {
       // Arrange
       var accountId = Guid.NewGuid();
@@ -450,38 +262,123 @@ namespace DrugWarehouseManagement.UnitTest
       var sourceLot = new Lot
       {
         LotId = 1,
-        Quantity = 100,
         WarehouseId = 1,
+        Quantity = 20,
         LotNumber = "LOT001",
-        ProductId = 1,
-        ProviderId = 1
+        ExpiryDate = DateOnly.FromDateTime(DateTime.Now.AddMonths(6)),
+        ManufacturingDate = DateOnly.FromDateTime(DateTime.Now.AddMonths(-1)),
+        ProductId = 101
       };
 
-      // Request with duplicate lot entries to test grouping
+      var destLot = new Lot
+      {
+        LotId = 2,
+        WarehouseId = 2,
+        Quantity = 5,
+        LotNumber = "LOT001", // Same as source lot
+        ExpiryDate = sourceLot.ExpiryDate,
+        ManufacturingDate = sourceLot.ManufacturingDate,
+        ProductId = 101
+      };
+
       var request = new LotTransferRequest
       {
         FromWareHouseId = 1,
         ToWareHouseId = 2,
         LotTransferDetails = new List<LotTransferDetailRequest>
                 {
-                    new LotTransferDetailRequest { LotId = 1, Quantity = 10 },
-                    new LotTransferDetailRequest { LotId = 1, Quantity = 15 } // Same lot, different quantity
+                    new LotTransferDetailRequest { LotId = 1, Quantity = 10 }
                 }
       };
 
       _unitOfWorkMock.Setup(u => u.AccountRepository.GetByIdAsync(accountId))
           .ReturnsAsync(account);
-      _unitOfWorkMock.Setup(u => u.WarehouseRepository.GetByIdAsync(request.FromWareHouseId))
+      _unitOfWorkMock.Setup(u => u.WarehouseRepository.GetByIdAsync(1))
           .ReturnsAsync(fromWarehouse);
-      _unitOfWorkMock.Setup(u => u.WarehouseRepository.GetByIdAsync(request.ToWareHouseId))
+      _unitOfWorkMock.Setup(u => u.WarehouseRepository.GetByIdAsync(2))
           .ReturnsAsync(toWarehouse);
       _unitOfWorkMock.Setup(u => u.LotRepository.GetByIdAsync(1))
           .ReturnsAsync(sourceLot);
 
-      // No existing lot in target warehouse
-      var emptyLotsList = new List<Lot>().AsQueryable().BuildMock();
+      // Setup matching lot in destination warehouse
+      var destLots = new List<Lot> { destLot }.AsQueryable().BuildMock();
       _unitOfWorkMock.Setup(u => u.LotRepository.GetByWhere(It.IsAny<Expression<Func<Lot, bool>>>()))
-          .Returns(emptyLotsList);
+          .Returns(destLots);
+
+      _unitOfWorkMock.Setup(u => u.LotRepository.UpdateAsync(It.IsAny<Lot>()))
+          .Returns(Task.CompletedTask);
+      _unitOfWorkMock.Setup(u => u.LotTransferRepository.CreateAsync(It.IsAny<LotTransfer>()))
+          .Returns(Task.CompletedTask);
+      _unitOfWorkMock.Setup(u => u.SaveChangesAsync())
+          .Returns(Task.CompletedTask);
+
+      // Act
+      var result = await _lotTransferService.CreateLotTransfer(accountId, request);
+
+      // Assert
+      Assert.Equal((int)HttpStatusCode.OK, result.Code);
+      Assert.Equal("Create transfer order successfully", result.Message);
+
+      // Verify source lot quantity was reduced
+      Assert.Equal(10, sourceLot.Quantity);
+
+      // Verify destination lot quantity was increased
+      Assert.Equal(15, destLot.Quantity);
+
+      // Verify no new lot was created
+      _unitOfWorkMock.Verify(u => u.LotRepository.CreateAsync(It.IsAny<Lot>()), Times.Never);
+
+      // Verify both lots were updated and transfer was created
+      _unitOfWorkMock.Verify(u => u.LotRepository.UpdateAsync(sourceLot), Times.Once);
+      _unitOfWorkMock.Verify(u => u.LotRepository.UpdateAsync(destLot), Times.Once);
+      _unitOfWorkMock.Verify(u => u.LotTransferRepository.CreateAsync(It.IsAny<LotTransfer>()), Times.Once);
+      _unitOfWorkMock.Verify(u => u.SaveChangesAsync(), Times.Once);
+    }
+
+    [Fact]
+    public async Task CreateLotTransfer_CreateNewLotInDestination_Success()
+    {
+      // Arrange
+      var accountId = Guid.NewGuid();
+      var account = new Account { Id = accountId };
+      var fromWarehouse = new Warehouse { WarehouseId = 1, Status = WarehouseStatus.Active };
+      var toWarehouse = new Warehouse { WarehouseId = 2, Status = WarehouseStatus.Active };
+
+      var sourceLot = new Lot
+      {
+        LotId = 1,
+        WarehouseId = 1,
+        Quantity = 20,
+        LotNumber = "LOT001",
+        ExpiryDate = DateOnly.FromDateTime(DateTime.Now.AddMonths(6)),
+        ManufacturingDate = DateOnly.FromDateTime(DateTime.Now.AddMonths(-1)),
+        ProductId = 101,
+        ProviderId = 201
+      };
+
+      var request = new LotTransferRequest
+      {
+        FromWareHouseId = 1,
+        ToWareHouseId = 2,
+        LotTransferDetails = new List<LotTransferDetailRequest>
+                {
+                    new LotTransferDetailRequest { LotId = 1, Quantity = 10 }
+                }
+      };
+
+      _unitOfWorkMock.Setup(u => u.AccountRepository.GetByIdAsync(accountId))
+          .ReturnsAsync(account);
+      _unitOfWorkMock.Setup(u => u.WarehouseRepository.GetByIdAsync(1))
+          .ReturnsAsync(fromWarehouse);
+      _unitOfWorkMock.Setup(u => u.WarehouseRepository.GetByIdAsync(2))
+          .ReturnsAsync(toWarehouse);
+      _unitOfWorkMock.Setup(u => u.LotRepository.GetByIdAsync(1))
+          .ReturnsAsync(sourceLot);
+
+      // Setup no matching lot in destination warehouse
+      var emptyLots = new List<Lot>().AsQueryable().BuildMock();
+      _unitOfWorkMock.Setup(u => u.LotRepository.GetByWhere(It.IsAny<Expression<Func<Lot, bool>>>()))
+          .Returns(emptyLots);
 
       _unitOfWorkMock.Setup(u => u.LotRepository.UpdateAsync(It.IsAny<Lot>()))
           .Returns(Task.CompletedTask);
@@ -496,215 +393,103 @@ namespace DrugWarehouseManagement.UnitTest
       var result = await _lotTransferService.CreateLotTransfer(accountId, request);
 
       // Assert
-      Assert.Equal(200, result.Code);
+      Assert.Equal((int)HttpStatusCode.OK, result.Code);
+      Assert.Equal("Create transfer order successfully", result.Message);
 
-      // Verify that quantities were properly grouped (10+15=25)
-      Assert.Equal(75, sourceLot.Quantity); // 100 - 25
+      // Verify source lot quantity was reduced
+      Assert.Equal(10, sourceLot.Quantity);
 
-      // Verify new lot was created with correct quantity
+      // Verify a new lot was created with correct properties
+      _unitOfWorkMock.Verify(u => u.LotRepository.CreateAsync(
+          It.Is<Lot>(l =>
+              l.ProductId == sourceLot.ProductId &&
+              l.Quantity == 10 &&
+              l.ExpiryDate == sourceLot.ExpiryDate &&
+              l.WarehouseId == 2 &&
+              l.LotNumber == sourceLot.LotNumber &&
+              l.ManufacturingDate == sourceLot.ManufacturingDate &&
+              l.ProviderId == sourceLot.ProviderId)
+      ), Times.Once);
+
+      // Verify repository calls
+      _unitOfWorkMock.Verify(u => u.LotRepository.UpdateAsync(sourceLot), Times.Once);
+      _unitOfWorkMock.Verify(u => u.LotTransferRepository.CreateAsync(It.IsAny<LotTransfer>()), Times.Once);
+      _unitOfWorkMock.Verify(u => u.SaveChangesAsync(), Times.Once);
+    }
+
+    [Fact]
+    public async Task CreateLotTransfer_GroupDuplicateLotEntries_Success()
+    {
+      // Arrange
+      var accountId = Guid.NewGuid();
+      var account = new Account { Id = accountId };
+      var fromWarehouse = new Warehouse { WarehouseId = 1, Status = WarehouseStatus.Active };
+      var toWarehouse = new Warehouse { WarehouseId = 2, Status = WarehouseStatus.Active };
+
+      var sourceLot = new Lot
+      {
+        LotId = 1,
+        WarehouseId = 1,
+        Quantity = 50,
+        LotNumber = "LOT001",
+        ProductId = 101
+      };
+
+      var request = new LotTransferRequest
+      {
+        FromWareHouseId = 1,
+        ToWareHouseId = 2,
+        LotTransferDetails = new List<LotTransferDetailRequest>
+                {
+                    new LotTransferDetailRequest { LotId = 1, Quantity = 10 },
+                    new LotTransferDetailRequest { LotId = 1, Quantity = 15 } // Duplicate lot entry
+                }
+      };
+
+      _unitOfWorkMock.Setup(u => u.AccountRepository.GetByIdAsync(accountId))
+          .ReturnsAsync(account);
+      _unitOfWorkMock.Setup(u => u.WarehouseRepository.GetByIdAsync(1))
+          .ReturnsAsync(fromWarehouse);
+      _unitOfWorkMock.Setup(u => u.WarehouseRepository.GetByIdAsync(2))
+          .ReturnsAsync(toWarehouse);
+      _unitOfWorkMock.Setup(u => u.LotRepository.GetByIdAsync(1))
+          .ReturnsAsync(sourceLot);
+
+      // Setup no matching lot in destination warehouse
+      var emptyLots = new List<Lot>().AsQueryable().BuildMock();
+      _unitOfWorkMock.Setup(u => u.LotRepository.GetByWhere(It.IsAny<Expression<Func<Lot, bool>>>()))
+          .Returns(emptyLots);
+
+      _unitOfWorkMock.Setup(u => u.LotRepository.UpdateAsync(It.IsAny<Lot>()))
+          .Returns(Task.CompletedTask);
+      _unitOfWorkMock.Setup(u => u.LotRepository.CreateAsync(It.IsAny<Lot>()))
+          .Returns(Task.CompletedTask);
+      _unitOfWorkMock.Setup(u => u.LotTransferRepository.CreateAsync(It.IsAny<LotTransfer>()))
+          .Returns(Task.CompletedTask);
+      _unitOfWorkMock.Setup(u => u.SaveChangesAsync())
+          .Returns(Task.CompletedTask);
+
+      // Act
+      var result = await _lotTransferService.CreateLotTransfer(accountId, request);
+
+      // Assert
+      Assert.Equal((int)HttpStatusCode.OK, result.Code);
+
+      // Verify source lot quantity was reduced by combined amount (10+15=25)
+      Assert.Equal(25, sourceLot.Quantity);
+
+      // Verify a new lot was created with combined quantity
       _unitOfWorkMock.Verify(u => u.LotRepository.CreateAsync(
           It.Is<Lot>(l => l.Quantity == 25)
       ), Times.Once);
 
-      // Verify lot transfer was created with grouped details
+      // Verify transfer was created with one combined detail
       _unitOfWorkMock.Verify(u => u.LotTransferRepository.CreateAsync(
           It.Is<LotTransfer>(lt =>
               lt.LotTransferDetails.Count == 1 &&
-              lt.LotTransferDetails.First().Quantity == 25)
+              lt.LotTransferDetails[0].Quantity == 25)
       ), Times.Once);
     }
-
-    [Fact]
-    public async Task ExportLotTransfer_LotTransferNotFound_ThrowsException()
-    {
-      // Arrange
-      var accountId = Guid.NewGuid();
-      int lotTransferId = 1;
-      var emptyLotTransfers = new List<LotTransfer>().AsQueryable().BuildMock();
-
-      _unitOfWorkMock.Setup(u => u.LotTransferRepository.GetByWhere(It.IsAny<Expression<Func<LotTransfer, bool>>>()))
-          .Returns(emptyLotTransfers);
-
-      // Act & Assert
-      var exception = await Assert.ThrowsAsync<Exception>(
-          () => _lotTransferService.ExportLotTransfer(accountId, lotTransferId)
-      );
-      Assert.Equal("Lot transfer order not found", exception.Message);
-    }
-
-    [Fact]
-    public async Task ExportLotTransfer_ValidLotTransfer_ReturnsPdfBytes()
-    {
-      // Arrange
-      var accountId = Guid.NewGuid();
-      int lotTransferId = 1;
-      DateTime testDate = DateTime.Now;
-
-      // Create a complete lot transfer hierarchy with all required dependencies for PDF generation
-      var lotTransfer = CreateSampleLotTransfer(lotTransferId, testDate);
-
-      var lotTransfers = new List<LotTransfer> { lotTransfer }.AsQueryable().BuildMock();
-
-      _unitOfWorkMock.Setup(u => u.LotTransferRepository.GetByWhere(It.IsAny<Expression<Func<LotTransfer, bool>>>()))
-          .Returns(lotTransfers);
-
-      // Act
-      var result = await _lotTransferService.ExportLotTransfer(accountId, lotTransferId);
-
-      // Assert
-      Assert.NotNull(result);
-      Assert.IsType<byte[]>(result);
-      Assert.True(result.Length > 0, "PDF byte array should not be empty");
-    }
-
-    [Fact]
-    public async Task ExportLotTransfer_CalculatesTotalQuantityCorrectly()
-    {
-      // This test indirectly verifies the total quantity calculation
-      // by examining the state before PDF generation
-
-      // Arrange
-      var accountId = Guid.NewGuid();
-      int lotTransferId = 1;
-      DateTime testDate = DateTime.Now;
-
-      // Create a sample lot transfer with known quantities
-      var lotTransfer = CreateSampleLotTransfer(lotTransferId, testDate);
-
-      // Add specific quantities that we can calculate manually
-      lotTransfer.LotTransferDetails[0].Quantity = 10;
-      lotTransfer.LotTransferDetails[1].Quantity = 20;
-      // Total should be 30
-
-      var lotTransfers = new List<LotTransfer> { lotTransfer }.AsQueryable().BuildMock();
-
-      _unitOfWorkMock.Setup(u => u.LotTransferRepository.GetByWhere(It.IsAny<Expression<Func<LotTransfer, bool>>>()))
-          .Returns(lotTransfers);
-
-      // Use reflection or another method to access or verify the calculated total
-      // For this example, we'll create a mock QuestPDF Document that will capture the total
-      var expectedTotal = lotTransfer.LotTransferDetails.Sum(l => l.Quantity);
-      Assert.Equal(30, expectedTotal);
-
-      // Since we can't easily intercept the PDF generation process without modifying the code,
-      // we'll just verify that the method doesn't throw and returns a non-empty PDF
-      var result = await _lotTransferService.ExportLotTransfer(accountId, lotTransferId);
-      Assert.NotNull(result);
-      Assert.True(result.Length > 0);
-    }
-
-    private LotTransfer CreateSampleLotTransfer(int lotTransferId, DateTime testDate)
-    {
-      var createdAt = Instant.FromDateTimeUtc(testDate.ToUniversalTime());
-
-      // Create sample products
-      var product1 = new Product
-      {
-        ProductId = 1,
-        ProductName = "Test Product 1",
-        ProductCode = "TP001",
-        SKU = "pc"
-      };
-
-      var product2 = new Product
-      {
-        ProductId = 2,
-        ProductName = "Test Product 2",
-        ProductCode = "TP002",
-        SKU = "box"
-      };
-
-      // Create sample providers
-      var provider1 = new Provider
-      {
-        ProviderId = 1,
-        ProviderName = "Test Provider 1"
-      };
-
-      var provider2 = new Provider
-      {
-        ProviderId = 2,
-        ProviderName = "Test Provider 2"
-      };
-
-      // Create sample lots
-      var lot1 = new Lot
-      {
-        LotId = 1,
-        ProductId = 1,
-        Product = product1,
-        ProviderId = 1,
-        Provider = provider1,
-        LotNumber = "LOT001",
-        ExpiryDate = DateOnly.FromDateTime(testDate.AddYears(1)),
-        ManufacturingDate = DateOnly.FromDateTime(testDate.AddMonths(-6)),
-        WarehouseId = 1
-      };
-
-      var lot2 = new Lot
-      {
-        LotId = 2,
-        ProductId = 2,
-        Product = product2,
-        ProviderId = 2,
-        Provider = provider2,
-        LotNumber = "LOT002",
-        ExpiryDate = DateOnly.FromDateTime(testDate.AddYears(2)),
-        ManufacturingDate = DateOnly.FromDateTime(testDate.AddMonths(-3)),
-        WarehouseId = 2
-      };
-
-      // Create sample warehouses
-      var sourceWarehouse = new Warehouse
-      {
-        WarehouseId = 1,
-        WarehouseName = "Source Warehouse",
-        WarehouseCode = "SRC"
-      };
-
-      var targetWarehouse = new Warehouse
-      {
-        WarehouseId = 2,
-        WarehouseName = "Target Warehouse",
-        WarehouseCode = "TGT"
-      };
-
-      // Create lot transfer details
-      var details = new List<LotTransferDetail>
-            {
-                new LotTransferDetail
-                {
-                    LotTransferDetailId = 1,
-                    LotTransferId = lotTransferId,
-                    LotId = 1,
-                    Lot = lot1,
-                    Quantity = 10
-                },
-                new LotTransferDetail
-                {
-                    LotTransferDetailId = 2,
-                    LotTransferId = lotTransferId,
-                    LotId = 2,
-                    Lot = lot2,
-                    Quantity = 20
-                }
-            };
-
-      // Create the lot transfer
-      return new LotTransfer
-      {
-        LotTransferId = lotTransferId,
-        LotTransferCode = $"LT-{testDate:yyyyMMddHHmmss}",
-        FromWareHouseId = 1,
-        FromWareHouse = sourceWarehouse,
-        ToWareHouseId = 2,
-        ToWareHouse = targetWarehouse,
-        LotTransferStatus = LotTransferStatus.Completed,
-        CreatedAt = createdAt,
-        LotTransferDetails = details
-      };
-    }
-
     [Fact]
     public async Task UpdateLotTransfer_AccountNotFound_ThrowsException()
     {
