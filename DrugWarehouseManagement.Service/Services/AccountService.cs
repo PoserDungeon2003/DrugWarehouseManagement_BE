@@ -338,49 +338,6 @@ namespace DrugWarehouseManagement.Service.Services
                 }
             }
 
-            //if (account.TwoFactorEnabled) // Đang suy nghĩ luồng backup code
-            //{
-            //    if (request.OTPCode == null || request.BackupCode == null)
-            //    {
-            //        throw new Exception("Two factor code or backup code is required");
-            //    }
-
-            //    bool isTwoFactorCodeValid = false;
-            //    PasswordVerificationResult isBackupCodeValid = PasswordVerificationResult.Failed;
-
-            //    if (request.OTPCode != null)
-            //    {
-            //        isTwoFactorCodeValid = VerifyTwoFactorCode(account.tOTPSecretKey, request.OTPCode.Trim());
-
-            //        if (!isTwoFactorCodeValid)
-            //        {
-            //            throw new Exception("Two factor code is incorrect");
-            //        }
-
-            //        if (!String.IsNullOrEmpty(account.OTPCode) && request.OTPCode == Utils.Base64Decode(account.OTPCode))
-            //        {
-            //            throw new Exception("Two factor code is already used");
-            //        }
-
-            //        account.OTPCode = Utils.Base64Encode(request.OTPCode.Trim());
-            //    }
-
-            //    if (request.BackupCode != null)
-            //    {
-            //        isBackupCodeValid = _passwordHelper.VerifyHashedValue(account.BackupCode, request.BackupCode);
-
-            //        if (isBackupCodeValid == PasswordVerificationResult.Failed)
-            //        {
-            //            throw new Exception("Backup code is incorrect or already used");
-            //        }
-            //    }
-
-            //    if (!isTwoFactorCodeValid)
-            //    {
-            //        throw new Exception("Invalid two factor code or backup code");
-            //    }
-            //}
-
             account.ConcurrencyStamp = Guid.NewGuid().ToString();
 
             await _unitOfWork.AccountRepository.UpdateAsync(account);
