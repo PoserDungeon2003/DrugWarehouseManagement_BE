@@ -29,7 +29,7 @@ namespace DrugWarehouseManagement.Service.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task UpdateCustomerLoyaltyStatusAsync(int customerId)
+        private async Task UpdateCustomerLoyaltyStatusAsync(int customerId)
         {
             // Đếm số đơn xuất không bị hủy của khách hàng
             var count = await _unitOfWork.OutboundRepository
