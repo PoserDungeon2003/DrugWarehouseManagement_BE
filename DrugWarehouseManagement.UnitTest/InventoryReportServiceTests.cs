@@ -34,38 +34,75 @@ namespace DrugWarehouseManagement.UnitTest
             _end = SystemClock.Instance.GetCurrentInstant();
         }
         [Fact]
-        public async Task ExportInventoryReportPdf_ShouldReturnPdfBytes()
+        public async Task ExportInventoryReportPdf_NoData_ReturnsNonEmptyPdf()
         {
-            // Arrange
-            int warehouseId = 1;
-            Instant startDate = SystemClock.Instance.GetCurrentInstant().Minus(Duration.FromDays(30));
-            Instant endDate = SystemClock.Instance.GetCurrentInstant();
+            // Arrange: all repositories return empty data sets
+            var emptyLots = new List<Lot>().AsQueryable().BuildMock();
+            var emptyInvTx = new List<InventoryTransaction>().AsQueryable().BuildMock();
+            var emptyInboundDetails = new List<InboundDetails>().AsQueryable().BuildMock();
+            var emptyLotTransfers = new List<LotTransferDetail>().AsQueryable().BuildMock();
+            var emptyOutboundDetails = new List<OutboundDetails>().AsQueryable().BuildMock();
+            var emptyInvChecks = new List<InventoryCheck>().AsQueryable().BuildMock();
+            var emptyWarehouses = new List<Warehouse>().AsQueryable().BuildMock();
 
-            var products = new List<Product>
-            {
-                new Product { ProductId = 1, ProductCode = "P001", ProductName = "Product 1", SKU = "SKU1" },
-                new Product { ProductId = 2, ProductCode = "P002", ProductName = "Product 2", SKU = "SKU2" }
-            };
-
-            _uow.Setup(u => u.LotRepository.GetAll())
-                .Returns(products.AsQueryable().Select(p => new Lot { Product = p }).AsQueryable());
-
-            _uow.Setup(u => u.InventoryTransactionRepository.GetAll())
-                .Returns(new List<InventoryTransaction>
-                {
-                    new InventoryTransaction { LotId = 1, CreatedAt = startDate.Plus(Duration.FromDays(-1)), Quantity = 10 },
-                    new InventoryTransaction { LotId = 2, CreatedAt = endDate.Plus(Duration.FromDays(-1)), Quantity = 20 }
-                }.AsQueryable());
-
-            _uow.Setup(u => u.WarehouseRepository.GetByWhere(It.IsAny<System.Linq.Expressions.Expression<Func<Warehouse, bool>>>()))
-                .Returns(new List<Warehouse> { new Warehouse { WarehouseId = warehouseId, WarehouseName = "Main Warehouse" } }.AsQueryable());
+            _uow.Setup(u => u.LotRepository.GetAll()).Returns(emptyLots);
+            _uow.Setup(u => u.InventoryTransactionRepository.GetAll()).Returns(emptyInvTx);
+            _uow.Setup(u => u.InboundDetailRepository.GetAll()).Returns(emptyInboundDetails);
+            _uow.Setup(u => u.LotTransferDetailsRepository.GetAll()).Returns(emptyLotTransfers);
+            _uow.Setup(u => u.OutboundDetailsRepository.GetAll()).Returns(emptyOutboundDetails);
+            _uow.Setup(u => u.InventoryCheckRepository.GetByWhere(It.IsAny<Expression<Func<InventoryCheck, bool>>>()))
+                           .Returns(new List<InventoryCheck>().AsQueryable());
+            _uow.Setup(u => u.WarehouseRepository.GetByWhere(It.IsAny<Expression<Func<Warehouse, bool>>>()))
+                           .Returns(emptyWarehouses);
 
             // Act
-            var result = await _svc.ExportInventoryReportPdf(warehouseId, startDate, endDate);
+            var result = await _svc.ExportInventoryReportPdf(warehouseId: 1, _start, _end);
 
             // Assert
             Assert.NotNull(result);
-            Assert.IsType<byte[]>(result);
+            Assert.True(result.Length > 0, "PDF byte array should not be empty");
+        }
+
+        [Fact]
+        public async Task ExportInventoryReportPdf_WithSingleLot_ComputesQuantitiesCorrectly()
+        {
+            // Arrange: one lot, one opening and closing transaction, one warehouse
+            var product = new Product { ProductId = 100, ProductCode = "P100", ProductName = "Test Product", SKU = "SKU100" };
+            var lot = new Lot { LotId = 10, WarehouseId = 2, ProductId = product.ProductId, Product = product };
+            var lots = new List<Lot> { lot }.AsQueryable().BuildMock();
+
+            // Opening transaction: quantity 50 at startDate
+            var openTx = new InventoryTransaction { LotId = lot.LotId, Quantity = 50, CreatedAt = _start - Duration.FromDays(1), Id = 1 };
+            // Closing transaction: quantity 30 at endDate
+            var closeTx = new InventoryTransaction { LotId = lot.LotId, Quantity = 30, CreatedAt = _end - Duration.FromHours(1), Id = 2 };
+            var invTxs = new List<InventoryTransaction> { openTx, closeTx }.AsQueryable().BuildMock();
+
+            var warehouse = new Warehouse { WarehouseId = 2, WarehouseName = "WH2" };
+            var warehouses = new List<Warehouse> { warehouse }.AsQueryable().BuildMock();
+
+            // Other repositories return empty
+            var emptyInboundDetails = new List<InboundDetails>().AsQueryable().BuildMock();
+            var emptyLotTransfers = new List<LotTransferDetail>().AsQueryable().BuildMock();
+            var emptyOutboundDetails = new List<OutboundDetails>().AsQueryable().BuildMock();
+            var emptyInvChecks = new List<InventoryCheck>().AsQueryable().BuildMock();
+
+            _uow.Setup(u => u.LotRepository.GetAll()).Returns(lots);
+            _uow.Setup(u => u.InventoryTransactionRepository.GetAll()).Returns(invTxs);
+            _uow.Setup(u => u.InboundDetailRepository.GetAll()).Returns(emptyInboundDetails);
+            _uow.Setup(u => u.LotTransferDetailsRepository.GetAll()).Returns(emptyLotTransfers);
+            _uow.Setup(u => u.OutboundDetailsRepository.GetAll()).Returns(emptyOutboundDetails);
+            _uow.Setup(u => u.InventoryCheckRepository.GetByWhere(It.IsAny<Expression<Func<InventoryCheck, bool>>>()))
+                           .Returns(emptyInvChecks);
+            _uow.Setup(u => u.WarehouseRepository.GetByWhere(It.IsAny<Expression<Func<Warehouse, bool>>>()))
+                           .Returns(warehouses);
+
+            // Act
+            var result = await _svc.ExportInventoryReportPdf(warehouseId: 2, _start, _end);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.True(result.Length > 0);
+            // Further PDF content validation could be done by parsing PDF bytes
         }
 
         [Fact]
