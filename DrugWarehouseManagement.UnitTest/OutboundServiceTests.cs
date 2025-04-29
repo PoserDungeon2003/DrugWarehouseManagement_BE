@@ -1,198 +1,211 @@
-﻿//using System;
-//using System.Collections.Generic;
-//using System.Linq;
-//using System.Threading.Tasks;
-//using Xunit;
-//using Moq;
-//using DrugWarehouseManagement.Service.Services;
-//using DrugWarehouseManagement.Repository;
-//using DrugWarehouseManagement.Repository.Models;
-//using DrugWarehouseManagement.Service.DTO.Request;
-//using DrugWarehouseManagement.Service.DTO.Response;
-//using Microsoft.EntityFrameworkCore;
-//using DrugWarehouseManagement.Common;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
+using System.Threading.Tasks;
+using MockQueryable.Moq;
+using Moq;
+using Xunit;
+using NodaTime;
+using DrugWarehouseManagement.Service.Services;
+using DrugWarehouseManagement.Service.DTO.Request;
+using DrugWarehouseManagement.Common;
+using DrugWarehouseManagement.Repository.Models;
+using DrugWarehouseManagement.Repository;
+using MockQueryable;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.EntityFrameworkCore;
+using Moq.Protected;
 
-//namespace DrugWarehouseManagement.UnitTest
-//{
-//    public class OutboundServiceTests
-//    {
-//        private readonly Mock<IUnitOfWork> _mockUnitOfWork;
-//        private readonly OutboundService _outboundService;
+namespace DrugWarehouseManagement.UnitTest
+{
+    public class OutboundServiceTests
+    {
+        private readonly Mock<IUnitOfWork> _unitOfWorkMock;
+        private readonly OutboundService _outboundService;
 
-//        public OutboundServiceTests()
-//        {
-//            _mockUnitOfWork = new Mock<IUnitOfWork>();
-//            _outboundService = new OutboundService(_mockUnitOfWork.Object);
-//        }
+        public OutboundServiceTests()
+        {
+            _unitOfWorkMock = new Mock<IUnitOfWork>();
+            _outboundService = new OutboundService(_unitOfWorkMock.Object);
+        }
 
-//        [Fact]
-//        public async Task GetOutboundByIdAsync_ShouldReturnOutboundResponse_WhenOutboundExists()
-//        {
-//            Arrange
-//           var outboundId = 1;
-//            var outbound = new Outbound
-//            {
-//                OutboundId = outboundId,
-//                OutboundCode = "OUTB-123",
-//                Customer = new Customer { CustomerName = "John Doe" },
-//                OutboundDetails = new List<OutboundDetails>
-//                {
-//                    new OutboundDetails
-//                    {
-//                        Lot = new Lot
-//                        {
-//                            Product = new Product { ProductName = "Product A" },
-//                            Warehouse = new Warehouse { WarehouseName = "Warehouse A" }
-//                        }
-//                    }
-//                }
-//            };
+        [Fact]
+        public async Task CreateOutboundAsync_CustomerNotExists_ThrowsException()
+        {
+            // Arrange
+            var accountId = Guid.NewGuid();
+            var request = new CreateOutboundRequest { CustomerId = 1, OutboundDetails = new List<CreateOutboundDetailRequest>() };
 
-//            var mockDbSet = new Mock<DbSet<Outbound>>();
-//            _mockUnitOfWork.Setup(u => u.OutboundRepository.GetByWhere(It.IsAny<Func<Outbound, bool>>()))
-//                .Returns(mockDbSet.Object);
-//            _mockUnitOfWork.Setup(u => u.OutboundRepository.GetByWhere(It.IsAny<Func<Outbound, bool>>())
-//                .Include(It.IsAny<Func<Outbound, object>>()))
-//                .Returns(mockDbSet.Object);
+            _unitOfWorkMock.Setup(u => u.CustomerRepository.GetAll())
+                .Returns(new List<Customer>().AsQueryable().BuildMock());
 
-//            Act
-//           var result = await _outboundService.GetOutboundByIdAsync(outboundId);
+            // Act & Assert
+            var ex = await Assert.ThrowsAsync<Exception>(() => _outboundService.CreateOutbound(accountId, request));
+            Assert.Equal("Khách hàng chưa tồn tại. Vui lòng tạo Customer trước khi xuất hàng.", ex.Message);
+        }
 
-//            Assert
-//            Assert.NotNull(result);
-//            Assert.Equal(outboundId, result.OutboundId);
-//        }
+        [Fact]
+        public async Task CreateOutbound_ShouldCreateOutbound_WhenValidRequest()
+        {
+            // Arrange
+            var accountId = Guid.NewGuid();
+            var request = new CreateOutboundRequest
+            {
+                CustomerId = 1,
+                OutboundDetails = new List<CreateOutboundDetailRequest>
+        {
+            new CreateOutboundDetailRequest
+            {
+                LotId = 1,
+                Quantity = 10,
+                UsePricingFormula = false
+            }
+        }
+            };
 
-//        [Fact]
-//        public async Task CreateOutbound_ShouldReturnSuccessResponse_WhenValidRequest()
-//        {
-//            Arrange
-//           var accountId = Guid.NewGuid();
-//            var request = new CreateOutboundRequest
-//            {
-//                CustomerId = 1,
-//                OutboundDetails = new List<CreateOutboundDetailRequest>
-//                {
-//                    new CreateOutboundDetailRequest { LotId = 1, Quantity = 10 }
-//                }
-//            };
+            // 1) Customer exists
+            var customer = new Customer { CustomerId = 1, IsLoyal = false };
+            var custSet = new List<Customer> { customer }
+                .AsQueryable()
+                .BuildMockDbSet();
+            _unitOfWorkMock
+                .Setup(u => u.CustomerRepository.GetAll())
+                .Returns(custSet.Object);
 
-//            var customer = new Customer { CustomerId = 1 };
-//            var lots = new List<Lot>
-//            {
-//                new Lot { LotId = 1, Quantity = 20, ExpiryDate = DateOnly.FromDateTime(DateTime.Now.AddDays(10)) }
-//            };
+            // 2) Exactly one Lot, valid
+            var lot = new Lot
+            {
+                LotId = 1,
+                Quantity = 20,
+                ExpiryDate = DateOnly.FromDateTime(DateTime.Now.AddDays(10)),
+                WarehouseId = 1,
+                LotNumber = "L1",
+                ProductId = 100
+            };
+            var lotSet = new List<Lot> { lot }
+                .AsQueryable()
+                .BuildMockDbSet();
+            _unitOfWorkMock
+                .Setup(u => u.LotRepository.GetByWhere(It.IsAny<Expression<Func<Lot, bool>>>()))
+                .Returns(lotSet.Object);
 
-//            _mockUnitOfWork.Setup(u => u.CustomerRepository.GetAll())
-//                .Returns(MockDbSet(new List<Customer> { customer }).Object);
-//            _mockUnitOfWork.Setup(u => u.LotRepository.GetByWhere(It.IsAny<Func<Lot, bool>>()))
-//                .Returns(MockDbSet(lots).Object);
+            // 3) InboundDetail exists (to compute unit price)
+            var inboundDetail = new InboundDetails
+            {
+                LotNumber = "L1",
+                ProductId = 100,
+                UnitPrice = 50m
+            };
+            var inboundSet = new List<InboundDetails> { inboundDetail }
+                .AsQueryable()
+                .BuildMockDbSet();
+            _unitOfWorkMock
+                .Setup(u => u.InboundDetailRepository.GetByWhere(It.IsAny<Expression<Func<InboundDetails, bool>>>()))
+                .Returns(inboundSet.Object);
 
-//            Act
-//           var result = await _outboundService.CreateOutbound(accountId, request);
+            // 4) OutboundRepository.GetAll() for loyalty count: return zero outbounds
+            var emptyOutboundSet = new List<Outbound>()
+                .AsQueryable()
+                .BuildMockDbSet();
+            _unitOfWorkMock
+                .Setup(u => u.OutboundRepository.GetAll())
+                .Returns(emptyOutboundSet.Object);
 
-//            Assert
-//            Assert.NotNull(result);
-//            Assert.Equal(200, result.Code);
-//            Assert.Equal("Outbound created successfully", result.Message);
-//        }
+            // 5) CustomerRepository.GetAll() again inside UpdateCustomerLoyalty → same custSet
+            //    (already setup in step 1)
 
-//        [Fact]
-//        public async Task SearchOutboundsAsync_ShouldReturnPaginatedResult_WhenValidRequest()
-//        {
-//            Arrange
-//           var request = new SearchOutboundRequest
-//           {
-//               Page = 1,
-//               PageSize = 10
-//           };
+            // 6) Create & Update & Save
+            _unitOfWorkMock
+                .Setup(u => u.OutboundRepository.CreateAsync(It.IsAny<Outbound>()))
+                .Returns(Task.CompletedTask);
+            _unitOfWorkMock
+                .Setup(u => u.CustomerRepository.UpdateAsync(It.IsAny<Customer>()))
+                .Returns(Task.CompletedTask);
+            _unitOfWorkMock
+                .Setup(u => u.SaveChangesAsync())
+                .Returns(Task.CompletedTask);
 
-//            var outbounds = new List<Outbound>
-//            {
-//                new Outbound { OutboundId = 1, OutboundCode = "OUTB-123" }
-//            };
+            // Act
+            var result = await _outboundService.CreateOutbound(accountId, request);
 
-//            _mockUnitOfWork.Setup(u => u.OutboundRepository.GetAll())
-//                .Returns(MockDbSet(outbounds).Object);
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(200, result.Code);
+            Assert.Equal("Tạo đơn xuất thành công", result.Message);
 
-//            Act
-//           var result = await _outboundService.SearchOutboundsAsync(request);
+            // Verify outbound created
+            _unitOfWorkMock.Verify(u =>
+                u.OutboundRepository.CreateAsync(It.IsAny<Outbound>()), Times.Once);
 
-//            Assert
-//            Assert.NotNull(result);
-//            Assert.Single(result.Items);
-//        }
+            // Verify loyalty update attempted (count=0 so no UpdateAsync on customer)
+            // but SaveChangesAsync will be called once after Create
+            _unitOfWorkMock.Verify(u => u.SaveChangesAsync(), Times.Once);
+        }
 
-//        [Fact]
-//        public async Task UpdateOutbound_ShouldReturnSuccessResponse_WhenValidRequest()
-//        {
-//            Arrange
-//           var outboundId = 1;
-//            var request = new UpdateOutboundRequest
-//            {
-//                Status = OutboundStatus.Completed
-//            };
 
-//            var outbound = new Outbound
-//            {
-//                OutboundId = outboundId,
-//                Status = OutboundStatus.InProgress,
-//                OutboundDetails = new List<OutboundDetails>()
-//            };
 
-//            _mockUnitOfWork.Setup(u => u.OutboundRepository.GetByWhere(It.IsAny<Func<Outbound, bool>>()))
-//                .Returns(MockDbSet(new List<Outbound> { outbound }).Object);
+        [Fact]
+        public async Task GetOutboundByIdAsync_WhenExists_ReturnsResponse()
+        {
+            // Arrange
+            var outboundId = 1;
+            var outbound = new Outbound { OutboundId = outboundId, OutboundCode = "CODE1" };
 
-//            Act
-//           var result = await _outboundService.UpdateOutbound(outboundId, request);
+            _unitOfWorkMock.Setup(u => u.OutboundRepository.GetByWhere(It.IsAny<Expression<Func<Outbound, bool>>>()))
+                .Returns(new List<Outbound> { outbound }.AsQueryable().BuildMock());
 
-//            Assert
-//            Assert.NotNull(result);
-//            Assert.Equal(200, result.Code);
-//            Assert.Equal("Cập nhật đơn xuất thành công", result.Message);
-//        }
+            // Act
+            var result = await _outboundService.GetOutboundByIdAsync(outboundId);
 
-//        [Fact]
-//        public async Task GenerateOutboundInvoicePdfAsync_ShouldReturnPdfBytes_WhenOutboundExists()
-//        {
-//            Arrange
-//           var outboundId = 1;
-//            var outbound = new Outbound
-//            {
-//                OutboundId = outboundId,
-//                OutboundCode = "OUTB-123",
-//                OutboundDetails = new List<OutboundDetails>
-//                {
-//                    new OutboundDetails
-//                    {
-//                        Lot = new Lot
-//                        {
-//                            Product = new Product { ProductName = "Product A" }
-//                        }
-//                    }
-//                }
-//            };
+            // Assert
+           Assert.Equal(outboundId, result.OutboundId);
+        }
 
-//            _mockUnitOfWork.Setup(u => u.OutboundRepository.GetByWhere(It.IsAny<Func<Outbound, bool>>()))
-//                .Returns(MockDbSet(new List<Outbound> { outbound }).Object);
+        [Fact]
+        public async Task UpdateOutboundAsync_StatusTransitionToCompleted_AdjustsLotQuantity()
+        {
+            // Arrange
+            var outboundId = 2;
+            var detail = new OutboundDetails { LotId = 5, Quantity = 3 };
+            var outbound = new Outbound { OutboundId = outboundId, Status = OutboundStatus.InProgress, OutboundDetails = new List<OutboundDetails> { detail } };
+            var lot = new Lot { LotId = 5, Quantity = 10 };
 
-//            Act
-//           var result = await _outboundService.GenerateOutboundInvoicePdfAsync(outboundId);
+            _unitOfWorkMock.Setup(u => u.OutboundRepository.GetByWhere(It.IsAny<Expression<Func<Outbound, bool>>>()))
+                .Returns(new List<Outbound> { outbound }.AsQueryable().BuildMock());
+            _unitOfWorkMock.Setup(u => u.LotRepository.GetByIdAsync(detail.LotId))
+                .ReturnsAsync(lot);
+            _unitOfWorkMock.Setup(u => u.LotRepository.UpdateAsync(It.IsAny<Lot>()))
+                .Returns(Task.CompletedTask);
+            _unitOfWorkMock.Setup(u => u.OutboundRepository.UpdateAsync(It.IsAny<Outbound>()))
+                .Returns(Task.CompletedTask);
+            _unitOfWorkMock.Setup(u => u.SaveChangesAsync())
+                .Returns(Task.CompletedTask);
 
-//            Assert
-//            Assert.NotNull(result);
-//            Assert.IsType<byte[]>(result);
-//        }
+            var request = new UpdateOutboundRequest { Status = OutboundStatus.Completed };
 
-//        private Mock<DbSet<T>> MockDbSet<T>(List<T> data) where T : class
-//        {
-//            var queryable = data.AsQueryable();
-//            var mockSet = new Mock<DbSet<T>>();
-//            mockSet.As<IQueryable<T>>().Setup(m => m.Provider).Returns(queryable.Provider);
-//            mockSet.As<IQueryable<T>>().Setup(m => m.Expression).Returns(queryable.Expression);
-//            mockSet.As<IQueryable<T>>().Setup(m => m.ElementType).Returns(queryable.ElementType);
-//            mockSet.As<IQueryable<T>>().Setup(m => m.GetEnumerator()).Returns(queryable.GetEnumerator());
-//            return mockSet;
-//        }
-//    }
-//}
+            // Act
+            var response = await _outboundService.UpdateOutbound(outboundId, request);
+
+            // Assert
+            Assert.Equal(200, response.Code);
+            Assert.Equal(7, lot.Quantity);
+        }
+
+        [Fact]
+        public async Task GenerateOutboundInvoicePdfAsync_WithValidId_ReturnsPdfBytes()
+        {
+            // Arrange
+            var outboundId = 3;
+            var outbound = new Outbound { OutboundId = outboundId, ReceiverName = "RCV", OutboundDetails = new List<OutboundDetails> { new OutboundDetails { Quantity = 2, UnitPrice = 20, Lot = new Lot { Product = new Product { ProductName = "P" } } } } };
+
+            _unitOfWorkMock.Setup(u => u.OutboundRepository.GetByWhere(It.IsAny<Expression<Func<Outbound, bool>>>()))
+                .Returns(new List<Outbound> { outbound }.AsQueryable().BuildMock());
+
+            // Act
+            var pdf = await _outboundService.GenerateOutboundInvoicePdfAsync(outboundId);
+
+            Assert.NotNull(pdf);
+            Assert.IsType<byte[]>(pdf);
+        }
+    }
+}
