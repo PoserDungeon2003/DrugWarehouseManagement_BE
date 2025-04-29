@@ -44,6 +44,14 @@ namespace DrugWarehouseManagement.Service.Services
                 }
 
                 var inboundReport = request.Adapt<InboundReport>();
+
+                var inbound = await _unitOfWork.InboundRepository.GetByIdAsync(inboundReport.InboundId);
+
+                if (inbound is null)
+                {
+                    return new BaseResponse { Code = 404, Message = "Inbound not found" };
+                }
+
                 inboundReport.AccountId = accountId;
                 inboundReport.UpdatedAt = SystemClock.Instance.GetCurrentInstant();
                 inboundReport.Assets = new List<Asset>();
@@ -73,7 +81,7 @@ namespace DrugWarehouseManagement.Service.Services
                 var noti = new Repository.Models.Notification
                 {
                     Title = "Báo cáo nhập",
-                    Content = $"Báo cáo đơn {inboundReport.Inbound.InboundCode} với nội dung: {inboundReport.ProblemDescription ?? "Không có vấn đề"}",
+                    Content = $"Báo cáo đơn {inbound.InboundCode ?? "N/A"} với nội dung: {inboundReport.ProblemDescription ?? "Không có vấn đề"}",
                     Type = NotificationType.ByRole,
                     Role = "Accountant"
                 };
