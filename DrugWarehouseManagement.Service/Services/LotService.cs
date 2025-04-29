@@ -94,6 +94,7 @@ namespace DrugWarehouseManagement.Service.Services
                         .Include(x => x.Warehouse)
                         .Include(x => x.Provider)
                         .Include(x => x.Product)
+                        .OrderByDescending(x => x.LotId)
                         .AsQueryable();
 
             if (!string.IsNullOrEmpty(request.Search))
@@ -101,7 +102,7 @@ namespace DrugWarehouseManagement.Service.Services
                 query = query.Where(x =>
                     EF.Functions.Like(x.LotNumber.ToLower(), $"%{request.Search}%") ||
                     EF.Functions.Like(x.LotId.ToString(), $"%{request.Search}%") ||
-                    EF.Functions.Like(x.Product.ProductName, $"%{request.Search}%"));
+                    EF.Functions.Like(x.Product.ProductName.ToLower(), $"%{request.Search}%"));
             }
 
             if (request.ProductId != 0)
