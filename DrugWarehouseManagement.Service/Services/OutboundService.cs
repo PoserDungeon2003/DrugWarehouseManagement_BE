@@ -177,10 +177,10 @@ namespace DrugWarehouseManagement.Service.Services
                 {
                     LotId = detailRequest.LotId,
                     Quantity = detailRequest.Quantity,
-                    UnitPrice = unitPrice,
+                    UnitPrice = Math.Round(unitPrice),
                     ExpiryDate = lot.ExpiryDate,
                     Discount = detailRequest.Discount ?? 0,
-                    TotalPrice = detailRequest.Quantity * unitPrice * (1 - (decimal)(detailRequest.Discount ?? 0) / 100)
+                   TotalPrice = Math.Round(detailRequest.Quantity * unitPrice * (1 - (decimal)(detailRequest.Discount ?? 0) / 100))
                 };
 
                 detailsList.Add(detail);
