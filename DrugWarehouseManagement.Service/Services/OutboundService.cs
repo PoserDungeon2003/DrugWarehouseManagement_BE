@@ -437,7 +437,7 @@ namespace DrugWarehouseManagement.Service.Services
                                 def.RelativeColumn(2);
                                 def.RelativeColumn(2);
                                 def.RelativeColumn(2);
-                                def.RelativeColumn(1);
+                                def.RelativeColumn(2);
                                 def.RelativeColumn(3);
                             });
 
