@@ -194,7 +194,7 @@ namespace DrugWarehouseManagement.Service.Services
             return new BaseResponse
             {
                 Code = (int)HttpStatusCode.OK,
-                Message = "Outbound created successfully"
+                Message = "Tạo đơn xuất thành công"
             };
         }
 
@@ -375,12 +375,12 @@ namespace DrugWarehouseManagement.Service.Services
         }
         public async Task<byte[]> GenerateOutboundInvoicePdfAsync(int outboundId)
         {
-            // 1) Load the outbound with details
             var outbound = await GetOutboundByIdWithDetailsAsync(outboundId);
             if (outbound == null)
                 throw new Exception("Không tìm thấy đơn xuất.");
+
             Settings.License = LicenseType.Community;
-            // 2) Build the PDF document
+
             var document = Document.Create(container =>
             {
                 container.Page(page =>
@@ -389,7 +389,7 @@ namespace DrugWarehouseManagement.Service.Services
                     page.Margin(40);
                     page.DefaultTextStyle(x => x.FontFamily("Times New Roman").FontSize(11));
 
-                    // Header
+                    // Header...
                     page.Header().Column(col =>
                     {
                         col.Spacing(2);
@@ -425,72 +425,101 @@ namespace DrugWarehouseManagement.Service.Services
                             });
                         });
 
-                        // Details table
+                        // Details table with Discount
                         col.Item().Table(table =>
                         {
-                            // Define columns
                             table.ColumnsDefinition(def =>
                             {
-                                def.ConstantColumn(30);   // STT
-                                def.RelativeColumn();     // Tên hàng
-                                def.RelativeColumn();     // Số lô
-                                def.RelativeColumn();     // Hạn dùng
-                                def.RelativeColumn();     // ĐVT
-                                def.RelativeColumn();     // Số lượng
-                                def.RelativeColumn();     // Đơn giá
-                                def.RelativeColumn();     // Thành tiền
+                                def.ConstantColumn(40);
+                                def.RelativeColumn(1);
+                                def.RelativeColumn(1);
+                                def.RelativeColumn(1);
+                                def.RelativeColumn(1);
+                                def.RelativeColumn(1);
+                                def.RelativeColumn(1);
+                                def.RelativeColumn(1);
+                                def.RelativeColumn(1);
                             });
 
-                            // Header row
+                            // Header
                             table.Header(header =>
                             {
-                                string[] headers = { "STT", "Tên hàng", "Số lô", "Hạn dùng", "ĐVT", "Số lượng", "Đơn giá", "Thành tiền" };
+                                string[] headers = {
+                            "STT", "Tên hàng", "Số lô", "Hạn dùng",
+                            "ĐVT", "Số lượng", "Đơn giá", "Chiết khấu (%)", "Thành tiền"
+                        };
                                 foreach (var text in headers)
-                                    header.Cell().Element(CellStyle).Text(text);
-
-                                static IContainer CellStyle(IContainer c) =>
-                                    c.Border(1).BorderColor(Colors.Grey.Lighten2)
-                                     .Padding(5).AlignCenter().DefaultTextStyle(x => x.Bold());
+                                    header.Cell()
+                                          .Border(1).BorderColor(Colors.Black)
+                                          .Padding(5).AlignCenter().DefaultTextStyle(x => x.Bold())
+                                          .Text(text);
                             });
 
-                            // Data rows
+                            // Rows
                             int stt = 1;
                             foreach (var d in outbound.OutboundDetails)
                             {
-                                table.Cell().Element(CellStyle).Text(stt.ToString());
-                                table.Cell().Element(CellStyle).Text(d.Lot.Product.ProductName ?? "N/A");
-                                table.Cell().Element(CellStyle).Text(d.Lot.LotNumber);
-                                table.Cell().Element(CellStyle).Text(d.ExpiryDate.ToString("dd/MM/yyyy"));
-                                table.Cell().Element(CellStyle).Text(d.Lot.Product.SKU);
-                                table.Cell().Element(CellStyle).Text(d.Quantity.ToString());
-                                table.Cell().Element(CellStyle).Text(d.UnitPrice.ToString("N2"));
-                                table.Cell().Element(CellStyle).Text(d.TotalPrice.ToString("N2"));
+                                table.Cell().Border(1).BorderColor(Colors.Black).Padding(5).AlignCenter().Text(stt.ToString());
+                                table.Cell().Border(1).BorderColor(Colors.Black).Padding(5).AlignCenter().Text(d.Lot.Product.ProductName);
+                                table.Cell().Border(1).BorderColor(Colors.Black).Padding(5).AlignCenter().Text(d.Lot.LotNumber);
+                                table.Cell().Border(1).BorderColor(Colors.Black).Padding(5).AlignCenter().Text(d.ExpiryDate.ToString("dd/MM/yyyy"));
+                                table.Cell().Border(1).BorderColor(Colors.Black).Padding(5).AlignCenter().Text(d.Lot.Product.SKU);
+                                table.Cell().Border(1).BorderColor(Colors.Black).Padding(5).AlignCenter().Text(d.Quantity.ToString());
+                                table.Cell().Border(1).BorderColor(Colors.Black).Padding(5).AlignCenter().Text(d.UnitPrice.ToString("N2"));
+                                table.Cell().Border(1).BorderColor(Colors.Black).Padding(5).AlignCenter().Text((d.Discount).ToString("N0"));
+                                table.Cell().Border(1).BorderColor(Colors.Black).Padding(5).AlignCenter().Text(d.TotalPrice.ToString("N2"));
                                 stt++;
-
-                                static IContainer CellStyle(IContainer c) =>
-                                    c.Border(1).BorderColor(Colors.Grey.Lighten2)
-                                     .Padding(5).AlignCenter();
                             }
 
-                            // Footer (total)
+                            // Footer
                             table.Footer(footer =>
                             {
-                                footer.Cell().ColumnSpan(6)
-                                      .AlignRight()
-                                      .Text("Tổng cộng:")
-                                      .Bold();
-                                footer.Cell().Element(CellStyle).Text("");
-                                footer.Cell().Element(CellStyle)
-                                      .Text(outbound.OutboundDetails.Sum(x => x.TotalPrice).ToString("N2"));
+                                footer.Cell()
+                                      .ColumnSpan(8)
+                                      .Border(1).BorderColor(Colors.Black)
+                                      .Padding(5)
+                                      .AlignCenter()
+                                      .DefaultTextStyle(x => x.Bold())
+                                      .Text("Tổng cộng:");
 
-                                static IContainer CellStyle(IContainer c) =>
-                                    c.Border(1).BorderColor(Colors.Grey.Lighten2)
-                                     .Padding(5).AlignCenter().DefaultTextStyle(x => x.Bold());
+                                // Ô tính tổng nằm ở cột cuối
+                                footer.Cell()
+                                      .Border(1).BorderColor(Colors.Black)
+                                      .Padding(5)
+                                      .AlignCenter()
+                                      .DefaultTextStyle(x => x.Bold())
+                                      .Text(outbound.OutboundDetails.Sum(x => x.TotalPrice).ToString("N2"));
+                            });
+                        });
+
+                        // Space before signatures
+                        col.Item().PaddingTop(30);
+
+                        // Signature row
+                        col.Item().Row(row =>
+                        {
+                            row.RelativeItem().Column(sign =>
+                            {
+                                sign.Item().Text("Thủ kho").Bold();
+                                sign.Item().Height(50);
+                                sign.Item().Text("(Ký, ghi rõ họ tên)").Italic().FontSize(9);
+                            });
+                            row.RelativeItem().Column(sign =>
+                            {
+                                sign.Item().Text("Người giao hàng").Bold();
+                                sign.Item().Height(50);
+                                sign.Item().Text("(Ký, ghi rõ họ tên)").Italic().FontSize(9);
+                            });
+                            row.RelativeItem().Column(sign =>
+                            {
+                                sign.Item().Text("Khách hàng").Bold();
+                                sign.Item().Height(50);
+                                sign.Item().Text("(Ký, ghi rõ họ tên)").Italic().FontSize(9);
                             });
                         });
                     });
 
-                    // Footer with page numbers
+                    // Footer page numbers
                     page.Footer().AlignCenter().Text(txt =>
                     {
                         txt.Span("Trang ");
@@ -499,9 +528,9 @@ namespace DrugWarehouseManagement.Service.Services
                         txt.TotalPages();
                     });
                 });
+
             });
 
-            // 3) Render to PDF bytes
             return document.GeneratePdf();
         }
     }
