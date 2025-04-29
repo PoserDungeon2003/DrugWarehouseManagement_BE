@@ -177,10 +177,10 @@ namespace DrugWarehouseManagement.Service.Services
                 {
                     LotId = detailRequest.LotId,
                     Quantity = detailRequest.Quantity,
-                    UnitPrice = Math.Round(unitPrice),
+                    UnitPrice = unitPrice,
                     ExpiryDate = lot.ExpiryDate,
                     Discount = detailRequest.Discount ?? 0,
-                   TotalPrice = Math.Round(detailRequest.Quantity * unitPrice * (1 - (decimal)(detailRequest.Discount ?? 0) / 100))
+                    TotalPrice = detailRequest.Quantity * unitPrice * (1 - (decimal)(detailRequest.Discount ?? 0) / 100)
                 };
 
                 detailsList.Add(detail);
@@ -431,14 +431,14 @@ namespace DrugWarehouseManagement.Service.Services
                             table.ColumnsDefinition(def =>
                             {
                                 def.ConstantColumn(40);
-                                def.RelativeColumn(1);
-                                def.RelativeColumn(1);
-                                def.RelativeColumn(1);
-                                def.RelativeColumn(1);
-                                def.RelativeColumn(1);
-                                def.RelativeColumn(1);
-                                def.RelativeColumn(1);
-                                def.RelativeColumn(1);
+                                def.RelativeColumn(2);
+                                def.RelativeColumn(2);
+                                def.RelativeColumn(2);
+                                def.RelativeColumn(2);
+                                def.RelativeColumn(2);
+                                def.RelativeColumn(2);
+                                def.RelativeColumn(2);
+                                def.RelativeColumn(2);
                             });
 
                             // Header
@@ -465,9 +465,9 @@ namespace DrugWarehouseManagement.Service.Services
                                 table.Cell().Border(1).BorderColor(Colors.Black).Padding(5).AlignCenter().Text(d.ExpiryDate.ToString("dd/MM/yyyy"));
                                 table.Cell().Border(1).BorderColor(Colors.Black).Padding(5).AlignCenter().Text(d.Lot.Product.SKU);
                                 table.Cell().Border(1).BorderColor(Colors.Black).Padding(5).AlignCenter().Text(d.Quantity.ToString());
-                                table.Cell().Border(1).BorderColor(Colors.Black).Padding(5).AlignCenter().Text(d.UnitPrice.ToString("N2"));
+                                table.Cell().Border(1).BorderColor(Colors.Black).Padding(5).AlignCenter().Text(d.UnitPrice.ToString("N0"));
                                 table.Cell().Border(1).BorderColor(Colors.Black).Padding(5).AlignCenter().Text((d.Discount).ToString("N0"));
-                                table.Cell().Border(1).BorderColor(Colors.Black).Padding(5).AlignCenter().Text(d.TotalPrice.ToString("N2"));
+                                table.Cell().Border(1).BorderColor(Colors.Black).Padding(5).AlignCenter().Text(d.TotalPrice.ToString("N0"));
                                 stt++;
                             }
 
