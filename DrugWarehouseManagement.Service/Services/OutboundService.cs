@@ -437,8 +437,8 @@ namespace DrugWarehouseManagement.Service.Services
                                 def.RelativeColumn(2);
                                 def.RelativeColumn(2);
                                 def.RelativeColumn(2);
-                                def.RelativeColumn(2);
-                                def.RelativeColumn(2);
+                                def.RelativeColumn(1);
+                                def.RelativeColumn(3);
                             });
 
                             // Header
@@ -488,7 +488,7 @@ namespace DrugWarehouseManagement.Service.Services
                                       .Padding(5)
                                       .AlignCenter()
                                       .DefaultTextStyle(x => x.Bold())
-                                      .Text(outbound.OutboundDetails.Sum(x => x.TotalPrice).ToString("N2"));
+                                      .Text(outbound.OutboundDetails.Sum(x => x.TotalPrice).ToString("N0"));
                             });
                         });
 
