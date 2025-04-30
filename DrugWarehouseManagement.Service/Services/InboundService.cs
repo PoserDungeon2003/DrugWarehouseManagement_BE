@@ -191,9 +191,9 @@ namespace DrugWarehouseManagement.Service.Services
 
                 return new BaseResponse { Code = 200, Message = "Inbound updated status successfully" };
             }
-            catch
+            catch (Exception ex)
             {
-                return new BaseResponse { Code = 500, Message = "Internal server error" };
+                return new BaseResponse { Code = 500, Message = $"Internal server error message{ex}" };
             }
 
         }
@@ -267,113 +267,113 @@ namespace DrugWarehouseManagement.Service.Services
             return result;
         }
 
-        public async Task<PaginatedResult<ViewInbound>> GetInboundsPaginatedAsync(InboundtQueryPaging request)
-        {
-            var query = _unitOfWork.InboundRepository
-                        .GetAll()
-                        .Include(i => i.InboundDetails)
-                        .ThenInclude(i => i.Product)
-                        .Include(i => i.Provider)
-                        .Include(i => i.Account)
-                        .Include(i => i.Warehouse)
-                        .AsQueryable();
-
-            if (request.IsReportPendingExist)
+            public async Task<PaginatedResult<ViewInbound>> GetInboundsPaginatedAsync(InboundtQueryPaging request)
             {
-                var pendingReportInboundIds = await _unitOfWork.InboundReportRepository
-                    .GetByWhere(ir => ir.Status == InboundReportStatus.Pending)
-                    .Select(ir => ir.InboundId)
-                    .Distinct()
-                    .ToListAsync();
+                var query = _unitOfWork.InboundRepository
+                            .GetAll()
+                            .Include(i => i.InboundDetails)
+                            .ThenInclude(i => i.Product)
+                            .Include(i => i.Provider)
+                            .Include(i => i.Account)
+                            .Include(i => i.Warehouse)
+                            .AsQueryable();
 
-                query = query.Where(i => pendingReportInboundIds.Contains(i.InboundId));
-            }
-
-            if (!string.IsNullOrEmpty(request.Search))
-            {
-                var searchTerm = request.Search.Trim().ToLower();
-
-                if (int.TryParse(searchTerm, out int inboundId))
+                if (request.IsReportPendingExist)
                 {
-                    query = query.Where(i =>
-                        i.InboundId == inboundId ||
-                        i.InboundCode != null && i.InboundCode.IndexOf(searchTerm, StringComparison.OrdinalIgnoreCase) >= 0);
+                    var pendingReportInboundIds = await _unitOfWork.InboundReportRepository
+                        .GetByWhere(ir => ir.Status == InboundReportStatus.Pending)
+                        .Select(ir => ir.InboundId)
+                        .Distinct()
+                        .ToListAsync();
+
+                    query = query.Where(i => pendingReportInboundIds.Contains(i.InboundId));
                 }
-                else
+
+                if (!string.IsNullOrEmpty(request.Search))
                 {
-                    query = query.Where(i =>
-                        i.InboundCode != null && i.InboundCode.IndexOf(searchTerm, StringComparison.OrdinalIgnoreCase) >= 0);
+                    var searchTerm = request.Search.Trim().ToLower();
+
+                    if (int.TryParse(searchTerm, out int inboundId))
+                    {
+                        query = query.Where(i =>
+                            i.InboundId == inboundId ||
+                            i.InboundCode != null && i.InboundCode.IndexOf(searchTerm, StringComparison.OrdinalIgnoreCase) >= 0);
+                    }
+                    else
+                    {
+                        query = query.Where(i =>
+                            i.InboundCode != null && i.InboundCode.IndexOf(searchTerm, StringComparison.OrdinalIgnoreCase) >= 0);
+                    }
                 }
-            }
 
-            if (Enum.IsDefined(typeof(InboundStatus), request.InboundStatus))
-            {
-                query = query.Where(i => i.Status == request.InboundStatus);
-            }
-
-            var pattern = InstantPattern.ExtendedIso;
-
-            if (!string.IsNullOrEmpty(request.DateFrom))
-            {
-                var parseResult = pattern.Parse(request.DateFrom);
-                if (parseResult.Success)
+                if (Enum.IsDefined(typeof(InboundStatus), request.InboundStatus))
                 {
-                    Instant dateFromInstant = parseResult.Value;
-                    query = query.Where(i => i.InboundDate >= dateFromInstant);
+                    query = query.Where(i => i.Status == request.InboundStatus);
                 }
-            }
 
-            if (!string.IsNullOrEmpty(request.DateTo))
-            {
-                var parseResult = pattern.Parse(request.DateTo);
-                if (parseResult.Success)
+                var pattern = InstantPattern.ExtendedIso;
+
+                if (!string.IsNullOrEmpty(request.DateFrom))
                 {
-                    Instant dateToInstant = parseResult.Value;
-                    query = query.Where(i => i.InboundDate <= dateToInstant);
+                    var parseResult = pattern.Parse(request.DateFrom);
+                    if (parseResult.Success)
+                    {
+                        Instant dateFromInstant = parseResult.Value;
+                        query = query.Where(i => i.InboundDate >= dateFromInstant);
+                    }
                 }
+
+                if (!string.IsNullOrEmpty(request.DateTo))
+                {
+                    var parseResult = pattern.Parse(request.DateTo);
+                    if (parseResult.Success)
+                    {
+                        Instant dateToInstant = parseResult.Value;
+                        query = query.Where(i => i.InboundDate <= dateToInstant);
+                    }
+                }
+
+                query = query.OrderByDescending(i => i.InboundDate);
+
+                // Paginate the result
+                var paginatedInbounds = await query.ToPaginatedResultAsync(request.Page, request.PageSize);
+
+                // Fetch pending InboundReports for the paginated Inbounds
+                var inboundIds = paginatedInbounds.Items.Select(i => i.InboundId).ToList();
+
+                var pendingReports = await _unitOfWork.InboundReportRepository
+                        .GetByWhere(ir => inboundIds.Contains(ir.InboundId))
+                        .Include(ir => ir.Assets)
+                        .ToListAsync();
+
+                // Ensure proper formatting of InboundDate
+                var viewInbounds = paginatedInbounds.Items.Adapt<List<ViewInbound>>();
+
+                foreach (var viewInbound in viewInbounds)
+                {
+                    // Map pending InboundReport using Adapt
+                    viewInbound.Report = pendingReports
+                        .Where(ir => ir.InboundId == viewInbound.InboundId)
+                        .OrderByDescending(ir => ir.ReportDate)
+                        .FirstOrDefault()
+                        ?.Adapt<ViewInboundReport>();
+                }
+
+                return new PaginatedResult<ViewInbound>
+                {
+                    Items = viewInbounds,
+                    TotalCount = paginatedInbounds.TotalCount,
+                    PageSize = paginatedInbounds.PageSize,
+                    CurrentPage = paginatedInbounds.CurrentPage
+                };
             }
 
-            query = query.OrderByDescending(i => i.InboundDate);
-
-            // Paginate the result
-            var paginatedInbounds = await query.ToPaginatedResultAsync(request.Page, request.PageSize);
-
-            // Fetch pending InboundReports for the paginated Inbounds
-            var inboundIds = paginatedInbounds.Items.Select(i => i.InboundId).ToList();
-
-            var pendingReports = await _unitOfWork.InboundReportRepository
-                    .GetByWhere(ir => inboundIds.Contains(ir.InboundId))
-                    .Include(ir => ir.Assets)
-                    .ToListAsync();
-
-            // Ensure proper formatting of InboundDate
-            var viewInbounds = paginatedInbounds.Items.Adapt<List<ViewInbound>>();
-
-            foreach (var viewInbound in viewInbounds)
+            private string GenerateInboundCode()
             {
-                // Map pending InboundReport using Adapt
-                viewInbound.Report = pendingReports
-                    .Where(ir => ir.InboundId == viewInbound.InboundId)
-                    .OrderByDescending(ir => ir.ReportDate)
-                    .FirstOrDefault()
-                    ?.Adapt<ViewInboundReport>();
+                var uniqueId = Guid.NewGuid().ToString("N").Substring(0, 4).ToUpper();
+                string dateDigits = DateTime.Now.ToString("MMdd");
+                return $"IC{DateTime.Now.ToString("yyyyMMddHHmmss")}";
             }
-
-            return new PaginatedResult<ViewInbound>
-            {
-                Items = viewInbounds,
-                TotalCount = paginatedInbounds.TotalCount,
-                PageSize = paginatedInbounds.PageSize,
-                CurrentPage = paginatedInbounds.CurrentPage
-            };
-        }
-
-        private string GenerateInboundCode()
-        {
-            var uniqueId = Guid.NewGuid().ToString("N").Substring(0, 4).ToUpper();
-            string dateDigits = DateTime.Now.ToString("MMdd");
-            return $"IC{DateTime.Now.ToString("yyyyMMddHHmmss")}";
-        }
 
         public async Task<byte[]> GenerateInboundPdfAsync(int inboundId)
         {
