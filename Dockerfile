@@ -32,7 +32,7 @@ WORKDIR "/src/DrugWarehouseManagement.UnitTest"
 RUN dotnet test -c $BUILD_CONFIGURATION --no-restore --logger:trx
 
 # Publish
-FROM build AS publish
+FROM test AS publish
 WORKDIR "/src/DrugWarehouseManagement.API"
 RUN dotnet publish "./DrugWarehouseManagement.API.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false --no-restore
 
