@@ -29,12 +29,12 @@ RUN dotnet build "./DrugWarehouseManagement.API.csproj" -c $BUILD_CONFIGURATION 
 # Run tests in a separate stage
 FROM build AS test
 WORKDIR "/src/DrugWarehouseManagement.UnitTest"
-RUN dotnet test -c $BUILD_CONFIGURATION --no-restore --no-build --logger:trx
+RUN dotnet test -c $BUILD_CONFIGURATION --no-restore --logger:trx
 
 # Publish
 FROM build AS publish
 WORKDIR "/src/DrugWarehouseManagement.API"
-RUN dotnet publish "./DrugWarehouseManagement.API.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false --no-restore --no-build
+RUN dotnet publish "./DrugWarehouseManagement.API.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false --no-restore
 
 # Final image
 FROM base AS final

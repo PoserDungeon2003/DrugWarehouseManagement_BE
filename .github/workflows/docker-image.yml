@@ -45,11 +45,6 @@ jobs:
               max-parallelism = 4
               gc = true
               gckeepstorage = 20000
-            
-            # Set resource constraints for better parallelization
-            [grpc]
-              max-recv-message-size = 67108864 # 64 MB
-              max-send-message-size = 67108864 # 64 MB
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -106,10 +101,11 @@ jobs:
             BUILDKIT_INLINE_CACHE=1
             BUILD_CONFIGURATION=Release
           platforms: linux/amd64
-          # Additional concurrency settings
-          provenance: false # Speeds up builds by disabling provenance attestation
-          sbom: false # Disables software bill of materials generation
-          outputs: type=registry,compression=zstd # Use faster compression algorithm
+          # Added options for debugging build issues
+          progress: plain
+          # Removed potentially problematic optimizations
+          outputs: type=registry
+          allow: network.host
 
       - name: Move cache
         run: |
