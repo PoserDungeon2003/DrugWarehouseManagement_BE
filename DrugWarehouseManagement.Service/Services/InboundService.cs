@@ -297,12 +297,12 @@ namespace DrugWarehouseManagement.Service.Services
                     {
                         query = query.Where(i =>
                             i.InboundId == inboundId ||
-                            i.InboundCode != null && i.InboundCode.IndexOf(searchTerm, StringComparison.OrdinalIgnoreCase) >= 0);
+                            i.InboundCode != null && i.InboundCode.Contains(request.Search));
                     }
                     else
                     {
                         query = query.Where(i =>
-                            i.InboundCode != null && i.InboundCode.IndexOf(searchTerm, StringComparison.OrdinalIgnoreCase) >= 0);
+                            i.InboundCode != null && i.InboundCode.Contains(request.Search));
                     }
                 }
 
