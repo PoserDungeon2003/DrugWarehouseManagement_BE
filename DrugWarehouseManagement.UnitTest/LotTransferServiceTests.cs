@@ -54,7 +54,7 @@ namespace DrugWarehouseManagement.UnitTest
       var exception = await Assert.ThrowsAsync<Exception>(
           () => _lotTransferService.CreateLotTransfer(accountId, request)
       );
-      Assert.Equal("Account not found", exception.Message);
+      Assert.Equal("Không tìm thấy tài khoản", exception.Message);
     }
 
     [Fact]
@@ -79,7 +79,7 @@ namespace DrugWarehouseManagement.UnitTest
       var exception = await Assert.ThrowsAsync<Exception>(
           () => _lotTransferService.CreateLotTransfer(accountId, request)
       );
-      Assert.Equal("Warehouse not found", exception.Message);
+      Assert.Equal("Không tìm thấy kho hàng", exception.Message);
     }
 
     [Fact]
@@ -108,7 +108,7 @@ namespace DrugWarehouseManagement.UnitTest
       var exception = await Assert.ThrowsAsync<Exception>(
           () => _lotTransferService.CreateLotTransfer(accountId, request)
       );
-      Assert.Equal("Warehouse is inactive", exception.Message);
+      Assert.Equal("Kho hàng không hoạt động", exception.Message);
     }
 
     [Fact]
@@ -142,7 +142,7 @@ namespace DrugWarehouseManagement.UnitTest
       var exception = await Assert.ThrowsAsync<Exception>(
           () => _lotTransferService.CreateLotTransfer(accountId, request)
       );
-      Assert.Equal("Lot not found", exception.Message);
+      Assert.Equal("Không tìm thấy lô hàng", exception.Message);
     }
 
     [Fact]
@@ -178,7 +178,7 @@ namespace DrugWarehouseManagement.UnitTest
       var exception = await Assert.ThrowsAsync<Exception>(
           () => _lotTransferService.CreateLotTransfer(accountId, request)
       );
-      Assert.Equal("Quantity must be greater than 0", exception.Message);
+      Assert.Equal("Số lượng không hợp lệ", exception.Message);
     }
 
     [Fact]
@@ -214,7 +214,7 @@ namespace DrugWarehouseManagement.UnitTest
       var exception = await Assert.ThrowsAsync<Exception>(
           () => _lotTransferService.CreateLotTransfer(accountId, request)
       );
-      Assert.Equal("Quantity not enough", exception.Message);
+      Assert.Equal("Số lượng lô hàng không đủ để chuyển", exception.Message);
     }
 
     [Fact]
@@ -247,7 +247,7 @@ namespace DrugWarehouseManagement.UnitTest
       var exception = await Assert.ThrowsAsync<Exception>(
           () => _lotTransferService.CreateLotTransfer(accountId, request)
       );
-      Assert.Equal("Transfer to the same warehouse", exception.Message);
+      Assert.Equal("Không thể chuyển lô hàng đến kho hiện tại", exception.Message);
     }
 
     [Fact]
@@ -317,7 +317,7 @@ namespace DrugWarehouseManagement.UnitTest
 
       // Assert
       Assert.Equal((int)HttpStatusCode.OK, result.Code);
-      Assert.Equal("Create transfer order successfully", result.Message);
+      Assert.Equal("Tạo phiếu chuyển kho thành công", result.Message);
 
       // Verify source lot quantity was reduced
       Assert.Equal(10, sourceLot.Quantity);
@@ -394,7 +394,7 @@ namespace DrugWarehouseManagement.UnitTest
 
       // Assert
       Assert.Equal((int)HttpStatusCode.OK, result.Code);
-      Assert.Equal("Create transfer order successfully", result.Message);
+      Assert.Equal("Tạo phiếu chuyển kho thành công", result.Message);
 
       // Verify source lot quantity was reduced
       Assert.Equal(10, sourceLot.Quantity);
@@ -507,7 +507,7 @@ namespace DrugWarehouseManagement.UnitTest
       var exception = await Assert.ThrowsAsync<Exception>(
           () => _lotTransferService.UpdateLotTransfer(accountId, request)
       );
-      Assert.Equal("Account not found", exception.Message);
+      Assert.Equal("Không tìm thấy tài khoản", exception.Message);
     }
 
     [Fact]
@@ -532,7 +532,7 @@ namespace DrugWarehouseManagement.UnitTest
       var exception = await Assert.ThrowsAsync<Exception>(
           () => _lotTransferService.UpdateLotTransfer(accountId, request)
       );
-      Assert.Equal("Lot transfer not found", exception.Message);
+      Assert.Equal("Không tìm thấy phiếu chuyển kho", exception.Message);
     }
 
     [Fact]
@@ -564,7 +564,7 @@ namespace DrugWarehouseManagement.UnitTest
       var exception = await Assert.ThrowsAsync<Exception>(
           () => _lotTransferService.UpdateLotTransfer(accountId, request)
       );
-      Assert.Equal("Lot transfer is already cancelled", exception.Message);
+      Assert.Equal("Phiếu chuyển kho đã bị huỷ trước đó", exception.Message);
     }
 
     [Fact]
@@ -596,7 +596,7 @@ namespace DrugWarehouseManagement.UnitTest
       var exception = await Assert.ThrowsAsync<Exception>(
           () => _lotTransferService.UpdateLotTransfer(accountId, request)
       );
-      Assert.Equal("Can't cancel lot with status not Pending", exception.Message);
+      Assert.Equal("Không thể huỷ phiếu chuyển kho đã được duyệt", exception.Message);
     }
 
     [Fact]
@@ -654,7 +654,7 @@ namespace DrugWarehouseManagement.UnitTest
 
       // Assert
       Assert.Equal((int)HttpStatusCode.OK, result.Code);
-      Assert.Equal("Update transfer order successfully", result.Message);
+      Assert.Equal("Cập nhật phiếu chuyển kho thành công", result.Message);
 
       // Verify quantities were restored
       Assert.Equal(15, lot1.Quantity);  // 10 + 5
@@ -705,7 +705,7 @@ namespace DrugWarehouseManagement.UnitTest
 
       // Assert
       Assert.Equal((int)HttpStatusCode.OK, result.Code);
-      Assert.Equal("Update transfer order successfully", result.Message);
+      Assert.Equal("Cập nhật phiếu chuyển kho thành công", result.Message);
 
       // Check if UpdatedAt is set
       Assert.NotNull(lotTransfer.UpdatedAt);
@@ -755,7 +755,7 @@ namespace DrugWarehouseManagement.UnitTest
 
       // Assert
       Assert.Equal((int)HttpStatusCode.OK, result.Code);
-      Assert.Equal("Update transfer order successfully", result.Message);
+      Assert.Equal("Cập nhật phiếu chuyển kho thành công", result.Message);
 
       // Verify status was updated
       Assert.Equal(LotTransferStatus.Cancelled, lotTransfer.LotTransferStatus);
@@ -802,7 +802,7 @@ namespace DrugWarehouseManagement.UnitTest
 
       // Assert
       Assert.Equal((int)HttpStatusCode.OK, result.Code);
-      Assert.Equal("Update transfer order successfully", result.Message);
+      Assert.Equal("Cập nhật phiếu chuyển kho thành công", result.Message);
 
       // Verify status was updated
       Assert.Equal(LotTransferStatus.Cancelled, lotTransfer.LotTransferStatus);
