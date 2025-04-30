@@ -8,26 +8,84 @@ on:
       - "**/*.csproj"
       - "**/*.sln"
       - "Dockerfile"
+      - ".dockerignore"
       - ".github/workflows/docker-image.yml"
+      - "docker-compose*.yml"
+  workflow_dispatch:  # Allow manual triggering
+
+env:
+  DOCKER_BUILDKIT: 1  # Enable BuildKit
+  BUILDKIT_PROGRESS: plain
+  COMPOSE_DOCKER_CLI_BUILD: 1
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 1  # Shallow clone for faster checkout
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+        with:
+          platforms: linux/amd64  # Specify platform for deterministic builds
+          driver-opts: |
+            image=moby/buildkit:v0.12.0
+            network=host
+          config-inline: |
+            [worker.oci]
+              max-parallelism = 4
+              gc = true
+              gckeepstorage = 20000
+            
+            [worker.containerd]
+              max-parallelism = 4
+              gc = true
+              gckeepstorage = 20000
+            
+            # Set resource constraints for better parallelization
+            [grpc]
+              max-recv-message-size = 67108864 # 64 MB
+              max-send-message-size = 67108864 # 64 MB
 
-      - name: Cache Docker layers
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Setup Docker layer caching
         uses: actions/cache@v4
         with:
           path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          key: ${{ runner.os }}-buildx-${{ hashFiles('**/Dockerfile', '**/*.csproj') }}
           restore-keys: |
             ${{ runner.os }}-buildx-
+      
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Generate image metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ secrets.DOCKER_USERNAME }}/drugwarehouse-api
+          tags: |
+            type=sha,prefix=
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=ref,event=branch
+          flavor: |
+            latest=true
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
@@ -40,11 +98,18 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/drugwarehouse-api:latest
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
           build-args: |
             BUILDKIT_INLINE_CACHE=1
+            BUILD_CONFIGURATION=Release
+          platforms: linux/amd64
+          # Additional concurrency settings
+          provenance: false # Speeds up builds by disabling provenance attestation
+          sbom: false # Disables software bill of materials generation
+          outputs: type=registry,compression=zstd # Use faster compression algorithm
 
       - name: Move cache
         run: |
@@ -52,6 +117,7 @@ jobs:
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
       - name: Deploy to remote server
+        if: success()
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: 103.90.227.104
