@@ -293,17 +293,16 @@ namespace DrugWarehouseManagement.Service.Services
                 {
                     var searchTerm = request.Search.Trim().ToLower();
 
-                    if (int.TryParse(searchTerm, out int inboundId))
-                    {
                         query = query.Where(i =>
-                            i.InboundId == inboundId ||
-                            i.InboundCode != null && i.InboundCode.Contains(request.Search));
-                    }
-                    else
-                    {
-                        query = query.Where(i =>
-                            i.InboundCode != null && i.InboundCode.Contains(request.Search));
-                    }
+                            i.InboundId.ToString().ToLower().Contains(searchTerm) ||
+                            i.InboundCode != null && i.InboundCode.ToLower().Contains(request.Search) ||
+                            i.Provider.ProviderName.ToLower().Contains(searchTerm) ||
+                            i.Provider.PhoneNumber.ToString().ToLower().Contains(searchTerm) ||
+                            i.Provider.Email.ToString().ToLower().Contains(searchTerm) ||
+                            i.Provider.Address.ToString().ToLower().Contains(searchTerm) ||
+                            i.Warehouse.WarehouseName.ToLower().Contains(searchTerm) ||
+                            i.Warehouse.WarehouseCode.ToLower().Contains(searchTerm));
+
                 }
 
                 if (Enum.IsDefined(typeof(InboundStatus), request.InboundStatus))
