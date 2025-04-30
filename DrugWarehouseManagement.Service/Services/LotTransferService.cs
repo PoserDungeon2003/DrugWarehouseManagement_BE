@@ -45,7 +45,7 @@ namespace DrugWarehouseManagement.Service.Services
             var account = await _unitOfWork.AccountRepository.GetByIdAsync(accountId);
             if (account == null)
             {
-                throw new Exception("Account not found");
+                throw new Exception("Không tìm thấy tài khoản");
             }
 
             var fromWarehouse = await _unitOfWork.WarehouseRepository.GetByIdAsync(request.FromWareHouseId);
@@ -53,12 +53,12 @@ namespace DrugWarehouseManagement.Service.Services
 
             if (fromWarehouse == null || toWarehouse == null)
             {
-                throw new Exception("Warehouse not found");
+                throw new Exception("Không tìm thấy kho hàng");
             }
 
             if (fromWarehouse.Status == Common.WarehouseStatus.Inactive || toWarehouse.Status == Common.WarehouseStatus.Inactive)
             {
-                throw new Exception("Warehouse is inactive");
+                throw new Exception("Kho hàng không hoạt động");
             }
 
             var groupedDetails = request.LotTransferDetails
@@ -76,22 +76,22 @@ namespace DrugWarehouseManagement.Service.Services
 
                 if (lot == null)
                 {
-                    throw new Exception("Lot not found");
+                    throw new Exception("Không tìm thấy lô hàng");
                 }
 
                 if (detail.Quantity <= 0)
                 {
-                    throw new Exception("Quantity must be greater than 0");
+                    throw new Exception("Số lượng không hợp lệ");
                 }
 
                 if (lot.Quantity < detail.Quantity)
                 {
-                    throw new Exception("Quantity not enough");
+                    throw new Exception("Số lượng lô hàng không đủ để chuyển");
                 }
 
                 if (request.ToWareHouseId == lot.WarehouseId)
                 {
-                    throw new Exception("Transfer to the same warehouse");
+                    throw new Exception("Không thể chuyển lô hàng đến kho hiện tại");
                 }
 
                 lot.Quantity -= detail.Quantity;
@@ -141,7 +141,7 @@ namespace DrugWarehouseManagement.Service.Services
             return new BaseResponse
             {
                 Code = (int)HttpStatusCode.OK,
-                Message = "Create transfer order successfully",
+                Message = "Tạo phiếu chuyển kho thành công",
                 Result = lotTransfer.Adapt<CreateLotTransferResponse>(),
             };
         }
@@ -162,7 +162,7 @@ namespace DrugWarehouseManagement.Service.Services
 
             if (lotTransfer == null)
             {
-                throw new Exception("Lot transfer order not found");
+                throw new Exception("Không tìm thấy phiếu chuyển kho");
             }
 
             var totalQuantity = lotTransfer.LotTransferDetails.Sum(l => l.Quantity);
@@ -290,7 +290,7 @@ namespace DrugWarehouseManagement.Service.Services
                                     .FirstOrDefaultAsync();
             if (lotTransfer == null)
             {
-                throw new Exception("Lot transfer order not found");
+                throw new Exception("Không tìm thấy phiếu chuyển kho");
             }
 
             return lotTransfer.Adapt<ViewLotTransfer>();
@@ -358,7 +358,7 @@ namespace DrugWarehouseManagement.Service.Services
             var account = await _unitOfWork.AccountRepository.GetByIdAsync(accountId);
             if (account == null)
             {
-                throw new Exception("Account not found");
+                throw new Exception("Không tìm thấy tài khoản");
             }
 
             var lotTransfer = await _unitOfWork.LotTransferRepository.GetByWhere(lt => lt.LotTransferId == request.LotTransferId)
@@ -367,7 +367,7 @@ namespace DrugWarehouseManagement.Service.Services
 
             if (lotTransfer == null)
             {
-                throw new Exception("Lot transfer not found");
+                throw new Exception("Không tìm thấy phiếu chuyển kho");
             }
 
             if (request.LotTransferStatus != null)
@@ -376,12 +376,12 @@ namespace DrugWarehouseManagement.Service.Services
                 {
                     if (lotTransfer.LotTransferStatus == Common.LotTransferStatus.Cancelled)
                     {
-                        throw new Exception("Lot transfer is already cancelled");
+                        throw new Exception("Phiếu chuyển kho đã bị huỷ trước đó");
                     }
 
                     if (lotTransfer.LotTransferStatus != LotTransferStatus.Pending)
                     {
-                        throw new Exception("Can't cancel lot with status not Pending");
+                        throw new Exception("Không thể huỷ phiếu chuyển kho đã được duyệt");
                     }
 
                     if (lotTransfer.LotTransferDetails != null && lotTransfer.LotTransferDetails.Any())
@@ -407,7 +407,7 @@ namespace DrugWarehouseManagement.Service.Services
             return new BaseResponse
             {
                 Code = (int)HttpStatusCode.OK,
-                Message = "Update transfer order successfully",
+                Message = "Cập nhật phiếu chuyển kho thành công",
             };
         }
     }
