@@ -132,7 +132,6 @@ namespace DrugWarehouseManagement.API.Controllers
            
         }
         [HttpGet("export/{id}")]
-        [Authorize(Roles = "Inventory Manager, Sale Admin")]
         public async Task<IActionResult> ExportOutboundInvoice(int id)
         {
             try
