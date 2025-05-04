@@ -24,7 +24,7 @@ COPY . ./
 
 # Build with performance optimizations
 WORKDIR "/src/DrugWarehouseManagement.API"
-RUN dotnet build "./DrugWarehouseManagement.API.csproj" -c $BUILD_CONFIGURATION -o /app/build --no-restore /p:UseSharedCompilation=true /maxcpucount:8
+RUN dotnet build "DrugWarehouseManagement.API.csproj" -c $BUILD_CONFIGURATION -o /app/build --no-restore /p:UseSharedCompilation=true /maxcpucount:8
 
 # Run tests in a separate stage
 FROM build AS test
@@ -34,7 +34,7 @@ RUN dotnet test -c $BUILD_CONFIGURATION --no-restore --logger:trx
 # Publish
 FROM test AS publish
 WORKDIR "/src/DrugWarehouseManagement.API"
-RUN dotnet publish "./DrugWarehouseManagement.API.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false --no-restore
+RUN dotnet publish "DrugWarehouseManagement.API.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false --no-restore
 
 # Final image
 FROM base AS final
