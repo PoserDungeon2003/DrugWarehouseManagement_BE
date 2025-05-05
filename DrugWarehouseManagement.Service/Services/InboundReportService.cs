@@ -35,72 +35,58 @@ namespace DrugWarehouseManagement.Service.Services
         }
         public async Task<BaseResponse> CreateInboundReport(Guid accountId, CreateInboundReportRequest request)
         {
-            try
+
+            var account = await _unitOfWork.AccountRepository.GetByIdAsync(accountId);
+            if (account == null)
             {
-                var account = await _unitOfWork.AccountRepository.GetByIdAsync(accountId);
-                if (account == null)
-                {
-                    return new BaseResponse { Code = 404, Message = "Account not found" };
-                }
-
-                var inboundReport = request.Adapt<InboundReport>();
-
-                var inbound = await _unitOfWork.InboundRepository.GetByIdAsync(inboundReport.InboundId);
-
-                if (inbound is null)
-                {
-                    return new BaseResponse { Code = 404, Message = "Inbound not found" };
-                }
-
-                inboundReport.AccountId = accountId;
-                inboundReport.UpdatedAt = SystemClock.Instance.GetCurrentInstant();
-                inboundReport.Assets = new List<Asset>();
-
-                // Handle image uploads if present
-                if (request.Images != null && request.Images.Any())
-                {
-                    try
-                    {
-                        var uploadedAssets = await UploadFiles(request.Images, accountId);
-                        inboundReport.Assets.AddRange(uploadedAssets);
-                    }
-                    catch (Exception ex)
-                    {
-                        return new BaseResponse
-                        {
-                            Code = 500,
-                            Message = "Error uploading files: " + ex.Message
-                        };
-                    }
-                }
-
-                await _unitOfWork.InboundReportRepository.CreateAsync(inboundReport);
-                await _unitOfWork.SaveChangesAsync();
-
-                // Send notification to relevant roles
-                var noti = new Repository.Models.Notification
-                {
-                    Title = "Báo cáo nhập",
-                    Content = $"Báo cáo đơn {inbound.InboundCode ?? "N/A"} với nội dung: {inboundReport.ProblemDescription ?? "Không có vấn đề"}",
-                    Type = NotificationType.ByRole,
-                    Role = "Accountant"
-                };
-                await _notificationService.PushNotificationToRole("Accountant", noti);
-
-                return new BaseResponse
-                {
-                    Code = 200,
-                    Message = "Inbound Request record created successfully",
-                };
-            } 
-            catch (DbUpdateException ex)
-            {
-                return new BaseResponse { Code = 500, Message = $"{ex}" };
+                throw new Exception("Không tìm thấy tài khoản");
             }
-            catch (Exception ex)
+
+            var inboundReport = request.Adapt<InboundReport>();
+
+            var inbound = await _unitOfWork.InboundRepository.GetByIdAsync(inboundReport.InboundId);
+
+            if (inbound is null)
             {
-                return new BaseResponse { Code =  500, Message = $"{ex}" };
+                throw new Exception("Không tìm thấy phiếu nhập");
             }
+
+            inboundReport.AccountId = accountId;
+            inboundReport.UpdatedAt = SystemClock.Instance.GetCurrentInstant();
+            inboundReport.Assets = new List<Asset>();
+
+            // Handle image uploads if present
+            if (request.Images != null && request.Images.Any())
+            {
+                try
+                {
+                    var uploadedAssets = await UploadFiles(request.Images, accountId);
+                    inboundReport.Assets.AddRange(uploadedAssets);
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("Lỗi khi tải lên tệp: " + ex.Message);
+                }
+            }
+
+            await _unitOfWork.InboundReportRepository.CreateAsync(inboundReport);
+            await _unitOfWork.SaveChangesAsync();
+
+            // Send notification to relevant roles
+            var noti = new Repository.Models.Notification
+            {
+                Title = "Báo cáo nhập",
+                Content = $"Báo cáo đơn {inbound.InboundCode ?? "N/A"} với nội dung: {inboundReport.ProblemDescription ?? "Không có vấn đề"}",
+                Type = NotificationType.ByRole,
+                Role = "Accountant"
+            };
+            await _notificationService.PushNotificationToRole("Accountant", noti);
+
+            return new BaseResponse
+            {
+                Code = 200,
+                Message = "Tạo báo cáo nhập thành công",
+            };
 
         }
 
@@ -124,7 +110,7 @@ namespace DrugWarehouseManagement.Service.Services
             var account = await _unitOfWork.AccountRepository.GetByIdAsync(accountId);
             if (account == null)
             {
-                return new BaseResponse { Code = 404, Message = "Account not found" };
+                throw new Exception("Không tìm thấy tài khoản");
             }
 
             var inboundReport = await _unitOfWork.InboundReportRepository
@@ -134,12 +120,12 @@ namespace DrugWarehouseManagement.Service.Services
 
             if (inboundReport == null)
             {
-                return new BaseResponse { Code = 404, Message = "Inbound report not found" };
+                throw new Exception("Không tìm thấy báo cáo nhập");
             }
 
             if (inboundReport.Status == InboundReportStatus.Completed)
             {
-                return new BaseResponse { Code = 400, Message = "Inbound report is completed and can't be update" };
+                throw new Exception("Báo cáo nhập đã hoàn thành, không thể cập nhật");
             }
 
             request.Adapt(inboundReport);
@@ -168,11 +154,7 @@ namespace DrugWarehouseManagement.Service.Services
                 }
                 catch (Exception ex)
                 {
-                    return new BaseResponse
-                    {
-                        Code = 500,
-                        Message = "Error uploading files: " + ex.Message
-                    };
+                    throw new Exception("Lỗi khi tải lên tệp: " + ex.Message);
                 }
             }
 
