@@ -30,172 +30,160 @@ namespace DrugWarehouseManagement.Service.Services
 
         public async Task<BaseResponse> CreateInbound(Guid accountId, CreateInboundRequest request)
         {
-            try
+            var account = await _unitOfWork.AccountRepository.GetByIdAsync(accountId);
+            if (account == null)
             {
-                var account = await _unitOfWork.AccountRepository.GetByIdAsync(accountId);
-                if (account == null)
-                {
-                    return new BaseResponse { Code = 404, Message = "Account not found" };
-                }
-
-                var inboundCode = GenerateInboundCode();
-
-                var inbound = request.Adapt<Inbound>();
-                inbound.InboundCode = inboundCode;
-                inbound.AccountId = accountId;
-                inbound.InboundDate = SystemClock.Instance.GetCurrentInstant();
-                inbound.Status = InboundStatus.Pending;
-                inbound.UpdatedAt = SystemClock.Instance.GetCurrentInstant();
-
-                await _unitOfWork.InboundRepository.CreateAsync(inbound);
-                await _unitOfWork.SaveChangesAsync();
-
-                // Send notification to relevant roles
-                var noti = new Repository.Models.Notification
-                {
-                    Title = "Đơn nhập mới",
-                    Content = $"Đơn nhập {inbound.InboundCode} mới được tạo",
-                    Type = NotificationType.ByRole,
-                    Role = "Inventory Manager"
-                };
-                await _notificationService.PushNotificationToRole("Inventory Manager", noti);
-
-                return new BaseResponse
-                {
-                    Code = 200,
-                    Message = "Inbound record created successfully",
-                };
+                throw new Exception("Tài khoản không tồn tại");
             }
-            catch
+
+            var getInboundByProviderOrderCode = await _unitOfWork.InboundRepository
+                .GetByWhere(i => i.ProviderOrderCode == request.ProviderOrderCode)
+                .FirstOrDefaultAsync();
+
+            if (getInboundByProviderOrderCode != null)
             {
-                return new BaseResponse { Code = 500, Message = "Internal server error" };
+                throw new Exception("Mã đơn hàng đã tồn tại trong hệ thống");
             }
+            var inboundCode = GenerateInboundCode();
+
+            var inbound = request.Adapt<Inbound>();
+            inbound.InboundCode = inboundCode;
+            inbound.AccountId = accountId;
+            inbound.InboundDate = SystemClock.Instance.GetCurrentInstant();
+            inbound.Status = InboundStatus.Pending;
+            inbound.UpdatedAt = SystemClock.Instance.GetCurrentInstant();
+
+            await _unitOfWork.InboundRepository.CreateAsync(inbound);
+            await _unitOfWork.SaveChangesAsync();
+
+            // Send notification to relevant roles
+            var noti = new Repository.Models.Notification
+            {
+                Title = "Đơn nhập mới",
+                Content = $"Đơn nhập {inbound.InboundCode} mới được tạo",
+                Type = NotificationType.ByRole,
+                Role = "Inventory Manager"
+            };
+            await _notificationService.PushNotificationToRole("Inventory Manager", noti);
+
+            return new BaseResponse
+            {
+                Code = 200,
+                Message = "Đơn nhập đã được tạo thành công",
+            };
         }
 
         public async Task<BaseResponse> UpdateInboundStatus(Guid accountId, UpdateInboundStatusRequest request)
         {
-            try
+            var account = await _unitOfWork.AccountRepository.GetByIdAsync(accountId);
+            if (account == null)
             {
-                var account = await _unitOfWork.AccountRepository.GetByIdAsync(accountId);
-                if (account == null)
+                throw new Exception("Tài khoản không tồn tại");
+            }
+
+            var inbound = await _unitOfWork.InboundRepository.GetByIdAsync(request.InboundId);
+            if (inbound == null)
+            {
+                throw new Exception("Đơn nhập không tồn tại");
+            }
+
+            // Update inbound details
+            inbound.Status = request.InboundStatus;
+            inbound.AccountId = accountId;
+            inbound.InboundDate = SystemClock.Instance.GetCurrentInstant();
+            inbound.UpdatedAt = SystemClock.Instance.GetCurrentInstant();
+
+            if (request.InboundStatus == InboundStatus.Completed)
+            {
+                var inboundReport = await _unitOfWork.InboundReportRepository
+                .GetByWhere(ir => ir.InboundId == inbound.InboundId && ir.Status == InboundReportStatus.Pending)
+                .OrderByDescending(ir => ir.ReportDate)
+                .FirstOrDefaultAsync();
+
+                if (inboundReport != null)
                 {
-                    return new BaseResponse { Code = 404, Message = "Account not found" };
+                    inboundReport.Status = InboundReportStatus.Completed;
+                    inboundReport.UpdatedAt = SystemClock.Instance.GetCurrentInstant();
+                    inboundReport.ProblemDescription = "Đơn không có hàng lỗi";
+                    await _unitOfWork.InboundReportRepository.UpdateAsync(inboundReport);
+                    await _unitOfWork.SaveChangesAsync();
                 }
+            }
 
-                var inbound = await _unitOfWork.InboundRepository.GetByIdAsync(request.InboundId);
-                if (inbound == null)
+            await _unitOfWork.InboundRepository.UpdateAsync(inbound);
+
+            // If status is Completed, create or update Lot entries
+            if (request.InboundStatus == InboundStatus.Completed)
+            {
+                var inboundDetails = await _unitOfWork.InboundDetailRepository.GetAllByInboundIdAsync(inbound.InboundId);
+                if (inboundDetails.Any())
                 {
-                    return new BaseResponse { Code = 404, Message = "Inbound not found" };
-                }
-
-                if (!Enum.IsDefined(typeof(InboundStatus), request.InboundStatus))
-                {
-                    return new BaseResponse { Code = 404, Message = "Invalid inbound status {Pending, InProgess, Completed, Cancelled}" };
-                }
-
-                // Update inbound details
-                inbound.Status = request.InboundStatus;
-                inbound.AccountId = accountId;
-                inbound.InboundDate = SystemClock.Instance.GetCurrentInstant();
-                inbound.UpdatedAt = SystemClock.Instance.GetCurrentInstant();
-
-                if (request.InboundStatus == InboundStatus.Completed)
-                {
-                    var inboundReport = await _unitOfWork.InboundReportRepository
-                    .GetByWhere(ir => ir.InboundId == inbound.InboundId && ir.Status == InboundReportStatus.Pending)
-                    .OrderByDescending(ir => ir.ReportDate)
-                    .FirstOrDefaultAsync();
-
-                    if (inboundReport != null)
+                    foreach (var detail in inboundDetails)
                     {
-                        inboundReport.Status = InboundReportStatus.Completed;
-                        inboundReport.UpdatedAt = SystemClock.Instance.GetCurrentInstant();
-                        inboundReport.ProblemDescription = "Đơn không có hàng lỗi";
-                        await _unitOfWork.InboundReportRepository.UpdateAsync(inboundReport);
-                        await _unitOfWork.SaveChangesAsync();
+                        var existingLot = await _unitOfWork.LotRepository
+                            .GetByWhere(l =>
+                                l.LotNumber == detail.LotNumber &&
+                                l.ManufacturingDate == detail.ManufacturingDate &&
+                                l.ExpiryDate == detail.ExpiryDate &&
+                                l.ProductId == detail.ProductId)
+                            .AsQueryable()
+                            .FirstOrDefaultAsync();
+
+                        if (existingLot != null)
+                        {
+                            existingLot.Quantity += detail.Quantity;
+                            await _unitOfWork.LotRepository.UpdateAsync(existingLot);
+                        }
+                        else
+                        {
+                            var newLot = detail.Adapt<Lot>();
+                            newLot.WarehouseId = inbound.WarehouseId;
+                            newLot.ProviderId = inbound.ProviderId;
+
+                            await _unitOfWork.LotRepository.CreateAsync(newLot);
+                        }
+                        await _unitOfWork.InboundDetailRepository.UpdateAsync(detail);
+
                     }
                 }
-
-                await _unitOfWork.InboundRepository.UpdateAsync(inbound);
-
-                // If status is Completed, create or update Lot entries
-                if (request.InboundStatus == InboundStatus.Completed)
+            }
+            else if (request.InboundStatus == InboundStatus.Cancelled && inbound.Status == InboundStatus.Completed)
+            {
+                var inboundDetails = await _unitOfWork.InboundDetailRepository.GetAllByInboundIdAsync(inbound.InboundId);
+                if (inboundDetails.Any())
                 {
-                    var inboundDetails = await _unitOfWork.InboundDetailRepository.GetAllByInboundIdAsync(inbound.InboundId);
-                    if (inboundDetails.Any())
+                    foreach (var detail in inboundDetails)
                     {
-                        foreach (var detail in inboundDetails)
-                        {
-                            var existingLot = await _unitOfWork.LotRepository
-                                .GetByWhere(l =>
-                                    l.LotNumber == detail.LotNumber &&
-                                    l.ManufacturingDate == detail.ManufacturingDate &&
-                                    l.ExpiryDate == detail.ExpiryDate &&
-                                    l.ProductId == detail.ProductId)
-                                .AsQueryable()
-                                .FirstOrDefaultAsync();
+                        var existingLot = await _unitOfWork.LotRepository
+                            .GetByWhere(l =>
+                                l.LotNumber == detail.LotNumber &&
+                                l.ManufacturingDate == detail.ManufacturingDate &&
+                                l.ExpiryDate == detail.ExpiryDate &&
+                                l.ProductId == detail.ProductId)
+                            .AsQueryable()
+                            .FirstOrDefaultAsync();
 
-                            if (existingLot != null)
+                        if (existingLot != null)
+                        {
+                            existingLot.Quantity -= detail.Quantity;
+
+                            if (existingLot.Quantity <= 0)
                             {
-                                existingLot.Quantity += detail.Quantity;
-                                await _unitOfWork.LotRepository.UpdateAsync(existingLot);
+                                await _unitOfWork.LotRepository.DeleteAsync(existingLot);
                             }
                             else
                             {
-                                var newLot = detail.Adapt<Lot>();
-                                newLot.WarehouseId = inbound.WarehouseId;
-                                newLot.ProviderId = inbound.ProviderId;
-
-                                await _unitOfWork.LotRepository.CreateAsync(newLot);
-                            }
-                            await _unitOfWork.InboundDetailRepository.UpdateAsync(detail);
-
-                        }
-                    }
-                }
-                else if (request.InboundStatus == InboundStatus.Cancelled && inbound.Status == InboundStatus.Completed)
-                {
-                    var inboundDetails = await _unitOfWork.InboundDetailRepository.GetAllByInboundIdAsync(inbound.InboundId);
-                    if (inboundDetails.Any())
-                    {
-                        foreach (var detail in inboundDetails)
-                        {
-                            var existingLot = await _unitOfWork.LotRepository
-                                .GetByWhere(l =>
-                                    l.LotNumber == detail.LotNumber &&
-                                    l.ManufacturingDate == detail.ManufacturingDate &&
-                                    l.ExpiryDate == detail.ExpiryDate &&
-                                    l.ProductId == detail.ProductId)
-                                .AsQueryable()
-                                .FirstOrDefaultAsync();
-
-                            if (existingLot != null)
-                            {
-                                existingLot.Quantity -= detail.Quantity;
-
-                                if (existingLot.Quantity <= 0)
-                                {
-                                    await _unitOfWork.LotRepository.DeleteAsync(existingLot);
-                                }
-                                else
-                                {
-                                    await _unitOfWork.LotRepository.UpdateAsync(existingLot);
-                                }
+                                await _unitOfWork.LotRepository.UpdateAsync(existingLot);
                             }
                         }
                     }
-
                 }
 
-                await _unitOfWork.SaveChangesAsync();
-
-                return new BaseResponse { Code = 200, Message = "Inbound updated status successfully" };
-            }
-            catch (Exception ex)
-            {
-                return new BaseResponse { Code = 500, Message = $"Internal server error message{ex}" };
             }
 
+            await _unitOfWork.SaveChangesAsync();
+
+            return new BaseResponse { Code = 200, Message = "Inbound updated status successfully" };
         }
 
         public async Task<BaseResponse> UpdateInbound(Guid accountId, UpdateInboundRequest request)
@@ -203,19 +191,19 @@ namespace DrugWarehouseManagement.Service.Services
             var account = await _unitOfWork.AccountRepository.GetByIdAsync(accountId);
             if (account == null)
             {
-                return new BaseResponse { Code = 404, Message = "Account not found" };
+                throw new Exception("Tài khoản không tồn tại");
             }
 
             // Validate if the inbound exists
             var inbound = await _unitOfWork.InboundRepository.GetByIdAsync(request.InboundId);
             if (inbound == null)
             {
-                return new BaseResponse { Code = 404, Message = "Inbound not found" };
+                throw new Exception("Đơn nhập không tồn tại");
             }
 
             if (inbound.Status == InboundStatus.Completed)
             {
-                return new BaseResponse { Code = 200, Message = "Inbound is completed and can't be update" };
+                throw new Exception("Đơn nhập đã hoàn thành và không thể cập nhật");
             }
 
             inbound.AccountId = accountId;
@@ -236,7 +224,7 @@ namespace DrugWarehouseManagement.Service.Services
             await _unitOfWork.InboundRepository.UpdateAsync(inbound);
             await _unitOfWork.SaveChangesAsync();
 
-            return new BaseResponse { Code = 200, Message = "Inbound updated successfully" };
+            return new BaseResponse { Code = 200, Message = "Cập nhật đơn nhập thành công" };
         }
 
         public async Task<ViewInbound> GetInboundById(int inboundId)
@@ -267,112 +255,112 @@ namespace DrugWarehouseManagement.Service.Services
             return result;
         }
 
-            public async Task<PaginatedResult<ViewInbound>> GetInboundsPaginatedAsync(InboundtQueryPaging request)
+        public async Task<PaginatedResult<ViewInbound>> GetInboundsPaginatedAsync(InboundtQueryPaging request)
+        {
+            var query = _unitOfWork.InboundRepository
+                        .GetAll()
+                        .Include(i => i.InboundDetails)
+                        .ThenInclude(i => i.Product)
+                        .Include(i => i.Provider)
+                        .Include(i => i.Account)
+                        .Include(i => i.Warehouse)
+                        .AsQueryable();
+
+            if (request.IsReportPendingExist)
             {
-                var query = _unitOfWork.InboundRepository
-                            .GetAll()
-                            .Include(i => i.InboundDetails)
-                            .ThenInclude(i => i.Product)
-                            .Include(i => i.Provider)
-                            .Include(i => i.Account)
-                            .Include(i => i.Warehouse)
-                            .AsQueryable();
+                var pendingReportInboundIds = await _unitOfWork.InboundReportRepository
+                    .GetByWhere(ir => ir.Status == InboundReportStatus.Pending)
+                    .Select(ir => ir.InboundId)
+                    .Distinct()
+                    .ToListAsync();
 
-                if (request.IsReportPendingExist)
-                {
-                    var pendingReportInboundIds = await _unitOfWork.InboundReportRepository
-                        .GetByWhere(ir => ir.Status == InboundReportStatus.Pending)
-                        .Select(ir => ir.InboundId)
-                        .Distinct()
-                        .ToListAsync();
-
-                    query = query.Where(i => pendingReportInboundIds.Contains(i.InboundId));
-                }
-
-                if (!string.IsNullOrEmpty(request.Search))
-                {
-                    var searchTerm = request.Search.Trim().ToLower();
-
-                        query = query.Where(i =>
-                            i.InboundId.ToString().ToLower().Contains(searchTerm) ||
-                            i.InboundCode != null && i.InboundCode.ToLower().Contains(request.Search) ||
-                            i.Provider.ProviderName.ToLower().Contains(searchTerm) ||
-                            i.Provider.PhoneNumber.ToString().ToLower().Contains(searchTerm) ||
-                            i.Provider.Email.ToString().ToLower().Contains(searchTerm) ||
-                            i.Provider.Address.ToString().ToLower().Contains(searchTerm) ||
-                            i.Warehouse.WarehouseName.ToLower().Contains(searchTerm) ||
-                            i.Warehouse.WarehouseCode.ToLower().Contains(searchTerm));
-
-                }
-
-                if (Enum.IsDefined(typeof(InboundStatus), request.InboundStatus))
-                {
-                    query = query.Where(i => i.Status == request.InboundStatus);
-                }
-
-                var pattern = InstantPattern.ExtendedIso;
-
-                if (!string.IsNullOrEmpty(request.DateFrom))
-                {
-                    var parseResult = pattern.Parse(request.DateFrom);
-                    if (parseResult.Success)
-                    {
-                        Instant dateFromInstant = parseResult.Value;
-                        query = query.Where(i => i.InboundDate >= dateFromInstant);
-                    }
-                }
-
-                if (!string.IsNullOrEmpty(request.DateTo))
-                {
-                    var parseResult = pattern.Parse(request.DateTo);
-                    if (parseResult.Success)
-                    {
-                        Instant dateToInstant = parseResult.Value;
-                        query = query.Where(i => i.InboundDate <= dateToInstant);
-                    }
-                }
-
-                query = query.OrderByDescending(i => i.InboundDate);
-
-                // Paginate the result
-                var paginatedInbounds = await query.ToPaginatedResultAsync(request.Page, request.PageSize);
-
-                // Fetch pending InboundReports for the paginated Inbounds
-                var inboundIds = paginatedInbounds.Items.Select(i => i.InboundId).ToList();
-
-                var pendingReports = await _unitOfWork.InboundReportRepository
-                        .GetByWhere(ir => inboundIds.Contains(ir.InboundId))
-                        .Include(ir => ir.Assets)
-                        .ToListAsync();
-
-                // Ensure proper formatting of InboundDate
-                var viewInbounds = paginatedInbounds.Items.Adapt<List<ViewInbound>>();
-
-                foreach (var viewInbound in viewInbounds)
-                {
-                    // Map pending InboundReport using Adapt
-                    viewInbound.Report = pendingReports
-                        .Where(ir => ir.InboundId == viewInbound.InboundId)
-                        .OrderByDescending(ir => ir.ReportDate)
-                        .FirstOrDefault()
-                        ?.Adapt<ViewInboundReport>();
-                }
-
-                return new PaginatedResult<ViewInbound>
-                {
-                    Items = viewInbounds,
-                    TotalCount = paginatedInbounds.TotalCount,
-                    PageSize = paginatedInbounds.PageSize,
-                    CurrentPage = paginatedInbounds.CurrentPage
-                };
+                query = query.Where(i => pendingReportInboundIds.Contains(i.InboundId));
             }
 
-            private string GenerateInboundCode()
+            if (!string.IsNullOrEmpty(request.Search))
             {
-                var uniqueId = Guid.NewGuid().ToString("N").Substring(0, 4).ToUpper();
-                string dateDigits = DateTime.Now.ToString("MMdd");
-                return $"IC{DateTime.Now.ToString("yyyyMMddHHmmss")}";
+                var searchTerm = request.Search.Trim().ToLower();
+
+                query = query.Where(i =>
+                    i.InboundId.ToString().ToLower().Contains(searchTerm) ||
+                    i.InboundCode != null && i.InboundCode.ToLower().Contains(request.Search) ||
+                    i.Provider.ProviderName.ToLower().Contains(searchTerm) ||
+                    i.Provider.PhoneNumber.ToString().ToLower().Contains(searchTerm) ||
+                    i.Provider.Email.ToString().ToLower().Contains(searchTerm) ||
+                    i.Provider.Address.ToString().ToLower().Contains(searchTerm) ||
+                    i.Warehouse.WarehouseName.ToLower().Contains(searchTerm) ||
+                    i.Warehouse.WarehouseCode.ToLower().Contains(searchTerm));
+
             }
+
+            if (Enum.IsDefined(typeof(InboundStatus), request.InboundStatus))
+            {
+                query = query.Where(i => i.Status == request.InboundStatus);
+            }
+
+            var pattern = InstantPattern.ExtendedIso;
+
+            if (!string.IsNullOrEmpty(request.DateFrom))
+            {
+                var parseResult = pattern.Parse(request.DateFrom);
+                if (parseResult.Success)
+                {
+                    Instant dateFromInstant = parseResult.Value;
+                    query = query.Where(i => i.InboundDate >= dateFromInstant);
+                }
+            }
+
+            if (!string.IsNullOrEmpty(request.DateTo))
+            {
+                var parseResult = pattern.Parse(request.DateTo);
+                if (parseResult.Success)
+                {
+                    Instant dateToInstant = parseResult.Value;
+                    query = query.Where(i => i.InboundDate <= dateToInstant);
+                }
+            }
+
+            query = query.OrderByDescending(i => i.InboundDate);
+
+            // Paginate the result
+            var paginatedInbounds = await query.ToPaginatedResultAsync(request.Page, request.PageSize);
+
+            // Fetch pending InboundReports for the paginated Inbounds
+            var inboundIds = paginatedInbounds.Items.Select(i => i.InboundId).ToList();
+
+            var pendingReports = await _unitOfWork.InboundReportRepository
+                    .GetByWhere(ir => inboundIds.Contains(ir.InboundId))
+                    .Include(ir => ir.Assets)
+                    .ToListAsync();
+
+            // Ensure proper formatting of InboundDate
+            var viewInbounds = paginatedInbounds.Items.Adapt<List<ViewInbound>>();
+
+            foreach (var viewInbound in viewInbounds)
+            {
+                // Map pending InboundReport using Adapt
+                viewInbound.Report = pendingReports
+                    .Where(ir => ir.InboundId == viewInbound.InboundId)
+                    .OrderByDescending(ir => ir.ReportDate)
+                    .FirstOrDefault()
+                    ?.Adapt<ViewInboundReport>();
+            }
+
+            return new PaginatedResult<ViewInbound>
+            {
+                Items = viewInbounds,
+                TotalCount = paginatedInbounds.TotalCount,
+                PageSize = paginatedInbounds.PageSize,
+                CurrentPage = paginatedInbounds.CurrentPage
+            };
+        }
+
+        private string GenerateInboundCode()
+        {
+            var uniqueId = Guid.NewGuid().ToString("N").Substring(0, 4).ToUpper();
+            string dateDigits = DateTime.Now.ToString("MMdd");
+            return $"IC{DateTime.Now.ToString("yyyyMMddHHmmss")}";
+        }
 
         public async Task<byte[]> GenerateInboundPdfAsync(int inboundId)
         {
