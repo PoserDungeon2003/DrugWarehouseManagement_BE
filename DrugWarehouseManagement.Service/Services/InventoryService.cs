@@ -48,7 +48,7 @@ namespace DrugWarehouseManagement.Service.Services
                 // 2) Kiểm tra Expiry
                 // 2.1) Còn dưới 12 tháng
                 var dt = lot.ExpiryDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
-                var expiryDateInstant = Instant.FromDateTimeUtc(dt);                  
+                var expiryDateInstant = Instant.FromDateTimeUtc(dt);
                 var timeLeft = expiryDateInstant - now;
                 var twelveMonths = Duration.FromDays(365);
 
@@ -96,7 +96,7 @@ namespace DrugWarehouseManagement.Service.Services
         public async Task NotifyLowStockAndExpiryAsync()
         {
             var alerts = await CheckLowStockAndExpiryAsync();
-            if (!alerts.Any()) return; 
+            if (!alerts.Any()) return;
             var messageBuilder = new StringBuilder();
             messageBuilder.AppendLine("Danh sách cảnh báo lô hàng:");
             foreach (var alert in alerts)
@@ -107,7 +107,7 @@ namespace DrugWarehouseManagement.Service.Services
          $"{alert.Message}"
      );
             }
-    
+
             string botToken = _configuration["Telegram:BotToken"];
             string chatId = _configuration["Telegram:ChatId"];
 
