@@ -448,6 +448,31 @@ namespace DrugWarehouseManagement.Service.Services
                 })
                 .ToListAsync();
 
+            // =========================
+            // 4.1. Lấy danh sách Xuất Mất (Hàng tìm thấy)
+            // =========================
+            var outboundFound = await _unitOfWork.InventoryCheckRepository
+                .GetAll()
+                .Include(ic => ic.InventoryCheckDetails)
+                    .ThenInclude(icd => icd.Lot)
+                .Where(ic => ic.WarehouseId == warehouseId
+                    && ic.CheckDate >= startDate
+                    && ic.CheckDate <= endDate)
+                .SelectMany(ic => ic.InventoryCheckDetails)
+                .Where(icd => icd.Lot.ProductId == productId
+                    && icd.Status == InventoryCheckStatus.Found && icd.Quantity > 0)
+                .GroupBy(icd => icd.InventoryCheckId)
+                .Select(g => new
+                {
+                    InventoryCheckId = g.Key,
+                    CheckDate = g.First().InventoryCheck.CheckDate,
+                    CustomerDocNumber = g.First().InventoryCheck.Warehouse.DocumentNumber ?? "",
+                    CustomerName = g.First().InventoryCheck.Warehouse.WarehouseName,
+                    Note = "Hàng mất đã được tìm thấy",
+                    Qty = g.Sum(icd => icd.Quantity)
+                })
+                .ToListAsync();
+
             // Các giao dịch nhập (mỗi giao dịch ở 1 dòng riêng)
             var inboundTransactions = new List<StockCardLine>();
             foreach (var i in inboundList)
@@ -474,9 +499,21 @@ namespace DrugWarehouseManagement.Service.Services
                     OutQty = 0
                 });
             }
+            foreach (var t in outboundFound)
+            {
+                inboundTransactions.Add(new StockCardLine
+                {
+                    Date = t.CheckDate.ToDateTimeUtc(),
+                    DocumentNumber = t.CustomerDocNumber ?? "",
+                    PartnerName = "Kiểm kho",
+                    Note = t.Note,
+                    InQty = t.Qty,
+                    OutQty = 0
+                });
+            }
 
             // =========================
-            // 4. Lấy danh sách Xuất Mất (Hàng mất)
+            // 4.2. Lấy danh sách Xuất Mất (Hàng mất)
             // =========================
             var outboundLost = await _unitOfWork.InventoryCheckRepository
                 .GetAll()
@@ -487,7 +524,7 @@ namespace DrugWarehouseManagement.Service.Services
                     && ic.CheckDate <= endDate)
                 .SelectMany(ic => ic.InventoryCheckDetails)
                 .Where(icd => icd.Lot.ProductId == productId
-                    && icd.Status == InventoryCheckStatus.Lost && icd.CheckQuantity > 0)
+                    && icd.Status == InventoryCheckStatus.Lost && icd.Quantity > 0)
                 .GroupBy(icd => icd.InventoryCheckId)
                 .Select(g => new
                 {
@@ -496,7 +533,7 @@ namespace DrugWarehouseManagement.Service.Services
                     CustomerDocNumber = g.First().InventoryCheck.Warehouse.DocumentNumber ?? "",
                     CustomerName = g.First().InventoryCheck.Warehouse.WarehouseName,
                     Note = "Hàng mất từ kiểm kho",
-                    Qty = g.Sum(icd => icd.CheckQuantity ?? 0)
+                    Qty = g.Sum(icd => icd.Quantity)
                 })
                 .ToListAsync();
 
@@ -627,9 +664,6 @@ namespace DrugWarehouseManagement.Service.Services
                 });
                 running = endBal;
             }
-
-
-
 
             // =========================
             // 9. Xuất PDF bằng QuestPDF

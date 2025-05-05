@@ -36,11 +36,11 @@ namespace DrugWarehouseManagement.Service.Services
                 throw new Exception("Tài khoản không tồn tại");
             }
 
-            var getInboundByProviderOrderCode = await _unitOfWork.InboundRepository
+            var providerCodeExist = await _unitOfWork.InboundRepository
                 .GetByWhere(i => i.ProviderOrderCode == request.ProviderOrderCode)
                 .FirstOrDefaultAsync();
 
-            if (getInboundByProviderOrderCode != null)
+            if (providerCodeExist != null)
             {
                 throw new Exception("Mã đơn hàng đã tồn tại trong hệ thống");
             }
