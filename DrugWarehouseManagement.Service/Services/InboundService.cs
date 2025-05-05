@@ -38,6 +38,13 @@ namespace DrugWarehouseManagement.Service.Services
                     return new BaseResponse { Code = 404, Message = "Account not found" };
                 }
 
+                var providerCodeExist = await _unitOfWork.InboundRepository.GetByWhere(i => i.ProviderOrderCode == request.ProviderOrderCode).FirstOrDefaultAsync();
+
+                if (providerCodeExist != null)
+                {
+                    return new BaseResponse { Code = 404, Message = "Provider Order Code can't be duplicated" };
+                }
+
                 var inboundCode = GenerateInboundCode();
 
                 var inbound = request.Adapt<Inbound>();
