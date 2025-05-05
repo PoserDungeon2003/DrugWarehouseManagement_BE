@@ -42,7 +42,7 @@ namespace DrugWarehouseManagement.Service.Services
                         LotId = lot.LotId,
                         LotNumber = lot.LotNumber,
                         AlertType = "Gần hết hàng",
-                        Message = $"Lô: {lot.LotNumber} sắp hết hàng ({lot.Quantity})."
+                        Message = $"sắp hết hàng ({lot.Quantity})."
                     });
                 }
                 // 2) Kiểm tra Expiry
@@ -59,7 +59,7 @@ namespace DrugWarehouseManagement.Service.Services
                         LotId = lot.LotId,
                         LotNumber = lot.LotNumber,
                         AlertType = "HSD còn 12 tháng",
-                        Message = $"Lô: {lot.LotNumber} sẽ hết hạn trong 12 tháng."
+                        Message = "sẽ hết hạn trong 12 tháng."
                     });
                 }
                 // 2.2) Đã sử dụng 60% thời gian
@@ -84,7 +84,7 @@ namespace DrugWarehouseManagement.Service.Services
                                 LotId = lot.LotId,
                                 LotNumber = lot.LotNumber,
                                 AlertType = "Quá 60% HSD",
-                                Message = $"Lô: {lot.LotNumber} đã quá 60% thời hạn sử dụng."
+                                Message = "đã quá 60% thời hạn sử dụng."
                             });
                         }
                     }
@@ -101,7 +101,11 @@ namespace DrugWarehouseManagement.Service.Services
             messageBuilder.AppendLine("Danh sách cảnh báo lô hàng:");
             foreach (var alert in alerts)
             {
-                messageBuilder.AppendLine($"- Lô: {alert.LotNumber}, Lí do: {alert.AlertType}, {alert.Message}");
+                messageBuilder.AppendLine(
+         $"- Lô: {alert.LotNumber}, " +
+         $"Lí do: {alert.AlertType}, " +
+         $"{alert.Message}"
+     );
             }
     
             string botToken = _configuration["Telegram:BotToken"];
