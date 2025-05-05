@@ -47,7 +47,6 @@ namespace DrugWarehouseManagement.Service.Services
         {
             var query = _unitOfWork.ProductRepository
                         .GetAll()
-                        .Where(p => p.Status == ProductStatus.Active)
                         .Include(pc => pc.Categories)
                         .AsQueryable();
 
