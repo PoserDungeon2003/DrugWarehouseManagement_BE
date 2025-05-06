@@ -63,7 +63,7 @@ namespace DrugWarehouseManagement.API
                 RecurringJob.AddOrUpdate<IInventoryService>(
                     "CheckLowStockAndExpiry",
                     svc => svc.NotifyLowStockAndExpiryAsync(),
-                    Cron.Minutely
+                    Cron.Daily
                 );
 
             }
