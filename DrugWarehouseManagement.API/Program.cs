@@ -45,7 +45,7 @@ namespace DrugWarehouseManagement.API
                 options.Limits.MaxRequestBodySize = 100 * 1024 * 1024; // 100MB
             });
 
-            ServiceRegister.RegisterServices(builder.Services, builder.Configuration);
+            ServiceRegister.RegisterServices(builder.Services, builder.Configuration, builder.Environment);
 
             var app = builder.Build();
             
@@ -59,6 +59,13 @@ namespace DrugWarehouseManagement.API
             else
             {
                 app.UseCors("Limited");
+                app.UseHangfireDashboard("/hangfire");
+                RecurringJob.AddOrUpdate<IInventoryService>(
+                    "CheckLowStockAndExpiry",
+                    svc => svc.NotifyLowStockAndExpiryAsync(),
+                    Cron.Minutely
+                );
+
             }
 
             app.UseMiddleware<AuditLoggingMiddleware>();
@@ -70,16 +77,9 @@ namespace DrugWarehouseManagement.API
             app.MapHub<NotificationHub>("/notificationHub");
 
             app.MapControllers();
-            ConfigureHangfireJobs(app);
+         
             app.Run();
         }
-        private static void ConfigureHangfireJobs(WebApplication app)
-        {
-            RecurringJob.AddOrUpdate<IInventoryService>(
-                "CheckLowStockAndExpiry",
-                service => service.NotifyLowStockAndExpiryAsync(),
-                Cron.Daily
-            );
-        }
+        
     }
 }

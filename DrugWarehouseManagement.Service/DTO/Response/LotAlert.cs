@@ -12,5 +12,6 @@ namespace DrugWarehouseManagement.Service.DTO.Response
         public string LotNumber { get; set; } = null!;
         public string AlertType { get; set; } = null!; //"LOW_STOCK" / "NEAR_EXPIRY_12M" / "NEAR_EXPIRY_60P"
         public string Message { get; set; } = null!;
+        public string WarehouseName { get; set; } = null!;
     }
 }
