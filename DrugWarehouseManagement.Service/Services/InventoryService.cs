@@ -28,6 +28,8 @@ namespace DrugWarehouseManagement.Service.Services
             var now = SystemClock.Instance.GetCurrentInstant();
             var lots = await _unitOfWork.LotRepository
                 .GetAll()
+                .Include(lot => lot.Warehouse)
+                 .Where(lot => lot.WarehouseId != 2 && lot.WarehouseId != 6)
                 .ToListAsync();
 
             var alerts = new List<LotAlert>();
@@ -42,7 +44,9 @@ namespace DrugWarehouseManagement.Service.Services
                         LotId = lot.LotId,
                         LotNumber = lot.LotNumber,
                         AlertType = "Gần hết hàng",
-                        Message = $"sắp hết hàng ({lot.Quantity})."
+                        Message = $"sắp hết hàng ({lot.Quantity}).",
+                        WarehouseName = lot.Warehouse.WarehouseName
+
                     });
                 }
                 // 2) Kiểm tra Expiry
@@ -59,7 +63,8 @@ namespace DrugWarehouseManagement.Service.Services
                         LotId = lot.LotId,
                         LotNumber = lot.LotNumber,
                         AlertType = "HSD còn 12 tháng",
-                        Message = "sẽ hết hạn trong 12 tháng."
+                        Message = "sẽ hết hạn trong 12 tháng.",
+                        WarehouseName = lot.Warehouse.WarehouseName
                     });
                 }
                 // 2.2) Đã sử dụng 60% thời gian
@@ -84,7 +89,8 @@ namespace DrugWarehouseManagement.Service.Services
                                 LotId = lot.LotId,
                                 LotNumber = lot.LotNumber,
                                 AlertType = "Quá 60% HSD",
-                                Message = "đã quá 60% thời hạn sử dụng."
+                                Message = "đã quá 60% thời hạn sử dụng.",
+                                WarehouseName = lot.Warehouse.WarehouseName
                             });
                         }
                     }
@@ -103,6 +109,7 @@ namespace DrugWarehouseManagement.Service.Services
             {
                 messageBuilder.AppendLine(
          $"- Lô: {alert.LotNumber}, " +
+            $"Kho: {alert.WarehouseName}, " +
          $"Lí do: {alert.AlertType}, " +
          $"{alert.Message}"
      );
