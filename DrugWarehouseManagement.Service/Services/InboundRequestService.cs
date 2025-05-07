@@ -281,7 +281,7 @@ namespace DrugWarehouseManagement.Service.Services
                 };
                 await _notificationService.PushNotificationToRole("Director", noti);
             }
-            else if (inboundRequest.Status == InboundRequestStatus.Completed)
+            else if (inboundRequest.Status == InboundRequestStatus.InProgress)
             {
                 // Send notification to relevant roles
                 var noti = new Repository.Models.Notification
