@@ -7,6 +7,7 @@ using DrugWarehouseManagement.Service.Extenstions;
 using DrugWarehouseManagement.Service.Interface;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
+using NodaTime.Text;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -104,6 +105,27 @@ namespace DrugWarehouseManagement.Service.Services
                     c.DocumentNumber.ToLower().Contains(searchLower)
                 );
             }
+            
+            if (request.DateFrom != null)
+            {
+                var dateFrom = InstantPattern.ExtendedIso.Parse(request.DateFrom);
+                if (!dateFrom.Success)
+                {
+                    throw new Exception("DateFrom is invalid ISO format");
+                }
+                query = query.Where(lt => lt.CreatedAt >= dateFrom.Value);
+            }
+
+            if (request.DateTo != null)
+            {
+                var dateTo = InstantPattern.ExtendedIso.Parse(request.DateTo);
+                if (!dateTo.Success)
+                {
+                    throw new Exception("DateTo is invalid ISO format");
+                }
+                query = query.Where(lt => lt.CreatedAt <= dateTo.Value);
+            }
+            
             query = query.OrderBy(c => c.CustomerId);
             var paginatedCustomers = await query.ToPaginatedResultAsync(request.Page, request.PageSize);
             var customerResponses = paginatedCustomers.Items.Adapt<List<CustomerResponse>>();
