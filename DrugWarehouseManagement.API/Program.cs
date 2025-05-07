@@ -70,7 +70,6 @@ namespace DrugWarehouseManagement.API
 
             app.UseMiddleware<AuditLoggingMiddleware>();
             app.UseMiddleware<GlobalExceptionMiddleware>();
-            app.UseHangfireDashboard("/hangfire");
             app.UseAuthentication();
             app.UseMiddleware<ConcurrencyMiddleware>();
             app.UseAuthorization();
