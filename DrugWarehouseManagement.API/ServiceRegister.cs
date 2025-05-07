@@ -34,7 +34,7 @@ namespace DrugWarehouseManagement.API
 {
     public static class ServiceRegister
     {
-        public static void RegisterServices(IServiceCollection services, IConfiguration configuration)
+        public static void RegisterServices(IServiceCollection services, IConfiguration configuration, IWebHostEnvironment env)
         {
             services.AddSingleton<NpgsqlDataSource>(sp =>
             {
@@ -71,22 +71,18 @@ namespace DrugWarehouseManagement.API
 
             services.AddSingleton<VideoDetectionService>(provider => new VideoDetectionService(modelPath));
 
-            services.AddHangfire((provider, config) =>
+            if (env.IsProduction())
             {
-                config.UseSimpleAssemblyNameTypeSerializer();
-                config.UseRecommendedSerializerSettings();
-                config.SetDataCompatibilityLevel(CompatibilityLevel.Version_170);
-
-                // Use PostgreSQL as storage
-                config.UsePostgreSqlStorage(options =>
+                services.AddHangfire((prov, cfg) =>
                 {
-                    options.UseNpgsqlConnection(configuration.GetConnectionString("DefaultConnection"));
+                    cfg.UseSimpleAssemblyNameTypeSerializer()
+                       .UseRecommendedSerializerSettings()
+                       .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+                       .UsePostgreSqlStorage(opt => opt.UseNpgsqlConnection(configuration.GetConnectionString("DefaultConnection")))
+                       .UseActivator(new ScopedJobActivator(prov.GetRequiredService<IServiceScopeFactory>()));
                 });
-
-                // Use our custom JobActivator
-                config.UseActivator(new ScopedJobActivator(provider.GetRequiredService<IServiceScopeFactory>()));
-            });
-            services.AddHangfireServer();
+                services.AddHangfireServer();
+            }
             services.AddAuthorizeService(configuration);
 
             AddMapper();

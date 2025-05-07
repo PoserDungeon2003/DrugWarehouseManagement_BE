@@ -10,6 +10,7 @@ namespace DrugWarehouseManagement.Service.DTO.Request
         public string? Search { get; set; }
         public string? DateFrom { get; set; } // ISO string format only
         public string? DateTo { get; set; } // ISO string format only
+        public bool ShowInactive { get; set; } = false;
     }
 
     

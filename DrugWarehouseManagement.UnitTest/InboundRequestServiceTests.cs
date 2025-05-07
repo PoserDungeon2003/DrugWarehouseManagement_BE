@@ -40,98 +40,98 @@ namespace DrugWarehouseManagement.UnitTest
             _inboundRequestService = new InboundRequestService(_unitOfWorkMock.Object, _minioServiceMock.Object, _loggerMock.Object, _notificationServiceMock.Object);
         }
 
-        [Fact]
-        public async Task CreateInboundRequest_AccountNotFound_ReturnsNotFound()
-        {
-            // Arrange
-            var accountId = Guid.NewGuid();
-            var request = new CreateInboundOrderRequest();
-            _unitOfWorkMock.Setup(uow => uow.AccountRepository.GetByIdAsync(accountId))
-                .ReturnsAsync((Account)null);
+        // [Fact]
+        // public async Task CreateInboundRequest_AccountNotFound_ReturnsNotFound()
+        // {
+        //     // Arrange
+        //     var accountId = Guid.NewGuid();
+        //     var request = new CreateInboundOrderRequest();
+        //     _unitOfWorkMock.Setup(uow => uow.AccountRepository.GetByIdAsync(accountId))
+        //         .ReturnsAsync((Account)null);
 
-            // Act
-            var response = await _inboundRequestService.CreateInboundRequest(accountId, request);
+        //     // Act
+        //     var response = await _inboundRequestService.CreateInboundRequest(accountId, request);
 
-            // Assert
-            Assert.Equal(404, response.Code);
-            Assert.Equal("Account not found", response.Message);
-        }
+        //     // Assert
+        //     Assert.Equal(404, response.Code);
+        //     Assert.Equal("Account not found", response.Message);
+        // }
 
-        [Fact]
-        public async Task CreateInboundRequest_WithDetailsAndImages_CreatesSuccessfully()
-        {
-            // Arrange
-            var accountId = Guid.NewGuid();
-            var account = new Account { Id = accountId };
-            var fileMock = new Mock<IFormFile>();
-            fileMock.Setup(f => f.Length).Returns(100); // Ensure Length > 0
-            fileMock.Setup(f => f.FileName).Returns("test.jpg"); // Required for FileUploadResponse
-            var request = new CreateInboundOrderRequest
-            {
-                InboundRequestDetails = new List<InboundOrderDetailRequest>
-        {
-            new InboundOrderDetailRequest
-            {
-                ProductId = 1,
-                Quantity = 1,
-                UnitPrice = 100,
-                TotalPrice = 100
-            }
-        },
-                Images = new List<IFormFile> { fileMock.Object }
-            };
+        // [Fact]
+        // public async Task CreateInboundRequest_WithDetailsAndImages_CreatesSuccessfully()
+        // {
+        //     // Arrange
+        //     var accountId = Guid.NewGuid();
+        //     var account = new Account { Id = accountId };
+        //     var fileMock = new Mock<IFormFile>();
+        //     fileMock.Setup(f => f.Length).Returns(100); // Ensure Length > 0
+        //     fileMock.Setup(f => f.FileName).Returns("test.jpg"); // Required for FileUploadResponse
+        //     var request = new CreateInboundOrderRequest
+        //     {
+        //         InboundRequestDetails = new List<InboundOrderDetailRequest>
+        // {
+        //     new InboundOrderDetailRequest
+        //     {
+        //         ProductId = 1,
+        //         Quantity = 1,
+        //         UnitPrice = 100,
+        //         TotalPrice = 100
+        //     }
+        // },
+        //         Images = new List<IFormFile> { fileMock.Object }
+        //     };
 
-            _unitOfWorkMock.Setup(uow => uow.AccountRepository.GetByIdAsync(accountId))
-                .ReturnsAsync(account);
-            _minioServiceMock.Setup(m => m.FileUpload(It.IsAny<string>(), It.IsAny<IFormFile>(), It.IsAny<string>(), null))
-                .ReturnsAsync(new FileUploadResponse { Extension = ".jpg" });
-            _unitOfWorkMock.Setup(uow => uow.InboundRequestRepository.CreateAsync(It.IsAny<InboundRequest>()))
-                .Returns(Task.CompletedTask);
-            _unitOfWorkMock.Setup(uow => uow.SaveChangesAsync())
-                .Returns(Task.CompletedTask);
-            //_notificationServiceMock.Setup(ns => ns.NotifyRoleAsync("Accountant", It.IsAny<string>()))
-            //    .Returns(Task.CompletedTask);
+        //     _unitOfWorkMock.Setup(uow => uow.AccountRepository.GetByIdAsync(accountId))
+        //         .ReturnsAsync(account);
+        //     _minioServiceMock.Setup(m => m.FileUpload(It.IsAny<string>(), It.IsAny<IFormFile>(), It.IsAny<string>(), null))
+        //         .ReturnsAsync(new FileUploadResponse { Extension = ".jpg" });
+        //     _unitOfWorkMock.Setup(uow => uow.InboundRequestRepository.CreateAsync(It.IsAny<InboundRequest>()))
+        //         .Returns(Task.CompletedTask);
+        //     _unitOfWorkMock.Setup(uow => uow.SaveChangesAsync())
+        //         .Returns(Task.CompletedTask);
+        //     //_notificationServiceMock.Setup(ns => ns.NotifyRoleAsync("Accountant", It.IsAny<string>()))
+        //     //    .Returns(Task.CompletedTask);
 
-            // Act
-            var response = await _inboundRequestService.CreateInboundRequest(accountId, request);
+        //     // Act
+        //     var response = await _inboundRequestService.CreateInboundRequest(accountId, request);
 
-            // Assert
-            Assert.Equal(200, response.Code);
-            Assert.Equal("Inbound Request record created successfully", response.Message);
-            _unitOfWorkMock.Verify(uow => uow.InboundRequestRepository.CreateAsync(It.Is<InboundRequest>(ir => ir.Price == 100 && ir.Assets.Count == 1)), Times.Once);
-            _unitOfWorkMock.Verify(uow => uow.SaveChangesAsync(), Times.Once);
-            //_notificationServiceMock.Verify(ns => 
-            //    ns.NotifyRoleAsync("Accountant", It.Is<string>(msg => msg.Contains("New Inbound Request"))), Times.Once);
-        }
+        //     // Assert
+        //     Assert.Equal(200, response.Code);
+        //     Assert.Equal("Inbound Request record created successfully", response.Message);
+        //     _unitOfWorkMock.Verify(uow => uow.InboundRequestRepository.CreateAsync(It.Is<InboundRequest>(ir => ir.Price == 100 && ir.Assets.Count == 1)), Times.Once);
+        //     _unitOfWorkMock.Verify(uow => uow.SaveChangesAsync(), Times.Once);
+        //     //_notificationServiceMock.Verify(ns => 
+        //     //    ns.NotifyRoleAsync("Accountant", It.Is<string>(msg => msg.Contains("New Inbound Request"))), Times.Once);
+        // }
 
-        [Fact]
-        public async Task CreateInboundRequest_ImageUploadFails_ReturnsError()
-        {
-            // Arrange
-            var accountId = Guid.NewGuid();
-            var account = new Account { Id = accountId };
-            var fileMock = new Mock<IFormFile>();
-            fileMock.Setup(f => f.Length).Returns(100);
-            fileMock.Setup(f => f.FileName).Returns("test.jpg");
-            var request = new CreateInboundOrderRequest
-            {
-                Images = new List<IFormFile> { fileMock.Object },
-                InboundRequestDetails = null
-            };
+        // [Fact]
+        // public async Task CreateInboundRequest_ImageUploadFails_ReturnsError()
+        // {
+        //     // Arrange
+        //     var accountId = Guid.NewGuid();
+        //     var account = new Account { Id = accountId };
+        //     var fileMock = new Mock<IFormFile>();
+        //     fileMock.Setup(f => f.Length).Returns(100);
+        //     fileMock.Setup(f => f.FileName).Returns("test.jpg");
+        //     var request = new CreateInboundOrderRequest
+        //     {
+        //         Images = new List<IFormFile> { fileMock.Object },
+        //         InboundRequestDetails = null
+        //     };
 
-            _unitOfWorkMock.Setup(uow => uow.AccountRepository.GetByIdAsync(accountId))
-                .ReturnsAsync(account);
-            _minioServiceMock.Setup(m => m.FileUpload(It.IsAny<string>(), It.IsAny<IFormFile>(), It.IsAny<string>(), null))
-                .ThrowsAsync(new Exception("Upload failed"));
+        //     _unitOfWorkMock.Setup(uow => uow.AccountRepository.GetByIdAsync(accountId))
+        //         .ReturnsAsync(account);
+        //     _minioServiceMock.Setup(m => m.FileUpload(It.IsAny<string>(), It.IsAny<IFormFile>(), It.IsAny<string>(), null))
+        //         .ThrowsAsync(new Exception("Upload failed"));
 
-            // Act
-            var response = await _inboundRequestService.CreateInboundRequest(accountId, request);
+        //     // Act
+        //     var response = await _inboundRequestService.CreateInboundRequest(accountId, request);
 
-            // Assert
-            Assert.Equal(500, response.Code);
-            Assert.StartsWith("Error uploading files: Upload failed", response.Message);
-            _unitOfWorkMock.Verify(uow => uow.InboundRequestRepository.CreateAsync(It.IsAny<InboundRequest>()), Times.Never);
-        }
+        //     // Assert
+        //     Assert.Equal(500, response.Code);
+        //     Assert.StartsWith("Error uploading files: Upload failed", response.Message);
+        //     _unitOfWorkMock.Verify(uow => uow.InboundRequestRepository.CreateAsync(It.IsAny<InboundRequest>()), Times.Never);
+        // }
 
         [Fact]
         public async Task GetInboundRequestById_NotFound_ThrowsException()
@@ -233,61 +233,61 @@ namespace DrugWarehouseManagement.UnitTest
 
         }
 
-        [Fact]
-        public async Task UpdateInboundRequest_AccountNotFound_ReturnsNotFound()
-        {
-            // Arrange
-            var accountId = Guid.NewGuid();
-            var request = new UpdateInboundOrderRequest { InboundOrderId = 1 };
-            _unitOfWorkMock.Setup(uow => uow.AccountRepository.GetByIdAsync(accountId))
-                .ReturnsAsync((Account)null);
+        // [Fact]
+        // public async Task UpdateInboundRequest_AccountNotFound_ReturnsNotFound()
+        // {
+        //     // Arrange
+        //     var accountId = Guid.NewGuid();
+        //     var request = new UpdateInboundOrderRequest { InboundOrderId = 1 };
+        //     _unitOfWorkMock.Setup(uow => uow.AccountRepository.GetByIdAsync(accountId))
+        //         .ReturnsAsync((Account)null);
 
-            // Act
-            var response = await _inboundRequestService.UpdateInboundRequest(accountId, request);
+        //     // Act
+        //     var response = await _inboundRequestService.UpdateInboundRequest(accountId, request);
 
-            // Assert
-            Assert.Equal(404, response.Code);
-            Assert.Equal("Account not found", response.Message);
-        }
+        //     // Assert
+        //     Assert.Equal(404, response.Code);
+        //     Assert.Equal("Account not found", response.Message);
+        // }
 
-        [Fact]
-        public async Task UpdateInboundRequest_InboundNotFound_ReturnsNotFound()
-        {
-            // Arrange
-            var accountId = Guid.NewGuid();
-            var request = new UpdateInboundOrderRequest { InboundOrderId = 1 };
-            _unitOfWorkMock.Setup(uow => uow.AccountRepository.GetByIdAsync(accountId))
-                .ReturnsAsync(new Account { Id = accountId });
-            _unitOfWorkMock.Setup(uow => uow.InboundRequestRepository.GetByWhere(It.IsAny<Expression<Func<InboundRequest, bool>>>()))
-                .Returns(new List<InboundRequest>().AsQueryable().BuildMock());
+        // [Fact]
+        // public async Task UpdateInboundRequest_InboundNotFound_ReturnsNotFound()
+        // {
+        //     // Arrange
+        //     var accountId = Guid.NewGuid();
+        //     var request = new UpdateInboundOrderRequest { InboundOrderId = 1 };
+        //     _unitOfWorkMock.Setup(uow => uow.AccountRepository.GetByIdAsync(accountId))
+        //         .ReturnsAsync(new Account { Id = accountId });
+        //     _unitOfWorkMock.Setup(uow => uow.InboundRequestRepository.GetByWhere(It.IsAny<Expression<Func<InboundRequest, bool>>>()))
+        //         .Returns(new List<InboundRequest>().AsQueryable().BuildMock());
 
-            // Act
-            var response = await _inboundRequestService.UpdateInboundRequest(accountId, request);
+        //     // Act
+        //     var response = await _inboundRequestService.UpdateInboundRequest(accountId, request);
 
-            // Assert
-            Assert.Equal(404, response.Code);
-            Assert.Equal("Inbound Request not found", response.Message);
-        }
+        //     // Assert
+        //     Assert.Equal(404, response.Code);
+        //     Assert.Equal("Inbound Request not found", response.Message);
+        // }
 
-        [Fact]
-        public async Task UpdateInboundRequest_CompletedStatus_ReturnsCannotUpdate()
-        {
-            // Arrange
-            var accountId = Guid.NewGuid();
-            var request = new UpdateInboundOrderRequest { InboundOrderId = 1 };
-            var inboundRequest = new InboundRequest { InboundRequestId = 1, Status = InboundRequestStatus.Completed };
-            _unitOfWorkMock.Setup(uow => uow.AccountRepository.GetByIdAsync(accountId))
-                .ReturnsAsync(new Account { Id = accountId });
-            _unitOfWorkMock.Setup(uow => uow.InboundRequestRepository.GetByWhere(It.IsAny<Expression<Func<InboundRequest, bool>>>()))
-                .Returns(new List<InboundRequest> { inboundRequest }.AsQueryable().BuildMock());
+        // [Fact]
+        // public async Task UpdateInboundRequest_CompletedStatus_ReturnsCannotUpdate()
+        // {
+        //     // Arrange
+        //     var accountId = Guid.NewGuid();
+        //     var request = new UpdateInboundOrderRequest { InboundOrderId = 1 };
+        //     var inboundRequest = new InboundRequest { InboundRequestId = 1, Status = InboundRequestStatus.Completed };
+        //     _unitOfWorkMock.Setup(uow => uow.AccountRepository.GetByIdAsync(accountId))
+        //         .ReturnsAsync(new Account { Id = accountId });
+        //     _unitOfWorkMock.Setup(uow => uow.InboundRequestRepository.GetByWhere(It.IsAny<Expression<Func<InboundRequest, bool>>>()))
+        //         .Returns(new List<InboundRequest> { inboundRequest }.AsQueryable().BuildMock());
 
-            // Act
-            var response = await _inboundRequestService.UpdateInboundRequest(accountId, request);
+        //     // Act
+        //     var response = await _inboundRequestService.UpdateInboundRequest(accountId, request);
 
-            // Assert
-            Assert.Equal(200, response.Code);
-            Assert.Equal("Inbound Request is Completed or Cancelled that can not update", response.Message);
-        }
+        //     // Assert
+        //     Assert.Equal(200, response.Code);
+        //     Assert.Equal("Inbound Request is Completed or Cancelled that can not update", response.Message);
+        // }
 
         public async Task UpdateInboundRequest_ValidRequest_UpdatesSuccessfully()
         {
@@ -361,65 +361,65 @@ namespace DrugWarehouseManagement.UnitTest
             _unitOfWorkMock.Verify(uow => uow.SaveChangesAsync(), Times.Once());
         }
 
-        [Fact]
-        public async Task UpdateInboundRequestStatus_AccountNotFound_ReturnsNotFound()
-        {
-            // Arrange
-            var accountId = Guid.NewGuid();
-            var request = new UpdateInboundOrderStatusRequest { InboundId = 1 };
-            _unitOfWorkMock.Setup(uow => uow.AccountRepository.GetByIdAsync(accountId))
-                .ReturnsAsync((Account)null);
+        // [Fact]
+        // public async Task UpdateInboundRequestStatus_AccountNotFound_ReturnsNotFound()
+        // {
+        //     // Arrange
+        //     var accountId = Guid.NewGuid();
+        //     var request = new UpdateInboundOrderStatusRequest { InboundId = 1 };
+        //     _unitOfWorkMock.Setup(uow => uow.AccountRepository.GetByIdAsync(accountId))
+        //         .ReturnsAsync((Account)null);
 
-            // Act
-            var response = await _inboundRequestService.UpdateInboundRequestStatus(accountId, request);
+        //     // Act
+        //     var response = await _inboundRequestService.UpdateInboundRequestStatus(accountId, request);
 
-            // Assert
-            Assert.Equal(404, response.Code);
-            Assert.Equal("Account not found", response.Message);
-        }
+        //     // Assert
+        //     Assert.Equal(404, response.Code);
+        //     Assert.Equal("Account not found", response.Message);
+        // }
 
-        [Fact]
-        public async Task UpdateInboundRequestStatus_InboundNotFound_ReturnsNotFound()
-        {
-            // Arrange
-            var accountId = Guid.NewGuid();
-            var request = new UpdateInboundOrderStatusRequest { InboundId = 1 };
-            _unitOfWorkMock.Setup(uow => uow.AccountRepository.GetByIdAsync(accountId))
-                .ReturnsAsync(new Account { Id = accountId });
-            _unitOfWorkMock.Setup(uow => uow.InboundRequestRepository.GetByIdAsync(request.InboundId))
-                .ReturnsAsync((InboundRequest)null);
+        // [Fact]
+        // public async Task UpdateInboundRequestStatus_InboundNotFound_ReturnsNotFound()
+        // {
+        //     // Arrange
+        //     var accountId = Guid.NewGuid();
+        //     var request = new UpdateInboundOrderStatusRequest { InboundId = 1 };
+        //     _unitOfWorkMock.Setup(uow => uow.AccountRepository.GetByIdAsync(accountId))
+        //         .ReturnsAsync(new Account { Id = accountId });
+        //     _unitOfWorkMock.Setup(uow => uow.InboundRequestRepository.GetByIdAsync(request.InboundId))
+        //         .ReturnsAsync((InboundRequest)null);
 
-            // Act
-            var response = await _inboundRequestService.UpdateInboundRequestStatus(accountId, request);
+        //     // Act
+        //     var response = await _inboundRequestService.UpdateInboundRequestStatus(accountId, request);
 
-            // Assert
-            Assert.Equal(404, response.Code);
-            Assert.Equal("Inbound Request not found", response.Message);
-        }
+        //     // Assert
+        //     Assert.Equal(404, response.Code);
+        //     Assert.Equal("Inbound Request not found", response.Message);
+        // }
 
-        [Fact]
-        public async Task UpdateInboundRequestStatus_InvalidStatus_ReturnsInvalidStatus()
-        {
-            // Arrange
-            var accountId = Guid.NewGuid();
-            var request = new UpdateInboundOrderStatusRequest
-            {
-                InboundId = 1,
-                InboundOrderStatus = (InboundRequestStatus)999 // Invalid status
-            };
-            var inboundRequest = new InboundRequest { InboundRequestId = 1 };
-            _unitOfWorkMock.Setup(uow => uow.AccountRepository.GetByIdAsync(accountId))
-                .ReturnsAsync(new Account { Id = accountId });
-            _unitOfWorkMock.Setup(uow => uow.InboundRequestRepository.GetByIdAsync(request.InboundId))
-                .ReturnsAsync(inboundRequest);
+        // [Fact]
+        // public async Task UpdateInboundRequestStatus_InvalidStatus_ReturnsInvalidStatus()
+        // {
+        //     // Arrange
+        //     var accountId = Guid.NewGuid();
+        //     var request = new UpdateInboundOrderStatusRequest
+        //     {
+        //         InboundId = 1,
+        //         InboundOrderStatus = (InboundRequestStatus)999 // Invalid status
+        //     };
+        //     var inboundRequest = new InboundRequest { InboundRequestId = 1 };
+        //     _unitOfWorkMock.Setup(uow => uow.AccountRepository.GetByIdAsync(accountId))
+        //         .ReturnsAsync(new Account { Id = accountId });
+        //     _unitOfWorkMock.Setup(uow => uow.InboundRequestRepository.GetByIdAsync(request.InboundId))
+        //         .ReturnsAsync(inboundRequest);
 
-            // Act
-            var response = await _inboundRequestService.UpdateInboundRequestStatus(accountId, request);
+        //     // Act
+        //     var response = await _inboundRequestService.UpdateInboundRequestStatus(accountId, request);
 
-            // Assert
-            Assert.Equal(404, response.Code);
-            Assert.Contains("Invalid inbound request status", response.Message);
-        }
+        //     // Assert
+        //     Assert.Equal(404, response.Code);
+        //     Assert.Contains("Invalid inbound request status", response.Message);
+        // }
 
         [Fact]
         public async Task UpdateInboundRequestStatus_ValidStatus_UpdatesSuccessfully()

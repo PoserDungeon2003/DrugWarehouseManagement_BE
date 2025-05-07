@@ -38,11 +38,11 @@ namespace DrugWarehouseManagement.Service.Services
 
             if (outbound == null)
             {
-                throw new Exception($"OutboundId={request.OutboundId} not found.");
+                throw new Exception($"Đơn xuất {request.OutboundId} không tìm thấy.");
             }
             if (outbound.Status != OutboundStatus.Completed)
             {
-                throw new Exception("Chỉ được trả hàng khi Outbound ở trạng thái Completed.");
+                throw new Exception("Chỉ được trả hàng khi đơn xuất ở trạng thái hoàn thành.");
             }
 
             // 2) Xử lý từng dòng trả hàng
@@ -56,11 +56,11 @@ namespace DrugWarehouseManagement.Service.Services
 
                 if (outboundDetail == null)
                 {
-                    throw new Exception($"OutboundDetailId={detailItem.OutboundDetailsId} not found in this outbound.");
+                    throw new Exception($"Không tìm thấy chi tiết xuất kho {detailItem.OutboundDetailsId} trong phiếu này.");
                 }
                 if (detailItem.Quantity > outboundDetail.Quantity)
                 {
-                    throw new Exception($"ReturnedQuantity={detailItem.Quantity} > OutboundDetail.Quantity={outboundDetail.Quantity}");
+                    throw new Exception($"Số lượng trả về {detailItem.Quantity} lớn hơn số lượng xuất kho còn lại {outboundDetail.Quantity}");
                 }
 
                 // Tạo bản ghi ReturnOutboundDetails
@@ -114,7 +114,7 @@ namespace DrugWarehouseManagement.Service.Services
                 var newInbound = new Inbound
                 {
                     InboundCode = GenerateInboundCode(),
-                    Note = $"Tạo tự động từ hoàn trả đơn Outbound {outbound.OutboundCode} cho các lô hàng: {lotNumbers}",
+                    Note = $"Tạo tự động từ hoàn trả đơn xuất {outbound.OutboundCode} cho các lô hàng: {lotNumbers}",
                     InboundDate = SystemClock.Instance.GetCurrentInstant(),
                     Status = InboundStatus.Completed,
                     ProviderId = providerId,

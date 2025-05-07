@@ -28,6 +28,8 @@ namespace DrugWarehouseManagement.Service.Services
             var now = SystemClock.Instance.GetCurrentInstant();
             var lots = await _unitOfWork.LotRepository
                 .GetAll()
+                .Include(lot => lot.Warehouse)
+                 .Where(lot => lot.WarehouseId != 2 && lot.WarehouseId != 6)
                 .ToListAsync();
 
             var alerts = new List<LotAlert>();
@@ -42,13 +44,15 @@ namespace DrugWarehouseManagement.Service.Services
                         LotId = lot.LotId,
                         LotNumber = lot.LotNumber,
                         AlertType = "Gần hết hàng",
-                        Message = $"Lô: {lot.LotNumber} sắp hết hàng ({lot.Quantity})."
+                        Message = $"sắp hết hàng ({lot.Quantity}).",
+                        WarehouseName = lot.Warehouse.WarehouseName
+
                     });
                 }
                 // 2) Kiểm tra Expiry
                 // 2.1) Còn dưới 12 tháng
                 var dt = lot.ExpiryDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
-                var expiryDateInstant = Instant.FromDateTimeUtc(dt);                  
+                var expiryDateInstant = Instant.FromDateTimeUtc(dt);
                 var timeLeft = expiryDateInstant - now;
                 var twelveMonths = Duration.FromDays(365);
 
@@ -59,7 +63,8 @@ namespace DrugWarehouseManagement.Service.Services
                         LotId = lot.LotId,
                         LotNumber = lot.LotNumber,
                         AlertType = "HSD còn 12 tháng",
-                        Message = $"Lô: {lot.LotNumber} sẽ hết hạn trong 12 tháng."
+                        Message = "sẽ hết hạn trong 12 tháng.",
+                        WarehouseName = lot.Warehouse.WarehouseName
                     });
                 }
                 // 2.2) Đã sử dụng 60% thời gian
@@ -84,7 +89,8 @@ namespace DrugWarehouseManagement.Service.Services
                                 LotId = lot.LotId,
                                 LotNumber = lot.LotNumber,
                                 AlertType = "Quá 60% HSD",
-                                Message = $"Lô: {lot.LotNumber} đã quá 60% thời hạn sử dụng."
+                                Message = "đã quá 60% thời hạn sử dụng.",
+                                WarehouseName = lot.Warehouse.WarehouseName
                             });
                         }
                     }
@@ -96,14 +102,19 @@ namespace DrugWarehouseManagement.Service.Services
         public async Task NotifyLowStockAndExpiryAsync()
         {
             var alerts = await CheckLowStockAndExpiryAsync();
-            if (!alerts.Any()) return; 
+            if (!alerts.Any()) return;
             var messageBuilder = new StringBuilder();
             messageBuilder.AppendLine("Danh sách cảnh báo lô hàng:");
             foreach (var alert in alerts)
             {
-                messageBuilder.AppendLine($"- Lô: {alert.LotNumber}, Lí do: {alert.AlertType}, {alert.Message}");
+                messageBuilder.AppendLine(
+         $"- Lô: {alert.LotNumber}, " +
+            $"Kho: {alert.WarehouseName}, " +
+         $"Lí do: {alert.AlertType}, " +
+         $"{alert.Message}"
+     );
             }
-    
+
             string botToken = _configuration["Telegram:BotToken"];
             string chatId = _configuration["Telegram:ChatId"];
 

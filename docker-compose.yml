@@ -36,8 +36,7 @@ services:
   #     - drugmanagement-network
   #   restart: unless-stopped
   api:
-    build:
-      context: .
+    image: poserdungeon/drugwarehouse-api:latest
     ports:
       - '5001:8080'
     container_name: drugmanagement-api
