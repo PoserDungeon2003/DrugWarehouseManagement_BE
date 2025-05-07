@@ -90,6 +90,15 @@ namespace DrugWarehouseManagement.Service.Services
                                 inventoryDetail.CheckQuantity = detail.Quantity;
                                 inventoryDetail.Reason = detail.Reason ?? "Hàng mất";
 
+                                if (lotExist.Quantity < detail.Quantity)
+                                {
+                                    return new BaseResponse
+                                    {
+                                        Code = 400,
+                                        Message = $"Số lượng kiểm kê ({detail.Quantity}) lớn hơn số lượng thực tế ({lotExist.Quantity}) cho lô {lotExist.LotNumber}."
+                                    };
+                                }
+
                                 lotExist.Quantity -= detail.Quantity;
                                 await _unitOfWork.LotRepository.UpdateAsync(lotExist);
                                 break;
