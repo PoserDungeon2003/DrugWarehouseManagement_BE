@@ -310,6 +310,7 @@ namespace DrugWarehouseManagement.Service.Services
                                     .OrderByDescending(lt => lt.UpdatedAt.HasValue)
                                     .ThenByDescending(lt => lt.UpdatedAt)
                                     .ThenByDescending(lt => lt.CreatedAt)
+                                    .AsSplitQuery()
                                     //.Where(lt => lt.LotTransferStatus != Common.LotTransferStatus.Cancelled)
                                     .AsQueryable();
 
