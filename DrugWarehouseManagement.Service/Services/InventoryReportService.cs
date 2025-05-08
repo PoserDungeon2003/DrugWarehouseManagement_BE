@@ -372,6 +372,106 @@ namespace DrugWarehouseManagement.Service.Services
             // Trả về mảng byte PDF
             return pdfBytes;
         }
+        public async Task<byte[]> ExportLotDetailReportPdf(int warehouseId, int productId, Instant endDate)
+        {
+            // 1) LẤY DỮ LIỆU THEO LÔ HÀNG
+            // Lấy tất cả các lô của product trong kho, có transaction trước hoặc bằng endDate
+            var lotQuantities = await _unitOfWork.InventoryTransactionRepository
+                .GetAll()
+                .Where(t => t.Lot.WarehouseId == warehouseId
+                         && t.Lot.ProductId == productId
+                         && t.CreatedAt <= endDate)
+                .GroupBy(t => new { t.LotId, t.Lot.LotNumber, t.Lot.ExpiryDate })
+                .Select(g => new
+                {
+                    LotId = g.Key.LotId,
+                    LotNumber = g.Key.LotNumber,
+                    ExpiryDate = g.Key.ExpiryDate,
+                    Quantity = g
+                        .OrderByDescending(x => x.CreatedAt)
+                        .ThenByDescending(x => x.Id)
+                        .FirstOrDefault().Quantity
+                })
+                .OrderBy(x => x.LotNumber)
+                .ToListAsync();
+
+            // 2) Lấy tên kho và tên sản phẩm
+            var warehouse = await _unitOfWork.WarehouseRepository
+                .GetByWhere(w => w.WarehouseId == warehouseId)
+                .FirstOrDefaultAsync();
+            var product = await _unitOfWork.ProductRepository
+                .GetByWhere(p => p.ProductId == productId)
+                .FirstOrDefaultAsync();
+
+            string warehouseName = warehouse?.WarehouseName ?? "N/A";
+            string productName = product?.ProductName ?? "N/A";
+
+            // Chuyển endDate về timezone server
+            var serverTz = TimeZoneInfo.Local;
+            var endDateUtc = endDate.ToDateTimeUtc();
+            var endDateLocal = TimeZoneInfo.ConvertTimeFromUtc(endDateUtc, serverTz);
+            string endDateStr = endDateLocal.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture);
+
+            // 3) TẠO PDF
+            Settings.License = LicenseType.Community;
+
+            var pdfBytes = Document.Create(container =>
+            {
+                container.Page(page =>
+                {
+                    page.Size(PageSizes.A4);
+                    page.Margin(20);
+                    page.DefaultTextStyle(x => x.FontSize(10));
+
+                    // HEADER
+                    page.Header().Column(col =>
+                    {
+                        col.Item().Text("CÔNG TY TNHH DƯỢC PHẨM Trung Hạnh").Bold().FontSize(14).AlignCenter();
+                        col.Item().Text("BÁO CÁO CHI TIẾT LÔ HÀNG").Bold().FontSize(16).AlignCenter();
+                        col.Item().Text($"Kho: {warehouseName}").AlignCenter();
+                        col.Item().Text($"Mặt hàng: {productName}").AlignCenter();
+                        col.Item().Text($"Đến ngày: {endDateStr}").AlignCenter();
+                    });
+
+                    // CONTENT
+                    page.Content().Table(table =>
+                    {
+                        // Định nghĩa cột
+                        table.ColumnsDefinition(columns =>
+                        {
+                            columns.ConstantColumn(25);  // STT
+                            columns.RelativeColumn(4);   // Tên mặt hàng
+                            columns.RelativeColumn(2);   // Lot
+                            columns.RelativeColumn(2);   // Date (Hạn dùng)
+                            columns.RelativeColumn(2);   // Số lượng
+                        });
+
+                        // Header
+                        table.Header(header =>
+                        {
+                            header.Cell().Border(1).AlignCenter().Text("STT").Bold();
+                            header.Cell().Border(1).AlignCenter().Text("Tên mặt hàng").Bold();
+                            header.Cell().Border(1).AlignCenter().Text("Lot").Bold();
+                            header.Cell().Border(1).AlignCenter().Text("Hạn dùng").Bold();
+                            header.Cell().Border(1).AlignCenter().Text("Số lượng").Bold();
+                        });
+
+                        // Rows
+                        int stt = 1;
+                        foreach (var row in lotQuantities)
+                        {
+                            table.Cell().Border(1).AlignCenter().Text(stt++);
+                            table.Cell().Border(1).Text(productName);
+                            table.Cell().Border(1).Text(row.LotNumber);
+                            table.Cell().Border(1).AlignCenter().Text(row.ExpiryDate.ToString("dd/MM/yyyy"));
+                            table.Cell().Border(1).AlignRight().Text(row.Quantity.ToString("N0"));
+                        }
+                    });
+                });
+            }).GeneratePdf();
+
+            return pdfBytes;
+        }
 
         public async Task<byte[]> ExportStockCardPdf(int warehouseId, int productId, Instant startDate, Instant endDate)
         {
