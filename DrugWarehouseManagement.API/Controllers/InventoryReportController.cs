@@ -18,7 +18,7 @@ namespace DrugWarehouseManagement.API.Controllers
         }
         [HttpGet("export")]
         [Authorize]
-        public async Task <IActionResult> ExportInventoryReportPdf(
+        public async Task<IActionResult> ExportInventoryReportPdf(
            [FromQuery] int warehouseId,
            [FromQuery] string from,
            [FromQuery] string to)
@@ -85,6 +85,32 @@ namespace DrugWarehouseManagement.API.Controllers
                 });
             }
         }
+
+        [HttpGet("export-lot-detail")]
+        [Authorize]
+        public async Task<IActionResult> ExportLotDetailReportPdf(
+            [FromQuery] int warehouseId,
+            [FromQuery] int productId,
+            [FromQuery] string to)
+        {
+            try
+            {
+                // parse chỉ 'to' vì không cần 'from'
+                var parseTo = InstantPattern.ExtendedIso.Parse(to);
+                if (!parseTo.Success)
+                    return BadRequest(new BaseResponse { Message = "Invalid date format. Please use ISO-8601 string for 'to', e.g. 2025-01-01T00:00:00Z" });
+
+                var endDate = parseTo.Value;
+                var pdfBytes = await _reportService.ExportLotDetailReportPdf(warehouseId, productId, endDate);
+
+                return File(pdfBytes, "application/pdf", $"LotDetail_{DateTime.UtcNow:yyyyMMddHHmmss}.pdf");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new BaseResponse { Code = 400, Message = ex.Message });
+            }
+        }
+
     }
 
 }
