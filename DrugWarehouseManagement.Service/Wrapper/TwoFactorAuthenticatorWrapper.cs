@@ -16,6 +16,6 @@ namespace DrugWarehouseManagement.Service.Wrapper
             => _twoFactorAuthenticator.GenerateSetupCode(issuer, accountTitleNoSpaces.Trim(), secretKey);
 
         public bool ValidateTwoFactorPIN(byte[] secretKey, string code, int timeStep)
-            => _twoFactorAuthenticator.ValidateTwoFactorPIN(secretKey, code, TimeSpan.Zero);
+            => _twoFactorAuthenticator.ValidateTwoFactorPIN(secretKey, code, timeStep);
     }
 }
